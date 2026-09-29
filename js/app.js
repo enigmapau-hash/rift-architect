@@ -2,10 +2,7 @@ import { analyzeComposition } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
-const STORAGE_KEYS = {
-  favorites: 'rift-architect:favorites',
-  draft: 'rift-architect:draft',
-};
+const STORAGE_KEYS = { draft: 'rift-architect:draft' };
 
 const ROLE_SOURCES = [
   { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
@@ -29,7 +26,6 @@ const state = {
   loading: false,
   dataSource: 'excel',
   pickerOpen: false,
-  favorites: loadFavorites(),
   savedDraft: SAVED_DRAFT,
 };
 
@@ -60,7 +56,6 @@ function cacheElements() {
   els.pickerTitle = document.getElementById('pickerTitle');
   els.closePickerBtn = document.getElementById('closePickerBtn');
   els.searchInput = document.getElementById('searchInput');
-  els.favoriteList = document.getElementById('favoriteList');
   els.championList = document.getElementById('championList');
   els.pickerHint = document.getElementById('pickerHint');
 }
@@ -89,7 +84,7 @@ function bindEvents() {
 
   els.searchInput.addEventListener('input', (event) => {
     state.search = event.target.value.trim().toLowerCase();
-    renderChampionLists();
+    renderChampionList();
   });
 
   els.compositionGrid.addEventListener('click', (event) => {
@@ -98,23 +93,13 @@ function bindEvents() {
     openPicker(button.dataset.role);
   });
 
-  const handlePickerClick = (event) => {
-    const button = event.target.closest('button[data-action]');
+  els.championList.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-action="select"]');
     if (!button) return;
-
-    const { action, champion, role } = button.dataset;
-    if (action === 'favorite' && champion) {
-      toggleFavorite(champion);
-      renderChampionLists();
-      return;
-    }
-    if (action === 'select' && champion) {
-      selectChampion(role || state.activeRole, champion);
-    }
-  };
-
-  els.favoriteList.addEventListener('click', handlePickerClick);
-  els.championList.addEventListener('click', handlePickerClick);
+    const { role, champion } = button.dataset;
+    if (!role || !champion) return;
+    selectChampion(role, champion);
+  });
 
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && state.pickerOpen) closePicker();
@@ -277,7 +262,7 @@ function renderModal() {
     ? `Cambiar ${ROLE_LABELS[state.activeRole]}`
     : `Elegir ${ROLE_LABELS[state.activeRole]}`;
   els.pickerHint.textContent = 'Los campeones ya usados en otros roles se ocultan automáticamente.';
-  renderChampionLists();
+  renderChampionList();
 
   window.requestAnimationFrame(() => {
     els.searchInput.focus();
@@ -285,7 +270,7 @@ function renderModal() {
   });
 }
 
-function renderChampionLists() {
+function renderChampionList() {
   const role = state.activeRole;
   const currentChampion = state.selected[role]?.champion || null;
   const usedElsewhere = new Set(
@@ -302,67 +287,31 @@ function renderChampionLists() {
     })
     .sort((a, b) => a.champion.localeCompare(b.champion, 'es'));
 
-  const favorites = pool.filter((champion) => isFavorite(champion.champion));
-  const regular = pool.filter((champion) => !isFavorite(champion.champion));
-
-  renderFavoriteList(favorites, currentChampion);
-  renderChampionList(regular, currentChampion, role);
-}
-
-function renderFavoriteList(champions, currentChampion) {
-  if (!champions.length) {
-    els.favoriteList.innerHTML = '<p class="picker-empty">Marca estrellas para moverlos aquí.</p>';
-    return;
-  }
-
-  els.favoriteList.innerHTML = champions
-    .map((champion) => {
-      const isCurrent = currentChampion === champion.champion;
-      return `<button type="button" class="favorite-chip ${isCurrent ? 'is-current' : ''}" data-action="select" data-champion="${escapeHtml(champion.champion)}">${escapeHtml(champion.champion)}</button>`;
-    })
-    .join('');
-}
-
-function renderChampionList(champions, currentChampion, role) {
   els.championList.innerHTML = '';
 
-  if (!champions.length) {
+  if (!pool.length) {
     els.championList.innerHTML = '<p class="picker-empty">No hay campeones disponibles.</p>';
     return;
   }
 
-  champions.forEach((champion) => {
+  pool.forEach((champion) => {
     const isSelected = currentChampion === champion.champion;
-    const isFav = isFavorite(champion.champion);
-
-    const row = document.createElement('div');
-    row.className = 'champion-row';
+    const row = document.createElement('button');
+    row.type = 'button';
+    row.className = `champion-item ${isSelected ? 'is-selected' : ''}`;
+    row.dataset.action = 'select';
+    row.dataset.role = role;
+    row.dataset.champion = champion.champion;
+    row.setAttribute('aria-pressed', String(isSelected));
     row.innerHTML = `
-      <button
-        type="button"
-        class="champion-item ${isSelected ? 'is-selected' : ''}"
-        data-action="select"
-        data-role="${role}"
-        data-champion="${escapeHtml(champion.champion)}"
-        aria-pressed="${String(isSelected)}"
-      >
-        <span class="champion-avatar">${escapeHtml(getChampionInitials(champion.champion))}</span>
-        <span class="champion-content">
-          <span class="champion-head">
-            <strong>${escapeHtml(champion.champion)}</strong>
-            <span class="champion-pill">${escapeHtml(champion.tempo)}</span>
-          </span>
-          <span class="champion-subline">${escapeHtml(champion.identity)} · ${escapeHtml(champion.function)}</span>
+      <span class="champion-avatar">${escapeHtml(getChampionInitials(champion.champion))}</span>
+      <span class="champion-content">
+        <span class="champion-head">
+          <strong>${escapeHtml(champion.champion)}</strong>
+          <span class="champion-pill">${escapeHtml(champion.tempo)}</span>
         </span>
-      </button>
-      <button
-        type="button"
-        class="favorite-toggle ${isFav ? 'is-favorite' : ''}"
-        data-action="favorite"
-        data-champion="${escapeHtml(champion.champion)}"
-        aria-label="${isFav ? 'Quitar favorito' : 'Añadir favorito'}"
-        title="${isFav ? 'Quitar favorito' : 'Añadir favorito'}"
-      >${isFav ? '★' : '☆'}</button>
+        <span class="champion-subline">${escapeHtml(champion.identity)} · ${escapeHtml(champion.function)}</span>
+      </span>
     `;
     els.championList.appendChild(row);
   });
@@ -434,42 +383,6 @@ function isSelectable(role, championName) {
   return !Object.entries(state.selected).some(
     ([selectedRole, selectedChampion]) => selectedRole !== role && selectedChampion?.champion === championName
   );
-}
-
-function toggleFavorite(championName) {
-  const normalized = String(championName).trim();
-  if (!normalized) return;
-
-  const exists = state.favorites.some((item) => item.toLowerCase() === normalized.toLowerCase());
-  state.favorites = exists
-    ? state.favorites.filter((item) => item.toLowerCase() !== normalized.toLowerCase())
-    : [...state.favorites, normalized].sort((a, b) => a.localeCompare(b, 'es'));
-
-  saveFavorites(state.favorites);
-}
-
-function isFavorite(championName) {
-  const target = String(championName).toLowerCase();
-  return state.favorites.some((item) => String(item).toLowerCase() === target);
-}
-
-function loadFavorites() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.favorites);
-    const parsed = raw ? JSON.parse(raw) : [];
-    if (!Array.isArray(parsed)) return [];
-    return parsed.map((item) => String(item).trim()).filter(Boolean);
-  } catch {
-    return [];
-  }
-}
-
-function saveFavorites(favorites) {
-  try {
-    localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
-  } catch {
-    // ignore storage errors
-  }
 }
 
 function loadDraft() {
@@ -590,7 +503,7 @@ function getChampionInitials(name) {
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part[0].toUpperCase())
-    .join('');
+    .join('') || '?';
 }
 
 function setStatus(text) {
