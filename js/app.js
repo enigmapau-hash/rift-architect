@@ -2,6 +2,7 @@ import { analyzeComposition } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
+const STORAGE_KEYS = { favorites: 'rift-architect:favorites' };
 
 const ROLE_SOURCES = [
   { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
@@ -13,22 +14,18 @@ const ROLE_SOURCES = [
 
 const ROLE_LABELS = Object.fromEntries(ROLE_SOURCES.map(({ key, label }) => [key, label]));
 const ROLE_ORDER = ROLE_SOURCES.map(({ key }) => key);
+const DEFAULT_SELECTED = { top: null, jungle: null, mid: null, botline: null, support: null };
 
 const state = {
   activeRole: 'top',
   search: '',
   data: {},
-  selected: {
-    top: null,
-    jungle: null,
-    mid: null,
-    botline: null,
-    support: null,
-  },
+  selected: { ...DEFAULT_SELECTED },
   dataLoaded: false,
   loading: false,
   dataSource: 'excel',
   pickerOpen: false,
+  favorites: loadFavorites(),
 };
 
 const els = {};
@@ -58,6 +55,7 @@ function cacheElements() {
   els.pickerTitle = document.getElementById('pickerTitle');
   els.closePickerBtn = document.getElementById('closePickerBtn');
   els.searchInput = document.getElementById('searchInput');
+  els.favoriteList = document.getElementById('favoriteList');
   els.championList = document.getElementById('championList');
   els.pickerHint = document.getElementById('pickerHint');
 }
@@ -69,13 +67,7 @@ function bindEvents() {
   });
 
   els.clearBtn.addEventListener('click', () => {
-    state.selected = {
-      top: null,
-      jungle: null,
-      mid: null,
-      botline: null,
-      support: null,
-    };
+    state.selected = { ...DEFAULT_SELECTED };
     closePicker();
     renderAll();
   });
@@ -83,14 +75,12 @@ function bindEvents() {
   els.closePickerBtn.addEventListener('click', closePicker);
 
   els.pickerBackdrop.addEventListener('click', (event) => {
-    if (event.target === els.pickerBackdrop) {
-      closePicker();
-    }
+    if (event.target === els.pickerBackdrop) closePicker();
   });
 
   els.searchInput.addEventListener('input', (event) => {
     state.search = event.target.value.trim().toLowerCase();
-    renderChampionList();
+    renderChampionLists();
   });
 
   els.compositionGrid.addEventListener('click', (event) => {
@@ -99,18 +89,26 @@ function bindEvents() {
     openPicker(button.dataset.role);
   });
 
-  els.championList.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-champion]');
+  const handlePickerClick = (event) => {
+    const button = event.target.closest('button[data-action]');
     if (!button) return;
-    const role = button.dataset.role;
-    const championName = button.dataset.champion;
-    selectChampion(role, championName);
-  });
+
+    const { action, champion, role } = button.dataset;
+    if (action === 'favorite' && champion) {
+      toggleFavorite(champion);
+      renderChampionLists();
+      return;
+    }
+    if (action === 'select' && champion) {
+      selectChampion(role || state.activeRole, champion);
+    }
+  };
+
+  els.favoriteList.addEventListener('click', handlePickerClick);
+  els.championList.addEventListener('click', handlePickerClick);
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && state.pickerOpen) {
-      closePicker();
-    }
+    if (event.key === 'Escape' && state.pickerOpen) closePicker();
   });
 }
 
@@ -131,8 +129,7 @@ async function loadData(force = false) {
       return;
     }
 
-    const workbookDataset = await loadWorkbookDataset(force);
-    state.data = workbookDataset;
+    state.data = await loadWorkbookDataset(force);
     state.dataLoaded = true;
     state.dataSource = 'excel';
     setStatus('Datos del Excel listos');
@@ -151,17 +148,13 @@ async function loadJsonDataset(force = false) {
     if (!manifestResponse.ok) return null;
 
     const manifest = await manifestResponse.json();
-    const files = Array.isArray(manifest?.files) ? manifest.files : null;
-    if (!files?.length) return null;
+    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
 
     const loaded = await Promise.all(
       ROLE_SOURCES.map(async ({ key, file }) => {
         const response = await fetch(file, { cache: force ? 'reload' : 'default' });
-        if (!response.ok) {
-          throw new Error(`No se pudo leer ${file}`);
-        }
-        const champions = await response.json();
-        return [key, champions];
+        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
+        return [key, await response.json()];
       })
     );
 
@@ -172,24 +165,16 @@ async function loadJsonDataset(force = false) {
 }
 
 async function loadWorkbookDataset(force = false) {
-  if (!window.XLSX) {
-    throw new Error('XLSX no está disponible');
-  }
+  if (!window.XLSX) throw new Error('XLSX no está disponible');
 
   const response = await fetch(WORKBOOK_URL, { cache: force ? 'reload' : 'default' });
-  if (!response.ok) {
-    throw new Error(`No se pudo leer ${WORKBOOK_URL}`);
-  }
+  if (!response.ok) throw new Error(`No se pudo leer ${WORKBOOK_URL}`);
 
-  const buffer = await response.arrayBuffer();
-  const workbook = window.XLSX.read(buffer, { type: 'array' });
-
+  const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
   const dataset = {};
   ROLE_SOURCES.forEach(({ key, sheet }) => {
-    const worksheet = workbook.Sheets[sheet];
-    dataset[key] = worksheetToRows(worksheet);
+    dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
   });
-
   return dataset;
 }
 
@@ -217,10 +202,7 @@ function worksheetToRows(worksheet) {
 
 function splitTags(value) {
   if (!value) return [];
-  return String(value)
-    .split('·')
-    .map((part) => part.trim())
-    .filter(Boolean);
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function renderAll() {
@@ -240,25 +222,14 @@ function renderCompositionGrid() {
     button.dataset.role = key;
     button.className = `slot ${champion ? 'filled' : 'empty'}`;
     button.innerHTML = champion
-      ? `
-        <span class="slot-label">${label}</span>
-        <strong>${escapeHtml(champion.champion)}</strong>
-        <small>${escapeHtml(champion.identity)}</small>
-        <span class="slot-hint">Cambiar</span>
-      `
-      : `
-        <span class="slot-label">${label}</span>
-        <strong>Vacío</strong>
-        <small>Toca para elegir</small>
-        <span class="slot-hint">Abrir selector</span>
-      `;
+      ? `<span class="slot-label">${label}</span><strong>${escapeHtml(champion.champion)}</strong><small>${escapeHtml(champion.identity)}</small><span class="slot-hint">Cambiar</span>`
+      : `<span class="slot-label">${label}</span><strong>Vacío</strong><small>Toca para elegir</small><span class="slot-hint">Abrir selector</span>`;
     els.compositionGrid.appendChild(button);
   });
 }
 
 function renderSummary() {
   const selectedChampions = getSelectedChampions();
-
   if (!selectedChampions.length) {
     els.analysisSummary.innerHTML = '<p class="summary-line muted">Selecciona campeones para ver un resumen breve.</p>';
     els.recommendations.innerHTML = '';
@@ -288,18 +259,14 @@ function renderModal() {
   const isOpen = state.pickerOpen;
   els.pickerBackdrop.classList.toggle('is-hidden', !isOpen);
   els.pickerBackdrop.setAttribute('aria-hidden', String(!isOpen));
-
-  if (!isOpen) {
-    return;
-  }
+  if (!isOpen) return;
 
   els.pickerRoleLabel.textContent = ROLE_LABELS[state.activeRole] || '';
   els.pickerTitle.textContent = state.selected[state.activeRole]?.champion
     ? `Cambiar ${ROLE_LABELS[state.activeRole]}`
     : `Elegir ${ROLE_LABELS[state.activeRole]}`;
   els.pickerHint.textContent = 'Los campeones ya usados en otros roles se ocultan automáticamente.';
-
-  renderChampionList();
+  renderChampionLists();
 
   window.requestAnimationFrame(() => {
     els.searchInput.focus();
@@ -307,7 +274,7 @@ function renderModal() {
   });
 }
 
-function renderChampionList() {
+function renderChampionLists() {
   const role = state.activeRole;
   const currentChampion = state.selected[role]?.champion || null;
   const usedElsewhere = new Set(
@@ -316,7 +283,7 @@ function renderChampionList() {
       .map(([, champion]) => champion.champion.toLowerCase())
   );
 
-  const champions = (state.data[role] || [])
+  const pool = (state.data[role] || [])
     .filter((champion) => matchesSearch(champion, state.search))
     .filter((champion) => {
       const normalized = champion.champion.toLowerCase();
@@ -324,32 +291,69 @@ function renderChampionList() {
     })
     .sort((a, b) => a.champion.localeCompare(b.champion, 'es'));
 
+  const favorites = pool.filter((champion) => isFavorite(champion.champion));
+  const regular = pool.filter((champion) => !isFavorite(champion.champion));
+
+  renderFavoriteList(favorites, currentChampion);
+  renderChampionList(regular, currentChampion, role);
+}
+
+function renderFavoriteList(champions, currentChampion) {
+  if (!champions.length) {
+    els.favoriteList.innerHTML = '<p class="picker-empty">Marca estrellas para moverlos aquí.</p>';
+    return;
+  }
+
+  els.favoriteList.innerHTML = champions
+    .map((champion) => {
+      const isCurrent = currentChampion === champion.champion;
+      return `<button type="button" class="favorite-chip ${isCurrent ? 'is-current' : ''}" data-action="select" data-champion="${escapeHtml(champion.champion)}">${escapeHtml(champion.champion)}</button>`;
+    })
+    .join('');
+}
+
+function renderChampionList(champions, currentChampion, role) {
   els.championList.innerHTML = '';
 
   if (!champions.length) {
-    els.championList.innerHTML = '<p class="empty">No hay campeones disponibles.</p>';
+    els.championList.innerHTML = '<p class="picker-empty">No hay campeones disponibles.</p>';
     return;
   }
 
   champions.forEach((champion) => {
     const isSelected = currentChampion === champion.champion;
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.dataset.role = role;
-    button.dataset.champion = champion.champion;
-    button.className = `champion-item ${isSelected ? 'is-selected' : ''}`;
-    button.setAttribute('aria-pressed', String(isSelected));
-    button.innerHTML = `
-      <span class="champion-avatar">${escapeHtml(getChampionInitials(champion.champion))}</span>
-      <span class="champion-content">
-        <span class="champion-head">
-          <strong>${escapeHtml(champion.champion)}</strong>
-          <span class="champion-pill">${escapeHtml(champion.tempo)}</span>
+    const isFav = isFavorite(champion.champion);
+
+    const row = document.createElement('div');
+    row.className = 'champion-row';
+    row.innerHTML = `
+      <button
+        type="button"
+        class="champion-item ${isSelected ? 'is-selected' : ''}"
+        data-action="select"
+        data-role="${role}"
+        data-champion="${escapeHtml(champion.champion)}"
+        aria-pressed="${String(isSelected)}"
+      >
+        <span class="champion-avatar">${escapeHtml(getChampionInitials(champion.champion))}</span>
+        <span class="champion-content">
+          <span class="champion-head">
+            <strong>${escapeHtml(champion.champion)}</strong>
+            <span class="champion-pill">${escapeHtml(champion.tempo)}</span>
+          </span>
+          <span class="champion-subline">${escapeHtml(champion.identity)} · ${escapeHtml(champion.function)}</span>
         </span>
-        <span class="champion-subline">${escapeHtml(champion.identity)} · ${escapeHtml(champion.function)}</span>
-      </span>
+      </button>
+      <button
+        type="button"
+        class="favorite-toggle ${isFav ? 'is-favorite' : ''}"
+        data-action="favorite"
+        data-champion="${escapeHtml(champion.champion)}"
+        aria-label="${isFav ? 'Quitar favorito' : 'Añadir favorito'}"
+        title="${isFav ? 'Quitar favorito' : 'Añadir favorito'}"
+      >${isFav ? '★' : '☆'}</button>
     `;
-    els.championList.appendChild(button);
+    els.championList.appendChild(row);
   });
 }
 
@@ -373,16 +377,40 @@ function closePicker() {
 
 function selectChampion(role, championName) {
   const champion = (state.data[role] || []).find((item) => item.champion === championName);
-  if (!champion) return;
-  if (!isSelectable(role, championName)) return;
+  if (!champion || !isSelectable(role, championName)) return;
 
   state.selected[role] = champion;
-  state.activeRole = role;
-  state.pickerOpen = false;
+  const nextRole = getNextEmptyRole(role);
+  state.activeRole = nextRole || role;
   state.search = '';
   els.searchInput.value = '';
-  document.body.classList.remove('modal-open');
+
+  if (nextRole) {
+    state.pickerOpen = true;
+    document.body.classList.add('modal-open');
+    renderAll();
+    return;
+  }
+
+  closePicker();
   renderAll();
+}
+
+function getNextEmptyRole(currentRole) {
+  const startIndex = ROLE_ORDER.indexOf(currentRole);
+  if (startIndex < 0) return null;
+
+  for (let i = startIndex + 1; i < ROLE_ORDER.length; i += 1) {
+    const role = ROLE_ORDER[i];
+    if (!state.selected[role]) return role;
+  }
+
+  for (let i = 0; i < startIndex; i += 1) {
+    const role = ROLE_ORDER[i];
+    if (!state.selected[role]) return role;
+  }
+
+  return null;
 }
 
 function isSelectable(role, championName) {
@@ -392,6 +420,42 @@ function isSelectable(role, championName) {
   return !Object.entries(state.selected).some(
     ([selectedRole, selectedChampion]) => selectedRole !== role && selectedChampion?.champion === championName
   );
+}
+
+function toggleFavorite(championName) {
+  const normalized = String(championName).trim();
+  if (!normalized) return;
+
+  const exists = state.favorites.some((item) => item.toLowerCase() === normalized.toLowerCase());
+  state.favorites = exists
+    ? state.favorites.filter((item) => item.toLowerCase() !== normalized.toLowerCase())
+    : [...state.favorites, normalized].sort((a, b) => a.localeCompare(b, 'es'));
+
+  saveFavorites(state.favorites);
+}
+
+function isFavorite(championName) {
+  const target = String(championName).toLowerCase();
+  return state.favorites.some((item) => String(item).toLowerCase() === target);
+}
+
+function loadFavorites() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.favorites);
+    const parsed = raw ? JSON.parse(raw) : [];
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((item) => String(item).trim()).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function saveFavorites(favorites) {
+  try {
+    localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
+  } catch {
+    // ignore storage errors
+  }
 }
 
 function buildSummaryChips(analysis, selectedCount) {
@@ -406,13 +470,8 @@ function buildSummaryChips(analysis, selectedCount) {
     { text: `Daño: ${ap} AP / ${ad} AD${hybrid ? ` / ${hybrid} híbrido` : ''}`, tone: 'neutral' },
   ];
 
-  if (selectedCount < 5) {
-    chips.push({ text: `Faltan ${5 - selectedCount} picks`, tone: 'warn' });
-  }
-
-  if (analysis.metrics.find((metric) => metric.key === 'engage')?.score >= 7) {
-    chips.push({ text: 'Engage alto', tone: 'good' });
-  }
+  if (selectedCount < 5) chips.push({ text: `Faltan ${5 - selectedCount} picks`, tone: 'warn' });
+  if (analysis.metrics.find((metric) => metric.key === 'engage')?.score >= 7) chips.push({ text: 'Engage alto', tone: 'good' });
 
   return chips.slice(0, 4);
 }
