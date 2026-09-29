@@ -7,6 +7,7 @@
 - Analysis Engine v2 contract.
 - Core Engine v0.5 planning.
 - Modular core engine files for identity, strength, weakness, tempo and plan analysis.
+- Tempo-aware analysis panel for the main screen.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
