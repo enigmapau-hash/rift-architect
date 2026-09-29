@@ -1,4 +1,4 @@
-# Rift Architect data model v0.2
+# Rift Architect data model v0.3
 
 ## Objetivo
 
@@ -6,7 +6,7 @@ Mantener `Draft Pool.xlsx` como fuente de verdad y generar JSON para la PWA.
 
 ## Estado actual
 
-El modelo publicado ahora mismo es compatible con esta forma:
+El modelo publicado ahora mismo usa esta estructura base:
 
 - `champion`
 - `identity`
@@ -15,7 +15,43 @@ El modelo publicado ahora mismo es compatible con esta forma:
 - `strengths[]`
 - `weaknesses[]`
 
-La aplicación deriva un perfil numérico a partir de esos campos para alimentar el motor de análisis.
+Si el Excel incluye una hoja de atributos, la información se fusiona en cada campeón como `attributes`.
+
+## Hoja opcional de atributos
+
+La exportación reconoce una hoja llamada una de estas formas:
+
+- `09_Attributes`
+- `Attributes`
+- `Tabla Attributes`
+- `Tabla Atributos`
+
+Columnas recomendadas:
+
+- `Champion`
+- `Engage`
+- `Disengage`
+- `Frontline`
+- `Peel`
+- `Pick`
+- `Poke`
+- `Burst`
+- `DPS`
+- `Scaling`
+- `Mobility`
+- `Waveclear`
+- `Siege`
+- `Splitpush`
+- `Objective Control`
+- `Vision`
+- `Confidence`
+
+## Regla de diseño
+
+- El Excel sigue siendo la única fuente editable.
+- El JSON es solo formato de distribución.
+- La PWA no debe depender del Excel en producción.
+- Los atributos explícitos tienen prioridad frente a los atributos derivados por texto.
 
 ## Siguiente evolución
 
@@ -27,9 +63,3 @@ Cuando el Excel esté listo para el siguiente salto, la estructura debería divi
 - `Synergies`
 - `Counters`
 - `Config`
-
-## Regla de diseño
-
-- El Excel sigue siendo la única fuente editable.
-- El JSON es solo formato de distribución.
-- La PWA no debe depender del Excel en producción.
