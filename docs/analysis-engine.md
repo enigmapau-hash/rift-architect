@@ -1,4 +1,4 @@
-# Analysis Engine v3
+# Analysis Engine v3.1
 
 ## Objective
 
@@ -31,6 +31,9 @@ Analysis {
   weaknesses[],
   tempo,
   tempoDetail?,
+  synergies[],
+  coherence,
+  winCondition,
   gamePlan[],
   confidence,
   dominance,
@@ -48,6 +51,9 @@ The analysis shown in the main UI must stay within this budget:
 - Up to 3 weaknesses.
 - 1 tempo statement.
 - Up to 3 short plan actions.
+- Up to 3 synergies.
+- 1 coherence statement.
+- 1 win condition.
 - 1 confidence indicator.
 
 ## Rules
@@ -64,9 +70,11 @@ The analysis shown in the main UI must stay within this budget:
 1. Group the selected champions.
 2. Weight the most relevant identities, strengths, weaknesses and tempo.
 3. Resolve dominant or hybrid compositions.
-4. Order the resulting strengths, weaknesses and plan by impact.
-5. Return tokens the UI can render directly.
-6. Leave the explanation layer for the future IA.
+4. Detect useful synergies between champions and the composition as a whole.
+5. Evaluate whether the composition is coherent or internally conflicted.
+6. Derive a single win condition and a short plan of action.
+7. Return tokens the UI can render directly.
+8. Leave the explanation layer for the future IA.
 
 ## Implementation structure
 
@@ -76,6 +84,9 @@ The current core engine is split into small modules:
 - `js/engine/strengthEngine.js`
 - `js/engine/weaknessEngine.js`
 - `js/engine/tempoEngine.js`
+- `js/engine/synergyEngine.js`
+- `js/engine/coherenceEngine.js`
+- `js/engine/winConditionEngine.js`
 - `js/engine/planEngine.js`
 - `js/engine/analysisEngine.js`
 
@@ -85,11 +96,12 @@ The screen should show only:
 
 - Identity
 - Secondary identities
+- Synergies
+- Coherence
+- Win condition
+- Plan
 - Makes well
 - Lacks
-- Tempo
-- Plan
-- Confidence
 
 ## Quality rule
 
