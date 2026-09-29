@@ -1,4 +1,4 @@
-# Analysis Engine v3.1
+# Analysis Engine v3.2
 
 ## Objective
 
@@ -75,6 +75,16 @@ The analysis shown in the main UI must stay within this budget:
 6. Derive a single win condition and a short plan of action.
 7. Return tokens the UI can render directly.
 8. Leave the explanation layer for the future IA.
+
+## Knowledge layer
+
+Strategic rules are externalized in the `knowledge/` folder:
+
+- `knowledge/identity-relations.js`
+- `knowledge/synergies.js`
+- `knowledge/conflicts.js`
+- `knowledge/win-conditions.js`
+- `knowledge/index.js`
 
 ## Implementation structure
 
