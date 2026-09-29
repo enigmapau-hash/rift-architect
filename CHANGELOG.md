@@ -15,6 +15,7 @@
 - Derived tempo summaries with confidence.
 - Structured game-plan generation with compact priorities.
 - Synergy, coherence and win-condition engines for the Core Engine v3.1 pass.
+- Knowledge layer files for identities, synergies, conflicts and win conditions.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -25,7 +26,8 @@
 - The picker core was simplified to a single render flow for composition and modal state.
 - The analysis engine now returns a weighted v3.1 contract with synergy, coherence and win-condition metadata.
 - The analysis panel now renders the weighted v3.1 output.
-- Service worker cache bumped to v35 after the core engine v3.1 update.
+- The analysis panel now surfaces knowledge-layer synergies, coherence and win condition outputs.
+- Service worker cache bumped to v36 after the knowledge layer update.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
