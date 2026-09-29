@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = '3.0.0';
+export const ENGINE_VERSION = '3.1.0';
 
 export const CATEGORY_TERMS = {
   frontline: ['frontline', 'tank', 'tanque', 'bruiser', 'warden', 'sustain', 'vanguard', 'juggernaut', 'front to back'],
