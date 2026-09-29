@@ -526,6 +526,18 @@ body.modal-open {
   color: var(--muted);
 }
 
+@media (min-width: 621px) {
+  .picker-header {
+    display: grid;
+    gap: 8px;
+    justify-content: start;
+  }
+
+  .picker-header > button {
+    justify-self: start;
+  }
+}
+
 @media (max-width: 920px) {
   .composition-grid {
     gap: 8px;
