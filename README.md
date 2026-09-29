@@ -15,6 +15,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Tarjetas de composición compactas.
 - Iconos oficiales de Riot con alias para variantes como Kayn, Shaco o Varus.
 - Identidad, función y tempo visibles en selector y tarjetas.
+- La composición se reinicia al recargar; no hay persistencia automática.
 - Responsive compartido para PC, tablet y móvil.
 
 ## Siguiente fase
