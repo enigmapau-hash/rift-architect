@@ -1,4 +1,35 @@
-/* v0.9 analysis board overrides */
+/* v0.9 vertical layout overrides */
+
+.panel--main {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-areas:
+    'header'
+    'composition'
+    'summary';
+  gap: 16px;
+  align-items: start;
+}
+
+.panel--main > .panel-title-row {
+  grid-area: header;
+  margin-bottom: 0;
+}
+
+#compositionGrid.composition-grid {
+  grid-area: composition;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-self: start;
+}
+
+.summary-card {
+  grid-area: summary;
+  margin-top: 0;
+  align-self: start;
+  height: auto;
+}
 
 .analysis-summary {
   display: block;
@@ -11,7 +42,7 @@
 
 .analysis-overview {
   display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(220px, 0.75fr);
+  grid-template-columns: 1fr;
   gap: 12px;
   align-items: stretch;
 }
@@ -55,6 +86,7 @@
 .analysis-overview-side {
   display: grid;
   gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .analysis-mini-card {
@@ -108,12 +140,9 @@
   gap: 10px;
 }
 
-.analysis-grid--primary {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
+.analysis-grid--primary,
 .analysis-grid--secondary {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
 }
 
 .analysis-card {
@@ -267,24 +296,16 @@
 }
 
 @media (max-width: 920px) {
-  .analysis-overview {
+  #compositionGrid.composition-grid {
     grid-template-columns: 1fr;
   }
 
-  .analysis-grid--primary {
+  .analysis-overview-side {
     grid-template-columns: 1fr;
-  }
-
-  .analysis-grid--secondary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 620px) {
-  .analysis-grid--secondary {
-    grid-template-columns: 1fr;
-  }
-
   .analysis-card__title-row {
     flex-direction: column;
     align-items: flex-start;
