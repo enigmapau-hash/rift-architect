@@ -17,11 +17,10 @@
 ## Current application layers
 
 ### UI
-- Mobile-first responsive layout.
-- Role tabs.
-- Champion selector cards.
-- Composition panel.
-- Analysis panel.
+- Responsive composition selector.
+- Modal champion picker.
+- Compact composition cards.
+- Analysis shell prepared for the next sprint.
 
 ### Data
 - `data/index.json` contains metadata and the list of generated files.
@@ -30,15 +29,26 @@
 - `data/mid.json`
 - `data/bot.json`
 - `data/support.json`
+- `data/attributes.json`
 
 ### Logic
 - `scripts/excel-to-json.mjs` converts the workbook into JSON.
-- `js/analyzer.js` computes the current composition scores.
-- `js/app.js` handles state, rendering, and selection.
+- `js/analyzer.js` computes the current composition metrics.
+- `js/app-v2.js` renders the UI state.
+- `js/v2_patch.js` keeps the v2 UI aligned with the current data model.
+
+## Analysis design direction
+
+The next sprint defines a compact engine with these outputs:
+
+- Identity principal.
+- Identidades secundarias.
+- Fortalezas.
+- Carencias.
+- Plan de juego.
 
 ## Next milestones
 
-- Add numeric attributes per champion.
-- Add synergy and counter matrices.
-- Add draft recommendations.
-- Replace text-only analysis with a weighted scoring engine.
+- Finalize the analysis engine spec.
+- Convert the current analysis shell into the new compact blocks.
+- Add IA as a later layer that explains the composition instead of replacing the Excel data.
