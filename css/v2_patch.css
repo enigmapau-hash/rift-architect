@@ -5,18 +5,29 @@
 }
 
 #compositionGrid .slot {
-  min-height: 178px;
+  min-height: 182px;
   padding: 12px 12px 10px;
   display: grid;
   justify-items: center;
   align-content: center;
   gap: 5px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
   transition:
     transform 160ms ease,
     box-shadow 160ms ease,
     border-color 160ms ease,
     background 160ms ease;
+}
+
+#compositionGrid .slot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at top, rgba(70, 211, 161, 0.08), transparent 62%);
+  opacity: 0.9;
+  pointer-events: none;
 }
 
 #compositionGrid .slot:hover {
@@ -44,8 +55,9 @@
 }
 
 #compositionGrid .slot .avatar--lg {
-  width: 62px;
-  height: 62px;
+  width: 64px;
+  height: 64px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
 }
 
 #compositionGrid .slot .avatar--empty {
@@ -56,7 +68,7 @@
 #compositionGrid .slot__name {
   margin: 0;
   max-width: 100%;
-  font-size: 1rem;
+  font-size: 1.03rem;
   line-height: 1.08;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -65,16 +77,18 @@
 
 #compositionGrid .slot__identity {
   color: var(--accent-2);
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   font-weight: 800;
-  line-height: 1.1;
+  line-height: 1.12;
+  white-space: normal;
 }
 
 #compositionGrid .slot__function {
   color: var(--muted);
   font-size: 0.76rem;
   font-weight: 600;
-  line-height: 1.1;
+  line-height: 1.12;
+  white-space: normal;
 }
 
 #compositionGrid .slot__tempo,
@@ -82,16 +96,24 @@
   font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--muted);
   line-height: 1.1;
 }
 
 #compositionGrid .slot__tempo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(70, 211, 161, 0.1);
+  border: 1px solid rgba(70, 211, 161, 0.18);
   color: var(--accent-2);
 }
 
 #compositionGrid .slot.is-empty .slot__cta {
   margin-top: 2px;
+  color: var(--muted);
 }
 
 #compositionGrid .slot.is-empty .slot__name {
