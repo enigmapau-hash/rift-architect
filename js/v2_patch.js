@@ -36,13 +36,6 @@ let iconCatalog = null;
 let patchScheduled = false;
 let dataLoaded = false;
 
-function cleanLabel(value) {
-  const raw = String(value ?? '').trim();
-  if (!raw) return 'Sin definir';
-  const stripped = raw.replace(/^[^\p{L}\p{N}]+/gu, '').replace(/\s+/g, ' ').trim();
-  return stripped || raw;
-}
-
 function getRoleKeyFromLabel(label) {
   const row = ROLE_SHEETS.find((entry) => entry.label === String(label || '').trim());
   return row?.key || 'top';
@@ -161,27 +154,16 @@ function getIconUrl(name) {
   return null;
 }
 
-function getChampionInitials(name) {
-  return String(name)
-    .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('') || '?';
-}
-
 function renderAvatarMarkup(name, size = 'avatar--sm') {
   const iconUrl = getIconUrl(name);
-  const fallback = escapeHtml(getChampionInitials(name));
 
   if (!iconUrl) {
-    return `<span class="avatar ${size} avatar--fallback">${fallback}</span>`;
+    return `<span class="avatar ${size} avatar--empty" aria-hidden="true"></span>`;
   }
 
   return `
     <span class="avatar ${size}" data-loaded="0">
       <img src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onload="this.parentElement.dataset.loaded='1'" onerror="this.remove(); this.parentElement.dataset.error='1'" />
-      <span class="avatar__fallback">${fallback}</span>
     </span>
   `;
 }
@@ -199,7 +181,7 @@ function patchChampionList() {
     const row = findChampion(roleKey, title);
     const identity = row?.identity || 'Sin definir';
     const champFunction = row?.function || 'Sin definir';
-    const tempo = row?.tempo || '';
+    const tempo = row?.tempo || item.querySelector('.champion-pill')?.textContent?.trim() || '';
 
     item.innerHTML = `
       ${renderAvatarMarkup(title, 'avatar--sm')}
@@ -220,28 +202,28 @@ function patchCompositionGrid() {
   if (!grid) return;
 
   grid.querySelectorAll('.slot').forEach((slot) => {
-    const role = slot.dataset.role || 'top';
-    const label = ROLE_LABELS[role] || role;
+    const role = slot.querySelector('.slot__role')?.textContent?.trim() || '';
     const isFilled = slot.classList.contains('is-filled');
     const title = slot.querySelector('.slot__name')?.textContent?.trim() || '';
 
     if (!isFilled) {
       slot.innerHTML = `
-        <span class="slot__role">${escapeHtml(label)}</span>
-        <span class="avatar avatar--lg avatar--empty" aria-hidden="true">+</span>
+        <span class="slot__role">${escapeHtml(role)}</span>
+        <span class="avatar avatar--lg avatar--empty" aria-hidden="true"></span>
         <strong class="slot__name">Seleccionar campeón</strong>
         <span class="slot__cta">Toca para elegir</span>
       `;
       return;
     }
 
-    const row = findChampion(role, title);
+    const roleKey = String(slot.dataset.role || 'top');
+    const row = findChampion(roleKey, title);
     const identity = row?.identity || 'Sin definir';
     const champFunction = row?.function || 'Sin definir';
     const tempo = row?.tempo || '';
 
     slot.innerHTML = `
-      <span class="slot__role">${escapeHtml(label)}</span>
+      <span class="slot__role">${escapeHtml(role)}</span>
       ${renderAvatarMarkup(title, 'avatar--lg')}
       <strong class="slot__name">${escapeHtml(title)}</strong>
       <span class="slot__identity">${escapeHtml(identity)}</span>
@@ -251,104 +233,101 @@ function patchCompositionGrid() {
   });
 }
 
-function buildSelectedChampionsFromGrid() {
+function collectSelectedChampions() {
   return [...document.querySelectorAll('#compositionGrid .slot.is-filled')]
     .map((slot) => {
-      const role = slot.dataset.role || 'top';
-      const championName = slot.querySelector('.slot__name')?.textContent?.trim() || '';
-      const row = findChampion(role, championName);
-      return row ? { role, ...row } : null;
+      const role = String(slot.dataset.role || 'top');
+      const name = slot.querySelector('.slot__name')?.textContent?.trim() || '';
+      const champion = findChampion(role, name);
+      if (!champion) return null;
+      return {
+        role,
+        champion: champion.champion,
+        identity: champion.identity,
+        function: champion.function,
+        tempo: champion.tempo,
+        strengths: champion.strengths || [],
+        weaknesses: champion.weaknesses || [],
+      };
     })
     .filter(Boolean);
 }
 
-function renderChipList(items, emptyLabel) {
-  if (!items.length) {
-    return `<p class="analysis-empty">${escapeHtml(emptyLabel)}</p>`;
-  }
-
-  return `
-    <div class="analysis-chip-list">
-      ${items.map((item) => `<span class="analysis-chip">${escapeHtml(item)}</span>`).join('')}
-    </div>
-  `;
-}
-
-function renderPlanList(items, emptyLabel) {
-  if (!items.length) {
-    return `<p class="analysis-empty">${escapeHtml(emptyLabel)}</p>`;
-  }
-
-  return `
-    <div class="analysis-mini-list">
-      ${items
-        .map(
-          (item) => `
-            <article class="analysis-mini-card">
-              <p>${escapeHtml(item)}</p>
-            </article>
-          `
-        )
-        .join('')}
-    </div>
-  `;
-}
-
-function patchAnalysisSummary() {
+function renderAnalysisSummary() {
   const summary = document.getElementById('analysisSummary');
   if (!summary) return;
 
-  const selectedChampions = buildSelectedChampionsFromGrid();
+  const selectedChampions = collectSelectedChampions();
   if (!selectedChampions.length) {
     summary.innerHTML = '<p class="analysis-note">Selecciona campeones para ver un resumen compacto.</p>';
     return;
   }
 
   const analysis = analyzeComposition(selectedChampions);
+  const primaryIdentity = analysis.primaryIdentity || analysis.summaryTitle || 'Sin definir';
+  const secondaryIdentities = (analysis.secondaryIdentities || []).slice(0, 2);
+  const strengths = (analysis.strengths || []).slice(0, 4);
+  const weaknesses = (analysis.weaknesses || []).slice(0, 3);
+  const gamePlan = (analysis.gamePlan || []).slice(0, 3);
 
   summary.innerHTML = `
     <div class="analysis-engine">
       <section class="analysis-block analysis-block--hero">
-        <p class="eyebrow">Identidad principal</p>
-        <h3>${escapeHtml(analysis.primaryIdentity || 'Sin definir')}</h3>
-        <p>${escapeHtml(analysis.summaryText || '')}</p>
+        <p class="eyebrow">Identidad</p>
+        <h3>${escapeHtml(primaryIdentity)}</h3>
+        <p>${escapeHtml(analysis.summaryText || 'Resumen compacto basado en el Excel.')}</p>
       </section>
 
       <div class="analysis-grid">
         <section class="analysis-block">
-          <p class="eyebrow">Identidades secundarias</p>
-          ${renderChipList(analysis.secondaryIdentities || [], 'Sin secundarias claras')}
+          <p class="eyebrow">Secundarias</p>
+          <div class="analysis-chip-list">
+            ${secondaryIdentities.length
+              ? secondaryIdentities.map((identity) => `<span class="analysis-chip">${escapeHtml(identity)}</span>`).join('')
+              : '<span class="analysis-empty">Sin secundarias claras</span>'}
+          </div>
         </section>
 
         <section class="analysis-block">
           <p class="eyebrow">🟢 Hace bien</p>
-          ${renderChipList(analysis.strengths || [], 'Sin fortalezas claras')}
+          ${renderSimpleList(strengths, 'analysis-list--good')}
         </section>
 
         <section class="analysis-block">
           <p class="eyebrow">🔴 Le falta</p>
-          ${renderChipList(analysis.weaknesses || [], 'Sin carencias claras')}
+          ${renderSimpleList(weaknesses, 'analysis-list--bad')}
         </section>
 
         <section class="analysis-block analysis-block--hero">
-          <p class="eyebrow">Plan de juego</p>
-          ${renderPlanList(analysis.gamePlan || [], 'Plan pendiente')}
+          <p class="eyebrow">Plan</p>
+          ${renderSimpleList(gamePlan, 'analysis-list--plan')}
         </section>
       </div>
     </div>
   `;
 }
 
+function renderSimpleList(items, className) {
+  if (!items.length) {
+    return '<p class="analysis-empty">Sin datos claros.</p>';
+  }
+
+  return `
+    <ul class="analysis-list ${className}">
+      ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+    </ul>
+  `;
+}
+
 function schedulePatch() {
   if (patchScheduled) return;
   patchScheduled = true;
-
   window.requestAnimationFrame(() => {
     patchScheduled = false;
     removeRecommendationsBlock();
     patchChampionList();
     patchCompositionGrid();
-    patchAnalysisSummary();
+    renderAnalysisSummary();
   });
 }
 
