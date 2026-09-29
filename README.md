@@ -1,31 +1,33 @@
 # Rift Architect
 
-PWA base para construir y analizar composiciones de League of Legends.
+PWA para construir y analizar composiciones de League of Legends.
 
-## Qué incluye esta primera versión
+## Estado actual
 
-- Lectura directa del Excel `Draft Pool.xlsx`.
-- Selector de campeones por rol.
-- Vista de composición.
-- Análisis básico de frontline, engage, daño, poke, teamfight, movilidad, control y escalado.
-- Service worker y manifest para convertirlo en PWA.
+- La app carga la base desde `Draft Pool.xlsx`.
+- Si existe `data/index.json`, usa los JSON exportados.
+- El analizador ya funciona en JavaScript puro.
+- Hay service worker y manifest para instalarla como PWA.
 
-## Cómo funciona
+## Exportar JSON desde el Excel
 
-La app carga el Excel del repo y lee estas hojas:
+```bash
+npm install
+npm run generate:data
+```
 
-- Tabla Top
-- Tabla Jungla
-- Tabla Mid
-- Tabla Botline
-- Tabla Support
+Ese comando genera:
 
-La hoja `Tabla Composición` se usa como referencia del modelo de datos, pero la app ya trabaja con un motor propio en JavaScript.
+- `data/top.json`
+- `data/jungle.json`
+- `data/mid.json`
+- `data/bot.json`
+- `data/support.json`
+- `data/index.json`
 
-## Siguiente paso
+## Próximo paso
 
-El siguiente paso es separar el Excel en un JSON limpio y añadir:
-- sinergias entre campeones,
-- counters,
-- recomendación del mejor siguiente pick,
-- y cálculo de condiciones de victoria.
+- Sinergias entre campeones.
+- Counters.
+- Recomendación del mejor siguiente pick.
+- Cálculo de condiciones de victoria.
