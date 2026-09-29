@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v35';
+const CACHE_NAME = 'rift-architect-v36';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -23,6 +23,11 @@ const STATIC_ASSETS = [
   './js/engine/winConditionEngine.js',
   './js/engine/planEngine.js',
   './js/engine/analysisEngine.js',
+  './knowledge/index.js',
+  './knowledge/identity-relations.js',
+  './knowledge/synergies.js',
+  './knowledge/conflicts.js',
+  './knowledge/win-conditions.js',
   './manifest.webmanifest',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
