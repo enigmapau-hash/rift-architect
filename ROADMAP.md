@@ -95,11 +95,17 @@
 - Mantener el Draft Pool para datos base de campeones.
 - Preparar reglas de inferencia para la futura IA.
 
-### Sprint 5.1 — Validación del Knowledge Layer 🚧
+### Sprint 5.1 — Validación del Knowledge Layer ✅
 - Auditar reglas duplicadas o huérfanas.
 - Validar categorías, identidades y condiciones de victoria.
 - Añadir trazabilidad y reportes de validación al arranque.
 - Dejar el conocimiento listo para la IA explicativa.
+
+### Sprint 5.2 — Banco de pruebas del Core Engine 🚧
+- Crear composiciones de referencia para identidades y tempos canónicos.
+- Ejecutar el motor contra casos esperados.
+- Detectar regresiones en identidad, sinergias, coherencia y win condition.
+- Mantener un reporte simple para desarrollo.
 
 ## Fase 6 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.
