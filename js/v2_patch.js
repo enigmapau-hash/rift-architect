@@ -1,12 +1,12 @@
 const ROLE_FILES = [
-  './data/top.json',
-  './data/jungle.json',
-  './data/mid.json',
-  './data/bot.json',
-  './data/support.json',
+  { key: 'top', label: 'Top', file: './data/top.json' },
+  { key: 'jungle', label: 'Jungla', file: './data/jungle.json' },
+  { key: 'mid', label: 'Mid', file: './data/mid.json' },
+  { key: 'botline', label: 'Botline', file: './data/bot.json' },
+  { key: 'support', label: 'Support', file: './data/support.json' },
 ];
 
-const identityMap = new Map();
+const roleData = new Map();
 let patchScheduled = false;
 
 function normalizeText(value) {
@@ -17,65 +17,62 @@ function normalizeText(value) {
     .replace(/[^a-z0-9]+/g, '');
 }
 
-function getIdentityForName(name) {
-  const normalized = normalizeText(name);
-  return identityMap.get(normalized) || null;
+function getIdentityForChampion(roleKey, championName) {
+  const roleRows = roleData.get(roleKey) || [];
+  const normalizedName = normalizeText(championName);
+  const row = roleRows.find((item) => normalizeText(item.champion) === normalizedName);
+  return row
+    ? {
+        identity: String(row.identity || '').trim() || 'Sin definir',
+        function: String(row.function || '').trim() || 'Sin definir',
+      }
+    : { identity: 'Sin definir', function: 'Sin definir' };
 }
 
-async function loadIdentities() {
-  const responses = await Promise.all(
-    ROLE_FILES.map(async (file) => {
+function getRoleKeyFromLabel(label) {
+  const row = ROLE_FILES.find((entry) => entry.label === String(label || '').trim());
+  return row?.key || 'top';
+}
+
+async function loadRoleData() {
+  await Promise.all(
+    ROLE_FILES.map(async ({ key, file }) => {
       try {
         const response = await fetch(file, { cache: 'reload' });
-        if (!response.ok) return [];
-        return await response.json();
+        if (!response.ok) {
+          roleData.set(key, []);
+          return;
+        }
+
+        const rows = await response.json();
+        roleData.set(key, Array.isArray(rows) ? rows : []);
       } catch {
-        return [];
+        roleData.set(key, []);
       }
     })
   );
-
-  responses.flat().forEach((champion) => {
-    const name = String(champion?.champion || '').trim();
-    const identity = String(champion?.identity || '').trim();
-    if (!name || !identity) return;
-
-    identityMap.set(normalizeText(name), identity);
-    identityMap.set(normalizeText(name.replace(/\s+/g, '')), identity);
-  });
 }
 
 function patchChampionList() {
   const list = document.getElementById('championList');
-  if (!list || !identityMap.size) return;
+  const roleLabel = document.getElementById('pickerRoleLabel')?.textContent?.trim();
+  const roleKey = getRoleKeyFromLabel(roleLabel);
+  if (!list || !roleData.size) return;
 
   list.querySelectorAll('.champion-item').forEach((item) => {
     const title = item.querySelector('.champion-item__head strong')?.textContent?.trim();
-    const sub = item.querySelector('.champion-item__sub');
-    if (!title || !sub) return;
+    const body = item.querySelector('.champion-item__body');
+    if (!title || !body) return;
 
-    const identity = getIdentityForName(title);
-    if (identity) {
-      sub.textContent = identity;
-      sub.classList.add('champion-item__sub--identity');
-    }
-  });
-}
-
-function patchCompositionGrid() {
-  const grid = document.getElementById('compositionGrid');
-  if (!grid || !identityMap.size) return;
-
-  grid.querySelectorAll('.slot.is-filled').forEach((slot) => {
-    const title = slot.querySelector('.slot__name')?.textContent?.trim();
-    const meta = slot.querySelector('.slot__meta');
-    if (!title || !meta) return;
-
-    const identity = getIdentityForName(title);
-    if (identity) {
-      meta.textContent = identity;
-      meta.classList.add('slot__meta--identity');
-    }
+    const { identity, function: champFunction } = getIdentityForChampion(roleKey, title);
+    body.innerHTML = `
+      <span class="champion-item__head">
+        <strong>${escapeHtml(title)}</strong>
+        ${item.querySelector('.champion-pill') ? `<span class="champion-pill">${escapeHtml(item.querySelector('.champion-pill').textContent.trim())}</span>` : ''}
+      </span>
+      <span class="champion-item__identity">${escapeHtml(identity)}</span>
+      <span class="champion-item__function">${escapeHtml(champFunction)}</span>
+    `;
   });
 }
 
@@ -93,7 +90,6 @@ function schedulePatch() {
     patchScheduled = false;
     removeRecommendationsBlock();
     patchChampionList();
-    patchCompositionGrid();
   });
 }
 
@@ -108,8 +104,17 @@ function observeNode(id) {
   observer.observe(node, { childList: true, subtree: true, characterData: true });
 }
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
 async function init() {
-  await loadIdentities();
+  await loadRoleData();
   schedulePatch();
   observeNode('championList');
   observeNode('compositionGrid');
