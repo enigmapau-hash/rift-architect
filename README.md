@@ -16,6 +16,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Iconos oficiales de Riot con alias para variantes como Kayn, Shaco o Varus.
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
+- Modal de selección estabilizado con una capa de interacción extra.
 - Responsive compartido para PC, tablet y móvil.
 
 ## Hito 2 — Core Engine v0.5
@@ -44,6 +45,7 @@ Core engine en curso:
 - `js/engine/planEngine.js`
 - `js/engine/analysisEngine.js`
 - `js/analysis-panel.js`
+- `js/modal-fix.js`
 
 ## Estructura de datos
 
