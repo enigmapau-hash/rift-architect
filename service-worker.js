@@ -1,17 +1,11 @@
-const CACHE_NAME = 'rift-architect-v16';
+const CACHE_NAME = 'rift-architect-v17';
 const STATIC_ASSETS = [
   './',
   './index.html',
   './css/main.css',
-  './css/visuals.css',
-  './css/v0_4.css',
-  './css/v0_9.css',
-  './css/v1_0.css',
-  './js/app.js',
+  './css/v2.css',
+  './js/app-v2.js',
   './js/analyzer.js',
-  './js/recommendations.js',
-  './js/visuals.js',
-  './js/analysis-visuals.js',
   './manifest.webmanifest',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
