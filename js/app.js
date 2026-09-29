@@ -2,7 +2,10 @@ import { analyzeComposition } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
-const STORAGE_KEYS = { favorites: 'rift-architect:favorites' };
+const STORAGE_KEYS = {
+  favorites: 'rift-architect:favorites',
+  draft: 'rift-architect:draft',
+};
 
 const ROLE_SOURCES = [
   { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
@@ -15,9 +18,10 @@ const ROLE_SOURCES = [
 const ROLE_LABELS = Object.fromEntries(ROLE_SOURCES.map(({ key, label }) => [key, label]));
 const ROLE_ORDER = ROLE_SOURCES.map(({ key }) => key);
 const DEFAULT_SELECTED = { top: null, jungle: null, mid: null, botline: null, support: null };
+const SAVED_DRAFT = loadDraft();
 
 const state = {
-  activeRole: 'top',
+  activeRole: normalizeRole(SAVED_DRAFT.activeRole) || 'top',
   search: '',
   data: {},
   selected: { ...DEFAULT_SELECTED },
@@ -26,6 +30,7 @@ const state = {
   dataSource: 'excel',
   pickerOpen: false,
   favorites: loadFavorites(),
+  savedDraft: SAVED_DRAFT,
 };
 
 const els = {};
@@ -68,6 +73,10 @@ function bindEvents() {
 
   els.clearBtn.addEventListener('click', () => {
     state.selected = { ...DEFAULT_SELECTED };
+    state.activeRole = 'top';
+    state.search = '';
+    state.pickerOpen = false;
+    saveDraft();
     closePicker();
     renderAll();
   });
@@ -125,6 +134,7 @@ async function loadData(force = false) {
       state.data = jsonDataset;
       state.dataLoaded = true;
       state.dataSource = 'json';
+      restoreDraftFromStorage();
       setStatus('Datos JSON listos');
       return;
     }
@@ -132,6 +142,7 @@ async function loadData(force = false) {
     state.data = await loadWorkbookDataset(force);
     state.dataLoaded = true;
     state.dataSource = 'excel';
+    restoreDraftFromStorage();
     setStatus('Datos del Excel listos');
   } catch (error) {
     console.error(error);
@@ -358,11 +369,12 @@ function renderChampionList(champions, currentChampion, role) {
 }
 
 function openPicker(role) {
-  state.activeRole = role;
+  state.activeRole = normalizeRole(role);
   state.search = '';
   els.searchInput.value = '';
   state.pickerOpen = true;
   document.body.classList.add('modal-open');
+  saveDraft();
   renderAll();
 }
 
@@ -376,14 +388,16 @@ function closePicker() {
 }
 
 function selectChampion(role, championName) {
-  const champion = (state.data[role] || []).find((item) => item.champion === championName);
-  if (!champion || !isSelectable(role, championName)) return;
+  const roleKey = normalizeRole(role);
+  const champion = (state.data[roleKey] || []).find((item) => item.champion === championName);
+  if (!champion || !isSelectable(roleKey, championName)) return;
 
-  state.selected[role] = champion;
-  const nextRole = getNextEmptyRole(role);
-  state.activeRole = nextRole || role;
+  state.selected[roleKey] = champion;
+  const nextRole = getNextEmptyRole(roleKey);
+  state.activeRole = nextRole || roleKey;
   state.search = '';
   els.searchInput.value = '';
+  saveDraft();
 
   if (nextRole) {
     state.pickerOpen = true;
@@ -397,7 +411,7 @@ function selectChampion(role, championName) {
 }
 
 function getNextEmptyRole(currentRole) {
-  const startIndex = ROLE_ORDER.indexOf(currentRole);
+  const startIndex = ROLE_ORDER.indexOf(normalizeRole(currentRole));
   if (startIndex < 0) return null;
 
   for (let i = startIndex + 1; i < ROLE_ORDER.length; i += 1) {
@@ -453,6 +467,59 @@ function loadFavorites() {
 function saveFavorites(favorites) {
   try {
     localStorage.setItem(STORAGE_KEYS.favorites, JSON.stringify(favorites));
+  } catch {
+    // ignore storage errors
+  }
+}
+
+function loadDraft() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.draft);
+    if (!raw) return { activeRole: 'top', selected: {} };
+
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return { activeRole: 'top', selected: {} };
+
+    return {
+      activeRole: normalizeRole(parsed.activeRole) || 'top',
+      selected: parsed.selected && typeof parsed.selected === 'object' ? parsed.selected : {},
+    };
+  } catch {
+    return { activeRole: 'top', selected: {} };
+  }
+}
+
+function restoreDraftFromStorage() {
+  const saved = state.savedDraft || { activeRole: 'top', selected: {} };
+  state.activeRole = normalizeRole(saved.activeRole) || state.activeRole;
+
+  const restored = {};
+  ROLE_ORDER.forEach((role) => {
+    const savedChampion = saved.selected?.[role];
+    if (!savedChampion) {
+      restored[role] = null;
+      return;
+    }
+
+    const champion = (state.data[role] || []).find(
+      (item) => item.champion.toLowerCase() === String(savedChampion).toLowerCase()
+    );
+    restored[role] = champion || null;
+  });
+
+  state.selected = restored;
+}
+
+function saveDraft() {
+  try {
+    const payload = {
+      activeRole: state.activeRole,
+      selected: Object.fromEntries(
+        ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])
+      ),
+    };
+    localStorage.setItem(STORAGE_KEYS.draft, JSON.stringify(payload));
+    state.savedDraft = payload;
   } catch {
     // ignore storage errors
   }
@@ -534,6 +601,10 @@ function syncStatusBadge() {
   if (!state.dataLoaded) return;
   const selectedCount = getSelectedChampions().length;
   setStatus(`${state.dataSource.toUpperCase()} · ${selectedCount}/5 picks`);
+}
+
+function normalizeRole(role) {
+  return ROLE_ORDER.includes(role) ? role : 'top';
 }
 
 function escapeHtml(value) {
