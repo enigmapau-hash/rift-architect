@@ -1,4 +1,4 @@
-import { clampNumber, normalizeText } from './utils.js';
+import { clampNumber, matchesCategory, normalizeText } from './utils.js';
 import { IDENTITY_RELATIONS } from '../../knowledge/identity-relations.js';
 
 const FIELD_WEIGHTS = {
