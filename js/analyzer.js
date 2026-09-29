@@ -1,61 +1,17 @@
-export const ENGINE_VERSION = '0.2.0';
+export const ENGINE_VERSION = '0.3.0';
 
 export const ATTRIBUTE_SPECS = [
-  {
-    key: 'frontline',
-    label: 'Frontline',
-    terms: ['frontline', 'tank', 'tanque', 'warden', 'peel', 'sustain', 'bruiser', 'juggernaut', 'vanguard'],
-  },
-  {
-    key: 'engage',
-    label: 'Engage',
-    terms: ['engage', 'pick', 'hook', 'dive', 'flank', 'inici', 'initiate', 'catch', 'enganch'],
-  },
-  {
-    key: 'damage',
-    label: 'Daño',
-    terms: ['carry', 'dps', 'burst', 'marksman', 'mage', 'battlemage', 'assassin', 'bruiser', 'fighter'],
-  },
-  {
-    key: 'poke',
-    label: 'Poke',
-    terms: ['poke', 'siege', 'artillery', 'zone control', 'asedio'],
-  },
-  {
-    key: 'teamfight',
-    label: 'Teamfight',
-    terms: ['teamfight', 'front to back', 'wombo', 'objective', 'group', 'grupal', 'peel', 'control'],
-  },
-  {
-    key: 'mobility',
-    label: 'Movilidad',
-    terms: ['mobility', 'movilidad', 'dash', 'roam', 'mobile', 'backline', 'assassin'],
-  },
-  {
-    key: 'control',
-    label: 'Control',
-    terms: ['cc', 'control', 'vision', 'anti-engage', 'anti engage', 'zone control', 'peel'],
-  },
-  {
-    key: 'scaling',
-    label: 'Escalado',
-    terms: ['scaling', 'escalado', 'late', 'mid/late', 'late game', 'hypercarry'],
-  },
-  {
-    key: 'objective',
-    label: 'Objetivos',
-    terms: ['objective', 'dragon', 'nashor', 'herald', 'sustain', 'zone control', 'control'],
-  },
-  {
-    key: 'splitpush',
-    label: 'Splitpush',
-    terms: ['splitpush', 'side lane', 'split', 'duel', 'dueling', '1v1'],
-  },
-  {
-    key: 'pick',
-    label: 'Pick',
-    terms: ['pick', 'catch', 'hook', 'flank', 'dive', 'assassin'],
-  },
+  { key: 'frontline', label: 'Frontline' },
+  { key: 'engage', label: 'Engage' },
+  { key: 'damage', label: 'Daño' },
+  { key: 'poke', label: 'Poke' },
+  { key: 'teamfight', label: 'Teamfight' },
+  { key: 'mobility', label: 'Movilidad' },
+  { key: 'control', label: 'Control' },
+  { key: 'scaling', label: 'Escalado' },
+  { key: 'objective', label: 'Objetivos' },
+  { key: 'splitpush', label: 'Splitpush' },
+  { key: 'pick', label: 'Pick' },
 ];
 
 const ROLE_NAMES = {
@@ -66,15 +22,47 @@ const ROLE_NAMES = {
   support: 'Support',
 };
 
-const COMPLEXITY_TERMS = ['muy exigente', 'hard', 'difícil', 'mechanical', 'mecanica', 'alto skill', 'high skill', 'riesgo'];
+const COMPLEXITY_TERMS = [
+  'muy exigente',
+  'hard',
+  'difícil',
+  'mechanical',
+  'mecanica',
+  'alto skill',
+  'high skill',
+  'riesgo',
+];
+
+const METRIC_FORMULAS = {
+  frontline: ['frontline', 'peel', 'disengage'],
+  engage: ['engage', 'pick'],
+  damage: ['dps', 'burst'],
+  poke: ['poke', 'siege'],
+  teamfight: ['frontline', 'engage', 'control'],
+  mobility: ['mobility'],
+  control: ['vision', 'waveclear', 'objectiveControl'],
+  scaling: ['scaling'],
+  objective: ['objectiveControl'],
+  splitpush: ['splitpush'],
+  pick: ['pick'],
+};
 
 export function scoreChampion(champion) {
-  const searchText = buildSearchText(champion);
-  const metrics = ATTRIBUTE_SPECS.map((spec) => ({
-    key: spec.key,
-    label: spec.label,
-    score: scoreAttribute(searchText, spec),
-  }));
+  const explicitAttributes = normalizeChampionAttributes(champion?.attributes);
+  const hasExplicitAttributes = Object.keys(explicitAttributes).some((key) => key !== 'confidence');
+  const text = buildSearchText(champion);
+
+  const metrics = hasExplicitAttributes
+    ? ATTRIBUTE_SPECS.map((spec) => ({
+        key: spec.key,
+        label: spec.label,
+        score: scoreFromExplicitAttributes(explicitAttributes, METRIC_FORMULAS[spec.key] || [spec.key]),
+      }))
+    : ATTRIBUTE_SPECS.map((spec) => ({
+        key: spec.key,
+        label: spec.label,
+        score: scoreFromText(text, spec),
+      }));
 
   const strongest = [...metrics].sort((a, b) => b.score - a.score)[0] || { label: 'Sin datos', score: 0 };
   const weakest = [...metrics].sort((a, b) => a.score - b.score)[0] || { label: 'Sin datos', score: 0 };
@@ -83,8 +71,12 @@ export function scoreChampion(champion) {
     metrics,
     strongest,
     weakest,
-    primaryDamage: detectDamageType(searchText),
-    complexity: scoreComplexity(searchText),
+    primaryDamage: detectDamageType(text),
+    complexity: scoreComplexity(text),
+    source: hasExplicitAttributes ? 'sheet' : 'text',
+    sourceLabel: hasExplicitAttributes ? 'Hoja de atributos' : 'Perfil derivado del texto',
+    confidence: explicitAttributes.confidence ?? null,
+    explicitAttributes,
   };
 }
 
@@ -185,20 +177,76 @@ export function getRoleInsights(selectedChampions) {
   return insights;
 }
 
-function buildSearchText(champion) {
-  return [
-    champion.champion,
-    champion.identity,
-    champion.function,
-    champion.tempo,
-    ...(champion.strengths || []),
-    ...(champion.weaknesses || []),
-  ]
-    .join(' ')
-    .toLowerCase();
+function normalizeChampionAttributes(attributes) {
+  if (!attributes || typeof attributes !== 'object' || Array.isArray(attributes)) {
+    return {};
+  }
+
+  const normalized = {};
+  const entries = Object.entries(attributes);
+
+  for (const [key, value] of entries) {
+    if (key === 'confidence') {
+      const parsed = toNumber(value);
+      if (parsed !== null) {
+        normalized.confidence = clamp(Math.round(parsed), 0, 100);
+      }
+      continue;
+    }
+
+    const normalizedKey = normalizeAttributeKey(key);
+    if (!normalizedKey) continue;
+
+    const parsed = toNumber(value);
+    if (parsed === null) continue;
+
+    normalized[normalizedKey] = clamp(Math.round(parsed), 0, 5);
+  }
+
+  return normalized;
 }
 
-function scoreAttribute(text, spec) {
+function normalizeAttributeKey(value) {
+  const key = normalizeText(value);
+  const aliases = {
+    engage: 'engage',
+    disengage: 'disengage',
+    frontline: 'frontline',
+    peel: 'peel',
+    pick: 'pick',
+    poke: 'poke',
+    burst: 'burst',
+    dps: 'dps',
+    scaling: 'scaling',
+    mobility: 'mobility',
+    waveclear: 'waveclear',
+    siege: 'siege',
+    splitpush: 'splitpush',
+    splitpushing: 'splitpush',
+    objectivecontrol: 'objectiveControl',
+    objective: 'objectiveControl',
+    controlobjectives: 'objectiveControl',
+    vision: 'vision',
+    confidence: 'confidence',
+  };
+
+  return aliases[key] || null;
+}
+
+function scoreFromExplicitAttributes(attributes, keys) {
+  const values = keys
+    .map((key) => toNumber(attributes[key]))
+    .filter((value) => value !== null);
+
+  if (!values.length) {
+    return 0;
+  }
+
+  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+  return clamp(Math.round(average * 2), 0, 10);
+}
+
+function scoreFromText(text, spec) {
   let raw = 0;
   for (const term of spec.terms) {
     if (hasTerm(text, term)) {
@@ -207,6 +255,19 @@ function scoreAttribute(text, spec) {
   }
 
   return clamp(Math.round(raw * 2), 0, 10);
+}
+
+function buildSearchText(champion) {
+  return [
+    champion?.champion,
+    champion?.identity,
+    champion?.function,
+    champion?.tempo,
+    ...(champion?.strengths || []),
+    ...(champion?.weaknesses || []),
+  ]
+    .join(' ')
+    .toLowerCase();
 }
 
 function detectDamageType(text) {
@@ -243,6 +304,20 @@ function findMetric(metrics, key) {
 
 function hasTerm(text, term) {
   return text.includes(term.toLowerCase());
+}
+
+function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function toNumber(value) {
+  if (value === null || value === undefined || value === '') return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function clamp(value, min, max) {
