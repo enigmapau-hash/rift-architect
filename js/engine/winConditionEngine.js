@@ -1,4 +1,5 @@
 import { normalizeText } from './utils.js';
+import { WIN_CONDITION_RULES } from '../../knowledge/win-conditions.js';
 
 function toLabel(value) {
   if (!value) return '';
@@ -9,13 +10,18 @@ function prioritize(items) {
   return [...new Set(items.filter(Boolean))].slice(0, 3);
 }
 
-function makeResult(label, detail, priorities, avoid) {
+function makeResult(rule) {
   return {
-    label,
-    detail,
-    priorities: prioritize(priorities),
-    avoid: prioritize(avoid),
+    label: rule.label,
+    detail: rule.detail,
+    priorities: prioritize(rule.priorities),
+    avoid: prioritize(rule.avoid),
   };
+}
+
+function includesAny(text, terms = []) {
+  const normalized = normalizeText(text);
+  return terms.some((term) => normalized.includes(normalizeText(term)));
 }
 
 export function determineWinCondition({ identitySummary = null, tempoSummary = null, synergies = [], coherence = null } = {}) {
@@ -24,58 +30,19 @@ export function determineWinCondition({ identitySummary = null, tempoSummary = n
   const coherenceScore = Number(coherence?.score) || 0;
   const strongestSynergy = synergies[0]?.label ? toLabel(synergies[0].label) : '';
 
-  if (primary.includes('splitpush')) {
-    return makeResult(
-      'Abrir mapa',
-      'La composición quiere ensanchar la partida y ganar por presión lateral.',
-      ['Side lanes', 'Presión', 'Visión'],
-      ['Agruparse sin objetivo', '5v5 frontales']
-    );
+  for (const rule of WIN_CONDITION_RULES) {
+    if (rule.key === 'fallback') continue;
+
+    const hitPrimary = includesAny(primary, rule.match);
+    const hitTempo = includesAny(tempo, rule.match);
+    const hitSynergy = includesAny(strongestSynergy, rule.match);
+
+    if (!hitPrimary && !hitTempo && !hitSynergy) continue;
+
+    if (rule.key === 'pick-engage' && coherenceScore < 45 && !hitPrimary) continue;
+    return makeResult(rule);
   }
 
-  if (primary.includes('poke') || strongestSynergy.toLowerCase().includes('asedio')) {
-    return makeResult(
-      'Desgastar antes de entrar',
-      'El equipo gana espacio antes de comprometer la pelea.',
-      ['Visión', 'Asedio', 'Objetivos'],
-      ['Dive frontal', 'Entradas aisladas']
-    );
-  }
-
-  if (primary.includes('pick') || primary.includes('engage') || primary.includes('dive')) {
-    const earlyTempo = tempo.includes('early') || tempo.includes('mid');
-    return makeResult(
-      earlyTempo ? 'Crear ventaja temprana' : 'Forzar peleas cortas',
-      earlyTempo
-        ? 'La composición debe convertir visión y pick en ventaja antes del mid game.'
-        : 'La composición vive mejor en escaramuzas cortas y ventanas de castigo.',
-      earlyTempo ? ['Visión', 'Picks', 'Objetivos'] : ['Forzar peleas cortas', 'Castigar errores', 'Presión de mapa'],
-      ['Pelear tarde sin ventaja', 'Agruparse sin visión']
-    );
-  }
-
-  if (primary.includes('protect') || primary.includes('fronttoback') || primary.includes('teamfight') || primary.includes('control')) {
-    return makeResult(
-      'Escalar y ganar 5v5',
-      'La composición quiere llegar ordenada al cierre y pelear con front line y carry protegido.',
-      ['Escalar', 'Agruparse', 'Proteger carry'],
-      ['Peleas aisladas', 'Side lanes innecesarias']
-    );
-  }
-
-  if (coherenceScore < 50) {
-    return makeResult(
-      'Unificar el plan',
-      'La composición necesita definir una sola idea antes de forzar acciones.',
-      ['Definir rol', 'Visión', 'Orden'],
-      ['Mix de objetivos', 'Trades largos']
-    );
-  }
-
-  return makeResult(
-    'Jugar alrededor de la identidad',
-    'La composición debe seguir su plan dominante y evitar improvisar.',
-    ['Identidad', 'Objetivos', 'Ejecutar el plan'],
-    ['Desorden', 'Pelear sin ventaja']
-  );
+  const fallback = WIN_CONDITION_RULES.find((rule) => rule.key === 'fallback') || WIN_CONDITION_RULES[WIN_CONDITION_RULES.length - 1];
+  return makeResult(fallback);
 }
