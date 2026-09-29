@@ -116,16 +116,26 @@ function patchCompositionGrid() {
   const grid = document.getElementById('compositionGrid');
   if (!grid) return;
 
-  grid.querySelectorAll('.slot.is-filled').forEach((slot) => {
-    const title = slot.querySelector('.slot__name')?.textContent?.trim();
-    if (!title) return;
+  grid.querySelectorAll('.slot').forEach((slot) => {
+    const role = slot.querySelector('.slot__role')?.textContent?.trim() || '';
+    const isFilled = slot.classList.contains('is-filled');
+    const title = slot.querySelector('.slot__name')?.textContent?.trim() || '';
+
+    if (!isFilled) {
+      slot.innerHTML = `
+        <span class="slot__role">${escapeHtml(role)}</span>
+        <span class="avatar avatar--lg avatar--empty" aria-hidden="true">+</span>
+        <strong class="slot__name">Seleccionar campeón</strong>
+        <span class="slot__cta">Toca para elegir</span>
+      `;
+      return;
+    }
 
     const roleKey = String(slot.dataset.role || 'top');
     const row = findChampion(roleKey, title);
     const identity = row?.identity || 'Sin definir';
     const champFunction = row?.function || 'Sin definir';
     const tempo = row?.tempo || '';
-    const role = slot.querySelector('.slot__role')?.textContent?.trim() || '';
     const avatar = slot.querySelector('.avatar')?.outerHTML || '';
 
     slot.innerHTML = `
@@ -134,7 +144,7 @@ function patchCompositionGrid() {
       <strong class="slot__name">${escapeHtml(title)}</strong>
       <span class="slot__identity">${escapeHtml(identity)}</span>
       <span class="slot__function">${escapeHtml(champFunction)}</span>
-      ${tempo ? `<span class="slot__meta slot__meta--tempo">${escapeHtml(tempo)}</span>` : ''}
+      ${tempo ? `<span class="slot__tempo">${escapeHtml(tempo)}</span>` : ''}
     `;
   });
 }
