@@ -73,7 +73,7 @@
 - Generar un plan de juego ordenado y breve.
 - Añadir una señal de confianza al análisis.
 
-### Sprint 4.9 — Core Engine v3.1 🚧
+### Sprint 4.9 — Core Engine v3.1 ✅
 - Resolver identidades con una matriz de precedencia.
 - Detectar sinergias entre campeones y entre patrones de composición.
 - Evaluar la coherencia general del draft.
