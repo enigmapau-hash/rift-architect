@@ -35,6 +35,15 @@ Objetivo del hito:
 - Una pantalla principal que se entienda en segundos.
 - Un contrato estable para la futura IA.
 
+Core engine en curso:
+
+- `js/engine/identityEngine.js`
+- `js/engine/strengthEngine.js`
+- `js/engine/weaknessEngine.js`
+- `js/engine/tempoEngine.js`
+- `js/engine/planEngine.js`
+- `js/engine/analysisEngine.js`
+
 ## Estructura de datos
 
 - `data/index.json`
