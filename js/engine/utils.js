@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = '2.0.0';
+export const ENGINE_VERSION = '3.0.0';
 
 export const CATEGORY_TERMS = {
   frontline: ['frontline', 'tank', 'tanque', 'bruiser', 'warden', 'sustain', 'vanguard', 'juggernaut', 'front to back'],
@@ -107,4 +107,9 @@ export function uniqueOrdered(values) {
 
 export function sortByFrequency(entries) {
   return [...entries].sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex || a.label.localeCompare(b.label, 'es'));
+}
+
+export function clampNumber(value, min, max) {
+  const numeric = Number.isFinite(Number(value)) ? Number(value) : min;
+  return Math.min(max, Math.max(min, numeric));
 }
