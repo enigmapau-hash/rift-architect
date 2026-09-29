@@ -10,8 +10,6 @@ const STATIC_ASSETS = [
   './js/app-v2.js',
   './js/analyzer.js',
   './js/v2_patch.js',
-  './js/analyzer.js',
-  './js/analyzer.js',
   './manifest.webmanifest',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
