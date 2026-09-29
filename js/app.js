@@ -93,6 +93,20 @@ function bindEvents() {
     renderChampionList();
   });
 
+  els.compositionGrid.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-role]');
+    if (!button) return;
+    openPicker(button.dataset.role);
+  });
+
+  els.championList.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-champion]');
+    if (!button) return;
+    const role = button.dataset.role;
+    const championName = button.dataset.champion;
+    selectChampion(role, championName);
+  });
+
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && state.pickerOpen) {
       closePicker();
@@ -181,7 +195,13 @@ async function loadWorkbookDataset(force = false) {
 
 function worksheetToRows(worksheet) {
   if (!worksheet) return [];
-  const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+    blankrows: false,
+    defval: '',
+  });
+
   return rows
     .slice(1)
     .filter((row) => row[0])
@@ -217,6 +237,7 @@ function renderCompositionGrid() {
     const champion = state.selected[key];
     const button = document.createElement('button');
     button.type = 'button';
+    button.dataset.role = key;
     button.className = `slot ${champion ? 'filled' : 'empty'}`;
     button.innerHTML = champion
       ? `
@@ -231,7 +252,6 @@ function renderCompositionGrid() {
         <small>Toca para elegir</small>
         <span class="slot-hint">Abrir selector</span>
       `;
-    button.addEventListener('click', () => openPicker(key));
     els.compositionGrid.appendChild(button);
   });
 }
@@ -265,10 +285,11 @@ function renderSummary() {
 }
 
 function renderModal() {
-  els.pickerBackdrop.classList.toggle('is-hidden', !state.pickerOpen);
-  els.pickerBackdrop.setAttribute('aria-hidden', String(!state.pickerOpen));
+  const isOpen = state.pickerOpen;
+  els.pickerBackdrop.classList.toggle('is-hidden', !isOpen);
+  els.pickerBackdrop.setAttribute('aria-hidden', String(!isOpen));
 
-  if (!state.pickerOpen) {
+  if (!isOpen) {
     return;
   }
 
@@ -314,6 +335,8 @@ function renderChampionList() {
     const isSelected = currentChampion === champion.champion;
     const button = document.createElement('button');
     button.type = 'button';
+    button.dataset.role = role;
+    button.dataset.champion = champion.champion;
     button.className = `champion-item ${isSelected ? 'is-selected' : ''}`;
     button.setAttribute('aria-pressed', String(isSelected));
     button.innerHTML = `
@@ -326,7 +349,6 @@ function renderChampionList() {
         <span class="champion-subline">${escapeHtml(champion.identity)} · ${escapeHtml(champion.function)}</span>
       </span>
     `;
-    button.addEventListener('click', () => selectChampion(role, champion));
     els.championList.appendChild(button);
   });
 }
@@ -341,6 +363,7 @@ function openPicker(role) {
 }
 
 function closePicker() {
+  if (!state.pickerOpen) return;
   state.pickerOpen = false;
   state.search = '';
   els.searchInput.value = '';
@@ -348,10 +371,10 @@ function closePicker() {
   renderAll();
 }
 
-function selectChampion(role, champion) {
-  if (!isSelectable(role, champion.champion)) {
-    return;
-  }
+function selectChampion(role, championName) {
+  const champion = (state.data[role] || []).find((item) => item.champion === championName);
+  if (!champion) return;
+  if (!isSelectable(role, championName)) return;
 
   state.selected[role] = champion;
   state.activeRole = role;
