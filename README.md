@@ -18,15 +18,21 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Responsive compartido para PC, tablet y móvil.
 
-## Sprint actual
+## Hito 2 — Core Engine v0.5
 
-- `docs/data-contract.md`
-- `docs/draft-pool-audit.md`
-- `docs/attribute-catalog.md`
-- `docs/analysis-engine.md`
-- Motor de análisis v1 basado en el Excel.
-- Motor de interpretación compacto: identidad principal, secundarias, fortalezas, carencias y plan de juego.
-- Auditoría y normalización del Draft Pool con salida en `data/audit.json`.
+Documentación base del hito:
+
+- [`docs/product-vision.md`](./docs/product-vision.md)
+- [`docs/data-contract.md`](./docs/data-contract.md)
+- [`docs/draft-pool-audit.md`](./docs/draft-pool-audit.md)
+- [`docs/attribute-catalog.md`](./docs/attribute-catalog.md)
+- [`docs/analysis-engine.md`](./docs/analysis-engine.md)
+
+Objetivo del hito:
+
+- Un motor de análisis compacto, basado solo en el Excel.
+- Una pantalla principal que se entienda en segundos.
+- Un contrato estable para la futura IA.
 
 ## Estructura de datos
 
