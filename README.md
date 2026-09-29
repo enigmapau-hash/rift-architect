@@ -22,6 +22,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 
 - `docs/data-contract.md`
 - `docs/draft-pool-audit.md`
+- `docs/attribute-catalog.md`
 - `docs/analysis-engine.md`
 - Motor de análisis v1 basado en el Excel.
 - Resumen compacto: identidad principal, secundarias, fortalezas, carencias y plan de juego.
