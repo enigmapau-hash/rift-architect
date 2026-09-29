@@ -12,7 +12,6 @@ const ROLE_SOURCES = [
 ];
 
 const ROLE_LABELS = Object.fromEntries(ROLE_SOURCES.map(({ key, label }) => [key, label]));
-
 const ROLE_ORDER = ROLE_SOURCES.map(({ key }) => key);
 
 const state = {
@@ -253,19 +252,14 @@ function renderSummary() {
   els.analysisSummary.innerHTML = `
     <p class="summary-line"><strong>Win condition:</strong> ${escapeHtml(winCondition)}</p>
     <div class="summary-chips">
-      ${chips
-        .map((chip) => `<span class="summary-chip ${chip.tone}">${escapeHtml(chip.text)}</span>`)
-        .join('')}
+      ${chips.map((chip) => `<span class="summary-chip ${chip.tone}">${escapeHtml(chip.text)}</span>`).join('')}
     </div>
   `;
 
   els.recommendations.innerHTML = `
     <h3>Qué haría ahora</h3>
     <ul>
-      ${analysis.recommendations
-        .slice(0, 3)
-        .map((item) => `<li>${escapeHtml(item)}</li>`)
-        .join('')}
+      ${analysis.recommendations.slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
     </ul>
   `;
 }
@@ -342,6 +336,7 @@ function openPicker(role) {
   state.search = '';
   els.searchInput.value = '';
   state.pickerOpen = true;
+  document.body.classList.add('modal-open');
   renderAll();
 }
 
@@ -349,6 +344,7 @@ function closePicker() {
   state.pickerOpen = false;
   state.search = '';
   els.searchInput.value = '';
+  document.body.classList.remove('modal-open');
   renderAll();
 }
 
@@ -362,6 +358,7 @@ function selectChampion(role, champion) {
   state.pickerOpen = false;
   state.search = '';
   els.searchInput.value = '';
+  document.body.classList.remove('modal-open');
   renderAll();
 }
 
@@ -420,8 +417,7 @@ function getMetricScore(metrics, key) {
 }
 
 function getSelectedChampions() {
-  return ROLE_ORDER.filter((role) => state.selected[role])
-    .map((role) => ({ role, ...state.selected[role] }));
+  return ROLE_ORDER.filter((role) => state.selected[role]).map((role) => ({ role, ...state.selected[role] }));
 }
 
 function matchesSearch(champion, search) {
