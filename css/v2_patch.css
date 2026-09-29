@@ -4,14 +4,25 @@
   display: none !important;
 }
 
-.champion-item__sub {
+.champion-item__sub,
+.slot__meta {
   color: var(--text);
-  font-size: 0.78rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   line-height: 1.2;
   white-space: normal;
 }
 
+.champion-item__sub--identity,
+.slot__meta--identity {
+  color: var(--accent-2);
+  font-weight: 800;
+}
+
 .champion-item__body {
   gap: 3px;
+}
+
+.slot__meta {
+  text-transform: none;
 }
