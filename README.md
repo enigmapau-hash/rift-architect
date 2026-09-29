@@ -43,6 +43,7 @@ Core engine en curso:
 - `js/engine/tempoEngine.js`
 - `js/engine/planEngine.js`
 - `js/engine/analysisEngine.js`
+- `js/analysis-panel.js`
 
 ## Estructura de datos
 
