@@ -1,78 +1,107 @@
-import { cleanLabel, normalizeText, TEMPO_ORDER } from './utils.js';
+import { clampNumber, cleanLabel, matchesCategory, normalizeText, TEMPO_ORDER } from './utils.js';
 
-const TEMPO_COMPONENTS = {
-  Early: [1],
-  Mid: [2],
-  Late: [3],
-  'Early/Mid': [1, 2],
-  'Mid/Late': [2, 3],
-  'Early/Late': [1, 3],
-  'Early/Mid/Late': [1, 2, 3],
-};
-
-function tempoToComponents(label) {
+function addTempoVote(scores, label, weight = 1) {
   const normalized = normalizeText(label);
-  if (!normalized) return [];
-  if (normalized.includes('earlymidlate')) return TEMPO_COMPONENTS['Early/Mid/Late'];
-  if (normalized.includes('earlymid')) return TEMPO_COMPONENTS['Early/Mid'];
-  if (normalized.includes('midlate')) return TEMPO_COMPONENTS['Mid/Late'];
-  if (normalized.includes('earlylate')) return TEMPO_COMPONENTS['Early/Late'];
-  if (normalized.includes('early')) return TEMPO_COMPONENTS.Early;
-  if (normalized.includes('mid')) return TEMPO_COMPONENTS.Mid;
-  if (normalized.includes('late')) return TEMPO_COMPONENTS.Late;
-  return [];
+  if (!normalized) return;
+
+  if (normalized.includes('early')) scores.Early += weight;
+  if (normalized.includes('mid')) scores.Mid += weight;
+  if (normalized.includes('late')) scores.Late += weight;
+}
+
+function tempoFromChampion(champion) {
+  const scores = { Early: 0, Mid: 0, Late: 0 };
+  const label = cleanLabel(champion?.tempo);
+  const normalized = normalizeText(label);
+
+  if (normalized.includes('earlymidlate')) {
+    addTempoVote(scores, 'Early', 2);
+    addTempoVote(scores, 'Mid', 2);
+    addTempoVote(scores, 'Late', 2);
+  } else if (normalized.includes('earlymid')) {
+    addTempoVote(scores, 'Early', 2);
+    addTempoVote(scores, 'Mid', 2);
+  } else if (normalized.includes('midlate')) {
+    addTempoVote(scores, 'Mid', 2);
+    addTempoVote(scores, 'Late', 2);
+  } else if (normalized.includes('earlylate')) {
+    addTempoVote(scores, 'Early', 2);
+    addTempoVote(scores, 'Late', 2);
+  } else if (normalized.includes('early')) {
+    addTempoVote(scores, 'Early', 3);
+  } else if (normalized.includes('mid')) {
+    addTempoVote(scores, 'Mid', 3);
+  } else if (normalized.includes('late')) {
+    addTempoVote(scores, 'Late', 3);
+  }
+
+  const text = [
+    champion?.identity,
+    champion?.function,
+    ...(Array.isArray(champion?.strengths) ? champion.strengths : []),
+    ...(Array.isArray(champion?.weaknesses) ? champion.weaknesses : []),
+  ]
+    .join(' ')
+    .toLowerCase();
+
+  if (matchesCategory(text, 'scaling')) scores.Late += 1.5;
+  if (matchesCategory(text, 'teamfight') || matchesCategory(text, 'objective') || matchesCategory(text, 'control')) scores.Mid += 1.2;
+  if (matchesCategory(text, 'engage') || matchesCategory(text, 'pick') || matchesCategory(text, 'mobility')) scores.Early += 1.2;
+
+  return scores;
+}
+
+function mergeTempoScores(total, next) {
+  total.Early += next.Early;
+  total.Mid += next.Mid;
+  total.Late += next.Late;
+  return total;
+}
+
+function resolveTempoLabel(scores) {
+  const ranked = TEMPO_ORDER.map((label) => ({ label, score: scores[label] || 0 })).sort(
+    (a, b) => b.score - a.score || TEMPO_ORDER.indexOf(a.label) - TEMPO_ORDER.indexOf(b.label)
+  );
+
+  const active = ranked.filter((item) => item.score > 0);
+  if (!active.length) {
+    return { label: 'Sin definir', phases: [], ranked, confidence: 0 };
+  }
+
+  const [primary, secondary] = active;
+  const pair = [primary?.label, secondary?.label].filter(Boolean);
+  let label = primary.label;
+
+  if (active.length >= 3 && active[2].score >= Math.max(1, primary.score * 0.45)) {
+    label = 'Early/Mid/Late';
+  } else if (pair.length === 2) {
+    const [first, secondLabel] = pair;
+    const firstIndex = TEMPO_ORDER.indexOf(first);
+    const secondIndex = TEMPO_ORDER.indexOf(secondLabel);
+    if (Math.abs(firstIndex - secondIndex) === 1) {
+      label = `${first} → ${secondLabel}`;
+    } else {
+      label = `${first} → ${secondLabel}`;
+    }
+  }
+
+  const total = active.reduce((sum, item) => sum + item.score, 0);
+  const confidence = clampNumber(Math.round((primary.score / Math.max(1, total)) * 100 + Math.min(20, primary.score * 3)), 0, 100);
+
+  return {
+    label,
+    phases: active.map((item) => item.label),
+    ranked,
+    confidence,
+  };
 }
 
 export function summarizeTempo(selectedChampions = []) {
-  const counts = new Map();
-
-  selectedChampions.forEach((champion, index) => {
-    const label = cleanLabel(champion?.tempo);
-    const normalized = normalizeText(label);
-    if (!normalized || normalized === normalizeText('Sin definir')) return;
-
-    const canonical =
-      TEMPO_ORDER.find((tempo) => normalizeText(tempo) === normalized) ||
-      (normalizeText(label).includes('earlymidlate') && 'Early/Mid/Late') ||
-      (normalizeText(label).includes('earlymid') && 'Early/Mid') ||
-      (normalizeText(label).includes('midlate') && 'Mid/Late') ||
-      (normalizeText(label).includes('earlylate') && 'Early/Late') ||
-      (normalizeText(label).includes('early') && 'Early') ||
-      (normalizeText(label).includes('mid') && 'Mid') ||
-      (normalizeText(label).includes('late') && 'Late') ||
-      label;
-
-    const current = counts.get(canonical) || {
-      label: canonical,
-      count: 0,
-      firstIndex: index,
-    };
-
-    current.count += 1;
-    counts.set(canonical, current);
+  const totals = selectedChampions.reduce((acc, champion) => mergeTempoScores(acc, tempoFromChampion(champion)), {
+    Early: 0,
+    Mid: 0,
+    Late: 0,
   });
 
-  if (!counts.size) {
-    return 'Sin definir';
-  }
-
-  const ordered = [...counts.values()].sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex || a.label.localeCompare(b.label, 'es'));
-  const dominant = ordered[0];
-  if (dominant.count >= 2 && ordered.length === 1) {
-    return dominant.label;
-  }
-
-  const componentSet = new Set();
-  ordered.forEach((item) => {
-    tempoToComponents(item.label).forEach((component) => componentSet.add(component));
-  });
-
-  const active = [...componentSet].sort((a, b) => a - b);
-  if (!active.length) return dominant.label;
-  if (active.length === 1) return TEMPO_ORDER[active[0] - 1];
-
-  const start = TEMPO_ORDER[active[0] - 1];
-  const end = TEMPO_ORDER[active[active.length - 1] - 1];
-  if (start === end) return start;
-  return `${start} → ${end}`;
+  return resolveTempoLabel(totals);
 }
