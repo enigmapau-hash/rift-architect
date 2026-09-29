@@ -1,3 +1,5 @@
+import './recommendations.js';
+
 const ROLE_ACCENTS = {
   top: 'rgba(124, 140, 255, 0.28)',
   jungle: 'rgba(70, 211, 161, 0.28)',
