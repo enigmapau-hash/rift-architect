@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = '0.4.0';
+export const ENGINE_VERSION = '1.1.0';
 
 export const ATTRIBUTE_SPECS = [
   { key: 'frontline', label: 'Frontline' },
@@ -107,61 +107,32 @@ export function analyzeComposition(selectedChampions) {
     score: clamp(Math.round(aggregate[spec.key] / divisor), 0, 10),
   }));
 
-  const recommendations = [];
-
-  if (selectedChampions.length < 5) {
-    recommendations.push(`Te faltan ${5 - selectedChampions.length} pick(s) para completar la composición.`);
-  }
-
-  if (ap === 0 && hybrid === 0) {
-    recommendations.push('La composición no muestra daño AP claro.');
-  }
-
-  if (ad === 0 && hybrid === 0) {
-    recommendations.push('La composición no muestra daño AD claro.');
-  }
-
-  const frontline = findMetric(metrics, 'frontline');
-  const engage = findMetric(metrics, 'engage');
-  const scaling = findMetric(metrics, 'scaling');
-  const control = findMetric(metrics, 'control');
-  const objective = findMetric(metrics, 'objective');
-
-  if (frontline?.score < 5) {
-    recommendations.push('Falta frontline real para entrar o aguantar peleas front-to-back.');
-  }
-
-  if (engage?.score < 5) {
-    recommendations.push('El draft tiene poco engage directo.');
-  }
-
-  if (objective?.score < 5) {
-    recommendations.push('Hay poco foco en objetivos y control de zona.');
-  }
-
-  if (control?.score >= 7) {
-    recommendations.push('La composición tiene buen control de zonas.');
-  }
-
-  if (scaling?.score >= 7) {
-    recommendations.push('La composición escala bien a partida larga.');
-  }
-
-  if (!recommendations.length) {
-    recommendations.push('La composición está bastante equilibrada.');
-  }
+  const identitySummary = summarizeIdentities(selectedChampions);
+  const tagStrengths = summarizeTags(selectedChampions, 'strengths');
+  const tagWeaknesses = summarizeTags(selectedChampions, 'weaknesses');
+  const tempoTrend = summarizeTempo(selectedChampions);
+  const gamePlan = buildGamePlan(identitySummary.primary.label, tempoTrend.label, tagStrengths, tagWeaknesses);
 
   const strongest = [...metrics].sort((a, b) => b.score - a.score)[0] || { label: 'Sin datos', score: 0 };
   const weakest = [...metrics].sort((a, b) => a.score - b.score)[0] || { label: 'Sin datos', score: 0 };
 
   return {
     engineVersion: ENGINE_VERSION,
-    summaryTitle: `${strongest.label} destaca`,
-    summaryText: `El punto más fuerte ahora mismo es ${strongest.label.toLowerCase()}, mientras que ${weakest.label.toLowerCase()} es lo más flojo.`,
+    summaryTitle: identitySummary.primary.label,
+    summaryText: buildSummaryText(identitySummary, tempoTrend),
+    primaryIdentity: identitySummary.primary.label,
+    primaryIdentityChampions: identitySummary.primary.champions,
+    secondaryIdentities: identitySummary.secondary.map((item) => item.label),
+    strengths: tagStrengths.map((item) => item.label),
+    weaknesses: tagWeaknesses.map((item) => item.label),
+    gamePlan,
+    tempoTrend: tempoTrend.label,
     metrics,
-    recommendations,
     damageSplit: { ap, ad, hybrid },
     profiles,
+    strongest,
+    weakest,
+    recommendations: gamePlan,
   };
 }
 
@@ -202,6 +173,196 @@ export function matchesCategory(tag, category) {
   });
 }
 
+function summarizeIdentities(selectedChampions) {
+  const counts = new Map();
+
+  selectedChampions.forEach((champion, index) => {
+    const label = normalizeIdentityLabel(champion?.identity);
+    const key = normalizeText(label);
+    const current = counts.get(key) || {
+      key,
+      label,
+      count: 0,
+      firstIndex: index,
+      champions: [],
+    };
+
+    current.count += 1;
+    current.champions.push(champion?.champion || 'Sin definir');
+    counts.set(key, current);
+  });
+
+  const ordered = [...counts.values()].sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex);
+  const nonEmpty = ordered.filter((item) => item.key !== normalizeText('Sin definir'));
+  const pool = nonEmpty.length ? nonEmpty : ordered;
+
+  const [primary, ...secondary] = pool;
+  return {
+    primary: primary || {
+      key: normalizeText('Sin definir'),
+      label: 'Sin definir',
+      count: 0,
+      champions: [],
+    },
+    secondary,
+  };
+}
+
+function summarizeTags(selectedChampions, field) {
+  const counts = new Map();
+
+  selectedChampions.forEach((champion, index) => {
+    const tags = normalizeTags(champion?.[field]);
+    tags.forEach((tag) => {
+      const label = cleanLabel(tag);
+      const key = normalizeText(label);
+      if (!key || key === normalizeText('Sin definir')) return;
+
+      const current = counts.get(key) || {
+        key,
+        label,
+        count: 0,
+        firstIndex: index,
+      };
+
+      current.count += 1;
+      counts.set(key, current);
+    });
+  });
+
+  return [...counts.values()]
+    .sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex || a.label.localeCompare(b.label, 'es'))
+    .slice(0, 4);
+}
+
+function summarizeTempo(selectedChampions) {
+  const counts = new Map();
+
+  selectedChampions.forEach((champion, index) => {
+    const label = cleanLabel(champion?.tempo);
+    const key = normalizeText(label);
+    if (!key || key === normalizeText('Sin definir')) return;
+
+    const current = counts.get(key) || {
+      key,
+      label,
+      count: 0,
+      firstIndex: index,
+    };
+
+    current.count += 1;
+    counts.set(key, current);
+  });
+
+  const ordered = [...counts.values()].sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex);
+  return ordered[0] || { key: normalizeText('Sin definir'), label: 'Sin definir', count: 0 };
+}
+
+function buildGamePlan(primaryIdentity, tempoTrend, strengths, weaknesses) {
+  const normalizedPrimary = normalizeText(primaryIdentity);
+  const normalizedTempo = normalizeText(tempoTrend);
+  const strengthKeys = strengths.map((item) => normalizeText(item.label));
+  const weaknessKeys = weaknesses.map((item) => normalizeText(item.label));
+
+  let plan = [];
+
+  if (normalizedPrimary.includes('fronttoback') || normalizedPrimary.includes('teamfight')) {
+    plan = [
+      'Agruparse para pelear 5v5.',
+      'Buscar objetivos neutrales.',
+      'Evitar splitpush largo.',
+    ];
+  } else if (normalizedPrimary.includes('poke') || normalizedPrimary.includes('siege')) {
+    plan = [
+      'Castigar desde distancia.',
+      'Controlar visión y zonas.',
+      'Evitar all-ins largos.',
+    ];
+  } else if (normalizedPrimary.includes('splitpush')) {
+    plan = [
+      'Abrir mapa con side lanes.',
+      'Presionar torres y oleadas.',
+      'Evitar peleas forzadas.',
+    ];
+  } else if (normalizedPrimary.includes('engage') || normalizedPrimary.includes('pick') || normalizedPrimary.includes('dive')) {
+    plan = [
+      'Buscar iniciación limpia.',
+      'Forzar picks con visión.',
+      'Convertir ventaja en objetivos.',
+    ];
+  } else if (normalizedPrimary.includes('protect') || normalizedPrimary.includes('control')) {
+    plan = [
+      'Jugar alrededor del carry.',
+      'Mantener la frontline viva.',
+      'Controlar la zona antes de pelear.',
+    ];
+  } else {
+    plan = [
+      'Jugar alrededor de la identidad principal.',
+      'Mantenerse agrupados en peleas clave.',
+      'Priorizar objetivos cuando haya ventaja.',
+    ];
+  }
+
+  if ((normalizedTempo.includes('late') || normalizedTempo.includes('midlate')) && !plan[0].toLowerCase().includes('escalar')) {
+    plan[0] = 'Jugar a escalar antes de forzar.';
+  }
+
+  if (!plan.some((line) => normalizeText(line).includes('objetivo')) && strengthKeys.some((key) => key.includes('objective'))) {
+    plan[1] = 'Convertir las ventajas en objetivos.';
+  }
+
+  if (!plan.some((line) => normalizeText(line).includes('frontline')) && weaknessKeys.some((key) => key.includes('frontline'))) {
+    plan[2] = 'Evitar peleas sin frontline preparada.';
+  }
+
+  return [...new Set(plan)].slice(0, 3);
+}
+
+function buildSummaryText(identitySummary, tempoTrend) {
+  const secondary = identitySummary.secondary.slice(0, 2).map((item) => item.label).filter(Boolean);
+  const parts = [identitySummary.primary.label];
+  if (secondary.length) parts.push(`Secundarias: ${secondary.join(' · ')}`);
+  if (tempoTrend?.label && normalizeText(tempoTrend.label) !== normalizeText('Sin definir')) {
+    parts.push(`Ritmo: ${tempoTrend.label}`);
+  }
+  return parts.join(' · ');
+}
+
+function cleanLabel(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return 'Sin definir';
+
+  const stripped = raw
+    .replace(/^[^\p{L}\p{N}]+/gu, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return stripped || raw;
+}
+
+function normalizeIdentityLabel(value) {
+  const label = cleanLabel(value);
+  const normalized = normalizeText(label);
+
+  if (normalized.includes('fronttoback')) return 'Front to Back';
+  if (normalized.includes('teamfight')) return 'Teamfight';
+  if (normalized.includes('engage')) return 'Engage';
+  if (normalized.includes('pick')) return 'Pick';
+  if (normalized.includes('poke')) return 'Poke';
+  if (normalized.includes('splitpush') || normalized.includes('sidelane')) return 'Splitpush';
+  if (normalized.includes('dive')) return 'Dive';
+  if (normalized.includes('skirmish')) return 'Skirmish';
+  if (normalized.includes('protect')) return 'Protect';
+  if (normalized.includes('control')) return 'Control';
+  if (normalized.includes('siege')) return 'Siege';
+  if (normalized.includes('catch')) return 'Catch';
+  if (normalized.includes('flexible')) return 'Flexible';
+  if (normalized.includes('brawl')) return 'Skirmish';
+
+  return label;
+}
+
 function countMatches(tags, category) {
   return tags.reduce((total, tag) => total + (matchesCategory(tag, category) ? 1 : 0), 0);
 }
@@ -232,9 +393,7 @@ function detectDamageType(text) {
 function scoreComplexity(text) {
   let raw = 0;
   for (const term of COMPLEXITY_TERMS) {
-    if (text.includes(term)) {
-      raw += 1;
-    }
+    if (text.includes(term)) raw += 1;
   }
 
   if (text.includes('assassin') || text.includes('mobility') || text.includes('movilidad')) {
@@ -242,10 +401,6 @@ function scoreComplexity(text) {
   }
 
   return clamp(Math.round(raw * 2), 0, 10);
-}
-
-function findMetric(metrics, key) {
-  return metrics.find((metric) => metric.key === key);
 }
 
 function clamp(value, min, max) {
