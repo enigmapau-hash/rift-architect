@@ -18,6 +18,12 @@
 - Resumir fortalezas y carencias.
 - Construir un plan de juego simple y compacto.
 
+### Sprint 4.1 — Modelo de datos y contrato 🚧
+- Revisar el Excel como contrato de datos.
+- Documentar qué campos usa la UI, el motor y la IA.
+- Unificar el objeto `Champion`.
+- Alinear `README`, `docs/` y la interfaz con el mismo modelo.
+
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
 - Responder preguntas de draft.
