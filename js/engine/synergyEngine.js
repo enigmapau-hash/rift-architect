@@ -226,13 +226,19 @@ export function summarizeSynergies(selectedChampions = [], identitySummary = nul
     .filter(Boolean);
 
   const macro = buildMacroCandidates(selectedChampions, identitySummary, strengths).filter(Boolean);
-  const all = [...direct, ...macro]
-    .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'es'))
-    .slice(0, 4)
-    .map((item) => ({
-      ...item,
-      champions: [...new Set(item.champions)].slice(0, 3),
-    }));
+  const unique = new Map();
 
-  return all;
+  [...direct, ...macro]
+    .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'es'))
+    .forEach((item) => {
+      const previous = unique.get(item.key);
+      if (!previous || item.score > previous.score) {
+        unique.set(item.key, {
+          ...item,
+          champions: [...new Set(item.champions)].slice(0, 3),
+        });
+      }
+    });
+
+  return [...unique.values()].slice(0, 4);
 }
