@@ -137,7 +137,7 @@ function renderRecommendationBoard(picks) {
   return `
     <div class="recommendation-board">
       <article class="recommendation-primary">
-        <div class="recommendation-kicker">Principal</div>
+        <div class="recommendation-kicker">Principal · prioridad ${main.score}</div>
         <h4>${escapeHtml(main.champion)}</h4>
         <p class="recommendation-summary">${escapeHtml(main.summary)}</p>
         <div class="recommendation-reasons">
@@ -149,7 +149,7 @@ function renderRecommendationBoard(picks) {
           <div class="recommendation-kicker">Alternativas</div>
           <ul>
             ${alternatives.map((pick) => {
-              const reason = formatReasonText(pick.reasons[0] || 'general');
+              const reason = pick.summary || formatReasonText(pick.reasons[0] || 'general');
               return `<li><strong>${escapeHtml(pick.champion)}</strong><span>${escapeHtml(reason)}</span></li>`;
             }).join('')}
           </ul>
