@@ -55,6 +55,7 @@
 
 ### Sprint 4.7 — Core Engine v0.5 🚧
 - Implementar el motor v2 como entregable completo.
+- Separar el motor en módulos de identidad, fortalezas, debilidades, tempo y plan.
 - Integrar el panel final de análisis.
 - Publicar documentación técnica y changelog.
 - Pasar la auditoría general antes de cerrar el hito.
