@@ -1,0 +1,60 @@
+{
+  "slug": "hybrid-front-pick",
+  "description": "Composición híbrida entre frontline y pick.",
+  "selectedChampions": [
+    {
+      "champion": "Vi",
+      "role": "jungle",
+      "identity": "Engage",
+      "function": "Diver",
+      "tempo": "Early/Mid",
+      "strengths": ["Pick", "Engage", "Frontline"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Orianna",
+      "role": "mid",
+      "identity": "Control",
+      "function": "Mage",
+      "tempo": "Mid/Late",
+      "strengths": ["Control", "Teamfight", "Objective Control"],
+      "weaknesses": ["Mobility"]
+    },
+    {
+      "champion": "Shen",
+      "role": "top",
+      "identity": "Frontline",
+      "function": "Tank Warden",
+      "tempo": "Late",
+      "strengths": ["Frontline", "Peel", "Teamfight"],
+      "weaknesses": ["Waveclear"]
+    },
+    {
+      "champion": "Jinx",
+      "role": "botline",
+      "identity": "Protect",
+      "function": "ADC Hypercarry",
+      "tempo": "Late",
+      "strengths": ["Hypercarry", "DPS", "Front to Back"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Thresh",
+      "role": "support",
+      "identity": "Pick",
+      "function": "Playmaker",
+      "tempo": "Early/Mid",
+      "strengths": ["Pick", "Catch", "Vision"],
+      "weaknesses": ["All-in"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Front to Back",
+    "dominance": "hybrid",
+    "coherence": "Coherente",
+    "winCondition": "Escalar y ganar 5v5",
+    "tempoIncludes": ["Mid", "Late"],
+    "synergiesInclude": ["Pick de confirmación"],
+    "confidenceMin": 65
+  }
+}
