@@ -30,7 +30,7 @@ function toLabel(value) {
 
 function toScore(value) {
   if (!value || typeof value === 'string') return null;
-  return Number.isFinite(Number(value.score)) ? Number(value.score) : null;
+  return Number.isFinite(Number(value.score)) ? Math.round(Number(value.score)) : null;
 }
 
 async function loadRoleData() {
@@ -96,7 +96,21 @@ function renderList(items, className) {
         .map((item) => {
           const label = escapeHtml(toLabel(item));
           const score = toScore(item);
-          return `<li><span>${label}</span>${score !== null ? `<span class="analysis-list__score">${score}</span>` : ''}</li>`;
+          const detail = typeof item === 'object' ? escapeHtml(item.detail || item.summary || item.description || item.reason || '') : '';
+          const champions = typeof item === 'object' && Array.isArray(item.champions) && item.champions.length
+            ? escapeHtml(item.champions.join(' · '))
+            : '';
+
+          return `
+            <li>
+              <div>
+                <span>${label}</span>
+                ${detail ? `<small>${detail}</small>` : ''}
+                ${champions ? `<small>${champions}</small>` : ''}
+              </div>
+              ${score !== null ? `<span class="analysis-list__score">${score}</span>` : ''}
+            </li>
+          `;
         })
         .join('')}
     </ul>
@@ -134,8 +148,15 @@ function renderAnalysisSummary() {
   const strengths = (analysis.strengths || []).slice(0, 4);
   const weaknesses = (analysis.weaknesses || []).slice(0, 3);
   const gamePlan = (analysis.gamePlan || []).slice(0, 3);
+  const synergies = (analysis.synergies || []).slice(0, 3);
+  const coherence = analysis.coherence || {};
+  const winCondition = analysis.winCondition || {};
   const tempo = analysis.tempoDetail || analysis.tempo || 'Sin definir';
   const confidence = Number.isFinite(Number(analysis.confidence)) ? Math.round(Number(analysis.confidence)) : null;
+  const dominanceLabel = analysis.dominance === 'dominant' ? 'Dominante' : analysis.dominance === 'hybrid' ? 'Híbrida' : analysis.dominance === 'flexible' ? 'Flexible' : null;
+  const winPriorities = Array.isArray(winCondition.priorities) ? winCondition.priorities.slice(0, 3) : [];
+  const winAvoid = Array.isArray(winCondition.avoid) ? winCondition.avoid.slice(0, 2) : [];
+  const coherenceConflicts = Array.isArray(coherence.conflicts) ? coherence.conflicts.slice(0, 2) : [];
 
   summary.innerHTML = `
     <div class="analysis-engine">
@@ -144,8 +165,10 @@ function renderAnalysisSummary() {
         <h3>${escapeHtml(primaryIdentity)}</h3>
         <p>${escapeHtml(analysis.summaryText || 'Resumen compacto basado en el Excel.')}</p>
         <div class="analysis-chip-list">
-          ${analysis.dominance ? `<span class="analysis-chip">${escapeHtml(analysis.dominance === 'dominant' ? 'Dominante' : analysis.dominance === 'hybrid' ? 'Híbrida' : 'Flexible')}</span>` : ''}
+          ${dominanceLabel ? `<span class="analysis-chip">${escapeHtml(dominanceLabel)}</span>` : ''}
           ${confidence !== null ? `<span class="analysis-chip">Confianza ${confidence}%</span>` : ''}
+          ${coherence.label ? `<span class="analysis-chip">${escapeHtml(coherence.label)}</span>` : ''}
+          ${winCondition.label ? `<span class="analysis-chip">Victoria: ${escapeHtml(winCondition.label)}</span>` : ''}
         </div>
       </section>
 
@@ -165,6 +188,31 @@ function renderAnalysisSummary() {
         </section>
 
         <section class="analysis-block">
+          <p class="eyebrow">Sinergias</p>
+          ${renderList(synergies, 'analysis-list--good')}
+        </section>
+
+        <section class="analysis-block">
+          <p class="eyebrow">Coherencia</p>
+          <h4>${escapeHtml(coherence.label || 'Sin definir')}</h4>
+          <p class="analysis-note">${escapeHtml(coherence.detail || 'Sin detalle disponible.')}</p>
+          ${coherenceConflicts.length ? `<div class="analysis-chip-list">${coherenceConflicts.map((conflict) => `<span class="analysis-chip">${escapeHtml(conflict.label)}</span>`).join('')}</div>` : ''}
+        </section>
+
+        <section class="analysis-block analysis-block--hero analysis-block--plan">
+          <p class="eyebrow">Condición de victoria</p>
+          <h3>${escapeHtml(winCondition.label || 'Sin definir')}</h3>
+          <p>${escapeHtml(winCondition.detail || 'Sin detalle disponible.')}</p>
+          ${winPriorities.length ? `<div class="analysis-chip-list">${winPriorities.map((item) => `<span class="analysis-chip">${escapeHtml(item)}</span>`).join('')}</div>` : ''}
+        </section>
+
+        <section class="analysis-block analysis-block--hero analysis-block--plan">
+          <p class="eyebrow">Plan</p>
+          ${renderList(gamePlan, 'analysis-list--plan')}
+          ${winAvoid.length ? `<p class="analysis-note">Evitar: ${escapeHtml(winAvoid.join(' · '))}</p>` : ''}
+        </section>
+
+        <section class="analysis-block">
           <p class="eyebrow">🟢 Hace bien</p>
           ${renderList(strengths, 'analysis-list--good')}
         </section>
@@ -172,11 +220,6 @@ function renderAnalysisSummary() {
         <section class="analysis-block">
           <p class="eyebrow">🔴 Le falta</p>
           ${renderList(weaknesses, 'analysis-list--bad')}
-        </section>
-
-        <section class="analysis-block analysis-block--hero analysis-block--plan">
-          <p class="eyebrow">Plan</p>
-          ${renderList(gamePlan, 'analysis-list--plan')}
         </section>
       </div>
     </div>
