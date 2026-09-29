@@ -30,12 +30,17 @@
 - Fortalezas, carencias y plan de juego corto.
 - Resumen compacto y fácil de leer.
 
-### Sprint 4.3 — Auditoría y normalización del Draft Pool 🚧
+### Sprint 4.3 — Auditoría y normalización del Draft Pool ✅
 - Revisar hoja por hoja el Excel.
 - Normalizar Identity y Tempo.
 - Detectar vacíos y duplicados.
 - Escribir `data/audit.json`.
 - Mantener la base limpia antes de seguir con la IA.
+
+### Sprint 4.4 — Catálogo de atributos ✅
+- Definir qué atributos se muestran y cuáles son internos.
+- Unificar el significado de cada atributo.
+- Mantener la UI breve y sin exceso de texto.
 
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
