@@ -104,10 +104,10 @@ function buildModernPlan(winCondition, strengths = [], weaknesses = [], tempoSum
   return uniqueOrdered(plan).slice(0, 3);
 }
 
-export function buildGamePlan(winConditionOrIdentity, tempoOrSummary, strengths = [], weaknesses = [], synergies = [], coherence = null) {
+export function buildGamePlan(winConditionOrIdentity, strengths = [], weaknesses = [], tempoSummary = null, synergies = [], coherence = null) {
   if (winConditionOrIdentity && typeof winConditionOrIdentity === 'object' && !Array.isArray(winConditionOrIdentity)) {
-    return buildModernPlan(winConditionOrIdentity, strengths, weaknesses, tempoOrSummary, synergies, coherence);
+    return buildModernPlan(winConditionOrIdentity, strengths, weaknesses, tempoSummary, synergies, coherence);
   }
 
-  return buildLegacyPlan(winConditionOrIdentity, tempoOrSummary, strengths, weaknesses);
+  return buildLegacyPlan(winConditionOrIdentity, strengths, weaknesses, tempoSummary);
 }
