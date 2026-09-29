@@ -1,0 +1,42 @@
+export const WIN_CONDITION_RULES = [
+  {
+    key: 'splitpush',
+    match: ['splitpush'],
+    label: 'Abrir mapa',
+    detail: 'La composición quiere ensanchar la partida y ganar por presión lateral.',
+    priorities: ['Side lanes', 'Presión', 'Visión'],
+    avoid: ['Agruparse sin objetivo', '5v5 frontales'],
+  },
+  {
+    key: 'poke',
+    match: ['poke', 'siege'],
+    label: 'Desgastar antes de entrar',
+    detail: 'El equipo gana espacio antes de comprometer la pelea.',
+    priorities: ['Visión', 'Asedio', 'Objetivos'],
+    avoid: ['Dive frontal', 'Entradas aisladas'],
+  },
+  {
+    key: 'pick-engage',
+    match: ['pick', 'engage', 'dive'],
+    label: 'Forzar peleas cortas',
+    detail: 'La composición vive mejor en escaramuzas cortas y ventanas de castigo.',
+    priorities: ['Visión', 'Picks', 'Objetivos'],
+    avoid: ['Pelear tarde sin ventaja', 'Agruparse sin visión'],
+  },
+  {
+    key: 'protect-front-to-back',
+    match: ['protect', 'fronttoback', 'teamfight', 'control'],
+    label: 'Escalar y ganar 5v5',
+    detail: 'La composición quiere llegar ordenada al cierre y pelear con front line y carry protegido.',
+    priorities: ['Escalar', 'Agruparse', 'Proteger carry'],
+    avoid: ['Peleas aisladas', 'Side lanes innecesarias'],
+  },
+  {
+    key: 'fallback',
+    match: [],
+    label: 'Jugar alrededor de la identidad',
+    detail: 'La composición debe seguir su plan dominante y evitar improvisar.',
+    priorities: ['Identidad', 'Objetivos', 'Ejecutar el plan'],
+    avoid: ['Desorden', 'Pelear sin ventaja'],
+  },
+];
