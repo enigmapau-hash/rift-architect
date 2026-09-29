@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v37';
+const CACHE_NAME = 'rift-architect-v38';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -29,6 +29,16 @@ const STATIC_ASSETS = [
   './knowledge/synergies.js',
   './knowledge/conflicts.js',
   './knowledge/win-conditions.js',
+  './tests/index.html',
+  './tests/engineValidation.js',
+  './tests/compositions/front-to-back.json',
+  './tests/compositions/pick.json',
+  './tests/compositions/poke.json',
+  './tests/compositions/dive.json',
+  './tests/compositions/splitpush.json',
+  './tests/compositions/protect-carry.json',
+  './tests/compositions/hybrid-front-pick.json',
+  './tests/compositions/incoherent.json',
   './manifest.webmanifest',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
