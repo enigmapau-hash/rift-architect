@@ -4,6 +4,16 @@
   display: none !important;
 }
 
+#compositionGrid .slot,
+#championList .champion-item {
+  cursor: pointer;
+}
+
+#compositionGrid .slot > *,
+#championList .champion-item > * {
+  pointer-events: none;
+}
+
 #compositionGrid .slot {
   min-height: 182px;
   padding: 12px 12px 10px;
@@ -30,7 +40,8 @@
   pointer-events: none;
 }
 
-#compositionGrid .slot:hover {
+#compositionGrid .slot:hover,
+#championList .champion-item:hover {
   transform: translateY(-2px);
 }
 
