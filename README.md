@@ -17,7 +17,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
-- El motor de análisis mantiene compatibilidad con el panel antiguo mientras termina la migración al contrato v2.
+- El panel de análisis v2 ya es el único panel visible del resumen.
 - Se añadió un `data/index.json` mínimo para evitar 404 en Pages y un icono SVG como favicon.
 - Responsive compartido para PC, tablet y móvil.
 
