@@ -15,7 +15,7 @@
         <div>
           <p class="eyebrow">Rift Architect</p>
           <h1>Draft rápido</h1>
-          <p class="subtitle">Elige tus 5 campeones y revisa solo lo importante.</p>
+          <p class="subtitle">Pulsa un rol y elige un campeón sin pantallas extra.</p>
         </div>
         <div class="header-actions">
           <span id="statusBadge" class="status">Cargando…</span>
@@ -35,26 +35,32 @@
           <div class="summary-card">
             <div class="panel-title-row compact">
               <h3>Resumen rápido</h3>
-              <span id="activeRoleLabel" class="status"></span>
             </div>
             <div id="analysisSummary" class="analysis-summary" aria-live="polite"></div>
             <div id="recommendations" class="recommendation-list"></div>
           </div>
-
-          <div class="selector-card">
-            <div class="panel-title-row compact">
-              <h3>Elegir campeón</h3>
-              <span class="hint">Toca un rol y luego un campeón</span>
-            </div>
-            <div id="roleTabs" class="role-tabs"></div>
-            <label class="search">
-              <span class="sr-only">Buscar campeón</span>
-              <input id="searchInput" type="search" placeholder="Buscar campeón…" />
-            </label>
-            <div id="championList" class="champion-list"></div>
-          </div>
         </section>
       </main>
+    </div>
+
+    <div id="pickerBackdrop" class="picker-backdrop is-hidden" aria-hidden="true">
+      <section class="picker-modal" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+        <div class="picker-header">
+          <div>
+            <p id="pickerRoleLabel" class="eyebrow"></p>
+            <h2 id="pickerTitle">Elegir campeón</h2>
+          </div>
+          <button id="closePickerBtn" class="ghost-btn" type="button">Cerrar</button>
+        </div>
+
+        <label class="search">
+          <span class="sr-only">Buscar campeón</span>
+          <input id="searchInput" type="search" placeholder="Buscar campeón…" autocomplete="off" />
+        </label>
+
+        <div id="championList" class="champion-list"></div>
+        <p id="pickerHint" class="picker-hint"></p>
+      </section>
     </div>
 
     <script type="module" src="./js/app.js"></script>
