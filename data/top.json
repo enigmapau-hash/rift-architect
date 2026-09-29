@@ -1,0 +1,716 @@
+[
+  {
+    "champion": "Aatrox",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Teamfight",
+      "Sustain",
+      "Frontline"
+    ],
+    "weaknesses": [
+      "Kiteable"
+    ]
+  },
+  {
+    "champion": "Akali",
+    "identity": "⚔️ Engage",
+    "function": "Asesino AP",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Backline",
+      "Movilidad",
+      "Burst"
+    ],
+    "weaknesses": [
+      "Muy exigente"
+    ]
+  },
+  {
+    "champion": "Ambessa",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Dueling",
+      "Engage",
+      "Skirmish"
+    ],
+    "weaknesses": [
+      "Dependiente de snowball"
+    ]
+  },
+  {
+    "champion": "Aurora",
+    "identity": "🛡️ Front to Back",
+    "function": "Mago AP",
+    "tempo": "Late",
+    "strengths": [
+      "Poke",
+      "Zone control",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Fragilidad"
+    ]
+  },
+  {
+    "champion": "Camille",
+    "identity": "⚔️ Engage",
+    "function": "Duelista AD",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Pick",
+      "Splitpush",
+      "Backline"
+    ],
+    "weaknesses": [
+      "Early irregular"
+    ]
+  },
+  {
+    "champion": "Cassiopeia",
+    "identity": "🛡️ Front to Back",
+    "function": "Battlemage AP",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "DPS",
+      "Anti-dive",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Sin movilidad"
+    ]
+  },
+  {
+    "champion": "Cho'Gath",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank AP",
+    "tempo": "Late",
+    "strengths": [
+      "Frontline",
+      "Objetivos",
+      "Disengage"
+    ],
+    "weaknesses": [
+      "Movilidad limitada"
+    ]
+  },
+  {
+    "champion": "Darius",
+    "identity": "⚔️ Engage",
+    "function": "Juggernaut AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Snowball",
+      "Duelo",
+      "Zone control"
+    ],
+    "weaknesses": [
+      "Kiteable"
+    ]
+  },
+  {
+    "champion": "Dr. Mundo",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank AD",
+    "tempo": "Late",
+    "strengths": [
+      "Sustain",
+      "Frontline",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Poca amenaza de pick"
+    ]
+  },
+  {
+    "champion": "Fiora",
+    "identity": "⚔️ Engage",
+    "function": "Duelista AD",
+    "tempo": "Late",
+    "strengths": [
+      "Splitpush",
+      "Duel",
+      "Objetivos"
+    ],
+    "weaknesses": [
+      "No aporta frontline"
+    ]
+  },
+  {
+    "champion": "Gangplank",
+    "identity": "🛡️ Front to Back",
+    "function": "Poke AD",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Poke",
+      "Asedio",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Early débil"
+    ]
+  },
+  {
+    "champion": "Garen",
+    "identity": "🛡️ Front to Back",
+    "function": "Juggernaut AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Simplicidad",
+      "Resistencia",
+      "Side lane"
+    ],
+    "weaknesses": [
+      "Engage lineal"
+    ]
+  },
+  {
+    "champion": "Gnar",
+    "identity": "🛡️ Front to Back",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Poke",
+      "Frontline",
+      "Teamfight"
+    ],
+    "weaknesses": [
+      "Dependiente de la furia"
+    ]
+  },
+  {
+    "champion": "Gragas",
+    "identity": "⚔️ Engage",
+    "function": "Tank AP",
+    "tempo": "Mid",
+    "strengths": [
+      "Engage",
+      "Disengage",
+      "Flexibilidad"
+    ],
+    "weaknesses": [
+      "Difícil de ejecutar"
+    ]
+  },
+  {
+    "champion": "Gwen",
+    "identity": "🛡️ Front to Back",
+    "function": "Skirmisher AP",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "DPS",
+      "Anti-frontline",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Poca utilidad"
+    ]
+  },
+  {
+    "champion": "Hecarim",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Dive",
+      "Flank",
+      "Snowball"
+    ],
+    "weaknesses": [
+      "Depende del tempo"
+    ]
+  },
+  {
+    "champion": "Illaoi",
+    "identity": "🛡️ Front to Back",
+    "function": "Juggernaut AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Área",
+      "Objetivos",
+      "Sustain"
+    ],
+    "weaknesses": [
+      "Movilidad nula"
+    ]
+  },
+  {
+    "champion": "Irelia",
+    "identity": "⚔️ Engage",
+    "function": "Skirmisher AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Outplay",
+      "Duel",
+      "Backline"
+    ],
+    "weaknesses": [
+      "Exigente"
+    ]
+  },
+  {
+    "champion": "Jax",
+    "identity": "🛡️ Front to Back",
+    "function": "Skirmisher AD",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Splitpush",
+      "Duel",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Early irregular"
+    ]
+  },
+  {
+    "champion": "Jayce",
+    "identity": "⚔️ Engage",
+    "function": "Poke AD",
+    "tempo": "Early/Mid",
+    "strengths": [
+      "Poke",
+      "Pressure",
+      "Lane"
+    ],
+    "weaknesses": [
+      "Escala peor"
+    ]
+  },
+  {
+    "champion": "K'Sante",
+    "identity": "⚔️ Engage",
+    "function": "Tank AD",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Frontline",
+      "Pick",
+      "Peel"
+    ],
+    "weaknesses": [
+      "Muy técnico"
+    ]
+  },
+  {
+    "champion": "Kayle",
+    "identity": "🛡️ Front to Back",
+    "function": "Hypercarry AP",
+    "tempo": "Late",
+    "strengths": [
+      "Escalado",
+      "DPS",
+      "Side lane"
+    ],
+    "weaknesses": [
+      "Early muy débil"
+    ]
+  },
+  {
+    "champion": "Kennen",
+    "identity": "⚔️ Engage",
+    "function": "Burst AP",
+    "tempo": "Mid",
+    "strengths": [
+      "Teamfight",
+      "Flank",
+      "AoE"
+    ],
+    "weaknesses": [
+      "Fragilidad"
+    ]
+  },
+  {
+    "champion": "Kled",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Early/Mid",
+    "strengths": [
+      "All-in",
+      "Dive",
+      "Snowball"
+    ],
+    "weaknesses": [
+      "Caótico"
+    ]
+  },
+  {
+    "champion": "Mordekaiser",
+    "identity": "⚔️ Engage",
+    "function": "Juggernaut AP",
+    "tempo": "Mid",
+    "strengths": [
+      "Duelo",
+      "Aislar objetivos",
+      "Sustain"
+    ],
+    "weaknesses": [
+      "Movilidad limitada"
+    ]
+  },
+  {
+    "champion": "Nasus",
+    "identity": "🛡️ Front to Back",
+    "function": "Juggernaut AD",
+    "tempo": "Late",
+    "strengths": [
+      "Escalado",
+      "Side lane",
+      "Objetivos"
+    ],
+    "weaknesses": [
+      "Early flojo"
+    ]
+  },
+  {
+    "champion": "Olaf",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Early/Mid",
+    "strengths": [
+      "Dive",
+      "Anti-CC",
+      "Snowball"
+    ],
+    "weaknesses": [
+      "Escala peor"
+    ]
+  },
+  {
+    "champion": "Ornn",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank",
+    "tempo": "Late",
+    "strengths": [
+      "Frontline",
+      "Engage",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Líneas lentas"
+    ]
+  },
+  {
+    "champion": "Poppy",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank",
+    "tempo": "Mid",
+    "strengths": [
+      "Anti-dash",
+      "Peel",
+      "Pick"
+    ],
+    "weaknesses": [
+      "Daño limitado"
+    ]
+  },
+  {
+    "champion": "Quinn",
+    "identity": "⚔️ Engage",
+    "function": "Marksman AD",
+    "tempo": "Early",
+    "strengths": [
+      "Roam",
+      "Pick",
+      "Pressure"
+    ],
+    "weaknesses": [
+      "Teamfight limitada"
+    ]
+  },
+  {
+    "champion": "Rammus",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank",
+    "tempo": "Mid",
+    "strengths": [
+      "Anti-AD",
+      "Pick",
+      "Frontline"
+    ],
+    "weaknesses": [
+      "Muy situacional"
+    ]
+  },
+  {
+    "champion": "Renekton",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Early/Mid",
+    "strengths": [
+      "Dominio de línea",
+      "Dive",
+      "Frontline"
+    ],
+    "weaknesses": [
+      "Escalado mediocre"
+    ]
+  },
+  {
+    "champion": "Riven",
+    "identity": "⚔️ Engage",
+    "function": "Skirmisher AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Outplay",
+      "Mobilidad",
+      "Burst"
+    ],
+    "weaknesses": [
+      "Exigente"
+    ]
+  },
+  {
+    "champion": "Rumble",
+    "identity": "🛡️ Front to Back",
+    "function": "Burst AP",
+    "tempo": "Mid",
+    "strengths": [
+      "Poke",
+      "Teamfight",
+      "Objetivos"
+    ],
+    "weaknesses": [
+      "Posicionamiento"
+    ]
+  },
+  {
+    "champion": "Sett",
+    "identity": "⚔️ Engage",
+    "function": "Juggernaut AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Engage",
+      "Frontline",
+      "Pick"
+    ],
+    "weaknesses": [
+      "Engage predecible"
+    ]
+  },
+  {
+    "champion": "Shen",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank",
+    "tempo": "Mid",
+    "strengths": [
+      "Global",
+      "Peel",
+      "Frontline"
+    ],
+    "weaknesses": [
+      "Waveclear"
+    ]
+  },
+  {
+    "champion": "Sion",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank",
+    "tempo": "Late",
+    "strengths": [
+      "Frontline",
+      "Objetivos",
+      "Zone control"
+    ],
+    "weaknesses": [
+      "Lento"
+    ]
+  },
+  {
+    "champion": "Sylas",
+    "identity": "⚔️ Engage",
+    "function": "Skirmisher AP",
+    "tempo": "Mid",
+    "strengths": [
+      "Skirmish",
+      "Heal",
+      "Backline"
+    ],
+    "weaknesses": [
+      "Dependiente de ultis"
+    ]
+  },
+  {
+    "champion": "Tahm Kench",
+    "identity": "🛡️ Front to Back",
+    "function": "Tank",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Peel",
+      "Save",
+      "Frontline"
+    ],
+    "weaknesses": [
+      "Poco daño"
+    ]
+  },
+  {
+    "champion": "Teemo",
+    "identity": "🛡️ Front to Back",
+    "function": "Poke AP",
+    "tempo": "Mid",
+    "strengths": [
+      "Poke",
+      "Vision",
+      "Lane control"
+    ],
+    "weaknesses": [
+      "Teamfight débil"
+    ]
+  },
+  {
+    "champion": "Trundle",
+    "identity": "⚔️ Engage",
+    "function": "Skirmisher AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Duel",
+      "Anti-tank",
+      "Objetivos"
+    ],
+    "weaknesses": [
+      "Poco CC"
+    ]
+  },
+  {
+    "champion": "Tryndamere",
+    "identity": "⚔️ Engage",
+    "function": "Skirmisher AD",
+    "tempo": "Late",
+    "strengths": [
+      "Side lane",
+      "Escalado",
+      "Dive"
+    ],
+    "weaknesses": [
+      "Dependiente de splitpush"
+    ]
+  },
+  {
+    "champion": "Urgot",
+    "identity": "🛡️ Front to Back",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Disruption",
+      "Frontline",
+      "Pick"
+    ],
+    "weaknesses": [
+      "Kiteable"
+    ]
+  },
+  {
+    "champion": "Vayne",
+    "identity": "🛡️ Front to Back",
+    "function": "Marksman AD",
+    "tempo": "Late",
+    "strengths": [
+      "DPS",
+      "Tank shred",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Early débil"
+    ]
+  },
+  {
+    "champion": "Volibear",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Dive",
+      "Frontline",
+      "Turret dive"
+    ],
+    "weaknesses": [
+      "Pierde valor si va por detrás"
+    ]
+  },
+  {
+    "champion": "Warwick",
+    "identity": "⚔️ Engage",
+    "function": "Duelista AD",
+    "tempo": "Early/Mid",
+    "strengths": [
+      "Pick",
+      "Duel",
+      "Sustain"
+    ],
+    "weaknesses": [
+      "Teamfight limitada"
+    ]
+  },
+  {
+    "champion": "Wukong",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Teamfight",
+      "Engage",
+      "Flank"
+    ],
+    "weaknesses": [
+      "Vulnerable a visión"
+    ]
+  },
+  {
+    "champion": "Yone",
+    "identity": "⚔️ Engage",
+    "function": "Skirmisher AD",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Backline",
+      "Outplay",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Exigente"
+    ]
+  },
+  {
+    "champion": "Yorick",
+    "identity": "🛡️ Front to Back",
+    "function": "Splitpusher AD",
+    "tempo": "Late",
+    "strengths": [
+      "Splitpush",
+      "Objetivos",
+      "Presión lateral"
+    ],
+    "weaknesses": [
+      "Teamfight discreta"
+    ]
+  },
+  {
+    "champion": "Zac",
+    "identity": "⚔️ Engage",
+    "function": "Tanque",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Engage",
+      "Frontline",
+      "Teamfight"
+    ],
+    "weaknesses": [
+      "Dependiente del engage"
+    ]
+  },
+  {
+    "champion": "Ziggs",
+    "identity": "🛡️ Front to Back",
+    "function": "Artillery Mage AP",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Asedio",
+      "Poke",
+      "Objetivos"
+    ],
+    "weaknesses": [
+      "Muy inmóvil"
+    ]
+  }
+]
