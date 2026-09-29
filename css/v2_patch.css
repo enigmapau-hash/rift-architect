@@ -4,6 +4,106 @@
   display: none !important;
 }
 
+#compositionGrid .slot {
+  min-height: 178px;
+  padding: 12px 12px 10px;
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 5px;
+  text-align: center;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    background 160ms ease;
+}
+
+#compositionGrid .slot:hover {
+  transform: translateY(-2px);
+}
+
+#compositionGrid .slot.is-filled {
+  border-color: rgba(70, 211, 161, 0.54);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.18);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.03));
+}
+
+#compositionGrid .slot.is-empty {
+  border-style: dashed;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+}
+
+#compositionGrid .slot__role {
+  width: 100%;
+  text-align: left;
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+#compositionGrid .slot .avatar--lg {
+  width: 62px;
+  height: 62px;
+}
+
+#compositionGrid .slot .avatar--empty {
+  font-size: 1.05rem;
+  color: var(--muted);
+}
+
+#compositionGrid .slot__name {
+  margin: 0;
+  max-width: 100%;
+  font-size: 1rem;
+  line-height: 1.08;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#compositionGrid .slot__identity {
+  color: var(--accent-2);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+#compositionGrid .slot__function {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 600;
+  line-height: 1.1;
+}
+
+#compositionGrid .slot__tempo,
+#compositionGrid .slot__cta {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  line-height: 1.1;
+}
+
+#compositionGrid .slot__tempo {
+  color: var(--accent-2);
+}
+
+#compositionGrid .slot.is-empty .slot__cta {
+  margin-top: 2px;
+}
+
+#compositionGrid .slot.is-empty .slot__name {
+  font-size: 0.96rem;
+}
+
+#compositionGrid .slot.is-filled .slot__identity,
+#compositionGrid .slot.is-filled .slot__function,
+#compositionGrid .slot.is-filled .slot__tempo {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
+}
+
 .champion-item,
 .slot.is-filled {
   align-items: flex-start;
@@ -69,6 +169,16 @@
 }
 
 @media (max-width: 620px) {
+  #compositionGrid .slot {
+    min-height: 168px;
+    padding: 10px 10px 8px;
+  }
+
+  #compositionGrid .slot .avatar--lg {
+    width: 56px;
+    height: 56px;
+  }
+
   .champion-item {
     min-height: 88px;
   }
