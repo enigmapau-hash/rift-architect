@@ -1,49 +1,30 @@
 # Rift Architect
 
-PWA para construir y analizar composiciones de League of Legends.
+PWA para construir y entender composiciones de League of Legends a partir de `Draft Pool.xlsx`.
 
-## Flujo del proyecto
+## Fuente de verdad
 
-- `Draft Pool.xlsx` es la fuente de verdad.
+- `Draft Pool.xlsx` es la única fuente editable.
 - Un GitHub Action convierte el Excel a JSON en cada push a `main`.
-- La PWA consume `data/index.json` y los ficheros de rol generados.
-- GitHub Pages se publica automáticamente desde el workflow.
+- La PWA consume `data/index.json` y los ficheros generados en `data/`.
+- GitHub Pages publica la versión visible del proyecto.
 
 ## Estado actual
 
-- Selector visual por roles.
-- Composición editable con selección rápida.
-- Perfil de campeón con atributos derivados o explícitos.
-- Motor de análisis basado en métricas numéricas.
-- Vista responsive para móvil, tablet y PC.
+- Selector modal por rol.
+- Tarjetas de composición compactas.
+- Iconos oficiales de Riot con alias para variantes como Kayn, Shaco o Varus.
+- Identidad, función y tempo visibles en selector y tarjetas.
+- Responsive compartido para PC, tablet y móvil.
 
-## Hoja opcional de atributos
+## Siguiente fase
 
-Si añades una hoja `09_Attributes` o `Attributes`, el generador la detecta y mezcla esos valores en cada campeón.
+La parte de análisis se está definiendo en:
 
-Plantilla exacta:
-
-- [`docs/attributes-template.md`](./docs/attributes-template.md)
-
-Columnas recomendadas:
-
-- `Champion`
-- `Engage`
-- `Disengage`
-- `Frontline`
-- `Peel`
-- `Pick`
-- `Poke`
-- `Burst`
-- `DPS`
-- `Scaling`
-- `Mobility`
-- `Waveclear`
-- `Siege`
-- `Splitpush`
-- `Objective Control`
-- `Vision`
-- `Confidence`
+- [`docs/analysis-engine.md`](./docs/analysis-engine.md)
+- [`docs/architecture.md`](./docs/architecture.md)
+- [`docs/data-model.md`](./docs/data-model.md)
+- [`ROADMAP.md`](./ROADMAP.md)
 
 ## Estructura de datos
 
@@ -55,6 +36,14 @@ Columnas recomendadas:
 - `data/support.json`
 - `data/attributes.json`
 
+## Hoja opcional de atributos
+
+Si añades una hoja `09_Attributes` o `Attributes`, el generador la detecta y mezcla esos valores en cada campeón.
+
+Plantilla exacta:
+
+- [`docs/attributes-template.md`](./docs/attributes-template.md)
+
 ## Scripts
 
 ```bash
@@ -62,6 +51,10 @@ npm install
 npm run generate:data
 ```
 
-## Arquitectura
+## Roadmap
 
-La base técnica y la hoja de ruta están en `docs/architecture.md`.
+- Fase 1: base técnica y publicación.
+- Fase 2: selección y composición.
+- Fase 3: motor de análisis.
+- Fase 4: asistente IA.
+- Fase 5: coach conversacional.
