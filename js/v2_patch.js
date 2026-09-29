@@ -1,13 +1,16 @@
-const ROLE_FILES = [
-  { key: 'top', label: 'Top', file: './data/top.json' },
-  { key: 'jungle', label: 'Jungla', file: './data/jungle.json' },
-  { key: 'mid', label: 'Mid', file: './data/mid.json' },
-  { key: 'botline', label: 'Botline', file: './data/bot.json' },
-  { key: 'support', label: 'Support', file: './data/support.json' },
+const WORKBOOK_URL = './Draft%20Pool.xlsx';
+
+const ROLE_SHEETS = [
+  { key: 'top', label: 'Top', sheet: 'Tabla Top' },
+  { key: 'jungle', label: 'Jungla', sheet: 'Tabla Jungla' },
+  { key: 'mid', label: 'Mid', sheet: 'Tabla Mid' },
+  { key: 'botline', label: 'Botline', sheet: 'Tabla Botline' },
+  { key: 'support', label: 'Support', sheet: 'Tabla Support' },
 ];
 
 const roleData = new Map();
 let patchScheduled = false;
+let dataLoaded = false;
 
 function normalizeText(value) {
   return String(value || '')
@@ -17,70 +20,123 @@ function normalizeText(value) {
     .replace(/[^a-z0-9]+/g, '');
 }
 
-function getIdentityForChampion(roleKey, championName) {
-  const roleRows = roleData.get(roleKey) || [];
-  const normalizedName = normalizeText(championName);
-  const row = roleRows.find((item) => normalizeText(item.champion) === normalizedName);
-  return row
-    ? {
-        identity: String(row.identity || '').trim() || 'Sin definir',
-        function: String(row.function || '').trim() || 'Sin definir',
-      }
-    : { identity: 'Sin definir', function: 'Sin definir' };
-}
-
 function getRoleKeyFromLabel(label) {
-  const row = ROLE_FILES.find((entry) => entry.label === String(label || '').trim());
+  const row = ROLE_SHEETS.find((entry) => entry.label === String(label || '').trim());
   return row?.key || 'top';
 }
 
-async function loadRoleData() {
-  await Promise.all(
-    ROLE_FILES.map(async ({ key, file }) => {
-      try {
-        const response = await fetch(file, { cache: 'reload' });
-        if (!response.ok) {
-          roleData.set(key, []);
-          return;
-        }
+function parseRows(worksheet) {
+  if (!worksheet || !window.XLSX) return [];
 
-        const rows = await response.json();
-        roleData.set(key, Array.isArray(rows) ? rows : []);
-      } catch {
-        roleData.set(key, []);
-      }
-    })
-  );
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+    blankrows: false,
+    defval: '',
+  });
+
+  return rows
+    .slice(1)
+    .filter((row) => row[0])
+    .map((row) => ({
+      champion: String(row[0] || '').trim(),
+      identity: String(row[1] || '').trim() || 'Sin definir',
+      function: String(row[2] || '').trim() || 'Sin definir',
+      tempo: String(row[3] || '').trim() || 'Sin definir',
+    }));
+}
+
+async function loadRoleData() {
+  if (dataLoaded || !window.XLSX) return;
+  dataLoaded = true;
+
+  try {
+    const response = await fetch(WORKBOOK_URL, { cache: 'reload' });
+    if (!response.ok) return;
+
+    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    ROLE_SHEETS.forEach(({ key, sheet }) => {
+      roleData.set(key, parseRows(workbook.Sheets[sheet]));
+    });
+  } catch {
+    ROLE_SHEETS.forEach(({ key }) => roleData.set(key, []));
+  }
+}
+
+function findChampion(roleKey, championName) {
+  const normalizedName = normalizeText(championName);
+  const rows = roleData.get(roleKey) || [];
+  return rows.find((item) => normalizeText(item.champion) === normalizedName) || null;
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function removeRecommendationsBlock() {
+  const el = document.getElementById('recommendations');
+  if (el) el.remove();
 }
 
 function patchChampionList() {
   const list = document.getElementById('championList');
   const roleLabel = document.getElementById('pickerRoleLabel')?.textContent?.trim();
   const roleKey = getRoleKeyFromLabel(roleLabel);
-  if (!list || !roleData.size) return;
+  if (!list) return;
 
   list.querySelectorAll('.champion-item').forEach((item) => {
     const title = item.querySelector('.champion-item__head strong')?.textContent?.trim();
-    const body = item.querySelector('.champion-item__body');
-    if (!title || !body) return;
+    if (!title) return;
 
-    const { identity, function: champFunction } = getIdentityForChampion(roleKey, title);
-    body.innerHTML = `
-      <span class="champion-item__head">
-        <strong>${escapeHtml(title)}</strong>
-        ${item.querySelector('.champion-pill') ? `<span class="champion-pill">${escapeHtml(item.querySelector('.champion-pill').textContent.trim())}</span>` : ''}
+    const row = findChampion(roleKey, title);
+    const identity = row?.identity || 'Sin definir';
+    const champFunction = row?.function || 'Sin definir';
+    const tempo = row?.tempo || item.querySelector('.champion-pill')?.textContent?.trim() || '';
+    const avatar = item.querySelector('.avatar')?.outerHTML || '';
+
+    item.innerHTML = `
+      ${avatar}
+      <span class="champion-item__body">
+        <span class="champion-item__title-row">
+          <strong>${escapeHtml(title)}</strong>
+          ${tempo ? `<span class="champion-pill">${escapeHtml(tempo)}</span>` : ''}
+        </span>
+        <span class="champion-item__identity">${escapeHtml(identity)}</span>
+        <span class="champion-item__function">${escapeHtml(champFunction)}</span>
       </span>
-      <span class="champion-item__identity">${escapeHtml(identity)}</span>
-      <span class="champion-item__function">${escapeHtml(champFunction)}</span>
     `;
   });
 }
 
-function removeRecommendationsBlock() {
-  const el = document.getElementById('recommendations');
-  if (el) {
-    el.remove();
-  }
+function patchCompositionGrid() {
+  const grid = document.getElementById('compositionGrid');
+  if (!grid) return;
+
+  grid.querySelectorAll('.slot.is-filled').forEach((slot) => {
+    const title = slot.querySelector('.slot__name')?.textContent?.trim();
+    if (!title) return;
+
+    const roleKey = String(slot.dataset.role || 'top');
+    const row = findChampion(roleKey, title);
+    const identity = row?.identity || 'Sin definir';
+    const champFunction = row?.function || 'Sin definir';
+    const tempo = row?.tempo || '';
+    const role = slot.querySelector('.slot__role')?.textContent?.trim() || '';
+    const avatar = slot.querySelector('.avatar')?.outerHTML || '';
+
+    slot.innerHTML = `
+      <span class="slot__role">${escapeHtml(role)}</span>
+      ${avatar}
+      <strong class="slot__name">${escapeHtml(title)}</strong>
+      <span class="slot__identity">${escapeHtml(identity)}</span>
+      <span class="slot__function">${escapeHtml(champFunction)}</span>
+      ${tempo ? `<span class="slot__meta slot__meta--tempo">${escapeHtml(tempo)}</span>` : ''}
+    `;
+  });
 }
 
 function schedulePatch() {
@@ -90,6 +146,7 @@ function schedulePatch() {
     patchScheduled = false;
     removeRecommendationsBlock();
     patchChampionList();
+    patchCompositionGrid();
   });
 }
 
@@ -102,15 +159,6 @@ function observeNode(id) {
 
   const observer = new MutationObserver(schedulePatch);
   observer.observe(node, { childList: true, subtree: true, characterData: true });
-}
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
 }
 
 async function init() {
