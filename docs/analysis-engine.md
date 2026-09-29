@@ -1,8 +1,8 @@
-# Analysis Engine v2
+# Analysis Engine v3
 
 ## Objective
 
-Turn the selected composition into a short and readable analysis that can be understood in seconds.
+Turn the selected composition into a short, weighted and readable analysis that can be understood in seconds.
 
 ## Input
 
@@ -30,8 +30,11 @@ Analysis {
   strengths[],
   weaknesses[],
   tempo,
+  tempoDetail?,
   gamePlan[],
-  summaryText?
+  confidence,
+  dominance,
+  summaryText
 }
 ```
 
@@ -45,6 +48,7 @@ The analysis shown in the main UI must stay within this budget:
 - Up to 3 weaknesses.
 - 1 tempo statement.
 - Up to 3 short plan actions.
+- 1 confidence indicator.
 
 ## Rules
 
@@ -53,15 +57,16 @@ The analysis shown in the main UI must stay within this budget:
 - Do not analyze the enemy team.
 - Do not recommend champions in this layer.
 - Do not invent missing data.
-- Keep the output short and consistent.
+- Keep the output short, weighted and consistent.
 
 ## Engine behavior
 
 1. Group the selected champions.
-2. Normalize the labels.
-3. Prioritize the most relevant identities, strengths, weaknesses, and tempo.
-4. Return tokens the UI can render directly.
-5. Leave the explanation layer for the future IA.
+2. Weight the most relevant identities, strengths, weaknesses and tempo.
+3. Resolve dominant or hybrid compositions.
+4. Order the resulting strengths, weaknesses and plan by impact.
+5. Return tokens the UI can render directly.
+6. Leave the explanation layer for the future IA.
 
 ## Implementation structure
 
@@ -84,6 +89,7 @@ The screen should show only:
 - Lacks
 - Tempo
 - Plan
+- Confidence
 
 ## Quality rule
 
