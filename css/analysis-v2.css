@@ -1,0 +1,137 @@
+/* Analysis panel v2 */
+
+.analysis-engine {
+  display: grid;
+  gap: 10px;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.analysis-block {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  display: grid;
+  gap: 8px;
+}
+
+.analysis-block--hero {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.analysis-block--tempo {
+  align-content: start;
+}
+
+.analysis-block--plan {
+  grid-column: 1 / -1;
+}
+
+.analysis-block h3 {
+  margin: 0;
+  font-size: 1.02rem;
+  line-height: 1.15;
+}
+
+.analysis-block p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.analysis-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.analysis-chip {
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(70, 211, 161, 0.18);
+  background: rgba(70, 211, 161, 0.08);
+  font-size: 0.75rem;
+  color: var(--text);
+}
+
+.analysis-tempo {
+  display: grid;
+  gap: 8px;
+}
+
+.analysis-tempo__label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  color: var(--accent-2);
+}
+
+.analysis-tempo__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-height: 32px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 140, 255, 0.24);
+  background: rgba(124, 140, 255, 0.12);
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.analysis-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.analysis-list li {
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.analysis-list--good li {
+  border-color: rgba(70, 211, 161, 0.18);
+  background: rgba(70, 211, 161, 0.08);
+}
+
+.analysis-list--bad li {
+  border-color: rgba(255, 102, 102, 0.18);
+  background: rgba(255, 102, 102, 0.08);
+}
+
+.analysis-list--plan li {
+  border-color: rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.08);
+}
+
+.analysis-empty,
+.analysis-note {
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+@media (max-width: 920px) {
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-block--plan {
+    grid-column: auto;
+  }
+}
