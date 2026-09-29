@@ -24,11 +24,18 @@
 - Unificar el objeto `Champion`.
 - Alinear `README`, `docs/` y la interfaz con el mismo modelo.
 
-### Sprint 4.2 — Motor de análisis v1 🚧
+### Sprint 4.2 — Motor de análisis v1 ✅
 - Motor determinista basado solo en el Excel.
 - Identidad principal y secundarias.
 - Fortalezas, carencias y plan de juego corto.
 - Resumen compacto y fácil de leer.
+
+### Sprint 4.3 — Auditoría y normalización del Draft Pool 🚧
+- Revisar hoja por hoja el Excel.
+- Normalizar Identity y Tempo.
+- Detectar vacíos y duplicados.
+- Escribir `data/audit.json`.
+- Mantener la base limpia antes de seguir con la IA.
 
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
