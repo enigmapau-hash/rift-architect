@@ -57,6 +57,7 @@
 - Implementar el motor v2 como entregable completo.
 - Separar el motor en módulos de identidad, fortalezas, debilidades, tempo y plan.
 - Integrar el panel final de análisis con tempo visible.
+- Estabilizar el modal de selección para evitar regresiones de clic.
 - Publicar documentación técnica y changelog.
 - Pasar la auditoría general antes de cerrar el hito.
 
