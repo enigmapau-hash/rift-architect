@@ -21,6 +21,10 @@ PWA para construir y analizar composiciones de League of Legends.
 
 Si añades una hoja `09_Attributes` o `Attributes`, el generador la detecta y mezcla esos valores en cada campeón.
 
+Plantilla exacta:
+
+- [`docs/attributes-template.md`](./docs/attributes-template.md)
+
 Columnas recomendadas:
 
 - `Champion`
