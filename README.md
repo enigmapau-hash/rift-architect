@@ -18,15 +18,12 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Responsive compartido para PC, tablet y móvil.
 
-## Siguiente fase
+## Sprint actual
 
-La parte de análisis se está definiendo en:
-
-- [`docs/data-contract.md`](./docs/data-contract.md)
-- [`docs/analysis-engine.md`](./docs/analysis-engine.md)
-- [`docs/architecture.md`](./docs/architecture.md)
-- [`docs/data-model.md`](./docs/data-model.md)
-- [`ROADMAP.md`](./ROADMAP.md)
+- `docs/data-contract.md`
+- `docs/analysis-engine.md`
+- Motor de análisis v1 basado en el Excel.
+- Resumen compacto: identidad principal, secundarias, fortalezas, carencias y plan de juego.
 
 ## Estructura de datos
 
