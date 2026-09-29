@@ -65,13 +65,20 @@
 - Publicar documentación técnica y changelog.
 - Pasar la auditoría general antes de cerrar el hito.
 
-### Sprint 4.8 — Core Engine v3 🚧
+### Sprint 4.8 — Core Engine v3 ✅
 - Ponderar identidades por impacto real.
 - Detectar composiciones dominantes e híbridas.
 - Priorizar fortalezas y carencias.
 - Derivar el tempo de toda la composición.
 - Generar un plan de juego ordenado y breve.
 - Añadir una señal de confianza al análisis.
+
+### Sprint 4.9 — Core Engine v3.1 🚧
+- Resolver identidades con una matriz de precedencia.
+- Detectar sinergias entre campeones y entre patrones de composición.
+- Evaluar la coherencia general del draft.
+- Derivar una condición de victoria clara.
+- Convertir la condición de victoria en un plan de juego breve.
 
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
