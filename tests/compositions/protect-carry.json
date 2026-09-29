@@ -1,0 +1,60 @@
+{
+  "slug": "protect-carry",
+  "description": "Composición centrada en proteger al carry principal.",
+  "selectedChampions": [
+    {
+      "champion": "Taric",
+      "role": "support",
+      "identity": "Protect",
+      "function": "Enchanter Tank",
+      "tempo": "Late",
+      "strengths": ["Protect Carry", "Frontline", "Teamfight"],
+      "weaknesses": ["Mobility"]
+    },
+    {
+      "champion": "Master Yi",
+      "role": "jungle",
+      "identity": "Protect",
+      "function": "Skirmisher",
+      "tempo": "Late",
+      "strengths": ["Scaling", "DPS", "Clean-up"],
+      "weaknesses": ["CC"]
+    },
+    {
+      "champion": "Jinx",
+      "role": "botline",
+      "identity": "Protect",
+      "function": "ADC Hypercarry",
+      "tempo": "Late",
+      "strengths": ["Hypercarry", "DPS", "Front to Back"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Lulu",
+      "role": "support",
+      "identity": "Protect",
+      "function": "Enchanter",
+      "tempo": "Late",
+      "strengths": ["Protect Carry", "Peel", "Control"],
+      "weaknesses": ["Hard engage"]
+    },
+    {
+      "champion": "Shen",
+      "role": "top",
+      "identity": "Frontline",
+      "function": "Tank Warden",
+      "tempo": "Late",
+      "strengths": ["Frontline", "Peel", "Teamfight"],
+      "weaknesses": ["Waveclear"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Protect",
+    "dominance": "dominant",
+    "coherence": "Muy coherente",
+    "winCondition": "Escalar y ganar 5v5",
+    "tempoIncludes": ["Late"],
+    "synergiesInclude": ["Protect Carry"],
+    "confidenceMin": 70
+  }
+}
