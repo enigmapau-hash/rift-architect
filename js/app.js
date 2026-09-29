@@ -1,4 +1,4 @@
-import { ATTRIBUTE_SPECS, analyzeComposition, getRoleInsights, scoreChampion } from './analyzer.js';
+import { analyzeComposition } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
@@ -10,6 +10,8 @@ const ROLE_SOURCES = [
   { key: 'botline', label: 'Botline', file: './data/bot.json', sheet: 'Tabla Botline' },
   { key: 'support', label: 'Support', file: './data/support.json', sheet: 'Tabla Support' },
 ];
+
+const ROLE_LABELS = Object.fromEntries(ROLE_SOURCES.map(({ key, label }) => [key, label]));
 
 const state = {
   activeRole: 'top',
@@ -44,17 +46,12 @@ async function init() {
 
 function cacheElements() {
   els.statusBadge = document.getElementById('statusBadge');
+  els.activeRoleLabel = document.getElementById('activeRoleLabel');
   els.roleTabs = document.getElementById('roleTabs');
   els.searchInput = document.getElementById('searchInput');
   els.championList = document.getElementById('championList');
   els.compositionGrid = document.getElementById('compositionGrid');
-  els.detailTitle = document.getElementById('detailTitle');
-  els.detailMeta = document.getElementById('detailMeta');
-  els.detailMetrics = document.getElementById('detailMetrics');
-  els.detailStrengths = document.getElementById('detailStrengths');
-  els.detailWeaknesses = document.getElementById('detailWeaknesses');
   els.analysisSummary = document.getElementById('analysisSummary');
-  els.scoreBars = document.getElementById('scoreBars');
   els.recommendations = document.getElementById('recommendations');
   els.clearBtn = document.getElementById('clearBtn');
   els.refreshBtn = document.getElementById('refreshBtn');
@@ -186,8 +183,7 @@ function renderAll() {
   renderRoleTabs();
   renderCompositionGrid();
   renderChampionList();
-  renderDetails();
-  renderAnalysis();
+  renderSummary();
   syncStatusBadge();
 }
 
@@ -199,14 +195,11 @@ function renderRoleTabs() {
     button.type = 'button';
     button.className = `role-tab ${state.activeRole === key ? 'is-active' : ''} ${hasSelection ? 'has-selection' : ''}`;
     button.innerHTML = `<span>${label}</span><small>${hasSelection ? '✓' : '·'}</small>`;
-    button.addEventListener('click', () => {
-      state.activeRole = key;
-      renderRoleTabs();
-      renderChampionList();
-      renderDetails();
-    });
+    button.addEventListener('click', () => selectRole(key));
     els.roleTabs.appendChild(button);
   });
+
+  els.activeRoleLabel.textContent = ROLE_LABELS[state.activeRole] || '';
 }
 
 function renderChampionList() {
@@ -236,15 +229,9 @@ function renderChampionList() {
           <span class="champion-pill">${escapeHtml(champion.tempo)}</span>
         </span>
         <span class="champion-subline">${escapeHtml(champion.identity)} · ${escapeHtml(champion.function)}</span>
-        <span class="champion-tags">
-          <span class="champion-tag">${escapeHtml((champion.strengths || []).length)} fortalezas</span>
-          <span class="champion-tag">${escapeHtml((champion.weaknesses || []).length)} debilidades</span>
-        </span>
       </span>
     `;
-    button.addEventListener('click', () => {
-      toggleChampionSelection(role, champion);
-    });
+    button.addEventListener('click', () => toggleChampionSelection(role, champion));
     els.championList.appendChild(button);
   });
 }
@@ -269,112 +256,108 @@ function renderCompositionGrid() {
         <small>Selecciona un campeón</small>
         <span class="slot-hint">Toca para elegir</span>
       `;
-    card.addEventListener('click', () => {
-      state.activeRole = key;
-      renderRoleTabs();
-      renderChampionList();
-      renderDetails();
-    });
+    card.addEventListener('click', () => selectRole(key));
     els.compositionGrid.appendChild(card);
   });
 }
 
-function renderDetails() {
-  const active = state.selected[state.activeRole];
-  const roleLabel = ROLE_SOURCES.find((role) => role.key === state.activeRole)?.label || 'Rol';
-
-  if (!active) {
-    els.detailTitle.textContent = `${roleLabel} vacío`;
-    els.detailMeta.textContent = 'Selecciona un campeón para ver fortalezas, debilidades y perfil.';
-    els.detailMetrics.innerHTML = `<p class="muted">Perfil de atributos pendiente.</p>`;
-    els.detailStrengths.innerHTML = '<li>Aún no hay campeón en este rol.</li>';
-    els.detailWeaknesses.innerHTML = '<li>Elige uno para ver su perfil completo.</li>';
-    return;
-  }
-
-  const profile = scoreChampion(active);
-  const confidence = profile.confidence === null ? 'sin confianza definida' : `confianza ${profile.confidence}/100`;
-
-  els.detailTitle.textContent = active.champion;
-  els.detailMeta.textContent = `${active.identity} · ${active.function} · ${active.tempo} · ${profile.primaryDamage} · Complejidad ${profile.complexity}/10 · ${profile.sourceLabel} · ${confidence}`;
-  els.detailMetrics.innerHTML = profile.metrics
-    .slice(0, 6)
-    .map(
-      (metric) => `
-        <div class="detail-metric">
-          <div class="metric-row">
-            <span>${escapeHtml(metric.label)}</span>
-            <strong>${metric.score}/10</strong>
-          </div>
-          <div class="bar"><span style="width:${metric.score * 10}%"></span></div>
-        </div>
-      `
-    )
-    .join('');
-
-  els.detailStrengths.innerHTML = (active.strengths || [])
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join('');
-
-  els.detailWeaknesses.innerHTML = (active.weaknesses || [])
-    .map((item) => `<li>${escapeHtml(item)}</li>`)
-    .join('');
-}
-
-function renderAnalysis() {
-  const selectedChampions = Object.entries(state.selected)
-    .filter(([, champion]) => champion)
-    .map(([role, champion]) => ({ role, ...champion }));
+function renderSummary() {
+  const selectedChampions = getSelectedChampions();
 
   if (!selectedChampions.length) {
-    els.analysisSummary.innerHTML = '<p class="muted">Añade campeones para ver el análisis.</p>';
-    els.scoreBars.innerHTML = '';
+    els.analysisSummary.innerHTML = '<p class="summary-line muted">Selecciona campeones para ver un resumen breve.</p>';
     els.recommendations.innerHTML = '';
     return;
   }
 
   const analysis = analyzeComposition(selectedChampions);
-  const roleInsights = getRoleInsights(selectedChampions);
+  const winCondition = getWinCondition(analysis.metrics);
+  const chips = buildSummaryChips(analysis, selectedChampions.length);
 
   els.analysisSummary.innerHTML = `
-    <p><strong>${analysis.summaryTitle}</strong></p>
-    <p>${analysis.summaryText}</p>
-    <p class="muted">${selectedChampions.length}/5 campeones seleccionados · Motor ${analysis.engineVersion} · Fuente: ${state.dataSource.toUpperCase()}</p>
+    <p class="summary-line"><strong>Win condition:</strong> ${escapeHtml(winCondition)}</p>
+    <div class="summary-chips">
+      ${chips
+        .map(
+          (chip) => `<span class="summary-chip ${chip.tone}">${escapeHtml(chip.text)}</span>`
+        )
+        .join('')}
+    </div>
   `;
 
-  els.scoreBars.innerHTML = analysis.metrics
-    .map(
-      (metric) => `
-      <div class="metric">
-        <div class="metric-row">
-          <span>${escapeHtml(metric.label)}</span>
-          <strong>${metric.score}/10</strong>
-        </div>
-        <div class="bar"><span style="width:${metric.score * 10}%"></span></div>
-      </div>
-    `
-    )
-    .join('');
-
   els.recommendations.innerHTML = `
-    <h3>Lecturas rápidas</h3>
+    <h3>Qué haría ahora</h3>
     <ul>
-      ${analysis.recommendations.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
-      ${roleInsights.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+      ${analysis.recommendations
+        .slice(0, 3)
+        .map((item) => `<li>${escapeHtml(item)}</li>`)
+        .join('')}
     </ul>
   `;
 }
 
-function syncStatusBadge() {
-  if (!state.dataLoaded) return;
-  const selectedCount = countSelectedChampions();
-  setStatus(`${state.dataSource.toUpperCase()} · ${selectedCount}/5 picks`);
+function buildSummaryChips(analysis, selectedCount) {
+  const sortedMetrics = [...analysis.metrics].sort((a, b) => b.score - a.score);
+  const strongest = sortedMetrics[0];
+  const weakest = [...analysis.metrics].sort((a, b) => a.score - b.score)[0];
+  const { ap, ad, hybrid } = analysis.damageSplit;
+
+  const chips = [
+    { text: `Fuerte: ${strongest.label} ${strongest.score}/10`, tone: 'good' },
+    { text: `Flojo: ${weakest.label} ${weakest.score}/10`, tone: 'warn' },
+    { text: `Daño: ${ap} AP / ${ad} AD${hybrid ? ` / ${hybrid} híbrido` : ''}`, tone: 'neutral' },
+  ];
+
+  if (selectedCount < 5) {
+    chips.push({ text: `Faltan ${5 - selectedCount} picks`, tone: 'warn' });
+  }
+
+  if (analysis.metrics.find((metric) => metric.key === 'engage')?.score >= 7) {
+    chips.push({ text: 'Engage alto', tone: 'good' });
+  }
+
+  return chips.slice(0, 4);
+}
+
+function getWinCondition(metrics) {
+  const teamfight = getMetricScore(metrics, 'teamfight');
+  const scaling = getMetricScore(metrics, 'scaling');
+  const poke = getMetricScore(metrics, 'poke');
+  const splitpush = getMetricScore(metrics, 'splitpush');
+  const pick = getMetricScore(metrics, 'pick');
+  const engage = getMetricScore(metrics, 'engage');
+  const objective = getMetricScore(metrics, 'objective');
+
+  if (splitpush >= 7) return 'Splitpush / side lanes';
+  if (poke >= 7) return 'Poke / siege';
+  if (pick >= 7 && engage >= 6) return 'Pick / skirmish';
+  if (objective >= 7 && teamfight >= 6) return 'Objetivos / front-to-back';
+  if (teamfight >= 7 && scaling >= 6) return 'Teamfight 5v5';
+  if (engage >= 7) return 'All-in / engage';
+  return 'Teamfight 5v5';
+}
+
+function getMetricScore(metrics, key) {
+  return metrics.find((metric) => metric.key === key)?.score ?? 0;
+}
+
+function selectRole(role) {
+  state.activeRole = role;
+  renderAll();
+  els.searchInput.focus();
 }
 
 function toggleChampionSelection(role, champion) {
   const current = state.selected[role];
   state.selected[role] = current?.champion === champion.champion ? null : champion;
+  state.activeRole = role;
   renderAll();
+}
+
+function getSelectedChampions() {
+  return Object.entries(state.selected)
+    .filter(([, champion]) => champion)
+    .map(([role, champion]) => ({ role, ...champion }));
 }
 
 function matchesSearch(champion, search) {
@@ -407,6 +390,12 @@ function getChampionInitials(name) {
 
 function setStatus(text) {
   els.statusBadge.textContent = text;
+}
+
+function syncStatusBadge() {
+  if (!state.dataLoaded) return;
+  const selectedCount = countSelectedChampions();
+  setStatus(`${state.dataSource.toUpperCase()} · ${selectedCount}/5 picks`);
 }
 
 function escapeHtml(value) {
