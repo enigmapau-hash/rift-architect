@@ -24,12 +24,26 @@ const RECOMMENDATION_TERMS = {
   splitpush: ['splitpush', 'split', 'side lane', 'duel', 'dueling', '1v1'],
   pick: ['pick', 'catch', 'hook', 'flank', 'dive'],
   mobility: ['mobility', 'movilidad', 'dash', 'roam', 'mobile'],
-  damage: ['carry', 'mage', 'marksman', 'assassin', 'fighter', 'bruiser', 'burst', 'dps'],
 };
 
 const DAMAGE_TERMS = {
   ap: ['mage', 'battlemage', 'artillery', 'enchanter', 'burst', 'magic'],
   ad: ['marksman', 'fighter', 'bruiser', 'assassin', 'duelist', 'ad'],
+};
+
+const REASON_LABELS = {
+  frontline: 'añade frontline',
+  engage: 'facilita engage',
+  control: 'mejora control',
+  scaling: 'mejora el escalado',
+  objective: 'ayuda en objetivos',
+  poke: 'da más asedio',
+  splitpush: 'mejor side lane',
+  pick: 'da más picks',
+  mobility: 'da más movilidad',
+  damage_ap: 'cubre daño AP',
+  damage_ad: 'cubre daño AD',
+  general: 'encaja con el draft',
 };
 
 const state = {
@@ -80,7 +94,7 @@ async function refreshRecommendations() {
   const data = await loadData();
   if (!data) {
     recommendationsEl.innerHTML = `
-      <h3>Recomendados</h3>
+      <h3>Recomendación</h3>
       <p class="muted">No he podido cargar los datos de campeones.</p>
     `;
     return;
@@ -89,8 +103,8 @@ async function refreshRecommendations() {
   const selectedSlots = getSelectedSlots();
   if (!selectedSlots.length) {
     recommendationsEl.innerHTML = `
-      <h3>Recomendados</h3>
-      <p class="muted">Selecciona campeones para ver sugerencias.</p>
+      <h3>Recomendación</h3>
+      <p class="muted">Completa la composición para ver una sugerencia clara.</p>
     `;
     return;
   }
@@ -98,7 +112,7 @@ async function refreshRecommendations() {
   const selectedChampions = resolveSelectedChampions(selectedSlots, data);
   if (!selectedChampions.length) {
     recommendationsEl.innerHTML = `
-      <h3>Recomendados</h3>
+      <h3>Recomendación</h3>
       <p class="muted">Todavía no tengo suficientes datos para sugerir picks.</p>
     `;
     return;
@@ -111,12 +125,37 @@ async function refreshRecommendations() {
   const roleLabel = ROLE_LABELS[targetRole] || 'el próximo rol';
 
   recommendationsEl.innerHTML = `
-    <h3>Recomendados para ${escapeHtml(roleLabel)}</h3>
-    ${picks.length
-      ? `<ul>
-          ${picks.map((pick) => `<li><strong>${escapeHtml(pick.champion)}</strong> — ${escapeHtml(pick.reason)}</li>`).join('')}
-        </ul>`
-      : '<p class="muted">No he encontrado opciones claras para este hueco.</p>'}
+    <h3>Recomendación para ${escapeHtml(roleLabel)}</h3>
+    ${picks.length ? renderRecommendationBoard(picks) : '<p class="muted">No he encontrado opciones claras para este hueco.</p>'}
+  `;
+}
+
+function renderRecommendationBoard(picks) {
+  const [main, ...alternatives] = picks;
+  const mainReasons = main.reasons.slice(0, 2).map(formatReasonText).filter(Boolean);
+
+  return `
+    <div class="recommendation-board">
+      <article class="recommendation-primary">
+        <div class="recommendation-kicker">Principal</div>
+        <h4>${escapeHtml(main.champion)}</h4>
+        <p class="recommendation-summary">${escapeHtml(main.summary)}</p>
+        <div class="recommendation-reasons">
+          ${mainReasons.map((reason) => `<span class="recommendation-reason">${escapeHtml(reason)}</span>`).join('')}
+        </div>
+      </article>
+      ${alternatives.length ? `
+        <div class="recommendation-alternatives">
+          <div class="recommendation-kicker">Alternativas</div>
+          <ul>
+            ${alternatives.map((pick) => {
+              const reason = formatReasonText(pick.reasons[0] || 'general');
+              return `<li><strong>${escapeHtml(pick.champion)}</strong><span>${escapeHtml(reason)}</span></li>`;
+            }).join('')}
+          </ul>
+        </div>
+      ` : ''}
+    </div>
   `;
 }
 
@@ -227,37 +266,45 @@ function scoreCandidate(candidate, weakMetrics, needsAP, needsAD) {
     if (terms.some((term) => hasTerm(text, term))) {
       const boost = Math.max(1, 5 - metric.score) * 10;
       score += boost;
-      reasons.push(metric.label);
+      reasons.push(metric.key);
     }
   }
 
   if (needsAP && DAMAGE_TERMS.ap.some((term) => hasTerm(text, term))) {
     score += 12;
-    reasons.push('daño AP');
+    reasons.push('damage_ap');
   }
 
   if (needsAD && DAMAGE_TERMS.ad.some((term) => hasTerm(text, term))) {
     score += 12;
-    reasons.push('daño AD');
+    reasons.push('damage_ad');
   }
 
   if (!reasons.length && /flex|utility|teamfight|front-to-back|peel|engage|control/i.test(text)) {
     score += 2;
-    reasons.push('encaje general');
+    reasons.push('general');
   }
+
+  const uniqueReasons = [...new Set(reasons)];
 
   return {
     champion: candidate.champion,
     score,
-    reason: formatReason(reasons),
+    reasons: uniqueReasons,
+    summary: formatSummary(uniqueReasons),
   };
 }
 
-function formatReason(reasons) {
-  const unique = [...new Set(reasons)].slice(0, 2);
-  if (!unique.length) return 'encaja con el draft';
-  if (unique.length === 1) return `aporta ${unique[0]}`;
-  return `aporta ${unique[0]} y ${unique[1]}`;
+function formatSummary(reasons) {
+  if (!reasons.length) return 'encaja con el draft';
+
+  const phrases = reasons.map(formatReasonText).filter(Boolean).slice(0, 2);
+  if (!phrases.length) return 'encaja con el draft';
+  return phrases.join(' · ');
+}
+
+function formatReasonText(reason) {
+  return REASON_LABELS[reason] || '';
 }
 
 function buildCandidateText(candidate) {
