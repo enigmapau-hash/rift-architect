@@ -18,7 +18,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
 - El panel de análisis v2 ya es el único panel visible del resumen.
-- El Core Engine v3 ya está en marcha con identidad ponderada, fortalezas priorizadas, tempo derivado y plan ordenado.
+- El Core Engine v3.1 añade sinergias, coherencia, condición de victoria y plan priorizado.
 - Se añadió un `data/index.json` mínimo para evitar 404 en Pages y un icono SVG como favicon.
 - Responsive compartido para PC, tablet y móvil.
 
@@ -45,6 +45,9 @@ Core engine en curso:
 - `js/engine/strengthEngine.js`
 - `js/engine/weaknessEngine.js`
 - `js/engine/tempoEngine.js`
+- `js/engine/synergyEngine.js`
+- `js/engine/coherenceEngine.js`
+- `js/engine/winConditionEngine.js`
 - `js/engine/planEngine.js`
 - `js/engine/analysisEngine.js`
 - `js/analysis-panel.js`
