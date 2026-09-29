@@ -14,7 +14,8 @@
 - Roadmap updated to reflect the Core Engine hito.
 - Service worker cache updated for the modular engine files.
 - Modal interaction simplified to native controls.
-- Service worker cache bumped to v30 after removing the modal patch files.
+- Picker close button moved away from the desktop top-right overlay zone.
+- Service worker cache bumped to v31 after the picker layout adjustment.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
