@@ -1,4 +1,4 @@
-import { analyzeComposition, matchesCategory, normalizeText } from './analyzer.js';
+import { normalizeText } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
@@ -34,39 +34,6 @@ const CHAMPION_ICON_ALIASES = {
   kaynred: 'Kayn',
   nunuwillump: 'Nunu & Willump',
   nunuandwillump: 'Nunu & Willump',
-};
-
-const REASON_LABELS = {
-  frontline: 'añade frontline',
-  engage: 'facilita engage',
-  control: 'mejora control',
-  scaling: 'mejora el escalado',
-  objective: 'ayuda en objetivos',
-  poke: 'da más asedio',
-  splitpush: 'mejor side lane',
-  pick: 'da más picks',
-  mobility: 'da más movilidad',
-  damage_ap: 'cubre daño AP',
-  damage_ad: 'cubre daño AD',
-  teamfight: 'mejora teamfight',
-  general: 'encaja con el draft',
-};
-
-const DAMAGE_AP_TERMS = ['mage', 'battlemage', 'artillery', 'enchanter', 'burst', 'magic', 'ap'];
-const DAMAGE_AD_TERMS = ['marksman', 'fighter', 'bruiser', 'assassin', 'duelist', 'ad'];
-
-const METRIC_META = {
-  frontline: { icon: '🛡', hint: 'Aguanta la pelea' },
-  engage: { icon: '⚔', hint: 'Inicia o caza' },
-  damage: { icon: '💥', hint: 'Aporta daño' },
-  scaling: { icon: '📈', hint: 'Rinde con el tiempo' },
-  objective: { icon: '🎯', hint: 'Ayuda en objetivos' },
-  control: { icon: '🧠', hint: 'Control y utilidad' },
-  teamfight: { icon: '🤝', hint: 'Pelea agrupada' },
-  poke: { icon: '🏹', hint: 'Daño a distancia' },
-  mobility: { icon: '🌀', hint: 'Reposicionamiento' },
-  pick: { icon: '🪝', hint: 'Castiga errores' },
-  splitpush: { icon: '🛣', hint: 'Presión lateral' },
 };
 
 const state = {
@@ -208,7 +175,9 @@ async function loadData(force = false) {
   } catch (error) {
     console.error(error);
     setStatus('Error al cargar');
-    els.analysisSummary.innerHTML = '<p class="analysis-note">No se pudieron cargar los datos. Revisa el Excel o la carpeta <code>data/</code>.</p>';
+    if (els.analysisSummary) {
+      els.analysisSummary.innerHTML = '<p class="analysis-note">No se pudieron cargar los datos. Revisa el Excel o la carpeta <code>data/</code>.</p>';
+    }
   } finally {
     state.loading = false;
   }
@@ -279,13 +248,13 @@ function splitTags(value) {
 
 function renderAll() {
   renderCompositionGrid();
-  renderSummary();
-  renderRecommendations();
   renderModal();
   syncStatusBadge();
 }
 
 function renderCompositionGrid() {
+  if (!els.compositionGrid) return;
+
   els.compositionGrid.innerHTML = '';
 
   ROLE_SOURCES.forEach(({ key, label }) => {
@@ -309,212 +278,6 @@ function renderCompositionGrid() {
       `;
     els.compositionGrid.appendChild(button);
   });
-}
-
-function renderSummary() {
-  const selectedChampions = getSelectedChampions();
-  if (!selectedChampions.length) {
-    els.analysisSummary.innerHTML = '<p class="analysis-note">Selecciona campeones para ver un resumen compacto.</p>';
-    return;
-  }
-
-  const analysis = analyzeComposition(selectedChampions);
-  const strongest = [...analysis.metrics].sort((a, b) => b.score - a.score)[0] || { label: 'Sin datos', score: 0 };
-  const weakest = [...analysis.metrics].sort((a, b) => a.score - b.score)[0] || { label: 'Sin datos', score: 0 };
-  const winCondition = getWinCondition(analysis.metrics);
-  const strongMetrics = [...analysis.metrics].sort((a, b) => b.score - a.score).filter((metric) => metric.score >= 6).slice(0, 3);
-  const weakMetrics = [...analysis.metrics].sort((a, b) => a.score - b.score).filter((metric) => metric.score < 5).slice(0, 2);
-
-  els.analysisSummary.innerHTML = `
-    <div class="summary-overview">
-      <div class="summary-overview__main">
-        <p class="eyebrow">Resumen</p>
-        <h3>${escapeHtml(winCondition)}</h3>
-        <p>${escapeHtml(analysis.summaryText)}</p>
-      </div>
-      <div class="summary-overview__mini">
-        <div class="mini-card">
-          <span>Fuerte</span>
-          <strong>${escapeHtml(strongest.label)}</strong>
-          <small>${escapeHtml(getLevelLabel(strongest.score))}</small>
-        </div>
-        <div class="mini-card">
-          <span>Débil</span>
-          <strong>${escapeHtml(weakest.label)}</strong>
-          <small>${escapeHtml(getLevelLabel(weakest.score))}</small>
-        </div>
-        <div class="mini-card">
-          <span>Estado</span>
-          <strong>${selectedChampions.length}/5</strong>
-          <small>${escapeHtml(selectedChampions.length === 5 ? 'Composición completa' : `Faltan ${5 - selectedChampions.length}`)}</small>
-        </div>
-      </div>
-    </div>
-
-    <div class="metric-groups">
-      ${renderMetricGroup('Fortalezas', strongMetrics, analysis, 'high')}
-      ${renderMetricGroup('Carencias', weakMetrics, analysis, 'warn')}
-    </div>
-  `;
-}
-
-function renderMetricGroup(title, metrics, analysis, tone) {
-  const rows = metrics.length
-    ? metrics.map((metric) => renderMetricRow(metric, analysis, tone)).join('')
-    : '<p class="analysis-note">Sin datos claros.</p>';
-
-  return `
-    <section class="metric-group">
-      <div class="metric-group__head">
-        <span class="metric-group__title">${escapeHtml(title)}</span>
-      </div>
-      <div class="metric-group__rows">
-        ${rows}
-      </div>
-    </section>
-  `;
-}
-
-function renderMetricRow(metric, analysis, tone) {
-  const meta = METRIC_META[metric.key] || { icon: '•', hint: 'Aporte general' };
-  const level = getLevelLabel(metric.score);
-  const contributors = getContributors(metric.key, analysis).slice(0, 2);
-
-  return `
-    <article class="metric-row metric-row--${tone}">
-      <div class="metric-row__icon" aria-hidden="true">${meta.icon}</div>
-      <div class="metric-row__body">
-        <div class="metric-row__head">
-          <strong>${escapeHtml(metric.label)}</strong>
-          <span>${escapeHtml(level)}</span>
-        </div>
-        <div class="metric-row__sub">
-          ${contributors.length ? escapeHtml(contributors.join(' · ')) : escapeHtml(meta.hint)}
-        </div>
-      </div>
-    </article>
-  `;
-}
-
-function renderRecommendations() {
-  const selectedChampions = getSelectedChampions();
-  if (!selectedChampions.length || !state.data) {
-    els.recommendations.innerHTML = '';
-    return;
-  }
-
-  const analysis = analyzeComposition(selectedChampions);
-  const targetRole = getTargetRole();
-  const roleLabel = ROLE_LABELS[targetRole] || 'el próximo rol';
-  const picks = recommendPicks(targetRole, selectedChampions, analysis).slice(0, 3);
-
-  if (!picks.length) {
-    els.recommendations.innerHTML = `
-      <h3>Recomendación para ${escapeHtml(roleLabel)}</h3>
-      <p class="analysis-note">No he encontrado una opción clara para este hueco.</p>
-    `;
-    return;
-  }
-
-  const [main, ...alternatives] = picks;
-  const mainReasons = main.reasons.slice(0, 2).map((reason) => REASON_LABELS[reason] || reason).filter(Boolean);
-
-  els.recommendations.innerHTML = `
-    <h3>Recomendación para ${escapeHtml(roleLabel)}</h3>
-    <div class="recommendation-card">
-      <div class="recommendation-card__main">
-        <p class="eyebrow">Principal</p>
-        <h4>${escapeHtml(main.champion)}</h4>
-        <p class="recommendation-card__summary">${escapeHtml(main.summary)}</p>
-        <div class="recommendation-chip-list">
-          ${mainReasons.map((reason) => `<span class="recommendation-chip">${escapeHtml(reason)}</span>`).join('')}
-        </div>
-      </div>
-      ${alternatives.length ? `
-        <div class="recommendation-card__alt">
-          <p class="recommendation-card__label">Alternativas</p>
-          <div class="recommendation-alt-list">
-            ${alternatives
-              .map((pick) => {
-                const reason = pick.summary || REASON_LABELS[pick.reasons[0]] || 'encaja con el draft';
-                return `<div class="recommendation-alt"><strong>${escapeHtml(pick.champion)}</strong><span>${escapeHtml(reason)}</span></div>`;
-              })
-              .join('')}
-          </div>
-        </div>
-      ` : ''}
-    </div>
-  `;
-}
-
-function recommendPicks(targetRole, selectedChampions, analysis) {
-  const pool = state.data?.[targetRole] || [];
-  const selectedNames = new Set(selectedChampions.map((champion) => champion.champion.toLowerCase()));
-  const weakMetrics = [...analysis.metrics].filter((metric) => metric.score < 5).sort((a, b) => a.score - b.score);
-  const needsAP = analysis.damageSplit.ap === 0 && analysis.damageSplit.hybrid === 0;
-  const needsAD = analysis.damageSplit.ad === 0 && analysis.damageSplit.hybrid === 0;
-
-  return pool
-    .filter((candidate) => !selectedNames.has(candidate.champion.toLowerCase()))
-    .map((candidate) => scoreCandidate(candidate, weakMetrics, needsAP, needsAD))
-    .filter(Boolean)
-    .sort((a, b) => b.score - a.score || a.champion.localeCompare(b.champion, 'es'));
-}
-
-function scoreCandidate(candidate, weakMetrics, needsAP, needsAD) {
-  const text = buildCandidateText(candidate);
-  const reasons = [];
-  let score = 0;
-
-  for (const metric of weakMetrics) {
-    const matchesMetric = [candidate.strengths || [], candidate.weaknesses || []].flat().some((tag) => matchesCategory(tag, metric.key));
-    if (matchesMetric) {
-      score += Math.max(1, 6 - metric.score) * 10;
-      reasons.push(metric.key);
-    }
-  }
-
-  if (needsAP && DAMAGE_AP_TERMS.some((term) => text.includes(term))) {
-    score += 12;
-    reasons.push('damage_ap');
-  }
-
-  if (needsAD && DAMAGE_AD_TERMS.some((term) => text.includes(term))) {
-    score += 12;
-    reasons.push('damage_ad');
-  }
-
-  if (!reasons.length && /flex|utility|teamfight|front-to-back|peel|engage|control/i.test(text)) {
-    score += 2;
-    reasons.push('general');
-  }
-
-  const uniqueReasons = [...new Set(reasons)];
-  return {
-    champion: candidate.champion,
-    score,
-    reasons: uniqueReasons,
-    summary: formatReasonSummary(uniqueReasons),
-  };
-}
-
-function formatReasonSummary(reasons) {
-  if (!reasons.length) return 'encaja con el draft';
-  const phrases = reasons.slice(0, 2).map((reason) => REASON_LABELS[reason] || reason).filter(Boolean);
-  return phrases.length ? phrases.join(' · ') : 'encaja con el draft';
-}
-
-function buildCandidateText(candidate) {
-  return [
-    candidate.champion,
-    candidate.identity,
-    candidate.function,
-    candidate.tempo,
-    ...(candidate.strengths || []),
-    ...(candidate.weaknesses || []),
-  ]
-    .join(' ')
-    .toLowerCase();
 }
 
 function renderModal() {
@@ -617,89 +380,6 @@ function getSelectedChampions() {
   return ROLE_ORDER.filter((role) => state.selected[role]).map((role) => ({ role, ...state.selected[role] }));
 }
 
-function getTargetRole() {
-  if (state.pickerOpen) return state.activeRole;
-  const emptyRole = ROLE_ORDER.find((role) => !state.selected[role]);
-  return emptyRole || state.activeRole || 'top';
-}
-
-function getContributors(metricKey, analysis) {
-  return analysis.profiles
-    .map(({ champion, profile }) => ({
-      champion,
-      score: profile.metrics.find((metric) => metric.key === metricKey)?.score ?? 0,
-    }))
-    .filter((item) => item.score > 0)
-    .sort((a, b) => b.score - a.score || a.champion.localeCompare(b.champion, 'es'))
-    .map((item) => item.champion);
-}
-
-function getWinCondition(metrics) {
-  const teamfight = getMetricScore(metrics, 'teamfight');
-  const scaling = getMetricScore(metrics, 'scaling');
-  const poke = getMetricScore(metrics, 'poke');
-  const splitpush = getMetricScore(metrics, 'splitpush');
-  const pick = getMetricScore(metrics, 'pick');
-  const engage = getMetricScore(metrics, 'engage');
-  const objective = getMetricScore(metrics, 'objective');
-
-  if (splitpush >= 7) return 'Splitpush / side lanes';
-  if (poke >= 7) return 'Poke / siege';
-  if (pick >= 7 && engage >= 6) return 'Pick / skirmish';
-  if (objective >= 7 && teamfight >= 6) return 'Objetivos / front-to-back';
-  if (teamfight >= 7 && scaling >= 6) return 'Teamfight 5v5';
-  if (engage >= 7) return 'All-in / engage';
-  return 'Teamfight 5v5';
-}
-
-function getMetricScore(metrics, key) {
-  return metrics.find((metric) => metric.key === key)?.score ?? 0;
-}
-
-function getLevelLabel(score) {
-  if (score >= 7) return 'Alto';
-  if (score >= 4) return 'Medio';
-  return 'Bajo';
-}
-
-function renderAvatarMarkup(name, size = 'avatar--md') {
-  const iconUrl = getChampionIconUrl(name);
-  const fallback = escapeHtml(getChampionInitials(name));
-
-  if (!iconUrl) {
-    return `<span class="avatar ${size} avatar--fallback">${fallback}</span>`;
-  }
-
-  return `
-    <span class="avatar ${size}" data-loaded="0">
-      <img src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onload="this.parentElement.dataset.loaded='1'" onerror="this.remove(); this.parentElement.dataset.error='1'" />
-      <span class="avatar__fallback">${fallback}</span>
-    </span>
-  `;
-}
-
-function getChampionIconUrl(name) {
-  const iconId = getChampionIconId(name);
-  if (!iconId || !state.iconCatalog?.version) return null;
-  return DRAGON_ICON_URL(state.iconCatalog.version, iconId);
-}
-
-function getChampionIconId(name) {
-  const normalizedName = normalizeText(name);
-  const canonicalName = CHAMPION_ICON_ALIASES[normalizedName] || name;
-  const normalizedCanonical = normalizeText(canonicalName);
-  return state.iconCatalog?.map?.[normalizedCanonical] || state.iconCatalog?.map?.[normalizedName] || null;
-}
-
-function getChampionInitials(name) {
-  return String(name)
-    .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('') || '?';
-}
-
 function matchesSearch(champion, search) {
   if (!search) return true;
   return [
@@ -778,6 +458,44 @@ function syncStatusBadge() {
   if (!state.data) return;
   const selectedCount = getSelectedChampions().length;
   setStatus(`${state.dataSource.toUpperCase()} · ${selectedCount}/5`);
+}
+
+function renderAvatarMarkup(name, size = 'avatar--md') {
+  const iconUrl = getChampionIconUrl(name);
+  const fallback = escapeHtml(getChampionInitials(name));
+
+  if (!iconUrl) {
+    return `<span class="avatar ${size} avatar--fallback">${fallback}</span>`;
+  }
+
+  return `
+    <span class="avatar ${size}" data-loaded="0">
+      <img src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onload="this.parentElement.dataset.loaded='1'" onerror="this.remove(); this.parentElement.dataset.error='1'" />
+      <span class="avatar__fallback">${fallback}</span>
+    </span>
+  `;
+}
+
+function getChampionIconUrl(name) {
+  const iconId = getChampionIconId(name);
+  if (!iconId || !state.iconCatalog?.version) return null;
+  return DRAGON_ICON_URL(state.iconCatalog.version, iconId);
+}
+
+function getChampionIconId(name) {
+  const normalizedName = normalizeText(name);
+  const canonicalName = CHAMPION_ICON_ALIASES[normalizedName] || name;
+  const normalizedCanonical = normalizeText(canonicalName);
+  return state.iconCatalog?.map?.[normalizedCanonical] || state.iconCatalog?.map?.[normalizedName] || null;
+}
+
+function getChampionInitials(name) {
+  return String(name)
+    .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('') || '?';
 }
 
 function escapeHtml(value) {
