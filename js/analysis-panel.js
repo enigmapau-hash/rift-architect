@@ -22,6 +22,17 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
+function toLabel(value) {
+  if (!value) return 'Sin definir';
+  if (typeof value === 'string') return value;
+  return value.label || value.name || value.title || 'Sin definir';
+}
+
+function toScore(value) {
+  if (!value || typeof value === 'string') return null;
+  return Number.isFinite(Number(value.score)) ? Number(value.score) : null;
+}
+
 async function loadRoleData() {
   if (dataLoaded) return;
   dataLoaded = true;
@@ -81,17 +92,28 @@ function renderList(items, className) {
 
   return `
     <ul class="analysis-list ${className}">
-      ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+      ${items
+        .map((item) => {
+          const label = escapeHtml(toLabel(item));
+          const score = toScore(item);
+          return `<li><span>${label}</span>${score !== null ? `<span class="analysis-list__score">${score}</span>` : ''}</li>`;
+        })
+        .join('')}
     </ul>
   `;
 }
 
 function renderTempo(tempo) {
-  const value = tempo && String(tempo).trim() ? String(tempo).trim() : 'Sin definir';
+  const value = typeof tempo === 'object' ? tempo.label : tempo;
+  const confidence = typeof tempo === 'object' ? tempo.confidence : null;
+  const phases = typeof tempo === 'object' && Array.isArray(tempo.phases) ? tempo.phases : [];
+
   return `
     <div class="analysis-tempo">
       <span class="analysis-tempo__label">Tempo</span>
-      <span class="analysis-tempo__badge">${escapeHtml(value)}</span>
+      <span class="analysis-tempo__badge">${escapeHtml(value && String(value).trim() ? value : 'Sin definir')}</span>
+      ${confidence !== null ? `<span class="analysis-chip">Confianza ${confidence}%</span>` : ''}
+      ${phases.length ? `<div class="analysis-chip-list">${phases.map((phase) => `<span class="analysis-chip">${escapeHtml(phase)}</span>`).join('')}</div>` : ''}
     </div>
   `;
 }
@@ -112,7 +134,8 @@ function renderAnalysisSummary() {
   const strengths = (analysis.strengths || []).slice(0, 4);
   const weaknesses = (analysis.weaknesses || []).slice(0, 3);
   const gamePlan = (analysis.gamePlan || []).slice(0, 3);
-  const tempo = analysis.tempo || 'Sin definir';
+  const tempo = analysis.tempoDetail || analysis.tempo || 'Sin definir';
+  const confidence = Number.isFinite(Number(analysis.confidence)) ? Math.round(Number(analysis.confidence)) : null;
 
   summary.innerHTML = `
     <div class="analysis-engine">
@@ -120,6 +143,10 @@ function renderAnalysisSummary() {
         <p class="eyebrow">Identidad</p>
         <h3>${escapeHtml(primaryIdentity)}</h3>
         <p>${escapeHtml(analysis.summaryText || 'Resumen compacto basado en el Excel.')}</p>
+        <div class="analysis-chip-list">
+          ${analysis.dominance ? `<span class="analysis-chip">${escapeHtml(analysis.dominance === 'dominant' ? 'Dominante' : analysis.dominance === 'hybrid' ? 'Híbrida' : 'Flexible')}</span>` : ''}
+          ${confidence !== null ? `<span class="analysis-chip">Confianza ${confidence}%</span>` : ''}
+        </div>
       </section>
 
       <div class="analysis-grid">
