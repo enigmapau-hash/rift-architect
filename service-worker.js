@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v3';
+const CACHE_NAME = 'rift-architect-v4';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -7,21 +7,17 @@ const STATIC_ASSETS = [
   './js/analyzer.js',
   './manifest.webmanifest',
   './Draft%20Pool.xlsx',
-  './assets/icon.svg'
+  './assets/icon.svg',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
-  );
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)));
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key)))
-    )
+    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
   );
   self.clients.claim();
 });
