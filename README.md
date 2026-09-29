@@ -17,6 +17,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
+- El motor de análisis mantiene compatibilidad con el panel antiguo mientras termina la migración al contrato v2.
 - Responsive compartido para PC, tablet y móvil.
 
 ## Hito 2 — Core Engine v0.5
