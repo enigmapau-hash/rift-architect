@@ -1,17 +1,5 @@
-import { clampNumber, matchesCategory, normalizeText } from './utils.js';
-
-const IDENTITY_RULES = [
-  { key: 'frontToBack', label: 'Front to Back', categories: ['frontline', 'teamfight', 'control', 'objective'], tempoBias: ['Mid', 'Late'] },
-  { key: 'teamfight', label: 'Teamfight', categories: ['teamfight', 'objective', 'control'], tempoBias: ['Mid', 'Late'] },
-  { key: 'engage', label: 'Engage', categories: ['engage', 'pick', 'mobility'], tempoBias: ['Early', 'Mid'] },
-  { key: 'pick', label: 'Pick', categories: ['pick', 'engage', 'mobility'], tempoBias: ['Early', 'Mid'] },
-  { key: 'poke', label: 'Poke', categories: ['poke', 'control', 'objective'], tempoBias: ['Mid', 'Late'] },
-  { key: 'splitpush', label: 'Splitpush', categories: ['splitpush', 'mobility', 'damage'], tempoBias: ['Mid', 'Late'] },
-  { key: 'dive', label: 'Dive', categories: ['engage', 'pick', 'mobility', 'damage'], tempoBias: ['Early', 'Mid'] },
-  { key: 'protect', label: 'Protect', categories: ['frontline', 'control', 'teamfight'], tempoBias: ['Late', 'Mid'] },
-  { key: 'control', label: 'Control', categories: ['control', 'teamfight', 'objective'], tempoBias: ['Mid', 'Late'] },
-  { key: 'skirmish', label: 'Skirmish', categories: ['engage', 'damage', 'mobility', 'pick'], tempoBias: ['Early', 'Mid'] },
-];
+import { clampNumber, normalizeText } from './utils.js';
+import { IDENTITY_RELATIONS } from '../../knowledge/identity-relations.js';
 
 const FIELD_WEIGHTS = {
   identity: 5,
@@ -105,7 +93,7 @@ function confidenceFromScores(primaryScore, secondaryScore, dominance, rankedCou
 }
 
 export function summarizeIdentities(selectedChampions = []) {
-  const ranked = IDENTITY_RULES.map((rule) => scoreRule(rule, selectedChampions)).sort(
+  const ranked = IDENTITY_RELATIONS.map((rule) => scoreRule(rule, selectedChampions)).sort(
     (a, b) => b.score - a.score || a.firstIndex - b.firstIndex || a.label.localeCompare(b.label, 'es')
   );
 
@@ -118,26 +106,23 @@ export function summarizeIdentities(selectedChampions = []) {
         score: 0,
         count: 0,
         champions: [],
+        championScores: [],
       },
       secondary: [],
-      ranked: [],
+      ranked,
       dominance: 'flexible',
       confidence: 0,
     };
   }
 
-  const [primary, runnerUp] = meaningful;
-  const dominance = dominanceFromScores(primary.score, runnerUp?.score || 0);
-  const secondary = meaningful.slice(1).filter((item) => item.score >= Math.max(4, Math.round(primary.score * 0.45))).slice(0, 2);
-  const confidence = confidenceFromScores(primary.score, runnerUp?.score || 0, dominance, meaningful.length);
+  const [primary, secondary] = meaningful;
+  const dominance = dominanceFromScores(primary.score, secondary?.score || 0);
+  const confidence = confidenceFromScores(primary.score, secondary?.score || 0, dominance, meaningful.length);
 
   return {
-    primary: {
-      ...primary,
-      champions: primary.champions.slice(0, 4),
-    },
-    secondary,
-    ranked: meaningful.slice(0, 5),
+    primary,
+    secondary: meaningful.slice(1, 3),
+    ranked,
     dominance,
     confidence,
   };
