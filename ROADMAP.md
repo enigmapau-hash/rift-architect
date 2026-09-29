@@ -10,6 +10,7 @@
 - Tarjetas homogéneas con iconos oficiales.
 - Identidad, función y tempo visibles.
 - Responsive compartido para PC, tablet y móvil.
+- Estado de composición temporal, sin persistencia automática al recargar.
 
 ## Fase 3 — Motor de análisis 🚧
 - Definir qué es identidad, función y tempo.
@@ -28,3 +29,4 @@
 
 ## Regla del proyecto
 - Cada sprint debe actualizar código, README, roadmap y Pages.
+- Cada sprint incluye una revisión de regresiones visuales y de estado.
