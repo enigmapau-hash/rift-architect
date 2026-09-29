@@ -187,15 +187,17 @@ function renderAll() {
   renderChampionList();
   renderDetails();
   renderAnalysis();
+  syncStatusBadge();
 }
 
 function renderRoleTabs() {
   els.roleTabs.innerHTML = '';
   ROLE_SOURCES.forEach(({ key, label }) => {
+    const hasSelection = Boolean(state.selected[key]);
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = `role-tab ${state.activeRole === key ? 'is-active' : ''}`;
-    button.textContent = label;
+    button.className = `role-tab ${state.activeRole === key ? 'is-active' : ''} ${hasSelection ? 'has-selection' : ''}`;
+    button.innerHTML = `<span>${label}</span><small>${hasSelection ? '✓' : '·'}</small>`;
     button.addEventListener('click', () => {
       state.activeRole = key;
       renderRoleTabs();
@@ -208,20 +210,9 @@ function renderRoleTabs() {
 
 function renderChampionList() {
   const role = state.activeRole;
-  const champions = (state.data[role] || []).filter((champion) => {
-    if (!state.search) return true;
-    return [
-      champion.champion,
-      champion.identity,
-      champion.function,
-      champion.tempo,
-      ...(champion.strengths || []),
-      ...(champion.weaknesses || []),
-    ]
-      .join(' ')
-      .toLowerCase()
-      .includes(state.search);
-  });
+  const champions = (state.data[role] || [])
+    .filter((champion) => matchesSearch(champion, state.search))
+    .sort((a, b) => a.champion.localeCompare(b.champion, 'es'));
 
   els.championList.innerHTML = '';
 
@@ -231,17 +222,27 @@ function renderChampionList() {
   }
 
   champions.forEach((champion) => {
+    const isSelected = state.selected[role]?.champion === champion.champion;
     const button = document.createElement('button');
     button.type = 'button';
-    button.className = 'champion-item';
+    button.className = `champion-item ${isSelected ? 'is-selected' : ''}`;
+    button.setAttribute('aria-pressed', String(isSelected));
     button.innerHTML = `
-      <strong>${escapeHtml(champion.champion)}</strong>
-      <span>${escapeHtml(champion.identity)}</span>
-      <small>${escapeHtml(champion.function)} · ${escapeHtml(champion.tempo)}</small>
+      <span class="champion-avatar">${escapeHtml(getChampionInitials(champion.champion))}</span>
+      <span class="champion-content">
+        <span class="champion-head">
+          <strong>${escapeHtml(champion.champion)}</strong>
+          <span class="champion-pill">${escapeHtml(champion.tempo)}</span>
+        </span>
+        <span class="champion-subline">${escapeHtml(champion.identity)} · ${escapeHtml(champion.function)}</span>
+        <span class="champion-tags">
+          <span class="champion-tag">${escapeHtml((champion.strengths || []).length)} fortalezas</span>
+          <span class="champion-tag">${escapeHtml((champion.weaknesses || []).length)} debilidades</span>
+        </span>
+      </span>
     `;
     button.addEventListener('click', () => {
-      state.selected[role] = champion;
-      renderAll();
+      toggleChampionSelection(role, champion);
     });
     els.championList.appendChild(button);
   });
@@ -259,11 +260,13 @@ function renderCompositionGrid() {
         <span class="slot-label">${label}</span>
         <strong>${escapeHtml(champion.champion)}</strong>
         <small>${escapeHtml(champion.identity)}</small>
+        <span class="slot-hint">Toca para cambiar</span>
       `
       : `
         <span class="slot-label">${label}</span>
         <strong>Vacío</strong>
         <small>Selecciona un campeón</small>
+        <span class="slot-hint">Toca para elegir</span>
       `;
     card.addEventListener('click', () => {
       state.activeRole = key;
@@ -277,11 +280,13 @@ function renderCompositionGrid() {
 
 function renderDetails() {
   const active = state.selected[state.activeRole];
+  const roleLabel = ROLE_SOURCES.find((role) => role.key === state.activeRole)?.label || 'Rol';
+
   if (!active) {
-    els.detailTitle.textContent = 'Selecciona un campeón';
-    els.detailMeta.textContent = '';
-    els.detailStrengths.innerHTML = '';
-    els.detailWeaknesses.innerHTML = '';
+    els.detailTitle.textContent = `${roleLabel} vacío`;
+    els.detailMeta.textContent = `Selecciona un campeón para ver fortalezas y debilidades.`;
+    els.detailStrengths.innerHTML = '<li>Aún no hay campeón en este rol.</li>';
+    els.detailWeaknesses.innerHTML = '<li>Elige uno para ver su perfil completo.</li>';
     return;
   }
 
@@ -315,7 +320,7 @@ function renderAnalysis() {
   els.analysisSummary.innerHTML = `
     <p><strong>${analysis.summaryTitle}</strong></p>
     <p>${analysis.summaryText}</p>
-    <p class="muted">${selectedChampions.length}/5 campeones seleccionados · Fuente: ${state.dataSource}</p>
+    <p class="muted">${selectedChampions.length}/5 campeones seleccionados · Fuente: ${state.dataSource.toUpperCase()}</p>
   `;
 
   els.scoreBars.innerHTML = analysis.metrics
@@ -339,6 +344,46 @@ function renderAnalysis() {
       ${roleInsights.map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
     </ul>
   `;
+}
+
+function syncStatusBadge() {
+  if (!state.dataLoaded) return;
+  const selectedCount = countSelectedChampions();
+  setStatus(`${state.dataSource.toUpperCase()} · ${selectedCount}/5 picks`);
+}
+
+function toggleChampionSelection(role, champion) {
+  const current = state.selected[role];
+  state.selected[role] = current?.champion === champion.champion ? null : champion;
+  renderAll();
+}
+
+function matchesSearch(champion, search) {
+  if (!search) return true;
+  return [
+    champion.champion,
+    champion.identity,
+    champion.function,
+    champion.tempo,
+    ...(champion.strengths || []),
+    ...(champion.weaknesses || []),
+  ]
+    .join(' ')
+    .toLowerCase()
+    .includes(search);
+}
+
+function countSelectedChampions() {
+  return Object.values(state.selected).filter(Boolean).length;
+}
+
+function getChampionInitials(name) {
+  return String(name)
+    .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('');
 }
 
 function setStatus(text) {
