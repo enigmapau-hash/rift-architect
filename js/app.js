@@ -293,8 +293,10 @@ function renderDetails() {
   }
 
   const profile = scoreChampion(active);
+  const confidence = profile.confidence === null ? 'sin confianza definida' : `confianza ${profile.confidence}/100`;
+
   els.detailTitle.textContent = active.champion;
-  els.detailMeta.textContent = `${active.identity} · ${active.function} · ${active.tempo} · ${profile.primaryDamage} · Complejidad ${profile.complexity}/10`;
+  els.detailMeta.textContent = `${active.identity} · ${active.function} · ${active.tempo} · ${profile.primaryDamage} · Complejidad ${profile.complexity}/10 · ${profile.sourceLabel} · ${confidence}`;
   els.detailMetrics.innerHTML = profile.metrics
     .slice(0, 6)
     .map(
