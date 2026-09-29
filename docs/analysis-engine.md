@@ -19,36 +19,38 @@ El motor trabaja con el objeto canónico `Champion` definido en `docs/data-contr
 - `weaknesses[]`
 - `attributes` cuando existan
 
-## Qué debe hacer
+## Qué hace el motor v1
 
-El motor no debe inventar ni reinterpretar datos.
+El motor no inventa ni interpreta más de la cuenta. Solo agrupa y resume.
 
-Solo debe:
+Salida esperada:
 
-- agrupar identidades,
-- resumir fortalezas,
-- resumir carencias,
-- mostrar un plan de juego corto,
-- devolver un resultado limpio para que la IA lo explique después.
+- `primaryIdentity`
+- `secondaryIdentities[]`
+- `strengths[]`
+- `weaknesses[]`
+- `gamePlan[]`
+- `summaryText`
 
-## Qué no debe hacer
+## Reglas
 
 - No usar meta externo.
 - No usar winrates.
 - No analizar al rival.
 - No recomendar campeones en esta fase.
 - No inventar datos si faltan campos.
-
-## Salida esperada
-
-La interfaz debe mostrar, como mínimo:
-
-- Identidad principal
-- Identidades secundarias
-- Fortalezas
-- Carencias
-- Plan de juego
+- Mantener los mensajes cortos y claros.
 
 ## Criterio de calidad
 
 Si un dato no existe en el Excel, debe detectarse en origen. La interfaz no debe mezclar categorías ni mostrar datos inconsistentes.
+
+## Resultado esperado
+
+La interfaz debe mostrar solo lo imprescindible:
+
+- Identidad principal
+- Identidades secundarias
+- Hace bien
+- Le falta
+- Plan de juego
