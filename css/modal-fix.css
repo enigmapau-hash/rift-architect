@@ -1,0 +1,14 @@
+#pickerBackdrop {
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+#pickerBackdrop .picker-modal {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+#pickerBackdrop .picker-modal * {
+  pointer-events: auto;
+}
