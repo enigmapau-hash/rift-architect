@@ -42,11 +42,22 @@
 - Unificar el significado de cada atributo.
 - Mantener la UI breve y sin exceso de texto.
 
-### Sprint 4.5 — Motor de interpretación 🚧
+### Sprint 4.5 — Motor de interpretación ✅
 - Traducir datos del Excel a un resumen compacto.
 - Mostrar identidad principal, secundarias, fortalezas, carencias y plan.
 - Limitar la salida a lo imprescindible.
 - Mantener la IA para una fase posterior.
+
+### Sprint 4.6 — Visión de producto y contrato v2 ✅
+- Definir qué es Rift Architect y qué no es.
+- Fijar el presupuesto de información del análisis.
+- Cerrar el contrato de salida del motor v2.
+
+### Sprint 4.7 — Core Engine v0.5 🚧
+- Implementar el motor v2 como entregable completo.
+- Integrar el panel final de análisis.
+- Publicar documentación técnica y changelog.
+- Pasar la auditoría general antes de cerrar el hito.
 
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
