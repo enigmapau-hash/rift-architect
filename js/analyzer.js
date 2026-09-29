@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = '0.3.1';
+export const ENGINE_VERSION = '0.4.0';
 
 export const ATTRIBUTE_SPECS = [
   { key: 'frontline', label: 'Frontline' },
@@ -14,6 +14,20 @@ export const ATTRIBUTE_SPECS = [
   { key: 'pick', label: 'Pick' },
 ];
 
+export const CATEGORY_TERMS = {
+  frontline: ['frontline', 'tank', 'tanque', 'bruiser', 'warden', 'sustain', 'vanguard', 'juggernaut', 'front to back'],
+  engage: ['engage', 'pick', 'hook', 'dive', 'flank', 'initiate', 'catch'],
+  damage: ['dps', 'burst', 'carry', 'marksman', 'mage', 'battlemage', 'fighter', 'assassin', 'bruiser'],
+  poke: ['poke', 'siege', 'artillery', 'zone control'],
+  teamfight: ['teamfight', 'front to back', 'wombo', 'group', 'grupal', 'objective', 'control'],
+  mobility: ['mobility', 'movilidad', 'dash', 'roam', 'mobile'],
+  control: ['cc', 'control', 'vision', 'anti-engage', 'anti engage', 'waveclear', 'zone control', 'peel'],
+  scaling: ['scaling', 'escalado', 'late', 'late game', 'mid/late', 'mid late', 'hypercarry'],
+  objective: ['objective', 'objectives', 'dragon', 'nashor', 'herald', 'zone control'],
+  splitpush: ['splitpush', 'split', 'side lane', 'duel', 'dueling', '1v1'],
+  pick: ['pick', 'catch', 'hook', 'flank', 'dive', 'assassin'],
+};
+
 const ROLE_NAMES = {
   top: 'Top',
   jungle: 'Jungla',
@@ -22,61 +36,30 @@ const ROLE_NAMES = {
   support: 'Support',
 };
 
-const COMPLEXITY_TERMS = [
-  'muy exigente',
-  'hard',
-  'difícil',
-  'mechanical',
-  'mecanica',
-  'alto skill',
-  'high skill',
-  'riesgo',
-];
-
-const METRIC_TEXT_TERMS = {
-  frontline: ['frontline', 'tank', 'tanque', 'warden', 'peel', 'sustain', 'bruiser', 'juggernaut', 'vanguard'],
-  engage: ['engage', 'pick', 'hook', 'dive', 'flank', 'inici', 'initiate', 'catch', 'enganch'],
-  damage: ['carry', 'dps', 'burst', 'marksman', 'mage', 'battlemage', 'assassin', 'bruiser', 'fighter'],
-  poke: ['poke', 'siege', 'artillery', 'zone control', 'asedio'],
-  teamfight: ['teamfight', 'front to back', 'wombo', 'objective', 'group', 'grupal', 'peel', 'control'],
-  mobility: ['mobility', 'movilidad', 'dash', 'roam', 'mobile', 'backline', 'assassin'],
-  control: ['cc', 'control', 'vision', 'anti-engage', 'anti engage', 'zone control', 'peel', 'waveclear'],
-  scaling: ['scaling', 'escalado', 'late', 'mid/late', 'late game', 'hypercarry'],
-  objective: ['objective', 'objectives', 'dragon', 'nashor', 'herald', 'sustain', 'zone control', 'control'],
-  splitpush: ['splitpush', 'side lane', 'split', 'duel', 'dueling', '1v1'],
-  pick: ['pick', 'catch', 'hook', 'flank', 'dive', 'assassin'],
-};
-
-const METRIC_FORMULAS = {
-  frontline: ['frontline', 'peel', 'disengage'],
-  engage: ['engage', 'pick'],
-  damage: ['dps', 'burst'],
-  poke: ['poke', 'siege'],
-  teamfight: ['frontline', 'engage', 'control'],
-  mobility: ['mobility'],
-  control: ['vision', 'waveclear', 'objectiveControl'],
-  scaling: ['scaling'],
-  objective: ['objectiveControl'],
-  splitpush: ['splitpush'],
-  pick: ['pick'],
+const COMPLEXITY_TERMS = ['muy exigente', 'hard', 'difícil', 'mechanical', 'mecanica', 'alto skill', 'high skill', 'riesgo'];
+const NORMALIZED_DAMAGE_TERMS = {
+  ap: ['mage', 'battlemage', 'artillery', 'enchanter', 'burst', 'magic'],
+  ad: ['marksman', 'fighter', 'bruiser', 'assassin', 'duelist', 'ad'],
 };
 
 export function scoreChampion(champion) {
-  const explicitAttributes = normalizeChampionAttributes(champion?.attributes);
-  const hasExplicitAttributes = Object.keys(explicitAttributes).some((key) => key !== 'confidence');
+  const strengths = normalizeTags(champion?.strengths);
+  const weaknesses = normalizeTags(champion?.weaknesses);
   const text = buildSearchText(champion);
 
-  const metrics = hasExplicitAttributes
-    ? ATTRIBUTE_SPECS.map((spec) => ({
-        key: spec.key,
-        label: spec.label,
-        score: scoreFromExplicitAttributes(explicitAttributes, METRIC_FORMULAS[spec.key] || [spec.key]),
-      }))
-    : ATTRIBUTE_SPECS.map((spec) => ({
-        key: spec.key,
-        label: spec.label,
-        score: scoreFromText(text, spec.key),
-      }));
+  const metrics = ATTRIBUTE_SPECS.map((spec) => {
+    const positive = countMatches(strengths, spec.key);
+    const negative = countMatches(weaknesses, spec.key);
+    const rawScore = positive * 3 - negative;
+
+    return {
+      key: spec.key,
+      label: spec.label,
+      score: clamp(rawScore, 0, 10),
+      positive,
+      negative,
+    };
+  });
 
   const strongest = [...metrics].sort((a, b) => b.score - a.score)[0] || { label: 'Sin datos', score: 0 };
   const weakest = [...metrics].sort((a, b) => a.score - b.score)[0] || { label: 'Sin datos', score: 0 };
@@ -87,10 +70,12 @@ export function scoreChampion(champion) {
     weakest,
     primaryDamage: detectDamageType(text),
     complexity: scoreComplexity(text),
-    source: hasExplicitAttributes ? 'sheet' : 'text',
-    sourceLabel: hasExplicitAttributes ? 'Hoja de atributos' : 'Perfil derivado del texto',
-    confidence: explicitAttributes.confidence ?? null,
-    explicitAttributes,
+    source: 'excel',
+    sourceLabel: 'Excel',
+    confidence: null,
+    explicitAttributes: {},
+    strengths,
+    weaknesses,
   };
 }
 
@@ -123,15 +108,17 @@ export function analyzeComposition(selectedChampions) {
   }));
 
   const recommendations = [];
+
   if (selectedChampions.length < 5) {
     recommendations.push(`Te faltan ${5 - selectedChampions.length} pick(s) para completar la composición.`);
   }
 
   if (ap === 0 && hybrid === 0) {
-    recommendations.push('No veo daño AP claro en la composición.');
+    recommendations.push('La composición no muestra daño AP claro.');
   }
+
   if (ad === 0 && hybrid === 0) {
-    recommendations.push('No veo daño AD claro en la composición.');
+    recommendations.push('La composición no muestra daño AD claro.');
   }
 
   const frontline = findMetric(metrics, 'frontline');
@@ -141,27 +128,27 @@ export function analyzeComposition(selectedChampions) {
   const objective = findMetric(metrics, 'objective');
 
   if (frontline?.score < 5) {
-    recommendations.push('Falta frontline real para entrar a objetivos o aguantar front-to-back.');
+    recommendations.push('Falta frontline real para entrar o aguantar peleas front-to-back.');
   }
 
   if (engage?.score < 5) {
-    recommendations.push('El draft tiene poco engage directo: te costará forzar peleas.');
+    recommendations.push('El draft tiene poco engage directo.');
   }
 
   if (objective?.score < 5) {
-    recommendations.push('La composición necesita más foco en objetivos y control de zona.');
+    recommendations.push('Hay poco foco en objetivos y control de zona.');
   }
 
   if (control?.score >= 7) {
-    recommendations.push('Tienes bastante control de zonas y utilidades para pelear alrededor de objetivos.');
+    recommendations.push('La composición tiene buen control de zonas.');
   }
 
   if (scaling?.score >= 7) {
-    recommendations.push('La composición parece más fuerte en partidas largas.');
+    recommendations.push('La composición escala bien a partida larga.');
   }
 
   if (!recommendations.length) {
-    recommendations.push('La composición está bastante equilibrada para una partida estándar.');
+    recommendations.push('La composición está bastante equilibrada.');
   }
 
   const strongest = [...metrics].sort((a, b) => b.score - a.score)[0] || { label: 'Sin datos', score: 0 };
@@ -191,86 +178,32 @@ export function getRoleInsights(selectedChampions) {
   return insights;
 }
 
-function normalizeChampionAttributes(attributes) {
-  if (!attributes || typeof attributes !== 'object' || Array.isArray(attributes)) {
-    return {};
-  }
-
-  const normalized = {};
-  const entries = Object.entries(attributes);
-
-  for (const [key, value] of entries) {
-    if (key === 'confidence') {
-      const parsed = toNumber(value);
-      if (parsed !== null) {
-        normalized.confidence = clamp(Math.round(parsed), 0, 100);
-      }
-      continue;
-    }
-
-    const normalizedKey = normalizeAttributeKey(key);
-    if (!normalizedKey) continue;
-
-    const parsed = toNumber(value);
-    if (parsed === null) continue;
-
-    normalized[normalizedKey] = clamp(Math.round(parsed), 0, 5);
-  }
-
-  return normalized;
+export function normalizeTags(values) {
+  if (!Array.isArray(values)) return [];
+  return values.map((value) => String(value).trim()).filter(Boolean);
 }
 
-function normalizeAttributeKey(value) {
-  const key = normalizeText(value);
-  const aliases = {
-    engage: 'engage',
-    disengage: 'disengage',
-    frontline: 'frontline',
-    peel: 'peel',
-    pick: 'pick',
-    poke: 'poke',
-    burst: 'burst',
-    dps: 'dps',
-    scaling: 'scaling',
-    mobility: 'mobility',
-    waveclear: 'waveclear',
-    siege: 'siege',
-    splitpush: 'splitpush',
-    splitpushing: 'splitpush',
-    objectivecontrol: 'objectiveControl',
-    objective: 'objectiveControl',
-    controlobjectives: 'objectiveControl',
-    vision: 'vision',
-    confidence: 'confidence',
-  };
-
-  return aliases[key] || null;
+export function normalizeText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
 }
 
-function scoreFromExplicitAttributes(attributes, keys) {
-  const values = keys
-    .map((key) => toNumber(attributes[key]))
-    .filter((value) => value !== null);
+export function matchesCategory(tag, category) {
+  const normalizedTag = normalizeText(tag);
+  if (!normalizedTag) return false;
 
-  if (!values.length) {
-    return 0;
-  }
-
-  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
-  return clamp(Math.round(average * 2), 0, 10);
+  const terms = CATEGORY_TERMS[category] || [];
+  return terms.some((term) => {
+    const normalizedTerm = normalizeText(term);
+    return normalizedTag.includes(normalizedTerm) || normalizedTerm.includes(normalizedTag);
+  });
 }
 
-function scoreFromText(text, metricKey) {
-  const terms = METRIC_TEXT_TERMS[metricKey] || [];
-  let raw = 0;
-
-  for (const term of terms) {
-    if (hasTerm(text, term)) {
-      raw += term.includes(' ') ? 1.2 : 1;
-    }
-  }
-
-  return clamp(Math.round(raw * 2), 0, 10);
+function countMatches(tags, category) {
+  return tags.reduce((total, tag) => total + (matchesCategory(tag, category) ? 1 : 0), 0);
 }
 
 function buildSearchText(champion) {
@@ -287,11 +220,8 @@ function buildSearchText(champion) {
 }
 
 function detectDamageType(text) {
-  const apTerms = [' ap ', ' mage ', ' battlemage', ' artillery', ' burst ap', ' enchanter'];
-  const adTerms = [' ad ', ' bruiser', ' fighter', ' marksman', ' duelist', ' assassin'];
-
-  const apScore = apTerms.reduce((score, term) => score + (text.includes(term.trim()) ? 1 : 0), 0);
-  const adScore = adTerms.reduce((score, term) => score + (text.includes(term.trim()) ? 1 : 0), 0);
+  const apScore = NORMALIZED_DAMAGE_TERMS.ap.reduce((score, term) => score + (text.includes(term) ? 1 : 0), 0);
+  const adScore = NORMALIZED_DAMAGE_TERMS.ad.reduce((score, term) => score + (text.includes(term) ? 1 : 0), 0);
 
   if (apScore > adScore && apScore > 0) return 'AP';
   if (adScore > apScore && adScore > 0) return 'AD';
@@ -302,7 +232,7 @@ function detectDamageType(text) {
 function scoreComplexity(text) {
   let raw = 0;
   for (const term of COMPLEXITY_TERMS) {
-    if (hasTerm(text, term)) {
+    if (text.includes(term)) {
       raw += 1;
     }
   }
@@ -316,24 +246,6 @@ function scoreComplexity(text) {
 
 function findMetric(metrics, key) {
   return metrics.find((metric) => metric.key === key);
-}
-
-function hasTerm(text, term) {
-  return text.includes(term.toLowerCase());
-}
-
-function normalizeText(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
-}
-
-function toNumber(value) {
-  if (value === null || value === undefined || value === '') return null;
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function clamp(value, min, max) {
