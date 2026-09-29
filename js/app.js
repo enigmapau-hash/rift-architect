@@ -1,4 +1,4 @@
-import { analyzeComposition, getRoleInsights } from './analyzer.js';
+import { ATTRIBUTE_SPECS, analyzeComposition, getRoleInsights, scoreChampion } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
@@ -50,6 +50,7 @@ function cacheElements() {
   els.compositionGrid = document.getElementById('compositionGrid');
   els.detailTitle = document.getElementById('detailTitle');
   els.detailMeta = document.getElementById('detailMeta');
+  els.detailMetrics = document.getElementById('detailMetrics');
   els.detailStrengths = document.getElementById('detailStrengths');
   els.detailWeaknesses = document.getElementById('detailWeaknesses');
   els.analysisSummary = document.getElementById('analysisSummary');
@@ -284,14 +285,30 @@ function renderDetails() {
 
   if (!active) {
     els.detailTitle.textContent = `${roleLabel} vacío`;
-    els.detailMeta.textContent = `Selecciona un campeón para ver fortalezas y debilidades.`;
+    els.detailMeta.textContent = 'Selecciona un campeón para ver fortalezas, debilidades y perfil.';
+    els.detailMetrics.innerHTML = `<p class="muted">Perfil de atributos pendiente.</p>`;
     els.detailStrengths.innerHTML = '<li>Aún no hay campeón en este rol.</li>';
     els.detailWeaknesses.innerHTML = '<li>Elige uno para ver su perfil completo.</li>';
     return;
   }
 
+  const profile = scoreChampion(active);
   els.detailTitle.textContent = active.champion;
-  els.detailMeta.textContent = `${active.identity} · ${active.function} · ${active.tempo}`;
+  els.detailMeta.textContent = `${active.identity} · ${active.function} · ${active.tempo} · ${profile.primaryDamage} · Complejidad ${profile.complexity}/10`;
+  els.detailMetrics.innerHTML = profile.metrics
+    .slice(0, 6)
+    .map(
+      (metric) => `
+        <div class="detail-metric">
+          <div class="metric-row">
+            <span>${escapeHtml(metric.label)}</span>
+            <strong>${metric.score}/10</strong>
+          </div>
+          <div class="bar"><span style="width:${metric.score * 10}%"></span></div>
+        </div>
+      `
+    )
+    .join('');
 
   els.detailStrengths.innerHTML = (active.strengths || [])
     .map((item) => `<li>${escapeHtml(item)}</li>`)
@@ -320,7 +337,7 @@ function renderAnalysis() {
   els.analysisSummary.innerHTML = `
     <p><strong>${analysis.summaryTitle}</strong></p>
     <p>${analysis.summaryText}</p>
-    <p class="muted">${selectedChampions.length}/5 campeones seleccionados · Fuente: ${state.dataSource.toUpperCase()}</p>
+    <p class="muted">${selectedChampions.length}/5 campeones seleccionados · Motor ${analysis.engineVersion} · Fuente: ${state.dataSource.toUpperCase()}</p>
   `;
 
   els.scoreBars.innerHTML = analysis.metrics
