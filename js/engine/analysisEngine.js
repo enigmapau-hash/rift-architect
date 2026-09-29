@@ -1,4 +1,4 @@
-import { clampNumber, ENGINE_VERSION, matchesCategory, normalizeText } from './utils.js';
+import { clampNumber, ENGINE_VERSION, matchesCategory } from './utils.js';
 import { summarizeIdentities } from './identityEngine.js';
 import { summarizeStrengths } from './strengthEngine.js';
 import { summarizeWeaknesses } from './weaknessEngine.js';
