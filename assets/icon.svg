@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Rift Architect">
+  <defs>
+    <linearGradient id="g" x1="0%" x2="100%" y1="0%" y2="100%">
+      <stop offset="0%" stop-color="#7c8cff"/>
+      <stop offset="100%" stop-color="#46d3a1"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="#0b1020"/>
+  <path d="M120 352c58-22 95-68 136-160 26-60 54-97 103-124l33 33c-29 41-39 83-46 128 29 8 53 23 69 45-46 7-80 25-111 61-23 26-42 56-56 84-37-28-73-36-129-37z" fill="url(#g)"/>
+  <circle cx="187" cy="356" r="34" fill="#e5eefc" opacity="0.9"/>
+  <circle cx="322" cy="192" r="18" fill="#e5eefc" opacity="0.9"/>
+</svg>
