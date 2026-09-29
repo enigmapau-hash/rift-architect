@@ -1,4 +1,4 @@
-import { normalizeText } from './utils.js';
+import { normalizeText, uniqueOrdered } from './utils.js';
 
 function toLabels(values = []) {
   return values
@@ -6,13 +6,13 @@ function toLabels(values = []) {
     .filter(Boolean);
 }
 
-function setFirst(plan, label) {
-  if (!label) return plan;
-  plan[0] = label;
-  return plan;
+function addItem(plan, label) {
+  const value = typeof label === 'string' ? label.trim() : '';
+  if (!value) return;
+  plan.push(value);
 }
 
-export function buildGamePlan(primaryIdentity, tempo, strengths = [], weaknesses = []) {
+function buildLegacyPlan(primaryIdentity, tempo, strengths = [], weaknesses = []) {
   const identity = normalizeText(primaryIdentity);
   const tempoText = normalizeText(typeof tempo === 'string' ? tempo : tempo?.label || tempo?.tempo || '');
   const strengthLabels = toLabels(strengths);
@@ -35,11 +35,11 @@ export function buildGamePlan(primaryIdentity, tempo, strengths = [], weaknesses
   }
 
   if (tempoText.includes('early')) {
-    plan = setFirst(plan, 'Presión temprana');
+    plan[0] = 'Presión temprana';
   } else if (tempoText.includes('mid') && !plan[0]) {
-    plan = setFirst(plan, 'Tempo medio');
+    plan[0] = 'Tempo medio';
   } else if (tempoText.includes('late')) {
-    plan = setFirst(plan, 'Escalar');
+    plan[0] = 'Escalar';
   }
 
   if (strengthSet.has(normalizeText('Objective')) || strengthSet.has(normalizeText('Objetivos'))) {
@@ -59,4 +59,55 @@ export function buildGamePlan(primaryIdentity, tempo, strengths = [], weaknesses
   }
 
   return [...new Set(plan)].filter(Boolean).slice(0, 3);
+}
+
+function buildModernPlan(winCondition, strengths = [], weaknesses = [], tempoSummary = null, synergies = [], coherence = null) {
+  const plan = [];
+  const priorities = Array.isArray(winCondition?.priorities) ? winCondition.priorities : [];
+  const avoid = Array.isArray(winCondition?.avoid) ? winCondition.avoid : [];
+  const tempoText = normalizeText(typeof tempoSummary === 'object' ? tempoSummary?.label : tempoSummary);
+  const strengthSet = new Set(toLabels(strengths).map((item) => normalizeText(item)));
+  const weaknessSet = new Set(toLabels(weaknesses).map((item) => normalizeText(item)));
+
+  priorities.forEach((item) => addItem(plan, item));
+
+  if (tempoText.includes('late')) {
+    addItem(plan, 'Escalar');
+  }
+
+  if (tempoText.includes('early') && normalizeText(winCondition?.label).includes('ventaja')) {
+    addItem(plan, 'Presión temprana');
+  }
+
+  if (strengthSet.has(normalizeText('Objective Control'))) {
+    addItem(plan, 'Objetivos');
+  }
+
+  if (synergies.some((item) => normalizeText(item?.label || '').includes('presionglobal'))) {
+    addItem(plan, 'Presión global');
+  }
+
+  if (coherence?.label === 'Dispersa') {
+    addItem(plan, 'Unificar el plan');
+  }
+
+  if (weaknessSet.has(normalizeText('Splitpush'))) {
+    addItem(plan, 'Evitar splitpush');
+  }
+
+  if (weaknessSet.has(normalizeText('Poke'))) {
+    addItem(plan, 'Evitar trades largos');
+  }
+
+  avoid.slice(0, 2).forEach((item) => addItem(plan, item));
+
+  return uniqueOrdered(plan).slice(0, 3);
+}
+
+export function buildGamePlan(winConditionOrIdentity, tempoOrSummary, strengths = [], weaknesses = [], synergies = [], coherence = null) {
+  if (winConditionOrIdentity && typeof winConditionOrIdentity === 'object' && !Array.isArray(winConditionOrIdentity)) {
+    return buildModernPlan(winConditionOrIdentity, strengths, weaknesses, tempoOrSummary, synergies, coherence);
+  }
+
+  return buildLegacyPlan(winConditionOrIdentity, tempoOrSummary, strengths, weaknesses);
 }
