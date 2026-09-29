@@ -3,6 +3,9 @@ import { summarizeIdentities } from './identityEngine.js';
 import { summarizeStrengths } from './strengthEngine.js';
 import { summarizeWeaknesses } from './weaknessEngine.js';
 import { summarizeTempo } from './tempoEngine.js';
+import { summarizeSynergies } from './synergyEngine.js';
+import { evaluateCoherence } from './coherenceEngine.js';
+import { determineWinCondition } from './winConditionEngine.js';
 import { buildGamePlan } from './planEngine.js';
 
 const METRIC_LABELS = {
@@ -23,7 +26,7 @@ const METRIC_KEYS = Object.keys(METRIC_LABELS);
 const DAMAGE_AP_TERMS = ['mage', 'battlemage', 'artillery', 'enchanter', 'burst', 'magic', 'ap'];
 const DAMAGE_AD_TERMS = ['marksman', 'fighter', 'bruiser', 'assassin', 'duelist', 'ad', 'adc'];
 
-function buildSummaryText(identitySummary, tempoSummary) {
+function buildSummaryText(identitySummary, tempoSummary, coherence, winCondition, synergies) {
   const parts = [identitySummary.primary?.label || 'Sin definir'];
 
   if (identitySummary.secondary.length) {
@@ -32,6 +35,18 @@ function buildSummaryText(identitySummary, tempoSummary) {
 
   if (tempoSummary?.label && tempoSummary.label !== 'Sin definir') {
     parts.push(`Tempo: ${tempoSummary.label}`);
+  }
+
+  if (coherence?.label) {
+    parts.push(`Coherencia: ${coherence.label}`);
+  }
+
+  if (winCondition?.label) {
+    parts.push(`Victoria: ${winCondition.label}`);
+  }
+
+  if (synergies?.length) {
+    parts.push(`Sinergia: ${synergies[0].label}`);
   }
 
   if (identitySummary.dominance === 'hybrid') {
@@ -123,9 +138,13 @@ function buildAggregateMetrics(profiles) {
   });
 }
 
-function computeConfidence(identitySummary, tempoSummary, strengths, weaknesses) {
-  const analysisWeight = strengths.reduce((sum, item) => sum + (item?.score || 0), 0) + weaknesses.reduce((sum, item) => sum + (item?.score || 0), 0);
-  const raw = (identitySummary.confidence * 0.45) + (tempoSummary.confidence * 0.25) + Math.min(35, analysisWeight * 1.2);
+function computeConfidence(identitySummary, tempoSummary, coherence, synergies, winCondition) {
+  const identityScore = Number(identitySummary?.confidence) || 0;
+  const tempoScore = Number(tempoSummary?.confidence) || 0;
+  const coherenceScore = Number(coherence?.score) || 0;
+  const synergyBonus = Math.min(16, (Array.isArray(synergies) ? synergies.length : 0) * 5);
+  const winBonus = Math.min(10, (Array.isArray(winCondition?.priorities) ? winCondition.priorities.length : 0) * 3);
+  const raw = identityScore * 0.3 + tempoScore * 0.2 + coherenceScore * 0.3 + synergyBonus + winBonus;
   return clampNumber(Math.round(raw), 0, 100);
 }
 
@@ -135,12 +154,15 @@ export function analyzeComposition(selectedChampions = []) {
   const strengths = summarizeStrengths(safeChampions, 4);
   const weaknesses = summarizeWeaknesses(safeChampions, 3);
   const tempoSummary = summarizeTempo(safeChampions);
-  const gamePlan = buildGamePlan(identitySummary.primary.label, tempoSummary.label, strengths, weaknesses);
+  const synergies = summarizeSynergies(safeChampions, identitySummary, strengths);
+  const coherence = evaluateCoherence({ identitySummary, synergies, selectedChampions: safeChampions });
+  const winCondition = determineWinCondition({ identitySummary, tempoSummary, synergies, coherence });
+  const gamePlan = buildGamePlan(winCondition, strengths, weaknesses, tempoSummary, synergies, coherence);
   const secondaryIdentities = identitySummary.secondary.map((item) => item.label).filter(Boolean);
   const profiles = safeChampions.map(buildChampionProfile);
   const metrics = buildAggregateMetrics(profiles);
   const damageSplit = buildDamageSplit(safeChampions);
-  const confidence = computeConfidence(identitySummary, tempoSummary, strengths, weaknesses);
+  const confidence = computeConfidence(identitySummary, tempoSummary, coherence, synergies, winCondition);
 
   return {
     engineVersion: ENGINE_VERSION,
@@ -153,9 +175,12 @@ export function analyzeComposition(selectedChampions = []) {
     gamePlan,
     confidence,
     dominance: identitySummary.dominance,
-    summaryText: buildSummaryText(identitySummary, tempoSummary),
+    summaryText: buildSummaryText(identitySummary, tempoSummary, coherence, winCondition, synergies),
     identityBreakdown: identitySummary.ranked,
     tempoBreakdown: tempoSummary.ranked,
+    synergies,
+    coherence,
+    winCondition,
     metrics,
     profiles,
     damageSplit,
