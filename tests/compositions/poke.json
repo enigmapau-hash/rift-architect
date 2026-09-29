@@ -1,0 +1,60 @@
+{
+  "slug": "poke",
+  "description": "Composición de asedio y desgaste a distancia.",
+  "selectedChampions": [
+    {
+      "champion": "Xerath",
+      "role": "mid",
+      "identity": "Poke",
+      "function": "Artillery Mage",
+      "tempo": "Mid/Late",
+      "strengths": ["Poke", "Siege", "Control"],
+      "weaknesses": ["Dive"]
+    },
+    {
+      "champion": "Ziggs",
+      "role": "botline",
+      "identity": "Poke",
+      "function": "Artillery Mage",
+      "tempo": "Mid/Late",
+      "strengths": ["Siege", "Waveclear", "Objective Control"],
+      "weaknesses": ["All-in"]
+    },
+    {
+      "champion": "Jayce",
+      "role": "top",
+      "identity": "Poke",
+      "function": "Bruiser Poke",
+      "tempo": "Mid",
+      "strengths": ["Poke", "Lane pressure", "Objective Control"],
+      "weaknesses": ["Scaling"]
+    },
+    {
+      "champion": "Varus",
+      "role": "botline",
+      "identity": "Poke",
+      "function": "Marksman",
+      "tempo": "Mid/Late",
+      "strengths": ["Poke", "Objective", "Waveclear"],
+      "weaknesses": ["Mobility"]
+    },
+    {
+      "champion": "Karma",
+      "role": "support",
+      "identity": "Control",
+      "function": "Enchanter",
+      "tempo": "Mid",
+      "strengths": ["Poke", "Control", "Vision"],
+      "weaknesses": ["Hard engage"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Poke",
+    "dominance": "dominant",
+    "coherence": "Muy coherente",
+    "winCondition": "Desgastar antes de entrar",
+    "tempoIncludes": ["Mid", "Late"],
+    "synergiesInclude": ["Asedio"],
+    "confidenceMin": 70
+  }
+}
