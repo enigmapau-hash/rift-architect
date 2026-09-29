@@ -63,6 +63,17 @@ The analysis shown in the main UI must stay within this budget:
 4. Return tokens the UI can render directly.
 5. Leave the explanation layer for the future IA.
 
+## Implementation structure
+
+The current core engine is split into small modules:
+
+- `js/engine/identityEngine.js`
+- `js/engine/strengthEngine.js`
+- `js/engine/weaknessEngine.js`
+- `js/engine/tempoEngine.js`
+- `js/engine/planEngine.js`
+- `js/engine/analysisEngine.js`
+
 ## Main UI output
 
 The screen should show only:
