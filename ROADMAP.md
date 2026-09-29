@@ -60,6 +60,8 @@
 - Integrar el panel final de análisis con tempo visible.
 - Estabilizar el modal de selección con controles nativos.
 - Mantener compatibilidad temporal entre el motor v2 y la UI antigua hasta cerrar la migración.
+- Añadir un `data/index.json` mínimo para evitar 404 en Pages.
+- Añadir un favicon SVG para evitar 404 del navegador.
 - Publicar documentación técnica y changelog.
 - Pasar la auditoría general antes de cerrar el hito.
 
