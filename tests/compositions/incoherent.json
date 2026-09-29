@@ -1,0 +1,60 @@
+{
+  "slug": "incoherent",
+  "description": "Composición con planes en tensión entre sí.",
+  "selectedChampions": [
+    {
+      "champion": "Ziggs",
+      "role": "mid",
+      "identity": "Poke",
+      "function": "Artillery Mage",
+      "tempo": "Mid/Late",
+      "strengths": ["Poke", "Siege", "Waveclear"],
+      "weaknesses": ["Dive"]
+    },
+    {
+      "champion": "Tryndamere",
+      "role": "top",
+      "identity": "Splitpush",
+      "function": "Duelist",
+      "tempo": "Late",
+      "strengths": ["Splitpush", "Dueling", "Pressure"],
+      "weaknesses": ["Teamfight"]
+    },
+    {
+      "champion": "Hecarim",
+      "role": "jungle",
+      "identity": "Dive",
+      "function": "Fighter",
+      "tempo": "Early/Mid",
+      "strengths": ["Dive", "Mobility", "Pick"],
+      "weaknesses": ["Kiteable"]
+    },
+    {
+      "champion": "Braum",
+      "role": "support",
+      "identity": "Frontline",
+      "function": "Tank",
+      "tempo": "Mid",
+      "strengths": ["Frontline", "Peel", "Control"],
+      "weaknesses": ["Damage"]
+    },
+    {
+      "champion": "Kha'Zix",
+      "role": "jungle",
+      "identity": "Pick",
+      "function": "Assassin",
+      "tempo": "Mid",
+      "strengths": ["Pick", "Mobility", "Burst"],
+      "weaknesses": ["Frontline"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Poke",
+    "dominance": "flexible",
+    "coherence": "Mixta",
+    "winCondition": "Desgastar antes de entrar",
+    "tempoIncludes": ["Mid", "Late"],
+    "synergiesInclude": [],
+    "confidenceMin": 40
+  }
+}
