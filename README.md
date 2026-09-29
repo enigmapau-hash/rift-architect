@@ -9,6 +9,14 @@ PWA para construir y analizar composiciones de League of Legends.
 - La PWA consume `data/index.json` y los ficheros de rol generados.
 - GitHub Pages se publica automáticamente desde el workflow.
 
+## Estado actual
+
+- Selector visual por roles.
+- Composición editable con selección rápida.
+- Perfil de campeón con atributos derivados.
+- Motor de análisis basado en métricas numéricas.
+- Vista responsive para móvil, tablet y PC.
+
 ## Estructura de datos
 
 - `data/index.json`
