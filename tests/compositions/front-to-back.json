@@ -1,0 +1,60 @@
+{
+  "slug": "front-to-back",
+  "description": "Composición de frontline estable con carry protegido.",
+  "selectedChampions": [
+    {
+      "champion": "Shen",
+      "role": "top",
+      "identity": "Frontline",
+      "function": "Tank Warden",
+      "tempo": "Late",
+      "strengths": ["Frontline", "Peel", "Teamfight"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Orianna",
+      "role": "mid",
+      "identity": "Control",
+      "function": "Mage",
+      "tempo": "Mid/Late",
+      "strengths": ["Control", "Teamfight", "Objective Control"],
+      "weaknesses": ["Lane phase"]
+    },
+    {
+      "champion": "Jinx",
+      "role": "botline",
+      "identity": "Protect",
+      "function": "ADC Hypercarry",
+      "tempo": "Late",
+      "strengths": ["Scaling", "DPS", "Front to Back"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Taric",
+      "role": "support",
+      "identity": "Protect",
+      "function": "Enchanter Tank",
+      "tempo": "Late",
+      "strengths": ["Protect Carry", "Teamfight", "Frontline"],
+      "weaknesses": ["Mobility"]
+    },
+    {
+      "champion": "Wukong",
+      "role": "jungle",
+      "identity": "Engage",
+      "function": "Fighter",
+      "tempo": "Mid",
+      "strengths": ["Teamfight", "Engage", "Control"],
+      "weaknesses": ["Splitpush"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Front to Back",
+    "dominance": "hybrid",
+    "coherence": "Muy coherente",
+    "winCondition": "Escalar y ganar 5v5",
+    "tempoIncludes": ["Late"],
+    "synergiesInclude": ["Combo de wombo", "Front to Back"],
+    "confidenceMin": 70
+  }
+}
