@@ -58,8 +58,8 @@
 - Implementar el motor v2 como entregable completo.
 - Separar el motor en módulos de identidad, fortalezas, debilidades, tempo y plan.
 - Integrar el panel final de análisis con tempo visible.
-- Estabilizar el modal de selección con controles nativos.
-- Mantener compatibilidad temporal entre el motor v2 y la UI antigua hasta cerrar la migración.
+- Consolidar la UI del picker en un flujo único y estable.
+- Eliminar la dependencia del panel de resumen antiguo.
 - Añadir un `data/index.json` mínimo para evitar 404 en Pages.
 - Añadir un favicon SVG para evitar 404 del navegador.
 - Publicar documentación técnica y changelog.
