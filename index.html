@@ -7,19 +7,14 @@
     <title>Rift Architect</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="stylesheet" href="./css/main.css" />
-    <link rel="stylesheet" href="./css/visuals.css" />
-    <link rel="stylesheet" href="./css/v0_4.css" />
-    <link rel="stylesheet" href="./css/v0_9.css" />
-    <link rel="stylesheet" href="./css/v1_0.css" />
+    <link rel="stylesheet" href="./css/v2.css" />
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   </head>
   <body>
     <div id="app">
       <header class="app-header">
-        <div>
-          <p class="eyebrow">Rift Architect</p>
-          <h1>Draft rápido</h1>
-          <p class="subtitle">Pulsa un rol y elige un campeón sin pantallas extra.</p>
+        <div class="app-brand">
+          <h1 class="app-title">Rift Architect</h1>
         </div>
         <div class="header-actions">
           <span id="statusBadge" class="status">Cargando…</span>
@@ -37,9 +32,6 @@
           <div id="compositionGrid" class="composition-grid"></div>
 
           <div class="summary-card">
-            <div class="panel-title-row compact">
-              <h3>Resumen rápido</h3>
-            </div>
             <div id="analysisSummary" class="analysis-summary" aria-live="polite"></div>
             <div id="recommendations" class="recommendation-list"></div>
           </div>
@@ -67,9 +59,6 @@
       </section>
     </div>
 
-    <script type="module" src="./js/app.js"></script>
-    <script type="module" src="./js/visuals.js"></script>
-    <script type="module" src="./js/recommendations.js"></script>
-    <script type="module" src="./js/analysis-visuals.js"></script>
+    <script type="module" src="./js/app-v2.js"></script>
   </body>
 </html>
