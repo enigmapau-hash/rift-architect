@@ -1,0 +1,60 @@
+{
+  "slug": "dive",
+  "description": "Composición agresiva de entrada corta y ejecución rápida.",
+  "selectedChampions": [
+    {
+      "champion": "Yasuo",
+      "role": "mid",
+      "identity": "Dive",
+      "function": "Skirmisher",
+      "tempo": "Early/Mid",
+      "strengths": ["Dive", "Skirmish", "Damage"],
+      "weaknesses": ["CC heavy"]
+    },
+    {
+      "champion": "Malphite",
+      "role": "top",
+      "identity": "Engage",
+      "function": "Tank",
+      "tempo": "Mid",
+      "strengths": ["Engage", "Teamfight", "Frontline"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Hecarim",
+      "role": "jungle",
+      "identity": "Dive",
+      "function": "Fighter",
+      "tempo": "Early/Mid",
+      "strengths": ["Dive", "Mobility", "Pick"],
+      "weaknesses": ["Kiteable"]
+    },
+    {
+      "champion": "Kha'Zix",
+      "role": "jungle",
+      "identity": "Pick",
+      "function": "Assassin",
+      "tempo": "Mid",
+      "strengths": ["Pick", "Mobility", "Burst"],
+      "weaknesses": ["Frontline"]
+    },
+    {
+      "champion": "Alistar",
+      "role": "support",
+      "identity": "Engage",
+      "function": "Tank",
+      "tempo": "Early/Mid",
+      "strengths": ["Engage", "Dive", "Frontline"],
+      "weaknesses": ["Poke"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Dive",
+    "dominance": "hybrid",
+    "coherence": "Coherente",
+    "winCondition": "Crear ventaja temprana",
+    "tempoIncludes": ["Early", "Mid"],
+    "synergiesInclude": ["Engage explosivo"],
+    "confidenceMin": 65
+  }
+}
