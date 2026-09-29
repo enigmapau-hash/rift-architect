@@ -1,0 +1,17 @@
+/* Identity-first patch for v2 */
+
+#recommendations {
+  display: none !important;
+}
+
+.champion-item__sub {
+  color: var(--text);
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: normal;
+}
+
+.champion-item__body {
+  gap: 3px;
+}
