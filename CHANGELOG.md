@@ -8,6 +8,8 @@
 - Core Engine v0.5 planning.
 - Modular core engine files for identity, strength, weakness, tempo and plan analysis.
 - Tempo-aware analysis panel for the main screen.
+- Empty `data/index.json` manifest to avoid 404s on GitHub Pages.
+- SVG favicon link to avoid browser favicon 404s.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
