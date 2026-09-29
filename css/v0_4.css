@@ -239,6 +239,32 @@
   line-height: 1.45;
 }
 
+@media (min-width: 921px) {
+  body.modal-open {
+    overflow: auto;
+  }
+
+  .picker-backdrop {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    display: block;
+    background: transparent;
+    padding: 0;
+    margin-top: 16px;
+  }
+
+  .picker-backdrop.is-hidden {
+    display: none;
+  }
+
+  .picker-modal {
+    width: 100%;
+    max-height: none;
+    border-radius: 20px;
+  }
+}
+
 @media (max-width: 920px) {
   .panel--main {
     grid-template-columns: 1fr;
