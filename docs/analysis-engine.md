@@ -4,11 +4,14 @@
 
 Definir una capa de análisis simple, estable y basada solo en la información del Excel.
 
-## Entradas
+## Entrada
 
-El motor trabaja con el mismo objeto de campeón en todos los roles:
+El motor trabaja con el objeto canónico `Champion` definido en `docs/data-contract.md`:
 
-- `champion`
+- `id`
+- `displayName`
+- `role`
+- `icon`
 - `identity`
 - `function`
 - `tempo`
@@ -16,27 +19,17 @@ El motor trabaja con el mismo objeto de campeón en todos los roles:
 - `weaknesses[]`
 - `attributes` cuando existan
 
-## Qué debe detectar
+## Qué debe hacer
 
-### Identidad principal
-La identidad que mejor representa la composición.
+El motor no debe inventar ni reinterpretar datos.
 
-Regla inicial:
-- Se toma la identidad más repetida entre los campeones seleccionados.
-- Si hay empate, se prioriza la identidad que aparece en más roles clave.
-- Si sigue habiendo empate, se usa la primera identidad dominante encontrada.
+Solo debe:
 
-### Identidades secundarias
-Identidades presentes en la composición que no son la principal.
-
-### Fortalezas
-Conceptos que aparecen reforzados por varios campeones o por atributos explícitos del Excel.
-
-### Carencias
-Conceptos poco cubiertos o ausentes en la composición.
-
-### Plan de juego
-La forma natural de jugar la composición a partir de su identidad principal y su tempo.
+- agrupar identidades,
+- resumir fortalezas,
+- resumir carencias,
+- mostrar un plan de juego corto,
+- devolver un resultado limpio para que la IA lo explique después.
 
 ## Qué no debe hacer
 
