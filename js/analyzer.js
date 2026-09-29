@@ -1,4 +1,4 @@
-export const ENGINE_VERSION = '0.3.0';
+export const ENGINE_VERSION = '0.3.1';
 
 export const ATTRIBUTE_SPECS = [
   { key: 'frontline', label: 'Frontline' },
@@ -33,6 +33,20 @@ const COMPLEXITY_TERMS = [
   'riesgo',
 ];
 
+const METRIC_TEXT_TERMS = {
+  frontline: ['frontline', 'tank', 'tanque', 'warden', 'peel', 'sustain', 'bruiser', 'juggernaut', 'vanguard'],
+  engage: ['engage', 'pick', 'hook', 'dive', 'flank', 'inici', 'initiate', 'catch', 'enganch'],
+  damage: ['carry', 'dps', 'burst', 'marksman', 'mage', 'battlemage', 'assassin', 'bruiser', 'fighter'],
+  poke: ['poke', 'siege', 'artillery', 'zone control', 'asedio'],
+  teamfight: ['teamfight', 'front to back', 'wombo', 'objective', 'group', 'grupal', 'peel', 'control'],
+  mobility: ['mobility', 'movilidad', 'dash', 'roam', 'mobile', 'backline', 'assassin'],
+  control: ['cc', 'control', 'vision', 'anti-engage', 'anti engage', 'zone control', 'peel', 'waveclear'],
+  scaling: ['scaling', 'escalado', 'late', 'mid/late', 'late game', 'hypercarry'],
+  objective: ['objective', 'objectives', 'dragon', 'nashor', 'herald', 'sustain', 'zone control', 'control'],
+  splitpush: ['splitpush', 'side lane', 'split', 'duel', 'dueling', '1v1'],
+  pick: ['pick', 'catch', 'hook', 'flank', 'dive', 'assassin'],
+};
+
 const METRIC_FORMULAS = {
   frontline: ['frontline', 'peel', 'disengage'],
   engage: ['engage', 'pick'],
@@ -61,7 +75,7 @@ export function scoreChampion(champion) {
     : ATTRIBUTE_SPECS.map((spec) => ({
         key: spec.key,
         label: spec.label,
-        score: scoreFromText(text, spec),
+        score: scoreFromText(text, spec.key),
       }));
 
   const strongest = [...metrics].sort((a, b) => b.score - a.score)[0] || { label: 'Sin datos', score: 0 };
@@ -246,9 +260,11 @@ function scoreFromExplicitAttributes(attributes, keys) {
   return clamp(Math.round(average * 2), 0, 10);
 }
 
-function scoreFromText(text, spec) {
+function scoreFromText(text, metricKey) {
+  const terms = METRIC_TEXT_TERMS[metricKey] || [];
   let raw = 0;
-  for (const term of spec.terms) {
+
+  for (const term of terms) {
     if (hasTerm(text, term)) {
       raw += term.includes(' ') ? 1.2 : 1;
     }
