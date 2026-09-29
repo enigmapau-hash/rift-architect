@@ -1,0 +1,11 @@
+{
+  "name": "rift-architect",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate:data": "node scripts/excel-to-json.mjs"
+  },
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
