@@ -1,12 +1,14 @@
 import { analyzeComposition, getRoleInsights } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
-const ROLE_SHEETS = [
-  { key: 'top', label: 'Top', sheet: 'Tabla Top' },
-  { key: 'jungle', label: 'Jungla', sheet: 'Tabla Jungla' },
-  { key: 'mid', label: 'Mid', sheet: 'Tabla Mid' },
-  { key: 'botline', label: 'Botline', sheet: 'Tabla Botline' },
-  { key: 'support', label: 'Support', sheet: 'Tabla Support' },
+const DATA_MANIFEST_URL = './data/index.json';
+
+const ROLE_SOURCES = [
+  { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
+  { key: 'jungle', label: 'Jungla', file: './data/jungle.json', sheet: 'Tabla Jungla' },
+  { key: 'mid', label: 'Mid', file: './data/mid.json', sheet: 'Tabla Mid' },
+  { key: 'botline', label: 'Botline', file: './data/bot.json', sheet: 'Tabla Botline' },
+  { key: 'support', label: 'Support', file: './data/support.json', sheet: 'Tabla Support' },
 ];
 
 const state = {
@@ -20,8 +22,9 @@ const state = {
     botline: null,
     support: null,
   },
-  workbookLoaded: false,
+  dataLoaded: false,
   loading: false,
+  dataSource: 'excel',
 };
 
 const els = {};
@@ -31,8 +34,9 @@ init();
 async function init() {
   cacheElements();
   bindEvents();
-  await loadWorkbook();
+  await loadData();
   renderAll();
+
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./service-worker.js').catch(() => {});
   }
@@ -69,45 +73,93 @@ function bindEvents() {
   });
 
   els.refreshBtn.addEventListener('click', async () => {
-    await loadWorkbook(true);
+    await loadData(true);
     renderAll();
   });
 }
 
-async function loadWorkbook(force = false) {
+async function loadData(force = false) {
   if (state.loading) return;
-  if (state.workbookLoaded && !force) return;
+  if (state.dataLoaded && !force) return;
 
   try {
     state.loading = true;
     setStatus('Cargando datos…');
-    const response = await fetch(WORKBOOK_URL, { cache: force ? 'reload' : 'default' });
-    if (!response.ok) {
-      throw new Error(`No se pudo leer ${WORKBOOK_URL}`);
+
+    const jsonDataset = await loadJsonDataset(force);
+    if (jsonDataset) {
+      state.data = jsonDataset;
+      state.dataLoaded = true;
+      state.dataSource = 'json';
+      setStatus('Datos JSON listos');
+      return;
     }
 
-    const buffer = await response.arrayBuffer();
-    const workbook = XLSX.read(buffer, { type: 'array' });
-
-    ROLE_SHEETS.forEach(({ key, sheet }) => {
-      const worksheet = workbook.Sheets[sheet];
-      state.data[key] = worksheetToRows(worksheet);
-    });
-
-    state.workbookLoaded = true;
-    setStatus('Datos listos');
+    const workbookDataset = await loadWorkbookDataset(force);
+    state.data = workbookDataset;
+    state.dataLoaded = true;
+    state.dataSource = 'excel';
+    setStatus('Datos del Excel listos');
   } catch (error) {
     console.error(error);
     setStatus('Error al cargar');
-    els.analysisSummary.innerHTML = `<p class="warning">No se pudo abrir el Excel. Revisa que el archivo siga en la raíz del repo.</p>`;
+    els.analysisSummary.innerHTML = `<p class="warning">No se pudieron cargar los datos. Revisa el Excel o la carpeta <code>data/</code>.</p>`;
   } finally {
     state.loading = false;
   }
 }
 
+async function loadJsonDataset(force = false) {
+  try {
+    const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: force ? 'reload' : 'default' });
+    if (!manifestResponse.ok) return null;
+
+    const manifest = await manifestResponse.json();
+    const files = Array.isArray(manifest?.files) ? manifest.files : null;
+    if (!files?.length) return null;
+
+    const loaded = await Promise.all(
+      ROLE_SOURCES.map(async ({ key, file }) => {
+        const response = await fetch(file, { cache: force ? 'reload' : 'default' });
+        if (!response.ok) {
+          throw new Error(`No se pudo leer ${file}`);
+        }
+        const champions = await response.json();
+        return [key, champions];
+      })
+    );
+
+    return Object.fromEntries(loaded);
+  } catch {
+    return null;
+  }
+}
+
+async function loadWorkbookDataset(force = false) {
+  if (!window.XLSX) {
+    throw new Error('XLSX no está disponible');
+  }
+
+  const response = await fetch(WORKBOOK_URL, { cache: force ? 'reload' : 'default' });
+  if (!response.ok) {
+    throw new Error(`No se pudo leer ${WORKBOOK_URL}`);
+  }
+
+  const buffer = await response.arrayBuffer();
+  const workbook = window.XLSX.read(buffer, { type: 'array' });
+
+  const dataset = {};
+  ROLE_SOURCES.forEach(({ key, sheet }) => {
+    const worksheet = workbook.Sheets[sheet];
+    dataset[key] = worksheetToRows(worksheet);
+  });
+
+  return dataset;
+}
+
 function worksheetToRows(worksheet) {
   if (!worksheet) return [];
-  const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
   return rows
     .slice(1)
     .filter((row) => row[0])
@@ -139,7 +191,7 @@ function renderAll() {
 
 function renderRoleTabs() {
   els.roleTabs.innerHTML = '';
-  ROLE_SHEETS.forEach(({ key, label }) => {
+  ROLE_SOURCES.forEach(({ key, label }) => {
     const button = document.createElement('button');
     button.type = 'button';
     button.className = `role-tab ${state.activeRole === key ? 'is-active' : ''}`;
@@ -197,7 +249,7 @@ function renderChampionList() {
 
 function renderCompositionGrid() {
   els.compositionGrid.innerHTML = '';
-  ROLE_SHEETS.forEach(({ key, label }) => {
+  ROLE_SOURCES.forEach(({ key, label }) => {
     const champion = state.selected[key];
     const card = document.createElement('button');
     card.type = 'button';
@@ -235,8 +287,14 @@ function renderDetails() {
 
   els.detailTitle.textContent = active.champion;
   els.detailMeta.textContent = `${active.identity} · ${active.function} · ${active.tempo}`;
-  els.detailStrengths.innerHTML = active.strengths.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
-  els.detailWeaknesses.innerHTML = active.weaknesses.map((item) => `<li>${escapeHtml(item)}</li>`).join('');
+
+  els.detailStrengths.innerHTML = (active.strengths || [])
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join('');
+
+  els.detailWeaknesses.innerHTML = (active.weaknesses || [])
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join('');
 }
 
 function renderAnalysis() {
@@ -257,7 +315,7 @@ function renderAnalysis() {
   els.analysisSummary.innerHTML = `
     <p><strong>${analysis.summaryTitle}</strong></p>
     <p>${analysis.summaryText}</p>
-    <p class="muted">${selectedChampions.length}/5 campeones seleccionados</p>
+    <p class="muted">${selectedChampions.length}/5 campeones seleccionados · Fuente: ${state.dataSource}</p>
   `;
 
   els.scoreBars.innerHTML = analysis.metrics
