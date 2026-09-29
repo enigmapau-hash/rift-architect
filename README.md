@@ -18,6 +18,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
 - El panel de análisis v2 ya es el único panel visible del resumen.
+- El Core Engine v3 ya está en marcha con identidad ponderada, fortalezas priorizadas, tempo derivado y plan ordenado.
 - Se añadió un `data/index.json` mínimo para evitar 404 en Pages y un icono SVG como favicon.
 - Responsive compartido para PC, tablet y móvil.
 
