@@ -17,7 +17,6 @@
   --shadow: 0 14px 34px rgba(0, 0, 0, 0.35);
   --radius-lg: 18px;
   --radius-md: 14px;
-  --radius-sm: 12px;
 }
 
 html,
@@ -35,6 +34,10 @@ html {
 
 body {
   padding: 16px;
+}
+
+body.modal-open {
+  overflow: hidden;
 }
 
 button,
@@ -80,8 +83,7 @@ h2,
 h3,
 h4,
 p {
-  margin-top: 0;
-  margin-bottom: 0;
+  margin: 0;
 }
 
 h1 {
@@ -128,23 +130,15 @@ h1 {
   white-space: nowrap;
 }
 
-.role-tabs {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-}
-
-.role-tabs::-webkit-scrollbar {
+.role-tabs,
+.details-card,
+.analysis-bars {
   display: none;
 }
 
-.role-tab,
 .ghost-btn,
-.champion-item,
-.slot {
+.slot,
+.champion-item {
   border: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.03);
   color: var(--text);
@@ -154,42 +148,19 @@ h1 {
   -webkit-tap-highlight-color: transparent;
 }
 
-.role-tab:hover,
 .ghost-btn:hover,
-.champion-item:hover,
-.slot:hover {
+.slot:hover,
+.champion-item:hover {
   transform: translateY(-1px);
   border-color: rgba(124, 140, 255, 0.55);
 }
 
-.role-tab:focus-visible,
 .ghost-btn:focus-visible,
-.champion-item:focus-visible,
 .slot:focus-visible,
+.champion-item:focus-visible,
 .search input:focus-visible {
   outline: 2px solid rgba(124, 140, 255, 0.9);
   outline-offset: 2px;
-}
-
-.role-tab {
-  padding: 8px 12px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-
-.role-tab small {
-  opacity: 0.85;
-}
-
-.role-tab.is-active {
-  background: rgba(124, 140, 255, 0.18);
-  border-color: rgba(124, 140, 255, 0.75);
-}
-
-.role-tab.has-selection {
-  border-color: rgba(70, 211, 161, 0.45);
 }
 
 .ghost-btn {
@@ -228,17 +199,14 @@ h1 {
   font-size: 0.8rem;
 }
 
-.summary-card,
-.selector-card {
+.summary-card {
+  margin-top: 16px;
+  display: grid;
+  gap: 12px;
   background: var(--panel-3);
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 16px;
-}
-
-.summary-card {
-  display: grid;
-  gap: 12px;
 }
 
 .analysis-summary {
@@ -247,7 +215,6 @@ h1 {
 }
 
 .summary-line {
-  color: var(--text);
   line-height: 1.45;
 }
 
@@ -299,10 +266,43 @@ h1 {
   margin-bottom: 6px;
 }
 
+.picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  background: rgba(2, 6, 23, 0.72);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+}
+
+.picker-backdrop.is-hidden {
+  display: none;
+}
+
+.picker-modal {
+  width: min(760px, 100%);
+  max-height: min(88vh, 840px);
+  overflow: auto;
+  background: rgba(9, 14, 28, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+
+.picker-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+
 .search {
   display: grid;
   gap: 8px;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 
 .search input {
@@ -317,7 +317,7 @@ h1 {
 .champion-list {
   display: grid;
   gap: 10px;
-  max-height: 60vh;
+  max-height: min(58vh, 560px);
   overflow: auto;
   padding-right: 2px;
   scrollbar-gutter: stable;
@@ -379,6 +379,21 @@ h1 {
   font-size: 0.92rem;
 }
 
+.picker-hint {
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.empty,
+.warning {
+  color: var(--muted);
+}
+
+.warning {
+  color: #ffd18a;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -389,15 +404,6 @@ h1 {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-.empty,
-.warning {
-  color: var(--muted);
-}
-
-.warning {
-  color: #ffd18a;
 }
 
 @media (max-width: 920px) {
@@ -419,20 +425,14 @@ h1 {
   }
 }
 
-@media (max-width: 620px) {
+@media (max-width: 640px) {
   body {
     padding: 10px;
   }
 
-  .panel,
-  .summary-card,
-  .selector-card {
+  .panel {
     padding: 14px;
     border-radius: 16px;
-  }
-
-  .panel-title-row {
-    align-items: flex-start;
   }
 
   .composition-grid {
@@ -440,7 +440,19 @@ h1 {
   }
 
   .slot {
-    min-height: 90px;
+    min-height: 92px;
+  }
+
+  .picker-backdrop {
+    align-items: end;
+    padding: 0;
+  }
+
+  .picker-modal {
+    width: 100%;
+    max-height: 92vh;
+    border-radius: 24px 24px 0 0;
+    padding: 14px;
   }
 
   .champion-item {
@@ -451,5 +463,10 @@ h1 {
     width: 38px;
     height: 38px;
     border-radius: 12px;
+  }
+
+  .champion-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
