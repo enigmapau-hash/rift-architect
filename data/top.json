@@ -1,0 +1,72 @@
+[
+  {
+    "champion": "Aatrox",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Teamfight",
+      "Sustain",
+      "Frontline"
+    ],
+    "weaknesses": [
+      "Kiteable"
+    ]
+  },
+  {
+    "champion": "Akali",
+    "identity": "⚔️ Engage",
+    "function": "Asesino AP",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Backline",
+      "Movilidad",
+      "Burst"
+    ],
+    "weaknesses": [
+      "Muy exigente"
+    ]
+  },
+  {
+    "champion": "Ambessa",
+    "identity": "⚔️ Engage",
+    "function": "Bruiser AD",
+    "tempo": "Mid",
+    "strengths": [
+      "Dueling",
+      "Engage",
+      "Skirmish"
+    ],
+    "weaknesses": [
+      "Dependiente de snowball"
+    ]
+  },
+  {
+    "champion": "Aurora",
+    "identity": "🛡️ Front to Back",
+    "function": "Mago AP",
+    "tempo": "Late",
+    "strengths": [
+      "Poke",
+      "Zone control",
+      "Escalado"
+    ],
+    "weaknesses": [
+      "Fragilidad"
+    ]
+  },
+  {
+    "champion": "Camille",
+    "identity": "⚔️ Engage",
+    "function": "Duelista AD",
+    "tempo": "Mid/Late",
+    "strengths": [
+      "Pick",
+      "Splitpush",
+      "Backline"
+    ],
+    "weaknesses": [
+      "Early irregular"
+    ]
+  }
+]
