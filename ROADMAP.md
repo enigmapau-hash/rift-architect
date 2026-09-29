@@ -54,7 +54,7 @@
 - Fijar el presupuesto de información del análisis.
 - Cerrar el contrato de salida del motor v2.
 
-### Sprint 4.7 — Core Engine v0.5 🚧
+### Sprint 4.7 — Core Engine v0.5 ✅
 - Implementar el motor v2 como entregable completo.
 - Separar el motor en módulos de identidad, fortalezas, debilidades, tempo y plan.
 - Integrar el panel final de análisis con tempo visible.
@@ -64,6 +64,14 @@
 - Añadir un favicon SVG para evitar 404 del navegador.
 - Publicar documentación técnica y changelog.
 - Pasar la auditoría general antes de cerrar el hito.
+
+### Sprint 4.8 — Core Engine v3 🚧
+- Ponderar identidades por impacto real.
+- Detectar composiciones dominantes e híbridas.
+- Priorizar fortalezas y carencias.
+- Derivar el tempo de toda la composición.
+- Generar un plan de juego ordenado y breve.
+- Añadir una señal de confianza al análisis.
 
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
