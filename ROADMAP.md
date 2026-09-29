@@ -11,6 +11,7 @@
 - Identidad, función y tempo visibles.
 - Responsive compartido para PC, tablet y móvil.
 - Estado de composición temporal, sin persistencia automática al recargar.
+- Modal estabilizado con interacción nativa.
 
 ## Fase 3 — Motor de análisis 🚧
 - Definir qué es identidad, función y tempo.
@@ -57,7 +58,7 @@
 - Implementar el motor v2 como entregable completo.
 - Separar el motor en módulos de identidad, fortalezas, debilidades, tempo y plan.
 - Integrar el panel final de análisis con tempo visible.
-- Estabilizar el modal de selección para evitar regresiones de clic.
+- Estabilizar el modal de selección con controles nativos.
 - Publicar documentación técnica y changelog.
 - Pasar la auditoría general antes de cerrar el hito.
 
