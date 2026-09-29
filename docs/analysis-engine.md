@@ -1,12 +1,12 @@
-# Analysis Engine
+# Analysis Engine v2
 
-## Objetivo
+## Objective
 
-Definir una capa de análisis simple, estable y basada solo en la información del Excel.
+Turn the selected composition into a short and readable analysis that can be understood in seconds.
 
-## Entrada
+## Input
 
-El motor trabaja con el objeto canónico `Champion` definido en `docs/data-contract.md`:
+The engine works with the canonical `Champion` object defined in `docs/data-contract.md`:
 
 - `id`
 - `displayName`
@@ -17,46 +17,63 @@ El motor trabaja con el objeto canónico `Champion` definido en `docs/data-contr
 - `tempo`
 - `strengths[]`
 - `weaknesses[]`
-- `attributes` cuando existan
+- `attributes` when available
 
-## Referencia de atributos
+## Output contract
 
-El significado visible e interno de cada atributo está documentado en:
+The engine returns a single compact `Analysis` object:
 
-- [`docs/attribute-catalog.md`](./attribute-catalog.md)
+```ts
+Analysis {
+  primaryIdentity,
+  secondaryIdentities[],
+  strengths[],
+  weaknesses[],
+  tempo,
+  gamePlan[],
+  summaryText?
+}
+```
 
-## Qué hace el motor v1
+## Information budget
 
-El motor no inventa ni interpreta más de la cuenta. Solo agrupa y resume.
+The analysis shown in the main UI must stay within this budget:
 
-Salida esperada:
+- 1 primary identity.
+- Up to 2 secondary identities.
+- Up to 4 strengths.
+- Up to 3 weaknesses.
+- 1 tempo statement.
+- Up to 3 short plan actions.
 
-- `primaryIdentity`
-- `secondaryIdentities[]`
-- `strengths[]`
-- `weaknesses[]`
-- `gamePlan[]`
-- `summaryText`
+## Rules
 
-## Reglas
+- Do not use external meta.
+- Do not use win rates.
+- Do not analyze the enemy team.
+- Do not recommend champions in this layer.
+- Do not invent missing data.
+- Keep the output short and consistent.
 
-- No usar meta externo.
-- No usar winrates.
-- No analizar al rival.
-- No recomendar campeones en esta fase.
-- No inventar datos si faltan campos.
-- Mantener los mensajes cortos y claros.
+## Engine behavior
 
-## Criterio de calidad
+1. Group the selected champions.
+2. Normalize the labels.
+3. Prioritize the most relevant identities, strengths, weaknesses, and tempo.
+4. Return tokens the UI can render directly.
+5. Leave the explanation layer for the future IA.
 
-Si un dato no existe en el Excel, debe detectarse en origen. La interfaz no debe mezclar categorías ni mostrar datos inconsistentes.
+## Main UI output
 
-## Resultado esperado
+The screen should show only:
 
-La interfaz debe mostrar solo lo imprescindible:
+- Identity
+- Secondary identities
+- Makes well
+- Lacks
+- Tempo
+- Plan
 
-- Identidad principal
-- Identidades secundarias
-- Hace bien
-- Le falta
-- Plan de juego
+## Quality rule
+
+If data is missing in the Excel, it must be fixed at source or during normalization. The UI must never mix categories or expand the text with unnecessary detail.
