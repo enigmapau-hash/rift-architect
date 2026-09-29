@@ -6,18 +6,7 @@
 }
 
 .avatar__fallback {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  place-items: center;
-  opacity: 0;
-  z-index: 0;
-  pointer-events: none;
-  transition: opacity 120ms ease;
-}
-
-.avatar[data-error='1'] .avatar__fallback {
-  opacity: 1;
+  display: none !important;
 }
 
 .avatar--fallback {
