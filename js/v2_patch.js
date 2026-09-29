@@ -6,11 +6,6 @@ const ROLE_FILES = [
   './data/support.json',
 ];
 
-const recommendationEl = document.getElementById('recommendations');
-if (recommendationEl) {
-  recommendationEl.style.display = 'none';
-}
-
 const identityMap = new Map();
 let patchScheduled = false;
 
@@ -20,6 +15,11 @@ function normalizeText(value) {
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '');
+}
+
+function getIdentityForName(name) {
+  const normalized = normalizeText(name);
+  return identityMap.get(normalized) || null;
 }
 
 async function loadIdentities() {
@@ -54,17 +54,35 @@ function patchChampionList() {
     const sub = item.querySelector('.champion-item__sub');
     if (!title || !sub) return;
 
-    const identity = identityMap.get(normalizeText(title));
+    const identity = getIdentityForName(title);
     if (identity) {
       sub.textContent = identity;
+      sub.classList.add('champion-item__sub--identity');
     }
   });
 }
 
-function patchRecommendationsVisibility() {
+function patchCompositionGrid() {
+  const grid = document.getElementById('compositionGrid');
+  if (!grid || !identityMap.size) return;
+
+  grid.querySelectorAll('.slot.is-filled').forEach((slot) => {
+    const title = slot.querySelector('.slot__name')?.textContent?.trim();
+    const meta = slot.querySelector('.slot__meta');
+    if (!title || !meta) return;
+
+    const identity = getIdentityForName(title);
+    if (identity) {
+      meta.textContent = identity;
+      meta.classList.add('slot__meta--identity');
+    }
+  });
+}
+
+function removeRecommendationsBlock() {
   const el = document.getElementById('recommendations');
   if (el) {
-    el.style.display = 'none';
+    el.remove();
   }
 }
 
@@ -73,26 +91,29 @@ function schedulePatch() {
   patchScheduled = true;
   window.requestAnimationFrame(() => {
     patchScheduled = false;
-    patchRecommendationsVisibility();
+    removeRecommendationsBlock();
     patchChampionList();
+    patchCompositionGrid();
   });
 }
 
-function observeChampionList() {
-  const list = document.getElementById('championList');
-  if (!list) {
-    window.requestAnimationFrame(observeChampionList);
+function observeNode(id) {
+  const node = document.getElementById(id);
+  if (!node) {
+    window.requestAnimationFrame(() => observeNode(id));
     return;
   }
 
   const observer = new MutationObserver(schedulePatch);
-  observer.observe(list, { childList: true, subtree: true, characterData: true });
+  observer.observe(node, { childList: true, subtree: true, characterData: true });
 }
 
 async function init() {
   await loadIdentities();
   schedulePatch();
-  observeChampionList();
+  observeNode('championList');
+  observeNode('compositionGrid');
+  observeNode('analysisSummary');
   window.setInterval(schedulePatch, 1000);
 }
 
