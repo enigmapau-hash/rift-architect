@@ -14,8 +14,8 @@
 - Roadmap updated to reflect the Core Engine hito.
 - Service worker cache updated for the modular engine files.
 - Modal interaction simplified to native controls.
-- Picker close button moved away from the desktop top-right overlay zone.
-- Service worker cache bumped to v31 after the picker layout adjustment.
+- Analysis engine now returns compatibility metrics, profiles and damage split data so the legacy summary UI can keep working during migration.
+- Service worker cache bumped to v32 after the analysis compatibility fix.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
