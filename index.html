@@ -14,58 +14,46 @@
       <header class="app-header">
         <div>
           <p class="eyebrow">Rift Architect</p>
-          <h1>Draft y análisis de composiciones</h1>
-          <p class="subtitle">Funciona en móvil, tablet y PC. Carga la base del Excel y construye tu draft por roles.</p>
+          <h1>Draft rápido</h1>
+          <p class="subtitle">Elige tus 5 campeones y revisa solo lo importante.</p>
         </div>
-        <button id="refreshBtn" class="ghost-btn" type="button">Recargar datos</button>
+        <div class="header-actions">
+          <span id="statusBadge" class="status">Cargando…</span>
+          <button id="refreshBtn" class="ghost-btn" type="button">Actualizar</button>
+        </div>
       </header>
 
       <main class="layout">
-        <section class="panel panel--left">
+        <section class="panel panel--main">
           <div class="panel-title-row">
-            <h2>Roles</h2>
-            <span id="statusBadge" class="status">Cargando…</span>
+            <h2>Tu composición</h2>
+            <button id="clearBtn" class="ghost-btn" type="button">Limpiar</button>
           </div>
-          <div id="roleTabs" class="role-tabs"></div>
-          <label class="search">
-            <span>Buscar campeón</span>
-            <input id="searchInput" type="search" placeholder="Aatrox, Jinx, Lulu…" />
-          </label>
-          <div id="championList" class="champion-list"></div>
-        </section>
 
-        <section class="panel panel--center">
-          <div class="panel-title-row">
-            <h2>Composición</h2>
-            <button id="clearBtn" class="ghost-btn" type="button">Limpiar todo</button>
-          </div>
           <div id="compositionGrid" class="composition-grid"></div>
 
-          <article class="details-card">
-            <h3 id="detailTitle">Selecciona un campeón</h3>
-            <p id="detailMeta" class="meta"></p>
-            <div id="detailMetrics" class="detail-metrics" aria-live="polite"></div>
-            <div class="detail-columns">
-              <div>
-                <h4>Fortalezas</h4>
-                <ul id="detailStrengths"></ul>
-              </div>
-              <div>
-                <h4>Debilidades</h4>
-                <ul id="detailWeaknesses"></ul>
-              </div>
+          <div class="summary-card">
+            <div class="panel-title-row compact">
+              <h3>Resumen rápido</h3>
+              <span id="activeRoleLabel" class="status"></span>
             </div>
-          </article>
-        </section>
-
-        <aside class="panel panel--right">
-          <div class="panel-title-row">
-            <h2>Análisis</h2>
+            <div id="analysisSummary" class="analysis-summary" aria-live="polite"></div>
+            <div id="recommendations" class="recommendation-list"></div>
           </div>
-          <div id="analysisSummary" class="analysis-summary"></div>
-          <div id="scoreBars" class="score-bars"></div>
-          <div id="recommendations" class="recommendations"></div>
-        </aside>
+
+          <div class="selector-card">
+            <div class="panel-title-row compact">
+              <h3>Elegir campeón</h3>
+              <span class="hint">Toca un rol y luego un campeón</span>
+            </div>
+            <div id="roleTabs" class="role-tabs"></div>
+            <label class="search">
+              <span class="sr-only">Buscar campeón</span>
+              <input id="searchInput" type="search" placeholder="Buscar campeón…" />
+            </label>
+            <div id="championList" class="champion-list"></div>
+          </div>
+        </section>
       </main>
     </div>
 
