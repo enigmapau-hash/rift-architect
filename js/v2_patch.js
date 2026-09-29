@@ -1,3 +1,5 @@
+import { analyzeComposition, normalizeText } from './analyzer.js';
+
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DRAGON_VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json';
 const DEFAULT_DRAGON_VERSION = '15.16.1';
@@ -12,6 +14,7 @@ const ROLE_SHEETS = [
   { key: 'support', label: 'Support', sheet: 'Tabla Support' },
 ];
 
+const ROLE_LABELS = Object.fromEntries(ROLE_SHEETS.map(({ key, label }) => [key, label]));
 const ICON_ALIASES = {
   shacoad: 'Shaco',
   shacoap: 'Shaco',
@@ -33,12 +36,11 @@ let iconCatalog = null;
 let patchScheduled = false;
 let dataLoaded = false;
 
-function normalizeText(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
+function cleanLabel(value) {
+  const raw = String(value ?? '').trim();
+  if (!raw) return 'Sin definir';
+  const stripped = raw.replace(/^[^\p{L}\p{N}]+/gu, '').replace(/\s+/g, ' ').trim();
+  return stripped || raw;
 }
 
 function getRoleKeyFromLabel(label) {
@@ -63,7 +65,14 @@ function parseRows(worksheet) {
       identity: String(row[1] || '').trim() || 'Sin definir',
       function: String(row[2] || '').trim() || 'Sin definir',
       tempo: String(row[3] || '').trim() || 'Sin definir',
+      strengths: splitTags(row[4]),
+      weaknesses: splitTags(row[5]),
     }));
+}
+
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 async function loadRoleData() {
@@ -130,6 +139,8 @@ function removeRecommendationsBlock() {
 
 function canonicalIconName(name) {
   const normalized = normalizeText(name);
+  const alias = ICON_ALIASES[normalized];
+  if (alias) return alias;
   if (normalized.includes('kayn')) return 'Kayn';
   if (normalized.includes('shaco')) return 'Shaco';
   if (normalized.includes('varus')) return 'Varus';
@@ -144,9 +155,7 @@ function getIconUrl(name) {
   for (const candidate of candidates) {
     const normalized = normalizeText(candidate);
     const id = iconCatalog.map?.[normalized] || iconCatalog.map?.[normalizeText(String(candidate).replace(/\s+/g, ''))];
-    if (id) {
-      return DRAGON_ICON_URL(iconCatalog.version, id);
-    }
+    if (id) return DRAGON_ICON_URL(iconCatalog.version, id);
   }
 
   return null;
@@ -190,7 +199,7 @@ function patchChampionList() {
     const row = findChampion(roleKey, title);
     const identity = row?.identity || 'Sin definir';
     const champFunction = row?.function || 'Sin definir';
-    const tempo = row?.tempo || item.querySelector('.champion-pill')?.textContent?.trim() || '';
+    const tempo = row?.tempo || '';
 
     item.innerHTML = `
       ${renderAvatarMarkup(title, 'avatar--sm')}
@@ -206,33 +215,77 @@ function patchChampionList() {
   });
 }
 
-function readMetricGroups(summary) {
-  return [...summary.querySelectorAll('.metric-group')].map((group) => ({
-    title: group.querySelector('.metric-group__title')?.textContent?.trim() || '',
-    rows: [...group.querySelectorAll('.metric-row')].map((row) => ({
-      label: row.querySelector('.metric-row__head strong')?.textContent?.trim() || '',
-      level: row.querySelector('.metric-row__head span')?.textContent?.trim() || '',
-      sub: row.querySelector('.metric-row__sub')?.textContent?.trim() || '',
-    })),
-  }));
+function patchCompositionGrid() {
+  const grid = document.getElementById('compositionGrid');
+  if (!grid) return;
+
+  grid.querySelectorAll('.slot').forEach((slot) => {
+    const role = slot.dataset.role || 'top';
+    const label = ROLE_LABELS[role] || role;
+    const isFilled = slot.classList.contains('is-filled');
+    const title = slot.querySelector('.slot__name')?.textContent?.trim() || '';
+
+    if (!isFilled) {
+      slot.innerHTML = `
+        <span class="slot__role">${escapeHtml(label)}</span>
+        <span class="avatar avatar--lg avatar--empty" aria-hidden="true">+</span>
+        <strong class="slot__name">Seleccionar campeón</strong>
+        <span class="slot__cta">Toca para elegir</span>
+      `;
+      return;
+    }
+
+    const row = findChampion(role, title);
+    const identity = row?.identity || 'Sin definir';
+    const champFunction = row?.function || 'Sin definir';
+    const tempo = row?.tempo || '';
+
+    slot.innerHTML = `
+      <span class="slot__role">${escapeHtml(label)}</span>
+      ${renderAvatarMarkup(title, 'avatar--lg')}
+      <strong class="slot__name">${escapeHtml(title)}</strong>
+      <span class="slot__identity">${escapeHtml(identity)}</span>
+      <span class="slot__function">${escapeHtml(champFunction)}</span>
+      ${tempo ? `<span class="slot__tempo">${escapeHtml(tempo)}</span>` : ''}
+    `;
+  });
 }
 
-function renderMiniMetricList(rows) {
-  if (!rows.length) {
-    return '<p class="analysis-empty">Sin datos claros.</p>';
+function buildSelectedChampionsFromGrid() {
+  return [...document.querySelectorAll('#compositionGrid .slot.is-filled')]
+    .map((slot) => {
+      const role = slot.dataset.role || 'top';
+      const championName = slot.querySelector('.slot__name')?.textContent?.trim() || '';
+      const row = findChampion(role, championName);
+      return row ? { role, ...row } : null;
+    })
+    .filter(Boolean);
+}
+
+function renderChipList(items, emptyLabel) {
+  if (!items.length) {
+    return `<p class="analysis-empty">${escapeHtml(emptyLabel)}</p>`;
+  }
+
+  return `
+    <div class="analysis-chip-list">
+      ${items.map((item) => `<span class="analysis-chip">${escapeHtml(item)}</span>`).join('')}
+    </div>
+  `;
+}
+
+function renderPlanList(items, emptyLabel) {
+  if (!items.length) {
+    return `<p class="analysis-empty">${escapeHtml(emptyLabel)}</p>`;
   }
 
   return `
     <div class="analysis-mini-list">
-      ${rows
+      ${items
         .map(
-          (row) => `
+          (item) => `
             <article class="analysis-mini-card">
-              <div class="analysis-mini-card__head">
-                <strong>${escapeHtml(row.label)}</strong>
-                <span>${escapeHtml(row.level)}</span>
-              </div>
-              <p>${escapeHtml(row.sub)}</p>
+              <p>${escapeHtml(item)}</p>
             </article>
           `
         )
@@ -245,111 +298,51 @@ function patchAnalysisSummary() {
   const summary = document.getElementById('analysisSummary');
   if (!summary) return;
 
-  const filledSlots = [...document.querySelectorAll('#compositionGrid .slot.is-filled')].map((slot) => ({
-    name: slot.querySelector('.slot__name')?.textContent?.trim() || '',
-    identity: slot.querySelector('.slot__identity')?.textContent?.trim() || 'Sin definir',
-  }));
+  const selectedChampions = buildSelectedChampionsFromGrid();
+  if (!selectedChampions.length) {
+    summary.innerHTML = '<p class="analysis-note">Selecciona campeones para ver un resumen compacto.</p>';
+    return;
+  }
 
-  if (!filledSlots.length) return;
-
-  const mainTitle = summary.querySelector('.summary-overview__main h3')?.textContent?.trim() || 'Teamfight 5v5';
-  const mainDescription = summary.querySelector('.summary-overview__main p:last-child')?.textContent?.trim() || '';
-  const metricGroups = readMetricGroups(summary);
-  const strengths = metricGroups.find((group) => /fortale/i.test(group.title))?.rows || [];
-  const weaknesses = metricGroups.find((group) => /carenc/i.test(group.title))?.rows || [];
-
-  const identityCounts = new Map();
-  filledSlots.forEach(({ name, identity }) => {
-    const key = identity || 'Sin definir';
-    const current = identityCounts.get(key) || { count: 0, champions: [] };
-    current.count += 1;
-    current.champions.push(name);
-    identityCounts.set(key, current);
-  });
-
-  const rankedIdentities = [...identityCounts.entries()].sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0], 'es'));
-  const [primaryIdentityEntry, ...secondaryIdentityEntries] = rankedIdentities;
-  const primaryIdentity = primaryIdentityEntry?.[0] || 'Sin definir';
-  const primaryChampions = primaryIdentityEntry?.[1]?.champions || [];
-  const secondaryIdentities = secondaryIdentityEntries.map(([identity]) => identity).filter((identity) => identity && identity !== 'Sin definir');
+  const analysis = analyzeComposition(selectedChampions);
 
   summary.innerHTML = `
     <div class="analysis-engine">
       <section class="analysis-block analysis-block--hero">
         <p class="eyebrow">Identidad principal</p>
-        <h3>${escapeHtml(primaryIdentity)}</h3>
-        <p>${escapeHtml(primaryChampions.length ? primaryChampions.join(' · ') : 'Base de la composición')}</p>
+        <h3>${escapeHtml(analysis.primaryIdentity || 'Sin definir')}</h3>
+        <p>${escapeHtml(analysis.summaryText || '')}</p>
       </section>
 
       <div class="analysis-grid">
         <section class="analysis-block">
           <p class="eyebrow">Identidades secundarias</p>
-          <div class="analysis-chip-list">
-            ${secondaryIdentities.length
-              ? secondaryIdentities.map((identity) => `<span class="analysis-chip">${escapeHtml(identity)}</span>`).join('')
-              : '<span class="analysis-empty">Sin secundarias claras</span>'}
-          </div>
+          ${renderChipList(analysis.secondaryIdentities || [], 'Sin secundarias claras')}
         </section>
 
         <section class="analysis-block">
-          <p class="eyebrow">Fortalezas</p>
-          ${renderMiniMetricList(strengths)}
+          <p class="eyebrow">🟢 Hace bien</p>
+          ${renderChipList(analysis.strengths || [], 'Sin fortalezas claras')}
         </section>
 
         <section class="analysis-block">
-          <p class="eyebrow">Carencias</p>
-          ${renderMiniMetricList(weaknesses)}
+          <p class="eyebrow">🔴 Le falta</p>
+          ${renderChipList(analysis.weaknesses || [], 'Sin carencias claras')}
         </section>
 
         <section class="analysis-block analysis-block--hero">
           <p class="eyebrow">Plan de juego</p>
-          <h3>${escapeHtml(mainTitle)}</h3>
-          <p>${escapeHtml(mainDescription || 'La composición todavía está definiendo su plan de juego.')}</p>
+          ${renderPlanList(analysis.gamePlan || [], 'Plan pendiente')}
         </section>
       </div>
     </div>
   `;
 }
 
-function patchCompositionGrid() {
-  const grid = document.getElementById('compositionGrid');
-  if (!grid) return;
-
-  grid.querySelectorAll('.slot').forEach((slot) => {
-    const role = slot.querySelector('.slot__role')?.textContent?.trim() || '';
-    const isFilled = slot.classList.contains('is-filled');
-    const title = slot.querySelector('.slot__name')?.textContent?.trim() || '';
-
-    if (!isFilled) {
-      slot.innerHTML = `
-        <span class="slot__role">${escapeHtml(role)}</span>
-        <span class="avatar avatar--lg avatar--empty" aria-hidden="true">+</span>
-        <strong class="slot__name">Seleccionar campeón</strong>
-        <span class="slot__cta">Toca para elegir</span>
-      `;
-      return;
-    }
-
-    const roleKey = String(slot.dataset.role || 'top');
-    const row = findChampion(roleKey, title);
-    const identity = row?.identity || 'Sin definir';
-    const champFunction = row?.function || 'Sin definir';
-    const tempo = row?.tempo || '';
-
-    slot.innerHTML = `
-      <span class="slot__role">${escapeHtml(role)}</span>
-      ${renderAvatarMarkup(title, 'avatar--lg')}
-      <strong class="slot__name">${escapeHtml(title)}</strong>
-      <span class="slot__identity">${escapeHtml(identity)}</span>
-      <span class="slot__function">${escapeHtml(champFunction)}</span>
-      ${tempo ? `<span class="slot__tempo">${escapeHtml(tempo)}</span>` : ''}
-    `;
-  });
-}
-
 function schedulePatch() {
   if (patchScheduled) return;
   patchScheduled = true;
+
   window.requestAnimationFrame(() => {
     patchScheduled = false;
     removeRecommendationsBlock();
