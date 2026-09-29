@@ -16,8 +16,9 @@
 - Roadmap updated to reflect the Core Engine hito.
 - Service worker cache updated for the modular engine files.
 - Modal interaction simplified to native controls.
-- Analysis engine now returns compatibility metrics, profiles and damage split data so the legacy summary UI can keep working during migration.
-- Service worker cache bumped to v32 after the analysis compatibility fix.
+- The legacy summary/recommendation panel was consolidated into the analysis panel v2.
+- The picker core was simplified to a single render flow for composition and modal state.
+- Service worker cache bumped to v33 after the picker core consolidation.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
