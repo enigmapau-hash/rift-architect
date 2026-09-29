@@ -1,7 +1,7 @@
-import { analyzeComposition } from './analyzer.js';
+import { analyzeComposition, matchesCategory, normalizeTags, normalizeText } from './analyzer.js';
 
-const DATA_MANIFEST_URL = './data/index.json';
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
+const DATA_MANIFEST_URL = './data/index.json';
 
 const ROLE_SOURCES = [
   { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
@@ -13,23 +13,6 @@ const ROLE_SOURCES = [
 
 const ROLE_ORDER = ROLE_SOURCES.map(({ key }) => key);
 const ROLE_LABELS = Object.fromEntries(ROLE_SOURCES.map(({ key, label }) => [key, label]));
-
-const RECOMMENDATION_TERMS = {
-  frontline: ['frontline', 'tank', 'tanque', 'peel', 'bruiser', 'juggernaut', 'warden', 'sustain', 'vanguard'],
-  engage: ['engage', 'pick', 'hook', 'dive', 'flank', 'initiate', 'catch', 'inici'],
-  control: ['control', 'cc', 'vision', 'waveclear', 'zone control', 'anti-engage', 'anti engage'],
-  scaling: ['scaling', 'escalado', 'late', 'late game', 'hypercarry'],
-  objective: ['objective', 'objectives', 'dragon', 'nashor', 'herald', 'zone control'],
-  poke: ['poke', 'siege', 'artillery'],
-  splitpush: ['splitpush', 'split', 'side lane', 'duel', 'dueling', '1v1'],
-  pick: ['pick', 'catch', 'hook', 'flank', 'dive'],
-  mobility: ['mobility', 'movilidad', 'dash', 'roam', 'mobile'],
-};
-
-const DAMAGE_TERMS = {
-  ap: ['mage', 'battlemage', 'artillery', 'enchanter', 'burst', 'magic'],
-  ad: ['marksman', 'fighter', 'bruiser', 'assassin', 'duelist', 'ad'],
-};
 
 const REASON_LABELS = {
   frontline: 'añade frontline',
@@ -43,7 +26,13 @@ const REASON_LABELS = {
   mobility: 'da más movilidad',
   damage_ap: 'cubre daño AP',
   damage_ad: 'cubre daño AD',
+  teamfight: 'mejora teamfight',
   general: 'encaja con el draft',
+};
+
+const DAMAGE_TERMS = {
+  ap: ['mage', 'battlemage', 'artillery', 'enchanter', 'burst', 'magic'],
+  ad: ['marksman', 'fighter', 'bruiser', 'assassin', 'duelist', 'ad'],
 };
 
 const state = {
@@ -257,32 +246,35 @@ function buildRecommendations(selectedChampions, candidates, analysis) {
 }
 
 function scoreCandidate(candidate, weakMetrics, needsAP, needsAD) {
+  const strengths = normalizeTags(candidate.strengths);
   const text = buildCandidateText(candidate);
   let score = 0;
   const reasons = [];
 
   for (const metric of weakMetrics) {
-    const terms = RECOMMENDATION_TERMS[metric.key] || [];
-    if (terms.some((term) => hasTerm(text, term))) {
-      const boost = Math.max(1, 5 - metric.score) * 10;
-      score += boost;
+    if (strengths.some((tag) => matchesCategory(tag, metric.key))) {
+      score += Math.max(1, 6 - metric.score) * 2;
       reasons.push(metric.key);
     }
   }
 
-  if (needsAP && DAMAGE_TERMS.ap.some((term) => hasTerm(text, term))) {
-    score += 12;
+  if (needsAP && hasDamageType(text, 'ap')) {
+    score += 4;
     reasons.push('damage_ap');
   }
 
-  if (needsAD && DAMAGE_TERMS.ad.some((term) => hasTerm(text, term))) {
-    score += 12;
+  if (needsAD && hasDamageType(text, 'ad')) {
+    score += 4;
     reasons.push('damage_ad');
   }
 
-  if (!reasons.length && /flex|utility|teamfight|front-to-back|peel|engage|control/i.test(text)) {
-    score += 2;
-    reasons.push('general');
+  if (!reasons.length) {
+    for (const key of ['frontline', 'engage', 'control', 'teamfight']) {
+      if (strengths.some((tag) => matchesCategory(tag, key))) {
+        score += 1;
+        reasons.push(key);
+      }
+    }
   }
 
   const uniqueReasons = [...new Set(reasons)];
@@ -320,8 +312,10 @@ function buildCandidateText(candidate) {
     .toLowerCase();
 }
 
-function hasTerm(text, term) {
-  return text.includes(String(term).toLowerCase());
+function hasDamageType(text, type) {
+  const terms = DAMAGE_TERMS[type] || [];
+  const normalized = normalizeText(text);
+  return terms.some((term) => normalized.includes(normalizeText(term)));
 }
 
 function getSelectedSlots() {
@@ -353,6 +347,11 @@ function getTargetRole(selectedSlots) {
 
   const selectedRoles = new Set(selectedSlots.map((slot) => slot.role));
   return ROLE_ORDER.find((role) => !selectedRoles.has(role)) || ROLE_ORDER[0];
+}
+
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function normalizeRole(role) {
