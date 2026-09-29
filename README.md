@@ -27,6 +27,7 @@ Documentación base del hito:
 - [`docs/draft-pool-audit.md`](./docs/draft-pool-audit.md)
 - [`docs/attribute-catalog.md`](./docs/attribute-catalog.md)
 - [`docs/analysis-engine.md`](./docs/analysis-engine.md)
+- [`CHANGELOG.md`](./CHANGELOG.md)
 
 Objetivo del hito:
 
