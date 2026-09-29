@@ -1,0 +1,60 @@
+{
+  "slug": "pick",
+  "description": "Composición de picks y ventana temprana.",
+  "selectedChampions": [
+    {
+      "champion": "Shen",
+      "role": "top",
+      "identity": "Control",
+      "function": "Tank Warden",
+      "tempo": "Mid",
+      "strengths": ["Frontline", "Peel", "Global"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Nocturne",
+      "role": "jungle",
+      "identity": "Mobility",
+      "function": "Assassin",
+      "tempo": "Early/Mid",
+      "strengths": ["Pick", "Dive", "Global"],
+      "weaknesses": ["Telegraphed engage"]
+    },
+    {
+      "champion": "Twisted Fate",
+      "role": "mid",
+      "identity": "Pick",
+      "function": "Mage Roamer",
+      "tempo": "Early/Mid",
+      "strengths": ["Vision", "Pick", "Roam"],
+      "weaknesses": ["All-in"]
+    },
+    {
+      "champion": "Elise",
+      "role": "jungle",
+      "identity": "Pick",
+      "function": "AP Diver",
+      "tempo": "Early",
+      "strengths": ["Pick", "Dive", "Early pressure"],
+      "weaknesses": ["Late game"]
+    },
+    {
+      "champion": "Thresh",
+      "role": "support",
+      "identity": "Engage",
+      "function": "Playmaker",
+      "tempo": "Early/Mid",
+      "strengths": ["Catch", "Pick", "Vision"],
+      "weaknesses": ["Frontline"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Pick",
+    "dominance": "hybrid",
+    "coherence": "Coherente",
+    "winCondition": "Crear ventaja temprana",
+    "tempoIncludes": ["Early", "Mid"],
+    "synergiesInclude": ["Presión global"],
+    "confidenceMin": 65
+  }
+}
