@@ -42,6 +42,12 @@
 - Unificar el significado de cada atributo.
 - Mantener la UI breve y sin exceso de texto.
 
+### Sprint 4.5 — Motor de interpretación 🚧
+- Traducir datos del Excel a un resumen compacto.
+- Mostrar identidad principal, secundarias, fortalezas, carencias y plan.
+- Limitar la salida a lo imprescindible.
+- Mantener la IA para una fase posterior.
+
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
 - Responder preguntas de draft.
