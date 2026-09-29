@@ -19,6 +19,12 @@ El motor trabaja con el objeto canónico `Champion` definido en `docs/data-contr
 - `weaknesses[]`
 - `attributes` cuando existan
 
+## Referencia de atributos
+
+El significado visible e interno de cada atributo está documentado en:
+
+- [`docs/attribute-catalog.md`](./attribute-catalog.md)
+
 ## Qué hace el motor v1
 
 El motor no inventa ni interpreta más de la cuenta. Solo agrupa y resume.
