@@ -13,9 +13,33 @@ PWA para construir y analizar composiciones de League of Legends.
 
 - Selector visual por roles.
 - Composición editable con selección rápida.
-- Perfil de campeón con atributos derivados.
+- Perfil de campeón con atributos derivados o explícitos.
 - Motor de análisis basado en métricas numéricas.
 - Vista responsive para móvil, tablet y PC.
+
+## Hoja opcional de atributos
+
+Si añades una hoja `09_Attributes` o `Attributes`, el generador la detecta y mezcla esos valores en cada campeón.
+
+Columnas recomendadas:
+
+- `Champion`
+- `Engage`
+- `Disengage`
+- `Frontline`
+- `Peel`
+- `Pick`
+- `Poke`
+- `Burst`
+- `DPS`
+- `Scaling`
+- `Mobility`
+- `Waveclear`
+- `Siege`
+- `Splitpush`
+- `Objective Control`
+- `Vision`
+- `Confidence`
 
 ## Estructura de datos
 
@@ -25,6 +49,7 @@ PWA para construir y analizar composiciones de League of Legends.
 - `data/mid.json`
 - `data/bot.json`
 - `data/support.json`
+- `data/attributes.json`
 
 ## Scripts
 
