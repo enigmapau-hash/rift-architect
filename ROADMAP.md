@@ -80,18 +80,28 @@
 - Derivar una condición de victoria clara.
 - Convertir la condición de victoria en un plan de juego breve.
 
-### Sprint 5.0 — Knowledge Layer 🚧
-- Separar el conocimiento estratégico del código.
-- Externalizar identidades, sinergias, conflictos y win conditions.
-- Mantener el Draft Pool para datos base de campeones.
-- Preparar reglas de inferencia para la futura IA.
-
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
 - Responder preguntas de draft.
 - Ampliar el análisis sin usar datos externos.
 
-## Fase 5 — Coach conversacional ⏳
+## Fase 5 — Knowledge + IA ⏳
+- Separar el conocimiento estratégico del código.
+- Validar identidades, sinergias, conflictos y win conditions.
+- Preparar inferencias para la futura IA.
+
+### Sprint 5.0 — Knowledge Layer ✅
+- Externalizar identidades, sinergias, conflictos y win conditions.
+- Mantener el Draft Pool para datos base de campeones.
+- Preparar reglas de inferencia para la futura IA.
+
+### Sprint 5.1 — Validación del Knowledge Layer 🚧
+- Auditar reglas duplicadas o huérfanas.
+- Validar categorías, identidades y condiciones de victoria.
+- Añadir trazabilidad y reportes de validación al arranque.
+- Dejar el conocimiento listo para la IA explicativa.
+
+## Fase 6 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.
 - Respuestas guiadas por la información del Excel.
 
