@@ -78,12 +78,13 @@ The analysis shown in the main UI must stay within this budget:
 
 ## Knowledge layer
 
-Strategic rules are externalized in the `knowledge/` folder:
+Strategic rules are externalized in the `knowledge/` folder and validated at boot:
 
 - `knowledge/identity-relations.js`
 - `knowledge/synergies.js`
 - `knowledge/conflicts.js`
 - `knowledge/win-conditions.js`
+- `knowledge/validator.js`
 - `knowledge/index.js`
 
 ## Implementation structure
