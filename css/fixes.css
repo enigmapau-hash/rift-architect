@@ -1,0 +1,29 @@
+/* Small visual fixes for the v2 selector */
+
+.avatar img {
+  position: relative;
+  z-index: 1;
+}
+
+.avatar__fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  opacity: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+}
+
+.avatar[data-error='1'] .avatar__fallback {
+  opacity: 1;
+}
+
+.avatar--fallback {
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #eff5ff;
+  background: rgba(124, 140, 255, 0.14);
+}
