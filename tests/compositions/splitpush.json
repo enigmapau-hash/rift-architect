@@ -1,0 +1,60 @@
+{
+  "slug": "splitpush",
+  "description": "Composición de presión lateral y rotación de líneas.",
+  "selectedChampions": [
+    {
+      "champion": "Fiora",
+      "role": "top",
+      "identity": "Splitpush",
+      "function": "Duelist",
+      "tempo": "Mid/Late",
+      "strengths": ["Splitpush", "Dueling", "Side lane"],
+      "weaknesses": ["Teamfight"]
+    },
+    {
+      "champion": "Tryndamere",
+      "role": "top",
+      "identity": "Splitpush",
+      "function": "Duelist",
+      "tempo": "Late",
+      "strengths": ["Splitpush", "Dueling", "Pressure"],
+      "weaknesses": ["CC"]
+    },
+    {
+      "champion": "Quinn",
+      "role": "top",
+      "identity": "Splitpush",
+      "function": "Marksman Skirmisher",
+      "tempo": "Early/Mid",
+      "strengths": ["Mobility", "Splitpush", "Vision"],
+      "weaknesses": ["Teamfight"]
+    },
+    {
+      "champion": "Twisted Fate",
+      "role": "mid",
+      "identity": "Pick",
+      "function": "Mage Roamer",
+      "tempo": "Early/Mid",
+      "strengths": ["Global", "Splitpush", "Vision"],
+      "weaknesses": ["Duel"]
+    },
+    {
+      "champion": "Shen",
+      "role": "support",
+      "identity": "Control",
+      "function": "Tank Warden",
+      "tempo": "Mid",
+      "strengths": ["Frontline", "Global", "Peel"],
+      "weaknesses": ["Waveclear"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Splitpush",
+    "dominance": "dominant",
+    "coherence": "Coherente",
+    "winCondition": "Abrir mapa",
+    "tempoIncludes": ["Mid", "Late"],
+    "synergiesInclude": ["Presión lateral"],
+    "confidenceMin": 65
+  }
+}
