@@ -130,8 +130,6 @@ function removeRecommendationsBlock() {
 
 function canonicalIconName(name) {
   const normalized = normalizeText(name);
-  const alias = ICON_ALIASES[normalized];
-  if (alias) return alias;
   if (normalized.includes('kayn')) return 'Kayn';
   if (normalized.includes('shaco')) return 'Shaco';
   if (normalized.includes('varus')) return 'Varus';
@@ -141,15 +139,26 @@ function canonicalIconName(name) {
 
 function getIconUrl(name) {
   if (!iconCatalog?.version) return null;
-  const candidates = [name, canonicalIconName(name)];
 
+  const candidates = [name, canonicalIconName(name)];
   for (const candidate of candidates) {
     const normalized = normalizeText(candidate);
     const id = iconCatalog.map?.[normalized] || iconCatalog.map?.[normalizeText(String(candidate).replace(/\s+/g, ''))];
-    if (id) return DRAGON_ICON_URL(iconCatalog.version, id);
+    if (id) {
+      return DRAGON_ICON_URL(iconCatalog.version, id);
+    }
   }
 
   return null;
+}
+
+function getChampionInitials(name) {
+  return String(name)
+    .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join('') || '?';
 }
 
 function renderAvatarMarkup(name, size = 'avatar--sm') {
@@ -197,6 +206,111 @@ function patchChampionList() {
   });
 }
 
+function readMetricGroups(summary) {
+  return [...summary.querySelectorAll('.metric-group')].map((group) => ({
+    title: group.querySelector('.metric-group__title')?.textContent?.trim() || '',
+    rows: [...group.querySelectorAll('.metric-row')].map((row) => ({
+      label: row.querySelector('.metric-row__head strong')?.textContent?.trim() || '',
+      level: row.querySelector('.metric-row__head span')?.textContent?.trim() || '',
+      sub: row.querySelector('.metric-row__sub')?.textContent?.trim() || '',
+    })),
+  }));
+}
+
+function renderMiniMetricList(rows) {
+  if (!rows.length) {
+    return '<p class="analysis-empty">Sin datos claros.</p>';
+  }
+
+  return `
+    <div class="analysis-mini-list">
+      ${rows
+        .map(
+          (row) => `
+            <article class="analysis-mini-card">
+              <div class="analysis-mini-card__head">
+                <strong>${escapeHtml(row.label)}</strong>
+                <span>${escapeHtml(row.level)}</span>
+              </div>
+              <p>${escapeHtml(row.sub)}</p>
+            </article>
+          `
+        )
+        .join('')}
+    </div>
+  `;
+}
+
+function patchAnalysisSummary() {
+  const summary = document.getElementById('analysisSummary');
+  if (!summary) return;
+
+  const filledSlots = [...document.querySelectorAll('#compositionGrid .slot.is-filled')].map((slot) => ({
+    name: slot.querySelector('.slot__name')?.textContent?.trim() || '',
+    identity: slot.querySelector('.slot__identity')?.textContent?.trim() || 'Sin definir',
+  }));
+
+  if (!filledSlots.length) return;
+
+  const mainTitle = summary.querySelector('.summary-overview__main h3')?.textContent?.trim() || 'Teamfight 5v5';
+  const mainDescription = summary.querySelector('.summary-overview__main p:last-child')?.textContent?.trim() || '';
+  const metricGroups = readMetricGroups(summary);
+  const strengths = metricGroups.find((group) => /fortale/i.test(group.title))?.rows || [];
+  const weaknesses = metricGroups.find((group) => /carenc/i.test(group.title))?.rows || [];
+
+  const identityCounts = new Map();
+  filledSlots.forEach(({ name, identity }) => {
+    const key = identity || 'Sin definir';
+    const current = identityCounts.get(key) || { count: 0, champions: [] };
+    current.count += 1;
+    current.champions.push(name);
+    identityCounts.set(key, current);
+  });
+
+  const rankedIdentities = [...identityCounts.entries()].sort((a, b) => b[1].count - a[1].count || a[0].localeCompare(b[0], 'es'));
+  const [primaryIdentityEntry, ...secondaryIdentityEntries] = rankedIdentities;
+  const primaryIdentity = primaryIdentityEntry?.[0] || 'Sin definir';
+  const primaryChampions = primaryIdentityEntry?.[1]?.champions || [];
+  const secondaryIdentities = secondaryIdentityEntries.map(([identity]) => identity).filter((identity) => identity && identity !== 'Sin definir');
+
+  summary.innerHTML = `
+    <div class="analysis-engine">
+      <section class="analysis-block analysis-block--hero">
+        <p class="eyebrow">Identidad principal</p>
+        <h3>${escapeHtml(primaryIdentity)}</h3>
+        <p>${escapeHtml(primaryChampions.length ? primaryChampions.join(' · ') : 'Base de la composición')}</p>
+      </section>
+
+      <div class="analysis-grid">
+        <section class="analysis-block">
+          <p class="eyebrow">Identidades secundarias</p>
+          <div class="analysis-chip-list">
+            ${secondaryIdentities.length
+              ? secondaryIdentities.map((identity) => `<span class="analysis-chip">${escapeHtml(identity)}</span>`).join('')
+              : '<span class="analysis-empty">Sin secundarias claras</span>'}
+          </div>
+        </section>
+
+        <section class="analysis-block">
+          <p class="eyebrow">Fortalezas</p>
+          ${renderMiniMetricList(strengths)}
+        </section>
+
+        <section class="analysis-block">
+          <p class="eyebrow">Carencias</p>
+          ${renderMiniMetricList(weaknesses)}
+        </section>
+
+        <section class="analysis-block analysis-block--hero">
+          <p class="eyebrow">Plan de juego</p>
+          <h3>${escapeHtml(mainTitle)}</h3>
+          <p>${escapeHtml(mainDescription || 'La composición todavía está definiendo su plan de juego.')}</p>
+        </section>
+      </div>
+    </div>
+  `;
+}
+
 function patchCompositionGrid() {
   const grid = document.getElementById('compositionGrid');
   if (!grid) return;
@@ -241,6 +355,7 @@ function schedulePatch() {
     removeRecommendationsBlock();
     patchChampionList();
     patchCompositionGrid();
+    patchAnalysisSummary();
   });
 }
 
@@ -253,15 +368,6 @@ function observeNode(id) {
 
   const observer = new MutationObserver(schedulePatch);
   observer.observe(node, { childList: true, subtree: true, characterData: true });
-}
-
-function getChampionInitials(name) {
-  return String(name)
-    .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('') || '?';
 }
 
 async function init() {
