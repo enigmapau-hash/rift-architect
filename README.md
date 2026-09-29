@@ -19,6 +19,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Modal de selección estabilizado con controles nativos.
 - El panel de análisis v2 ya es el único panel visible del resumen.
 - El Core Engine v3.1 añade sinergias, coherencia, condición de victoria y plan priorizado.
+- La Knowledge Layer separa identidad, sinergias, conflictos y win conditions del motor.
 - Se añadió un `data/index.json` mínimo para evitar 404 en Pages y un icono SVG como favicon.
 - Responsive compartido para PC, tablet y móvil.
 
@@ -31,6 +32,7 @@ Documentación base del hito:
 - [`docs/draft-pool-audit.md`](./docs/draft-pool-audit.md)
 - [`docs/attribute-catalog.md`](./docs/attribute-catalog.md)
 - [`docs/analysis-engine.md`](./docs/analysis-engine.md)
+- [`docs/knowledge-layer.md`](./docs/knowledge-layer.md)
 - [`CHANGELOG.md`](./CHANGELOG.md)
 
 Objetivo del hito:
@@ -51,6 +53,14 @@ Core engine en curso:
 - `js/engine/planEngine.js`
 - `js/engine/analysisEngine.js`
 - `js/analysis-panel.js`
+
+Knowledge layer:
+
+- `knowledge/identity-relations.js`
+- `knowledge/synergies.js`
+- `knowledge/conflicts.js`
+- `knowledge/win-conditions.js`
+- `knowledge/index.js`
 
 ## Estructura de datos
 
