@@ -68,20 +68,19 @@ function resolveTempoLabel(scores) {
     return { label: 'Sin definir', phases: [], ranked, confidence: 0 };
   }
 
-  const [primary, secondary] = active;
-  const pair = [primary?.label, secondary?.label].filter(Boolean);
+  const [primary, secondary, tertiary] = active;
+  const activeByOrder = [...active].sort((a, b) => TEMPO_ORDER.indexOf(a.label) - TEMPO_ORDER.indexOf(b.label));
   let label = primary.label;
 
-  if (active.length >= 3 && active[2].score >= Math.max(1, primary.score * 0.45)) {
+  if (active.length >= 3 && tertiary.score >= Math.max(1, primary.score * 0.45)) {
     label = 'Early/Mid/Late';
-  } else if (pair.length === 2) {
-    const [first, secondLabel] = pair;
-    const firstIndex = TEMPO_ORDER.indexOf(first);
-    const secondIndex = TEMPO_ORDER.indexOf(secondLabel);
+  } else if (secondary) {
+    const firstIndex = TEMPO_ORDER.indexOf(activeByOrder[0].label);
+    const secondIndex = TEMPO_ORDER.indexOf(activeByOrder[1].label);
     if (Math.abs(firstIndex - secondIndex) === 1) {
-      label = `${first} → ${secondLabel}`;
+      label = `${activeByOrder[0].label} → ${activeByOrder[1].label}`;
     } else {
-      label = `${first} → ${secondLabel}`;
+      label = `${activeByOrder[0].label} → ${activeByOrder[1].label}`;
     }
   }
 
@@ -90,7 +89,7 @@ function resolveTempoLabel(scores) {
 
   return {
     label,
-    phases: active.map((item) => item.label),
+    phases: activeByOrder.map((item) => item.label),
     ranked,
     confidence,
   };
