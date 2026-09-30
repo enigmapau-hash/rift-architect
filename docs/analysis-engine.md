@@ -1,4 +1,4 @@
-# Analysis Engine v3.2
+# Analysis Engine v3.3
 
 ## Objective
 
@@ -38,7 +38,8 @@ Analysis {
   gamePlan[],
   confidence,
   dominance,
-  summaryText
+  summaryText,
+  explanation
 }
 ```
 
@@ -57,6 +58,7 @@ The analysis shown in the main UI must stay within this budget:
 - 1 coherence statement.
 - 1 win condition.
 - 1 confidence indicator.
+- 1 compact explainability block.
 
 ## Rules
 
@@ -76,8 +78,9 @@ The analysis shown in the main UI must stay within this budget:
 5. Evaluate whether the composition is coherent or internally conflicted.
 6. Derive strategic dependencies and a single win condition.
 7. Build a short plan of action.
-8. Return tokens the UI can render directly.
-9. Leave the explanation layer for the future IA.
+8. Build a compact explainability block with the evidence behind the decision.
+9. Return tokens the UI can render directly.
+10. Leave the explanation layer for the future IA.
 
 ## Knowledge layer
 
@@ -105,6 +108,7 @@ The current core engine is split into small modules:
 - `js/engine/coherenceEngine.js`
 - `js/engine/winConditionEngine.js`
 - `js/engine/planEngine.js`
+- `js/engine/explainabilityEngine.js`
 - `js/engine/analysisEngine.js`
 
 ## Main UI output
@@ -118,6 +122,7 @@ The screen should show only:
 - Coherence
 - Win condition
 - Plan
+- Why this result exists
 - Makes well
 - Lacks
 
