@@ -13,72 +13,12 @@
 - Estado de composición temporal, sin persistencia automática al recargar.
 - Modal estabilizado con interacción nativa.
 
-## Fase 3 — Motor de análisis 🚧
-- Definir qué es identidad, función y tempo.
-- Detectar identidad principal y secundarias.
-- Resumir fortalezas y carencias.
-- Construir un plan de juego simple y compacto.
-
-### Sprint 4.1 — Modelo de datos y contrato ✅
-- Revisar el Excel como contrato de datos.
-- Documentar qué campos usa la UI, el motor y la IA.
-- Unificar el objeto `Champion`.
-- Alinear `README`, `docs/` y la interfaz con el mismo modelo.
-
-### Sprint 4.2 — Motor de análisis v1 ✅
-- Motor determinista basado solo en el Excel.
+## Fase 3 — Motor de análisis ✅
 - Identidad principal y secundarias.
-- Fortalezas, carencias y plan de juego corto.
+- Fortalezas, carencias y plan de juego.
 - Resumen compacto y fácil de leer.
-
-### Sprint 4.3 — Auditoría y normalización del Draft Pool ✅
-- Revisar hoja por hoja el Excel.
-- Normalizar Identity y Tempo.
-- Detectar vacíos y duplicados.
-- Escribir `data/audit.json`.
-- Mantener la base limpia antes de seguir con la IA.
-
-### Sprint 4.4 — Catálogo de atributos ✅
-- Definir qué atributos se muestran y cuáles son internos.
-- Unificar el significado de cada atributo.
-- Mantener la UI breve y sin exceso de texto.
-
-### Sprint 4.5 — Motor de interpretación ✅
-- Traducir datos del Excel a un resumen compacto.
-- Mostrar identidad principal, secundarias, fortalezas, carencias y plan.
-- Limitar la salida a lo imprescindible.
-- Mantener la IA para una fase posterior.
-
-### Sprint 4.6 — Visión de producto y contrato v2 ✅
-- Definir qué es Rift Architect y qué no es.
-- Fijar el presupuesto de información del análisis.
-- Cerrar el contrato de salida del motor v2.
-
-### Sprint 4.7 — Core Engine v0.5 ✅
-- Implementar el motor v2 como entregable completo.
-- Separar el motor en módulos de identidad, fortalezas, debilidades, tempo y plan.
-- Integrar el panel final de análisis con tempo visible.
-- Consolidar la UI del picker en un flujo único y estable.
-- Eliminar la dependencia del panel de resumen antiguo.
-- Añadir un `data/index.json` mínimo para evitar 404 en Pages.
-- Añadir un favicon SVG para evitar 404 del navegador.
-- Publicar documentación técnica y changelog.
-- Pasar la auditoría general antes de cerrar el hito.
-
-### Sprint 4.8 — Core Engine v3 ✅
-- Ponderar identidades por impacto real.
-- Detectar composiciones dominantes e híbridas.
-- Priorizar fortalezas y carencias.
-- Derivar el tempo de toda la composición.
-- Generar un plan de juego ordenado y breve.
-- Añadir una señal de confianza al análisis.
-
-### Sprint 4.9 — Core Engine v3.1 ✅
-- Resolver identidades con una matriz de precedencia.
-- Detectar sinergias entre campeones y entre patrones de composición.
-- Evaluar la coherencia general del draft.
-- Derivar una condición de victoria clara.
-- Convertir la condición de victoria en un plan de juego breve.
+- Sinergias, dependencias, coherencia y win condition.
+- Coach, Strategic Advisor y Explainability.
 
 ## Fase 4 — Asistente IA ⏳
 - Explicar la composición seleccionada.
@@ -90,80 +30,17 @@
 - Validar identidades, sinergias, conflictos y win conditions.
 - Preparar inferencias para la futura IA.
 
-### Sprint 5.0 — Knowledge Layer ✅
-- Externalizar identidades, sinergias, conflictos y win conditions.
-- Mantener el Draft Pool para datos base de campeones.
-- Preparar reglas de inferencia para la futura IA.
-
-### Sprint 5.1 — Validación del Knowledge Layer ✅
-- Auditar reglas duplicadas o huérfanas.
-- Validar categorías, identidades y condiciones de victoria.
-- Añadir trazabilidad y reportes de validación al arranque.
-- Dejar el conocimiento listo para la IA explicativa.
-
-### Sprint 5.2 — Banco de pruebas del Core Engine ✅
-- Crear composiciones de referencia para identidades y tempos canónicos.
-- Ejecutar el motor contra casos esperados.
-- Detectar regresiones en identidad, sinergias, coherencia y win condition.
-- Mantener un reporte simple para desarrollo.
-
-### Sprint 5.3 — Knowledge Coverage ✅
-- Ampliar la base de patrones estratégicos.
-- Validar cobertura de patrones en el banco de pruebas.
-- Añadir composiciones de referencia para cubrir patrones faltantes.
-- Mantener reportes de cobertura simples y trazables.
-
-### Sprint 5.4 — Strategic Dependencies ✅
-- Definir dependencias estratégicas por identidad y patrón.
-- Detectar composiciones incompletas o parciales.
-- Mostrar niveles de madurez y evidencias internas.
-- Validar cobertura de dependencias en el banco de pruebas.
-
-### Sprint 5.5 — Certification Sprint ✅
-- Verificar cobertura total del banco de pruebas.
-- Añadir casos límite para composiciones vacías, mínimas y extremas.
-- Medir tiempo de análisis y carga de conocimiento.
-- Congelar la arquitectura estable antes de la IA.
-
 ## Fase 6 — Explainability + Coach + Advisor ✅
 - Exponer evidencias compactas del motor.
 - Mostrar por qué cada conclusión existe.
 - Traducir el análisis en una guía práctica de draft.
 - Derivar objetivos, ventanas de juego y condiciones de derrota.
 
-### Sprint 6.0 — Explainability Engine ✅
-- Añadir evidencias al análisis.
-- Construir bloques de explicación cortos.
-- Mostrar por qué el motor decide.
-- Mantener la UI compacta.
-
-### Sprint 6.1 — Draft Coach v1 ✅
-- Añadir prioridades visuales al análisis.
-- Exponer power spikes y riesgos del draft.
-- Resumir objetivos por fase (early, mid y late).
-- Mantener la guía práctica sin añadir ruido.
-
-### Sprint 6.2 — Draft Assistant ✅
-- Resumir el análisis en 15 segundos.
-- Mostrar insights y alertas compactas.
-- Mantener la información útil sin exceso de texto.
-
-### Sprint 6.3 — Strategic Advisor ✅
-- Definir un objetivo principal por composición.
-- Priorizar objetivos estratégicos.
-- Mostrar ventanas de juego claras.
-- Exponer condiciones de derrota relevantes.
-
-### Sprint 6.4 — Release Candidate (RC1) ✅
-- Ejecutar una auditoría funcional completa.
-- Revisar el rendimiento del motor y del Knowledge Layer.
-- Limpiar código duplicado o muerto.
-- Verificar documentación y Pages.
-- Normalizar etiquetas compartidas para evitar errores de sorting en coach y advisor.
-
-## Fase 7 — Coach conversacional ⏳
-- Preguntas sobre ejecución, errores y win condition.
-- Respuestas guiadas por la información del Excel.
+## Fase 7 — UX del Dashboard y simulación ✅
+- Rediseñar el panel de análisis para leer la composición en segundos.
+- Integrar una hero card de identidad más clara.
+- Separar fortalezas, riesgos, plan, coach, advisor y explicación en bloques propios.
+- Mostrar el Draft Simulator como herramienta visual de swaps.
 
 ### Sprint 7.1 — Draft Simulator UI ✅
 - Simular swaps de campeones sin mutar el draft original.
@@ -172,10 +49,30 @@
 - Renderizar un panel visual de comparación en la composición actual.
 - Publicar la entrega con README, roadmap, changelog y Pages actualizados.
 
-### Sprint 7.2 — Draft Comparison visual ⏳
+### Sprint 7.2 — Analysis Dashboard v3 ✅
+- Rediseñar el bloque principal de identidad.
+- Sustituir listas crudas por tarjetas legibles.
+- Separar fortalezas, riesgos, métricas, plan, coach y advisor.
+- Reducir densidad visual y mejorar jerarquía.
+
+### Sprint 7.3 — Draft Comparison visual ⏳
 - Comparar dos composiciones completas.
 - Resumir ventajas, riesgos y win condition de ambos lados.
 - Reutilizar el Comparison Engine del simulador.
+
+## Fase 8 — Decision Engine ⏳
+- Pick Advisor.
+- Ban Advisor.
+- Evaluación de alternativas y recomendaciones.
+
+## Fase 9 — Champion Pool Architect ⏳
+- Analizar el estilo del jugador.
+- Recomendar campeones por pool y rol.
+- Detectar huecos del pool y prioridades de práctica.
+
+## Fase 10 — AI Coach ⏳
+- Conversación guiada sobre ejecución, errores y win condition.
+- Respuestas apoyadas en el motor determinista y el knowledge layer.
 
 ## Regla del proyecto
 - Cada sprint debe actualizar código, README, roadmap y Pages.
