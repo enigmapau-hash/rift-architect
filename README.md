@@ -2,6 +2,12 @@
 
 PWA para entender una composición de League of Legends a partir de `Draft Pool.xlsx`.
 
+## Arquitectura simple
+
+- **Knowledge Layer**: Excel + reglas estratégicas normalizadas.
+- **Inference Layer**: análisis, coach, necesidades, perfiles y narrativa.
+- **Communication Layer**: Draft Assistant y vistas ejecutivas para leer el resultado rápido.
+
 ## Fuente de verdad
 
 - `Draft Pool.xlsx` es la única fuente editable.
@@ -31,6 +37,8 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El **Draft Assistant** ahora empieza por un **Need Engine** que detecta necesidades reales de la composición y luego las traduce a perfiles y clases compatibles.
 - El **Draft Assistant** ya se muestra en una vista ejecutiva: primero el veredicto, luego las necesidades y solo después el detalle completo si se expande.
 - El **Narrative Engine** convierte el análisis ejecutivo en una historia corta: cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
+- La línea de razón del Narrative Engine muestra el “por qué” detrás de la necesidad principal.
+- El documento `docs/architecture.md` describe el modelo de tres capas: Knowledge, Inference y Communication.
 - El documento `docs/narrative-engine.md` define la narrativa ejecutiva como capa de comunicación.
 - El documento `docs/strategic-profiles.md` define el Need Engine y la traducción de necesidades a perfiles estratégicos.
 - El **Draft Assistant UI** ya puede mostrar necesidades, perfiles estratégicos, clases compatibles y bans en un panel propio dentro del Analysis Hub.
