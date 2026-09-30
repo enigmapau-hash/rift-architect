@@ -9,6 +9,7 @@ It is intentionally separate from the champion data exported from the Excel file
 - `identity-relations.js`
 - `synergies.js`
 - `patterns.js`
+- `dependencies.js`
 - `conflicts.js`
 - `win-conditions.js`
 - `validator.js`
@@ -23,6 +24,7 @@ The validator checks for:
 - duplicate keys;
 - invalid categories;
 - unknown identities in conflicts;
+- malformed dependency rules;
 - malformed win-condition rules;
 - missing fallback conditions;
 - malformed pattern rules.
