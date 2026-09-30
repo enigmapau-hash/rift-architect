@@ -1,6 +1,7 @@
 import { analyzeComposition } from './analyzer.js';
 import { buildExecutiveSummary } from './engine/executiveSummary.js';
 import { buildDecisionFlowBase, applyDecisionFlowAction } from './engine/decisionFlow.js';
+import { buildBanRecommendations } from './engine/banEngine.js';
 
 const ROOT_ID = 'analysisHubView';
 const SELECTOR = '#compositionGrid .slot.is-filled';
@@ -93,6 +94,10 @@ function renderHub() {
   const summary = analysis.executiveSummary || buildExecutiveSummary(analysis);
   const baseFlow = analysis.decisionFlowBase || buildDecisionFlowBase(analysis, selectedChampions);
   const model = applyDecisionFlowAction(baseFlow, state.activeAction);
+  model.advisor = {
+    ...(model.advisor || {}),
+    bans: buildBanRecommendations(analysis),
+  };
 
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
@@ -253,7 +258,8 @@ function renderCardBody(cardId, model) {
           </div>
         </details>
       `;
-    case 'advisor':
+    case 'advisor': {
+      const bans = Array.isArray(model.advisor?.bans?.items) ? model.advisor.bans.items : [];
       return `
         <div class="analysis-hub__actions" role="tablist" aria-label="Acciones del asesor">
           ${ACTIONS.map((action) => `
@@ -275,6 +281,16 @@ function renderCardBody(cardId, model) {
           <p>${escapeHtml(model.why)}</p>
         </article>
 
+        ${bans.length ? `
+          <article class="analysis-hub__response-card">
+            <span class="analysis-hub__card-kicker">Bans prioritarios</span>
+            <p>${escapeHtml(model.advisor?.bans?.summary || 'Prohibiciones que castigan mejor tu composición actual.')}</p>
+          </article>
+          <div class="analysis-hub__list">
+            ${bans.map(renderBanRow).join('')}
+          </div>
+        ` : ''}
+
         <div class="analysis-hub__chip-list">
           ${model.chips.map((chip) => `<span class="story-pill story-pill--${chip.tone}">${escapeHtml(chip.label)}</span>`).join('')}
         </div>
@@ -287,6 +303,7 @@ function renderCardBody(cardId, model) {
           </div>
         </details>
       `;
+    }
     default:
       return '';
   }
@@ -329,6 +346,18 @@ function renderLineRow(item) {
         <p>${escapeHtml(item.detail)}</p>
       </div>
       ${item.score != null ? `<span class="analysis-hub__row-score">${item.score}/10</span>` : ''}
+    </div>
+  `;
+}
+
+function renderBanRow(item) {
+  return `
+    <div class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
+        <strong>${escapeHtml(item.rank ? `${item.rank}. ${item.champion}` : item.champion)}</strong>
+        <p>${escapeHtml(item.detail)}</p>
+      </div>
+      <span class="analysis-hub__row-score">${escapeHtml(item.severity)}</span>
     </div>
   `;
 }
