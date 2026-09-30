@@ -20,6 +20,15 @@ const QUESTION_BLUEPRINTS = [
   { key: 'behind', label: 'Si voy por detrás' },
 ];
 
+const PROFILE_BLUEPRINTS = [
+  { key: 'engage', label: 'Engage', keywords: ['engage', 'iniciacion', 'iniciación', 'start', 'iniciar'] },
+  { key: 'peel', label: 'Peel', keywords: ['peel', 'protect', 'shield', 'save', 'disengage'] },
+  { key: 'scaling', label: 'Escalado', keywords: ['scale', 'scaling', 'escalado', 'late'] },
+  { key: 'frontline', label: 'Frontline', keywords: ['frontline', 'tank', 'tanque', 'front'] },
+  { key: 'mobility', label: 'Movilidad', keywords: ['mobility', 'movilidad', 'dash', 'roam', 'move'] },
+  { key: 'cc', label: 'CC', keywords: ['cc', 'stun', 'root', 'knock', 'slow', 'control'] },
+];
+
 const state = {
   data: new Map(),
   loaded: false,
@@ -212,6 +221,38 @@ function findChampionByTags(selectedChampions, tags = []) {
   });
 }
 
+function scoreProfile(selectedChampions, keywords) {
+  const sources = selectedChampions.flatMap((champion) => [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)]);
+  const matches = sources.reduce((total, value) => {
+    const normalized = normalizeText(asText(value));
+    return total + (keywords.some((keyword) => normalized.includes(normalizeText(keyword))) ? 1 : 0);
+  }, 0);
+  const score = Math.max(0, Math.min(10, Math.round((matches / Math.max(2, selectedChampions.length)) * 6 + (matches > 2 ? 3 : 0))));
+  return score;
+}
+
+function buildProfile(selectedChampions, analysis) {
+  return PROFILE_BLUEPRINTS.map((profile) => {
+    const score = scoreProfile(selectedChampions, profile.keywords);
+    const hintMap = {
+      engage: 'Iniciación y cazadas.',
+      peel: 'Protección del carry.',
+      scaling: 'Ventaja en juego medio/tardío.',
+      frontline: 'Capacidad de aguantar peleas.',
+      mobility: 'Rotaciones y flancos.',
+      cc: 'Control para fijar objetivos.',
+    };
+
+    return {
+      label: profile.label,
+      score,
+      detail: hintMap[profile.key] || '',
+      high: score >= 8,
+      medium: score >= 5 && score < 8,
+    };
+  }).sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'es'));
+}
+
 function buildStoryModel(analysis, selectedChampions) {
   const strengths = asArray(analysis?.strengths).slice(0, 2).map(normalizeEntry);
   const weaknesses = asArray(analysis?.weaknesses).slice(0, 2).map(normalizeEntry);
@@ -286,6 +327,7 @@ function buildStoryModel(analysis, selectedChampions) {
     whyItems,
     topMetric: uniqueValues((analysis?.metrics || []).map((metric) => asText(metric?.label)).filter(Boolean)).slice(0, 4),
     quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
+    profile: buildProfile(selectedChampions, analysis),
   };
 }
 
@@ -340,24 +382,63 @@ function renderOverview(model) {
   `;
 }
 
+function renderProfile(model) {
+  return `
+    <section class="composition-story__section composition-story__section--wide">
+      <div class="composition-story__section-head">
+        <p class="eyebrow">Perfil de composición</p>
+        <h4>Tu ADN táctico</h4>
+      </div>
+      <div class="composition-story__profile-grid">
+        ${model.profile.map((item) => `
+          <article class="composition-story__profile-card ${item.high ? 'composition-story__profile-card--high' : item.medium ? 'composition-story__profile-card--mid' : 'composition-story__profile-card--low'}">
+            <div class="composition-story__profile-head">
+              <strong>${escapeHtml(item.label)}</strong>
+              <span>${item.score}/10</span>
+            </div>
+            <div class="composition-story__meter" aria-hidden="true">
+              <span class="composition-story__meter-fill" style="width:${item.score * 10}%"></span>
+            </div>
+            <p>${escapeHtml(item.detail || 'Sin detalle')}</p>
+          </article>
+        `).join('')}
+      </div>
+    </section>
+  `;
+}
+
 function renderPlan(model) {
   return `
-    <section class="composition-story__section">
+    <section class="composition-story__section composition-story__section--wide">
       <div class="composition-story__section-head">
         <p class="eyebrow">Prioridades</p>
         <h4>Qué hacer primero</h4>
       </div>
-      <div class="composition-story__card-grid composition-story__card-grid--three">
-        ${model.priorities.map((item, index) => `
-          <article class="composition-story__card composition-story__card--${index === 0 ? 'success' : index === 1 ? 'info' : 'coach'}">
-            <span class="composition-story__index">0${index + 1}</span>
-            <strong>${escapeHtml(item.label)}</strong>
-            <p>${escapeHtml(item.detail)}</p>
-          </article>
-        `).join('')}
-      </div>
-      <div class="composition-story__avoid-row">
-        ${model.avoid.map((item) => `<span class="story-pill story-pill--danger">${escapeHtml(item)}</span>`).join('')}
+      <div class="composition-story__checklist-grid">
+        <article class="composition-story__checklist composition-story__checklist--good">
+          <span class="composition-story__checklist-title">Plan</span>
+          ${model.priorities.map((item) => `
+            <div class="composition-story__checkline composition-story__checkline--yes">
+              <span class="composition-story__checkmark">✓</span>
+              <div>
+                <strong>${escapeHtml(item.label)}</strong>
+                <p>${escapeHtml(item.detail)}</p>
+              </div>
+            </div>
+          `).join('')}
+        </article>
+        <article class="composition-story__checklist composition-story__checklist--danger">
+          <span class="composition-story__checklist-title">Evita</span>
+          ${model.avoid.map((item) => `
+            <div class="composition-story__checkline composition-story__checkline--no">
+              <span class="composition-story__checkmark">✕</span>
+              <div>
+                <strong>${escapeHtml(item)}</strong>
+                <p>No es la forma óptima de jugar esta composición.</p>
+              </div>
+            </div>
+          `).join('')}
+        </article>
       </div>
     </section>
   `;
@@ -427,16 +508,16 @@ function renderTimeline(model) {
   ];
 
   return `
-    <section class="composition-story__section">
+    <section class="composition-story__section composition-story__section--wide">
       <div class="composition-story__section-head">
         <p class="eyebrow">Plan de partida</p>
         <h4>Cuándo presionar</h4>
       </div>
-      <div class="composition-story__card-grid composition-story__card-grid--three">
+      <div class="composition-story__timeline-track">
         ${timeline.map((item, index) => `
-          <article class="composition-story__card composition-story__card--info">
-            <span class="composition-story__index">0${index + 1}</span>
-            <strong>${escapeHtml(item.label)} · ${escapeHtml(item.title)}</strong>
+          <article class="composition-story__timeline-step ${index === 1 ? 'is-mid' : ''}">
+            <span>${item.label}</span>
+            <strong>${escapeHtml(item.title)}</strong>
             <p>${escapeHtml(item.detail)}</p>
           </article>
         `).join('')}
@@ -476,7 +557,7 @@ function renderQuestions(analysis, model) {
   const active = answers[state.activeQuestion] || answers.howWin;
 
   return `
-    <section class="composition-story__section">
+    <section class="composition-story__section composition-story__section--wide">
       <div class="composition-story__section-head">
         <p class="eyebrow">Pregunta a Rift</p>
         <h4>Respuestas rápidas</h4>
@@ -537,6 +618,7 @@ function renderStory() {
     <section class="composition-story">
       ${renderHero(model)}
       ${renderOverview(model)}
+      ${renderProfile(model)}
       ${renderPlan(model)}
       ${renderPieces(model)}
       ${renderTimeline(model)}
