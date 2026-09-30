@@ -1,0 +1,54 @@
+{
+  "slug": "siege",
+  "description": "Composición de asedio y control de zona.",
+  "selectedChampions": [
+    {
+      "champion": "Ziggs",
+      "role": "mid",
+      "identity": "Poke",
+      "function": "Artillery Mage",
+      "tempo": "Mid/Late",
+      "strengths": ["Poke", "Objective", "Control"],
+      "weaknesses": ["Dive"]
+    },
+    {
+      "champion": "Jayce",
+      "role": "top",
+      "identity": "Poke",
+      "function": "Fighter",
+      "tempo": "Mid",
+      "strengths": ["Poke", "Siege", "Lane pressure"],
+      "weaknesses": ["Scaling"]
+    },
+    {
+      "champion": "Ashe",
+      "role": "botline",
+      "identity": "Control",
+      "function": "Marksman",
+      "tempo": "Mid",
+      "strengths": ["Control", "Poke", "Vision"],
+      "weaknesses": ["Diving"]
+    },
+    {
+      "champion": "Karma",
+      "role": "support",
+      "identity": "Control",
+      "function": "Enchanter",
+      "tempo": "Mid",
+      "strengths": ["Control", "Poke", "Objective Control"],
+      "weaknesses": ["All-in"]
+    },
+    {
+      "champion": "Nautilus",
+      "role": "jungle",
+      "identity": "Engage",
+      "function": "Tank",
+      "tempo": "Mid",
+      "strengths": ["Engage", "Control", "Objective"],
+      "weaknesses": ["Kiteable"]
+    }
+  ],
+  "expectations": {
+    "patternsInclude": ["Siege", "Zone Control"]
+  }
+}
