@@ -20,8 +20,8 @@ PWA para construir y entender una composición de League of Legends a partir de 
 - La vista principal es ahora **Composition View**, estructurada en hero, plan, fortalezas, riesgos, explicación e IA.
 - La IA resume la composición en lenguaje natural: qué es, cómo gana, qué debe evitar y qué te recomienda hacer.
 - La IA también ofrece preguntas rápidas dentro de la vista para profundizar sin jerga.
+- El **Decision Engine** gana más protagonismo visual y muestra prioridades, evitaciones, pieza clave e iniciativa antes que el plan por fases.
 - El **Game Plan Engine** añade una lectura clara de early, mid, late y qué hacer si vas por detrás.
-- El **Decision Engine** prioriza qué hacer, qué evitar y cuál es la pieza clave de la composición.
 - Los paneles visuales ya leen la composición real y se actualizan al cambiar campeones.
 - Fortalezas, riesgos, métricas, plan, coach, advisor y explicabilidad se muestran en bloques separados.
 - La lectura está pensada para entender tu composición en pocos segundos.
