@@ -8,6 +8,7 @@ Rift Architect now includes a small validation layer for the Core Engine and the
 - Includes edge-case fixtures for empty and single-champion drafts.
 - Runs `analyzeComposition()` against each fixture.
 - Compares the result with the expected identity, tempo, win condition, coherence, synergies and dependencies.
+- Checks explainability coverage.
 - Checks knowledge-pattern coverage.
 - Checks dependency coverage.
 - Tracks basic validation timing.
