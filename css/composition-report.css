@@ -1,0 +1,198 @@
+/* Composition Report v1 */
+
+.composition-report-shell {
+  display: grid;
+  gap: 14px;
+}
+
+.composition-report {
+  display: grid;
+  gap: 14px;
+}
+
+.composition-report__hero {
+  grid-template-columns: minmax(0, 1.45fr) minmax(260px, 0.85fr);
+  align-items: start;
+}
+
+.composition-report__scoreline {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.composition-report__score {
+  width: 86px;
+  height: 86px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(124, 140, 255, 0.22);
+  background: rgba(124, 140, 255, 0.12);
+  font-size: 1.65rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.composition-report__grade-block {
+  display: grid;
+  gap: 3px;
+}
+
+.composition-report__grade-block strong {
+  font-size: 1.05rem;
+}
+
+.composition-report__grade-block span {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.composition-report__timeline {
+  grid-column: 1 / -1;
+}
+
+.composition-report .analysis-grid-v3 {
+  align-items: start;
+}
+
+.composition-report .analysis-card--wide {
+  grid-column: 1 / -1;
+}
+
+.composition-report .analysis-card {
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.12);
+}
+
+.composition-report .analysis-hero__aside {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.composition-report .analysis-mini-stat {
+  min-height: 96px;
+}
+
+.composition-report .analysis-mini-stat__value {
+  font-size: 1rem;
+}
+
+.composition-report .analysis-item-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.composition-report .analysis-item-card {
+  min-height: 100%;
+}
+
+.composition-report .analysis-phase-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.composition-report .analysis-subgrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.composition-report .analysis-card__header h4 {
+  font-size: 1.02rem;
+}
+
+.composition-report .timeline-card {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.04);
+  display: grid;
+  gap: 10px;
+}
+
+.composition-report .timeline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.composition-report .timeline__step {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.08);
+}
+
+.composition-report .timeline__dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(124, 140, 255, 0.22);
+  background: rgba(124, 140, 255, 0.14);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.composition-report .timeline__label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent-2);
+  font-size: 0.7rem;
+}
+
+.composition-report .timeline__title {
+  margin: 0;
+  font-size: 0.96rem;
+}
+
+.composition-report .timeline__detail {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+  font-size: 0.82rem;
+}
+
+.composition-report .analysis-metric-list {
+  gap: 9px;
+}
+
+.composition-report .analysis-metric {
+  padding: 10px 11px;
+}
+
+.composition-report .analysis-list__score {
+  margin-left: auto;
+}
+
+@media (max-width: 980px) {
+  .composition-report__hero,
+  .composition-report .analysis-hero__aside,
+  .composition-report .analysis-item-grid,
+  .composition-report .analysis-phase-grid,
+  .composition-report .analysis-subgrid,
+  .composition-report .timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .composition-report__timeline {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .composition-report__score {
+    width: 72px;
+    height: 72px;
+    font-size: 1.35rem;
+  }
+
+  .composition-report .analysis-card,
+  .composition-report .analysis-hero,
+  .composition-report .timeline-card {
+    padding: 12px;
+    border-radius: 14px;
+  }
+}
