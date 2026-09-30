@@ -1,4 +1,4 @@
-/* Composition Report Pro */
+/* Composition Report Pro — visual composition view */
 
 .composition-report-pro-shell {
   display: grid;
@@ -7,13 +7,14 @@
 
 .composition-report-pro {
   display: grid;
-  gap: 14px;
+  gap: 16px;
   padding: 16px;
+  border-radius: 20px;
   border: 1px solid rgba(124, 140, 255, 0.18);
-  border-radius: 18px;
   background:
-    radial-gradient(circle at top right, rgba(124, 140, 255, 0.12), transparent 36%),
-    linear-gradient(180deg, rgba(12, 18, 35, 0.98), rgba(13, 17, 31, 0.96));
+    radial-gradient(circle at top right, rgba(124, 140, 255, 0.12), transparent 34%),
+    radial-gradient(circle at left top, rgba(70, 211, 161, 0.08), transparent 30%),
+    linear-gradient(180deg, rgba(12, 18, 35, 0.98), rgba(11, 15, 30, 0.96));
   box-shadow: 0 18px 38px rgba(0, 0, 0, 0.22);
 }
 
@@ -21,112 +22,101 @@
   padding: 18px;
 }
 
-.composition-report-pro__header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 14px;
-}
-
-.composition-report-pro__header h3,
-.composition-report-pro__summary h4,
-.composition-report-pro__card h4,
-.composition-report-pro__checklist-card h4 {
-  margin: 0;
-}
-
-.composition-report-pro__actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-}
-
-.report-button {
-  min-height: 42px;
-  padding: 10px 14px;
-  border-radius: 14px;
-  border: 1px solid rgba(70, 211, 161, 0.24);
-  background: rgba(70, 211, 161, 0.12);
-  color: var(--text);
-  font: inherit;
-  cursor: pointer;
-  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
-}
-
-.report-button:hover {
-  transform: translateY(-1px);
-  border-color: rgba(70, 211, 161, 0.42);
-}
-
-.report-button--ghost {
-  border-color: rgba(124, 140, 255, 0.24);
-  background: rgba(124, 140, 255, 0.1);
-}
-
 .composition-report-pro__hero {
   display: grid;
   grid-template-columns: minmax(0, 180px) minmax(0, 1fr);
-  gap: 12px;
+  gap: 14px;
   padding: 14px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
-.composition-report-pro__scorebox {
-  display: grid;
-  gap: 6px;
-  align-content: center;
-  justify-items: center;
-  padding: 14px;
-  border-radius: 16px;
-  background: rgba(124, 140, 255, 0.08);
-  border: 1px solid rgba(124, 140, 255, 0.18);
-}
-
-.composition-report-pro__score-grade {
-  font-size: 0.78rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--accent-2);
-}
-
-.composition-report-pro__score-value {
-  font-size: clamp(2.3rem, 6vw, 3.8rem);
-  line-height: 1;
-}
-
-.composition-report-pro__score-label {
-  font-size: 0.86rem;
-  color: var(--muted);
-}
-
-.composition-report-pro__summary {
-  display: grid;
-  gap: 10px;
-  align-content: center;
-}
-
-.composition-report-pro__grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 12px;
-}
-
-.composition-report-pro__card,
-.composition-report-pro__checklist-card,
-.composition-report-pro__export-note {
-  display: grid;
-  gap: 12px;
-  padding: 14px;
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
 }
 
-.composition-report-pro__card {
-  align-content: start;
+.composition-report-pro__score-card {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  align-content: center;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(124, 140, 255, 0.08);
+  border: 1px solid rgba(124, 140, 255, 0.18);
+}
+
+.composition-report-pro__score-ring {
+  width: 126px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: conic-gradient(var(--accent-2) 0 var(--score-angle), rgba(255, 255, 255, 0.1) var(--score-angle) 360deg);
+  padding: 11px;
+  position: relative;
+}
+
+.composition-report-pro__score-ring::after {
+  content: '';
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(9, 14, 28, 0.98), rgba(13, 17, 31, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.composition-report-pro__score-ring-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.composition-report-pro__score-grade {
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.composition-report-pro__score-ring-inner strong {
+  font-size: clamp(2rem, 5vw, 3rem);
+  line-height: 1;
+}
+
+.composition-report-pro__score-ring-inner span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.composition-report-pro__score-label {
+  color: var(--muted);
+  font-size: 0.84rem;
+}
+
+.composition-report-pro__hero-copy {
+  display: grid;
+  gap: 10px;
+  align-content: center;
+}
+
+.composition-report-pro__hero-copy h3 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2.2vw, 1.7rem);
+}
+
+.composition-report-pro__lineup-panel,
+.composition-report-pro__panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.composition-report-pro__panel--wide {
+  grid-column: 1 / -1;
 }
 
 .composition-report-pro__section-head {
@@ -134,35 +124,118 @@
   gap: 6px;
 }
 
-.composition-report-pro__score-parts {
+.composition-report-pro__section-head h4,
+.composition-report-pro__hero-copy h3 {
+  margin: 0;
+}
+
+.composition-report-pro__lineup {
   display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
-.composition-report-pro__score-part {
+.composition-report-pro__lineup-card {
   display: grid;
   gap: 8px;
-  padding: 11px 12px;
-  border-radius: 14px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+  min-height: 124px;
+}
+
+.composition-report-pro__lineup-card.is-filled {
+  border-color: rgba(70, 211, 161, 0.22);
+  background: rgba(70, 211, 161, 0.06);
+}
+
+.composition-report-pro__lineup-card.is-empty {
+  border-style: dashed;
+  opacity: 0.82;
+}
+
+.composition-report-pro__lineup-role {
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+}
+
+.composition-report-pro__lineup-card strong {
+  font-size: 0.95rem;
+}
+
+.composition-report-pro__lineup-card span {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.composition-report-pro__lineup-tags,
+.analysis-chip-list--compact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.composition-report-pro__metrics-grid,
+.composition-report-pro__dual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.composition-report-pro__metric-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
 }
 
-.composition-report-pro__score-part-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+.composition-report-pro__metric-card--good {
+  border-color: rgba(70, 211, 161, 0.18);
+  background: rgba(70, 211, 161, 0.05);
 }
 
-.composition-report-pro__score-part-head strong,
-.composition-report-pro__check-item strong {
+.composition-report-pro__metric-card--warn {
+  border-color: rgba(255, 209, 138, 0.18);
+  background: rgba(255, 209, 138, 0.05);
+}
+
+.composition-report-pro__metric-card--danger {
+  border-color: rgba(255, 122, 122, 0.18);
+  background: rgba(255, 122, 122, 0.05);
+}
+
+.composition-report-pro__metric-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.composition-report-pro__metric-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.composition-report-pro__metric-head strong {
+  flex: 1;
   font-size: 0.92rem;
 }
 
-.composition-report-pro__score-part-head span {
+.composition-report-pro__metric-head span {
   color: var(--muted);
   font-size: 0.8rem;
+  white-space: nowrap;
 }
 
 .composition-report-pro__meter {
@@ -179,142 +252,279 @@
   background: linear-gradient(90deg, rgba(124, 140, 255, 0.82), rgba(70, 211, 161, 0.92));
 }
 
-.composition-report-pro__score-note {
+.composition-report-pro__metric-detail {
   margin: 0;
   color: var(--muted);
   font-size: 0.82rem;
+  line-height: 1.45;
 }
 
-.composition-report-pro__checklist-grid {
+.composition-report-pro__stack-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
 }
 
-.composition-report-pro__check-item {
+.composition-report-pro__stack-item {
   display: grid;
-  gap: 6px;
-  padding: 11px 12px;
-  border-radius: 14px;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
 }
 
-.composition-report-pro__check-item--info {
-  border-color: rgba(124, 140, 255, 0.18);
-  background: rgba(124, 140, 255, 0.08);
-}
-
-.composition-report-pro__check-item--success {
+.composition-report-pro__stack-item--good {
   border-color: rgba(70, 211, 161, 0.18);
-  background: rgba(70, 211, 161, 0.08);
+  background: rgba(70, 211, 161, 0.06);
 }
 
-.composition-report-pro__check-item--coach {
+.composition-report-pro__stack-item--danger {
+  border-color: rgba(255, 122, 122, 0.18);
+  background: rgba(255, 122, 122, 0.06);
+}
+
+.composition-report-pro__stack-item--coach {
   border-color: rgba(181, 110, 255, 0.18);
-  background: rgba(181, 110, 255, 0.08);
+  background: rgba(181, 110, 255, 0.06);
 }
 
-.composition-report-pro__check-label {
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  font-size: 0.68rem;
-  color: var(--accent-2);
+.composition-report-pro__stack-item--advisor {
+  border-color: rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.06);
 }
 
-.composition-report-pro__checklist-block {
-  display: grid;
+.composition-report-pro__stack-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 8px;
 }
 
-.composition-report-pro__bullets {
-  list-style: none;
+.composition-report-pro__stack-head strong {
+  font-size: 0.92rem;
+}
+
+.composition-report-pro__stack-head span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.composition-report-pro__stack-item p {
   margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
 }
 
-.composition-report-pro__bullets li {
+.composition-report-pro__timeline {
   display: grid;
-  grid-template-columns: 24px minmax(0, 1fr);
   gap: 10px;
+}
+
+.composition-report-pro__timeline-step {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
   align-items: start;
-  padding: 9px 10px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.02);
-  color: var(--text);
-  font-size: 0.84rem;
 }
 
-.composition-report-pro__bullets span {
+.composition-report-pro__timeline-dot {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
-  background: rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.16);
   color: var(--text);
   font-size: 0.72rem;
   font-weight: 700;
 }
 
-.composition-report-pro__export-note {
-  padding-top: 16px;
+.composition-report-pro__timeline-label {
+  display: block;
+  margin-bottom: 4px;
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
 }
 
-@media (max-width: 900px) {
-  .composition-report-pro__header,
+.composition-report-pro__timeline-step strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.92rem;
+}
+
+.composition-report-pro__timeline-step p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.composition-report-pro__tree {
+  display: grid;
+  gap: 12px;
+}
+
+.composition-report-pro__tree-root {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.07);
+}
+
+.composition-report-pro__tree-root span {
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.composition-report-pro__tree-root strong {
+  font-size: 1rem;
+}
+
+.composition-report-pro__tree-root p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.composition-report-pro__tree-branches {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.composition-report-pro__tree-node {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.composition-report-pro__tree-role {
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.66rem;
+}
+
+.composition-report-pro__tree-node strong {
+  font-size: 0.92rem;
+}
+
+.composition-report-pro__tree-node p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.composition-report-pro__summary-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.composition-report-pro__summary-item {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.composition-report-pro__summary-item strong {
+  font-size: 0.9rem;
+}
+
+.composition-report-pro__summary-item p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.composition-report-pro__empty-poster {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.composition-report-pro__empty-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: 1px dashed rgba(124, 140, 255, 0.28);
+  background: rgba(124, 140, 255, 0.08);
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 1100px) {
+  .composition-report-pro__lineup,
+  .composition-report-pro__tree-branches {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .composition-report-pro__summary-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 920px) {
   .composition-report-pro__hero,
-  .composition-report-pro__grid {
+  .composition-report-pro__metrics-grid,
+  .composition-report-pro__dual-grid {
     grid-template-columns: 1fr;
   }
 
-  .composition-report-pro__actions {
-    justify-content: flex-start;
+  .composition-report-pro__lineup,
+  .composition-report-pro__tree-branches,
+  .composition-report-pro__empty-poster {
+    grid-template-columns: 1fr 1fr;
   }
 
-  .composition-report-pro__checklist-grid {
-    grid-template-columns: 1fr;
+  .composition-report-pro__hero-copy {
+    justify-items: start;
   }
 }
 
-@media print {
-  body {
-    background: #fff !important;
-    padding: 0 !important;
-  }
-
-  .app-header,
-  #compositionGrid,
-  .panel-title-row,
-  #recommendations,
-  .ghost-btn,
-  .report-button,
-  #refreshBtn,
-  #clearBtn,
-  .analysis-note + .analysis-note {
-    display: none !important;
-  }
-
-  .panel,
-  .summary-card,
-  .composition-report,
+@media (max-width: 640px) {
   .composition-report-pro {
-    box-shadow: none !important;
-    background: #fff !important;
-    border-color: #d7dbe8 !important;
-    color: #0f172a !important;
+    padding: 14px;
+    border-radius: 18px;
   }
 
-  .composition-report-pro__actions {
-    display: none !important;
+  .composition-report-pro__hero,
+  .composition-report-pro__panel,
+  .composition-report-pro__lineup-panel {
+    padding: 12px;
   }
 
-  .composition-report-pro-shell,
-  .composition-report-shell {
-    display: block !important;
+  .composition-report-pro__lineup,
+  .composition-report-pro__tree-branches,
+  .composition-report-pro__empty-poster {
+    grid-template-columns: 1fr;
+  }
+
+  .composition-report-pro__hero {
+    grid-template-columns: 1fr;
   }
 }
