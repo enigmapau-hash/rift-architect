@@ -1,4 +1,5 @@
 import { analyzeComposition } from './analysisEngine.js';
+import { compareAnalyses } from './comparisonEngine.js';
 import { normalizeText, uniqueOrdered } from './utils.js';
 
 function cloneChampion(champion = {}) {
@@ -75,55 +76,7 @@ function buildChangedFields(changes) {
 }
 
 function buildSimulationDiff(beforeAnalysis = {}, afterAnalysis = {}) {
-  const summaryChanges = [
-    buildFieldChange('Identidad', beforeAnalysis.primaryIdentity, afterAnalysis.primaryIdentity),
-    buildFieldChange('Tempo', beforeAnalysis.tempoDetail?.label || beforeAnalysis.tempo, afterAnalysis.tempoDetail?.label || afterAnalysis.tempo),
-    buildFieldChange('Condición de victoria', beforeAnalysis.winCondition?.label, afterAnalysis.winCondition?.label),
-    buildFieldChange('Resumen', beforeAnalysis.summaryText, afterAnalysis.summaryText),
-    buildFieldChange('Objetivo estratégico', beforeAnalysis.advisor?.primaryObjective, afterAnalysis.advisor?.primaryObjective),
-  ];
-
-  const listChanges = [
-    buildListChange('Prioridades estratégicas', beforeAnalysis.advisor?.objectivePriority, afterAnalysis.advisor?.objectivePriority),
-    buildListChange('Riesgos', beforeAnalysis.advisor?.loseConditions, afterAnalysis.advisor?.loseConditions),
-    buildListChange('Insights', beforeAnalysis.assistant?.insights, afterAnalysis.assistant?.insights),
-  ];
-
-  const windowChanges = buildWindowChange(beforeAnalysis.advisor?.gameWindows, afterAnalysis.advisor?.gameWindows);
-  const confidenceBefore = Number(beforeAnalysis.confidence) || 0;
-  const confidenceAfter = Number(afterAnalysis.confidence) || 0;
-
-  const changedFields = buildChangedFields([...summaryChanges, ...listChanges, ...windowChanges]);
-
-  const highlights = [];
-  summaryChanges.forEach((change) => {
-    if (change.changed) {
-      highlights.push(`${change.label}: ${change.before} → ${change.after}`);
-    }
-  });
-
-  if (confidenceBefore !== confidenceAfter) {
-    highlights.push(`Confianza: ${confidenceBefore} → ${confidenceAfter}`);
-  }
-
-  if (!highlights.length) {
-    highlights.push('La simulación mantiene el plan principal.');
-  }
-
-  return {
-    changedFields,
-    highlights,
-    confidenceDelta: confidenceAfter - confidenceBefore,
-    identity: summaryChanges[0],
-    tempo: summaryChanges[1],
-    winCondition: summaryChanges[2],
-    summary: summaryChanges[3],
-    objective: summaryChanges[4],
-    priorities: listChanges[0],
-    risks: listChanges[1],
-    insights: listChanges[2],
-    windows: windowChanges,
-  };
+  return compareAnalyses(beforeAnalysis, afterAnalysis);
 }
 
 function replaceChampionByRole(selectedChampions = [], role, replacementChampion = {}) {
