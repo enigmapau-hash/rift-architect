@@ -5,7 +5,8 @@
   gap: 12px;
 }
 
-.analysis-hub__shell--cards {
+.analysis-hub__shell--cards,
+.analysis-hub__empty {
   display: grid;
   gap: 12px;
   padding: 14px;
@@ -31,13 +32,22 @@
 .analysis-hub__hero-copy h4,
 .analysis-hub__hero-copy p,
 .analysis-hub__score-card strong,
-.analysis-hub__score-card span {
+.analysis-hub__score-card span,
+.analysis-hub__empty h4,
+.analysis-hub__empty p {
   margin: 0;
 }
 
-.analysis-hub__hero-copy p {
+.analysis-hub__hero-copy p,
+.analysis-hub__empty p,
+.analysis-hub__lead,
+.analysis-hub__metric p,
+.analysis-hub__row p,
+.analysis-hub__phase-row p,
+.analysis-hub__response-card p,
+.analysis-hub__signal p {
   color: var(--muted);
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .analysis-hub__score-card {
@@ -80,111 +90,10 @@
   background: rgba(255, 122, 122, 0.1);
 }
 
-.analysis-hub__cards {
+.analysis-hub__metric-strip {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.analysis-hub__card {
-  overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.analysis-hub__card--verdict {
-  background: rgba(124, 140, 255, 0.06);
-  border-color: rgba(124, 140, 255, 0.18);
-}
-
-.analysis-hub__card--plan {
-  background: rgba(70, 211, 161, 0.05);
-  border-color: rgba(70, 211, 161, 0.16);
-}
-
-.analysis-hub__card--risks {
-  background: rgba(255, 122, 122, 0.06);
-  border-color: rgba(255, 122, 122, 0.18);
-}
-
-.analysis-hub__card--timing {
-  background: rgba(255, 209, 138, 0.06);
-  border-color: rgba(255, 209, 138, 0.18);
-}
-
-.analysis-hub__card--advisor {
-  grid-column: 1 / -1;
-  background: rgba(124, 140, 255, 0.05);
-  border-color: rgba(124, 140, 255, 0.16);
-}
-
-.analysis-hub__summary {
-  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
-  padding: 14px;
-  cursor: pointer;
-  list-style: none;
-}
-
-.analysis-hub__summary::-webkit-details-marker {
-  display: none;
-}
-
-.analysis-hub__summary-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.analysis-hub__summary-copy {
-  display: grid;
-  gap: 3px;
-  min-width: 0;
-}
-
-.analysis-hub__summary-copy strong {
-  font-size: 1rem;
-  line-height: 1.35;
-}
-
-.analysis-hub__summary-hint {
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--accent-2);
-}
-
-.analysis-hub__card-badge {
-  flex-shrink: 0;
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
-  font-size: 0.78rem;
-}
-
-.analysis-hub__body {
-  display: grid;
-  gap: 12px;
-  padding: 0 14px 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.analysis-hub__lead {
-  margin: 0;
-  color: var(--text);
-  line-height: 1.5;
-}
-
-.analysis-hub__chip-list,
-.analysis-hub__metric-list,
-.analysis-hub__row-list,
-.analysis-hub__list,
-.analysis-hub__actions {
-  display: grid;
-  gap: 8px;
 }
 
 .analysis-hub__metric {
@@ -193,7 +102,7 @@
   padding: 10px 11px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .analysis-hub__metric-head {
@@ -228,26 +137,146 @@
   background: linear-gradient(90deg, rgba(124, 140, 255, 0.9), rgba(70, 211, 161, 0.95));
 }
 
-.analysis-hub__metric p,
-.analysis-hub__row p,
-.analysis-hub__phase-row p,
-.analysis-hub__response-card p,
-.analysis-hub__empty p,
-.analysis-hub__why p {
+.analysis-hub__metric p {
   margin: 0;
-  color: var(--muted);
-  line-height: 1.45;
+  font-size: 0.84rem;
 }
 
-.analysis-hub__row,
-.analysis-hub__phase-row,
-.analysis-hub__response-card {
+.analysis-hub__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.analysis-hub__card {
+  overflow: hidden;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-hub__card.is-open {
+  border-color: rgba(124, 140, 255, 0.38);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.14);
+}
+
+.analysis-hub__card--verdict {
+  background: rgba(124, 140, 255, 0.06);
+  border-color: rgba(124, 140, 255, 0.18);
+}
+
+.analysis-hub__card--plan {
+  background: rgba(70, 211, 161, 0.05);
+  border-color: rgba(70, 211, 161, 0.16);
+}
+
+.analysis-hub__card--risks {
+  background: rgba(255, 122, 122, 0.06);
+  border-color: rgba(255, 122, 122, 0.18);
+}
+
+.analysis-hub__card--timing {
+  background: rgba(255, 209, 138, 0.06);
+  border-color: rgba(255, 209, 138, 0.18);
+}
+
+.analysis-hub__card--advisor {
+  grid-column: 1 / -1;
+  background: rgba(124, 140, 255, 0.05);
+  border-color: rgba(124, 140, 255, 0.16);
+}
+
+.analysis-hub__card-toggle {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.analysis-hub__card-toggle:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.analysis-hub__card-title-block {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.analysis-hub__card-title-block strong {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.35;
+}
+
+.analysis-hub__card-meta {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  justify-self: end;
+}
+
+.analysis-hub__card-badge {
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  font-size: 0.76rem;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.analysis-hub__toggle-hint {
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  white-space: nowrap;
+}
+
+.analysis-hub__card-body {
+  display: grid;
+  gap: 10px;
+  padding: 0 14px 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.analysis-hub__lead {
+  margin: 0;
+}
+
+.analysis-hub__chip-list,
+.analysis-hub__metric-list,
+.analysis-hub__row-list,
+.analysis-hub__list,
+.analysis-hub__actions {
   display: grid;
   gap: 8px;
+}
+
+.analysis-hub__metric,
+.analysis-hub__row,
+.analysis-hub__phase-row,
+.analysis-hub__response-card,
+.analysis-hub__signal {
+  display: grid;
+  gap: 7px;
   padding: 11px 12px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-hub__row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
 }
 
 .analysis-hub__row-copy {
@@ -255,9 +284,11 @@
   gap: 4px;
 }
 
-.analysis-hub__row {
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
+.analysis-hub__row-copy strong,
+.analysis-hub__phase-row strong,
+.analysis-hub__response-card strong,
+.analysis-hub__signal strong {
+  margin: 0;
 }
 
 .analysis-hub__row-score {
@@ -328,24 +359,12 @@
 .analysis-hub__empty {
   display: grid;
   gap: 10px;
-  padding: 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: linear-gradient(180deg, rgba(12, 18, 35, 0.98), rgba(13, 17, 31, 0.96));
-}
-
-.analysis-hub__empty h4,
-.analysis-hub__empty p {
-  margin: 0;
-}
-
-.analysis-hub__empty p {
-  color: var(--muted);
 }
 
 @media (max-width: 980px) {
   .analysis-hub__hero,
-  .analysis-hub__cards {
+  .analysis-hub__cards,
+  .analysis-hub__metric-strip {
     grid-template-columns: 1fr;
   }
 
@@ -360,13 +379,18 @@
     padding: 12px;
   }
 
-  .analysis-hub__summary,
-  .analysis-hub__body {
+  .analysis-hub__card-toggle,
+  .analysis-hub__card-body {
     padding-left: 12px;
     padding-right: 12px;
   }
 
-  .analysis-hub__summary-head {
-    flex-direction: column;
+  .analysis-hub__card-toggle {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-hub__card-meta {
+    justify-items: start;
+    justify-self: start;
   }
 }
