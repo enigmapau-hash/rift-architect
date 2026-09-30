@@ -96,17 +96,23 @@ function renderList(items, className) {
         .map((item) => {
           const label = escapeHtml(toLabel(item));
           const score = toScore(item);
+          const status = typeof item === 'object' && item.status ? escapeHtml(item.status) : '';
           const detail = typeof item === 'object' ? escapeHtml(item.detail || item.summary || item.description || item.reason || '') : '';
           const champions = typeof item === 'object' && Array.isArray(item.champions) && item.champions.length
             ? escapeHtml(item.champions.join(' · '))
+            : '';
+          const missing = typeof item === 'object' && Array.isArray(item.missing) && item.missing.length
+            ? escapeHtml(`Falta: ${item.missing.join(' · ')}`)
             : '';
 
           return `
             <li>
               <div>
                 <span>${label}</span>
+                ${status ? `<small>${status}</small>` : ''}
                 ${detail ? `<small>${detail}</small>` : ''}
                 ${champions ? `<small>${champions}</small>` : ''}
+                ${missing ? `<small>${missing}</small>` : ''}
               </div>
               ${score !== null ? `<span class="analysis-list__score">${score}</span>` : ''}
             </li>
@@ -149,6 +155,7 @@ function renderAnalysisSummary() {
   const weaknesses = (analysis.weaknesses || []).slice(0, 3);
   const gamePlan = (analysis.gamePlan || []).slice(0, 3);
   const synergies = (analysis.synergies || []).slice(0, 3);
+  const dependencies = (analysis.dependencies?.items || []).slice(0, 3);
   const coherence = analysis.coherence || {};
   const winCondition = analysis.winCondition || {};
   const tempo = analysis.tempoDetail || analysis.tempo || 'Sin definir';
@@ -190,6 +197,12 @@ function renderAnalysisSummary() {
         <section class="analysis-block">
           <p class="eyebrow">Sinergias</p>
           ${renderList(synergies, 'analysis-list--good')}
+        </section>
+
+        <section class="analysis-block">
+          <p class="eyebrow">Dependencias</p>
+          ${renderList(dependencies, 'analysis-list--neutral')}
+          ${analysis.dependencies?.summary ? `<p class="analysis-note">${escapeHtml(analysis.dependencies.summary)}</p>` : ''}
         </section>
 
         <section class="analysis-block">
