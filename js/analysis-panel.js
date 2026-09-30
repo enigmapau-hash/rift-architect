@@ -165,6 +165,29 @@ function renderCoachPhase(phase) {
   `;
 }
 
+function renderSummaryBlock(assistant = {}, analysis = {}) {
+  const summary = assistant.summary || {};
+  const chips = uniqueValues([
+    summary.identity ? `Identidad: ${summary.identity}` : null,
+    summary.priority ? `Prioridad: ${summary.priority}` : null,
+    summary.risk ? `Riesgo: ${summary.risk}` : null,
+    summary.powerSpike ? `Power spike: ${summary.powerSpike}` : null,
+    analysis.tempoDetail?.label ? `Tempo: ${analysis.tempoDetail.label}` : null,
+  ]);
+
+  return `
+    <section class="analysis-block analysis-block--hero">
+      <p class="eyebrow">Resumen 15s</p>
+      <div class="analysis-chip-list">
+        ${chips.length
+          ? chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')
+          : '<span class="analysis-empty">Sin resumen claro</span>'}
+      </div>
+      <p class="analysis-note">${escapeHtml(summary.reason || analysis.summaryText || 'Resumen compacto del draft.')}</p>
+    </section>
+  `;
+}
+
 function renderAnalysisSummary() {
   const summary = document.getElementById('analysisSummary');
   if (!summary) return;
@@ -176,16 +199,13 @@ function renderAnalysisSummary() {
   }
 
   const analysis = analyzeComposition(selectedChampions);
-  const coach = analysis.coach || {};
+  const assistant = analysis.assistant || analysis.coach || {};
   const explanationSummary = Array.isArray(analysis.explanation?.summary) ? analysis.explanation.summary.slice(0, 3) : [];
+  const insights = Array.isArray(assistant.insights) ? assistant.insights.slice(0, 3) : [];
+  const alerts = Array.isArray(assistant.alerts) ? assistant.alerts.slice(0, 3) : [];
   const primaryIdentity = analysis.primaryIdentity || 'Sin definir';
   const secondaryIdentities = (analysis.secondaryIdentities || []).slice(0, 2);
   const strengths = (analysis.strengths || []).slice(0, 4);
-  const synergies = (analysis.synergies || []).slice(0, 3);
-  const risks = uniqueValues([
-    ...(coach.risks || []).map((item) => item?.label || item),
-    ...(analysis.weaknesses || []).slice(0, 3),
-  ]).slice(0, 3);
   const confidence = Number.isFinite(Number(analysis.confidence)) ? Math.round(Number(analysis.confidence)) : null;
   const dominanceLabel = analysis.dominance === 'dominant' ? 'Dominante' : analysis.dominance === 'hybrid' ? 'Híbrida' : analysis.dominance === 'flexible' ? 'Flexible' : null;
   const tempoLabel = analysis.tempoDetail?.label || analysis.tempo || 'Sin definir';
@@ -208,38 +228,44 @@ function renderAnalysisSummary() {
         </div>
       </section>
 
+      ${renderSummaryBlock(assistant, analysis)}
+
       <div class="analysis-grid">
+        <section class="analysis-block">
+          <p class="eyebrow">Insights</p>
+          ${renderList(insights, 'analysis-list--good')}
+        </section>
+
+        <section class="analysis-block">
+          <p class="eyebrow">Alertas</p>
+          ${renderList(alerts, 'analysis-list--bad')}
+        </section>
+
         <section class="analysis-block">
           <p class="eyebrow">Fortalezas</p>
           ${renderList(strengths, 'analysis-list--good')}
-          ${synergies.length ? `<div class="analysis-chip-list">${synergies.map((item) => `<span class="analysis-chip">${escapeHtml(item.label)}</span>`).join('')}</div>` : ''}
         </section>
 
         <section class="analysis-block analysis-block--hero">
           <p class="eyebrow">Plan</p>
-          <h3>${escapeHtml(coach.headline || analysis.winCondition?.label || 'Jugar alrededor de la identidad')}</h3>
+          <h3>${escapeHtml(assistant.headline || analysis.winCondition?.label || 'Jugar alrededor de la identidad')}</h3>
           <div class="analysis-grid" style="grid-template-columns: 1fr; gap: 12px;">
             <article class="analysis-block" style="padding: 12px 14px;">
               <p class="eyebrow">Prioridades</p>
-              ${renderPriorityList(coach.priorities || [])}
+              ${renderPriorityList(assistant.priorities || [])}
             </article>
             <article class="analysis-block" style="padding: 12px 14px;">
               <p class="eyebrow">Power spikes</p>
               <div class="analysis-chip-list">
-                ${(coach.powerSpikes || []).length
-                  ? coach.powerSpikes.map((spike) => `<span class="analysis-chip">${escapeHtml(spike.label)}</span>`).join('')
+                ${(assistant.powerSpikes || []).length
+                  ? assistant.powerSpikes.map((spike) => `<span class="analysis-chip">${escapeHtml(spike.label)}</span>`).join('')
                   : '<span class="analysis-empty">Sin picos claros.</span>'}
               </div>
             </article>
-            ${renderCoachPhase((coach.phases || [])[0])}
-            ${renderCoachPhase((coach.phases || [])[1])}
-            ${renderCoachPhase((coach.phases || [])[2])}
+            ${renderCoachPhase((assistant.phases || [])[0])}
+            ${renderCoachPhase((assistant.phases || [])[1])}
+            ${renderCoachPhase((assistant.phases || [])[2])}
           </div>
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">Riesgos</p>
-          ${renderList(risks, 'analysis-list--bad')}
         </section>
 
         <section class="analysis-block">
