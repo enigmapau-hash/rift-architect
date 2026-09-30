@@ -21,10 +21,9 @@
 
 .composition-story__hero,
 .composition-story__section,
-.composition-story__support,
-.composition-story__timeline,
-.composition-story__questions,
-.composition-story__answer {
+.composition-story__panel,
+.composition-story__answer-card,
+.composition-story__details {
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
@@ -33,7 +32,7 @@
 
 .composition-story__hero {
   display: grid;
-  grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+  grid-template-columns: minmax(170px, 220px) minmax(0, 1fr);
   gap: 16px;
   padding: 18px;
   background:
@@ -41,7 +40,7 @@
     linear-gradient(180deg, rgba(12, 18, 35, 0.98), rgba(13, 17, 31, 0.96));
 }
 
-.composition-story__score {
+.composition-story__score-card {
   display: grid;
   gap: 6px;
   justify-items: center;
@@ -53,56 +52,61 @@
   text-align: center;
 }
 
-.composition-story__score span,
-.composition-story__step-index,
+.composition-story__kicker,
+.composition-story__index,
+.composition-story__answer-kicker,
 .composition-story__section-head p,
-.composition-story__timeline-card span,
-.composition-story__answer span {
+.story-pill,
+.composition-story__score-card span {
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   font-size: 0.72rem;
   color: var(--accent-2);
 }
 
-.composition-story__score strong {
+.composition-story__score-card strong {
   font-size: clamp(1.8rem, 4vw, 2.8rem);
   line-height: 1.05;
 }
 
-.composition-story__copy {
+.composition-story__hero-copy {
   display: grid;
   gap: 10px;
   align-content: center;
 }
 
-.composition-story__copy h3,
+.composition-story__hero-copy h3,
 .composition-story__section-head h4,
+.composition-story__stack-head strong,
+.composition-story__overview-card strong,
 .composition-story__card strong,
-.composition-story__timeline-card strong,
-.composition-story__answer strong,
-.composition-story__panel h4 {
+.composition-story__answer-card strong,
+.composition-story__details summary {
   margin: 0;
 }
 
-.composition-story__copy p,
-.composition-story__panel p,
-.composition-story__timeline-card p,
-.composition-story--empty p,
-.composition-story__answer strong {
+.composition-story__lead,
+.composition-story__stack-item p,
+.composition-story__overview-card p,
+.composition-story__card p,
+.composition-story__details-body p,
+.composition-story--empty p {
   margin: 0;
   color: var(--muted);
-  line-height: 1.6;
+  line-height: 1.55;
 }
 
-.composition-story__hero-tags,
-.composition-story__chip-row,
+.composition-story__meta-row,
+.composition-story__chip-list,
+.composition-story__avoid-row,
+.composition-story__question-row,
 .composition-story__empty-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
-.composition-story__chip {
+.story-pill {
   display: inline-flex;
   align-items: center;
   min-height: 36px;
@@ -113,10 +117,27 @@
   color: var(--text);
 }
 
-.composition-story__section,
-.composition-story__support,
-.composition-story__timeline,
-.composition-story__questions {
+.story-pill--info {
+  border-color: rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.08);
+}
+
+.story-pill--success {
+  border-color: rgba(70, 211, 161, 0.18);
+  background: rgba(70, 211, 161, 0.08);
+}
+
+.story-pill--danger {
+  border-color: rgba(255, 122, 122, 0.18);
+  background: rgba(255, 122, 122, 0.08);
+}
+
+.story-pill--neutral {
+  border-color: rgba(255, 209, 138, 0.18);
+  background: rgba(255, 209, 138, 0.08);
+}
+
+.composition-story__section {
   padding: 16px;
 }
 
@@ -126,29 +147,20 @@
   margin-bottom: 12px;
 }
 
-.composition-story__priority-grid,
-.composition-story__support,
-.composition-story__timeline-grid {
+.composition-story__overview-grid,
+.composition-story__card-grid,
+.composition-story__two-col {
   display: grid;
   gap: 12px;
 }
 
-.composition-story__priority-grid {
+.composition-story__overview-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.composition-story__support {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.composition-story__timeline-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
+.composition-story__overview-card,
 .composition-story__card,
-.composition-story__panel,
-.composition-story__timeline-card,
-.composition-story__answer {
+.composition-story__stack-item {
   display: grid;
   gap: 8px;
   padding: 14px;
@@ -157,17 +169,21 @@
   background: rgba(255, 255, 255, 0.03);
 }
 
+.composition-story__overview-card--info,
 .composition-story__card--info {
   border-color: rgba(124, 140, 255, 0.18);
   background: rgba(124, 140, 255, 0.08);
 }
 
+.composition-story__overview-card--success,
 .composition-story__card--success,
-.composition-story__panel--good {
+.composition-story__panel--good,
+.composition-story__stack-item--good {
   border-color: rgba(70, 211, 161, 0.18);
   background: rgba(70, 211, 161, 0.08);
 }
 
+.composition-story__overview-card--coach,
 .composition-story__card--coach,
 .composition-story__panel--coach {
   border-color: rgba(181, 110, 255, 0.18);
@@ -175,37 +191,52 @@
 }
 
 .composition-story__card--danger,
-.composition-story__panel--danger {
+.composition-story__panel--danger,
+.composition-story__stack-item--danger {
   border-color: rgba(255, 122, 122, 0.18);
   background: rgba(255, 122, 122, 0.08);
 }
 
-.composition-story__timeline-card span {
-  width: 30px;
-  height: 30px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(124, 140, 255, 0.15);
-  letter-spacing: normal;
+.composition-story__card-grid--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
-.composition-story__question-row {
-  display: flex;
-  flex-wrap: wrap;
+.composition-story__card-grid--two,
+.composition-story__two-col {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.composition-story__panel--wide {
+  grid-column: span 2;
+}
+
+.composition-story__stack-list {
+  display: grid;
   gap: 10px;
+}
+
+.composition-story__stack-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.composition-story__stack-head span {
+  color: var(--muted);
+  font-size: 0.8rem;
 }
 
 .composition-story__question {
   min-height: 42px;
   padding: 10px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(124, 140, 255, 0.18);
+  border: 1px solid rgba(124, 140, 255, 0.2);
   background: rgba(124, 140, 255, 0.08);
   color: var(--text);
   font: inherit;
   cursor: pointer;
-  transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 }
 
 .composition-story__question:hover {
@@ -213,36 +244,78 @@
 }
 
 .composition-story__question.is-active {
-  border-color: rgba(70, 211, 161, 0.34);
-  background: rgba(70, 211, 161, 0.14);
+  border-color: rgba(70, 211, 161, 0.28);
+  background: rgba(70, 211, 161, 0.16);
 }
 
-.composition-story__answer {
-  margin-top: 12px;
+.composition-story__answer-card {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
 }
 
-.composition-story__empty-grid span {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(124, 140, 255, 0.12);
-  border: 1px solid rgba(124, 140, 255, 0.18);
+.composition-story__details {
+  padding: 0;
+  overflow: hidden;
+}
+
+.composition-story__details summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text);
+}
+
+.composition-story__details summary::-webkit-details-marker {
+  display: none;
+}
+
+.composition-story__details-body {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px 16px;
+}
+
+.composition-story__muted {
+  color: var(--muted);
+}
+
+.composition-story__empty {
+  color: var(--muted);
 }
 
 @media (max-width: 1024px) {
   .composition-story__hero,
-  .composition-story__priority-grid,
-  .composition-story__support,
-  .composition-story__timeline-grid {
+  .composition-story__overview-grid,
+  .composition-story__card-grid--three,
+  .composition-story__card-grid--two,
+  .composition-story__two-col {
     grid-template-columns: 1fr;
+  }
+
+  .composition-story__panel--wide {
+    grid-column: auto;
   }
 }
 
-@media (max-width: 680px) {
-  .composition-story__hero,
-  .composition-story__section,
-  .composition-story__support,
-  .composition-story__timeline,
-  .composition-story__questions {
+@media (max-width: 620px) {
+  .composition-story__hero {
     padding: 14px;
+  }
+
+  .composition-story__section {
+    padding: 14px;
+  }
+
+  .composition-story__score-card {
+    padding: 14px;
+  }
+
+  .composition-story__overview-card,
+  .composition-story__card,
+  .composition-story__stack-item,
+  .composition-story__answer-card {
+    padding: 12px;
   }
 }
