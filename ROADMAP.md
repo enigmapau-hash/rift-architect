@@ -118,6 +118,11 @@
 - Hacer que los bloques lean el análisis real sin quedarse en placeholders.
 - Mantener el comportamiento consistente al cambiar campeones.
 
+### Sprint 8.9 — UX Pass ✅
+- Dar más protagonismo al Decision Engine por encima del Game Plan.
+- Compactar el Game Plan y reducir huecos visuales.
+- Ordenar la lectura de arriba abajo como piensa el jugador.
+
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
 - Recomendar campeones por pool y rol.
