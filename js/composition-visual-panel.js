@@ -32,6 +32,7 @@ const state = {
   data: new Map(),
   dataLoaded: false,
   patchScheduled: false,
+  interactionBound: false,
   activeQuestion: 'howWin',
 };
 
@@ -175,6 +176,20 @@ function collectSelectedChampions() {
     .filter(Boolean);
 }
 
+function findChampionByTags(selectedChampions, tags = []) {
+  return selectedChampions.find((champion) => {
+    const values = [
+      champion.champion,
+      champion.identity,
+      champion.function,
+      champion.tempo,
+      ...asArray(champion.strengths),
+      ...asArray(champion.weaknesses),
+    ];
+    return values.some((value) => matchesAny(value, tags));
+  });
+}
+
 function getMetricScore(analysis, blueprint) {
   const metrics = asArray(analysis?.metrics);
   const found = metrics.find((metric) => {
@@ -185,7 +200,11 @@ function getMetricScore(analysis, blueprint) {
 }
 
 function compositionScore(analysis, selectedChampions) {
-  const coherence = Number.isFinite(Number(analysis?.coherence?.score)) ? Number(analysis.coherence.score) : Number.isFinite(Number(analysis?.confidence)) ? Number(analysis.confidence) : 0;
+  const coherence = Number.isFinite(Number(analysis?.coherence?.score))
+    ? Number(analysis.coherence.score)
+    : Number.isFinite(Number(analysis?.confidence))
+      ? Number(analysis.confidence)
+      : 0;
   const metricScores = METRIC_BLUEPRINTS.map((blueprint) => getMetricScore(analysis, blueprint));
   const metricAverage = metricScores.length ? metricScores.reduce((sum, score) => sum + score, 0) / metricScores.length : 0;
   const uniqueRoles = new Set(asArray(selectedChampions).map((champion) => champion.role).filter(Boolean));
@@ -218,7 +237,6 @@ function buildSimpleBrief(analysis) {
   const strengths = asArray(analysis?.strengths).slice(0, 2).map(normalizeEntry);
   const weaknesses = asArray(analysis?.weaknesses).slice(0, 2).map(normalizeEntry);
   const coach = analysis?.coach || analysis?.assistant || {};
-  const advisor = analysis?.advisor || analysis?.assistant || {};
 
   return {
     identity: analysis?.primaryIdentity || 'Sin definir',
@@ -226,45 +244,30 @@ function buildSimpleBrief(analysis) {
     strength: strengths[0]?.detail || strengths[0]?.label || 'Sin fortaleza destacada.',
     risk: weaknesses[0]?.detail || weaknesses[0]?.label || 'Sin riesgo claro.',
     coach: coach.headline || 'Juega alrededor de tu identidad.',
-    objective: advisor.primaryObjective || advisor.summary?.priority || 'Jugar alrededor de la identidad.',
   };
 }
 
-function findChampionByTags(selectedChampions, tags = []) {
-  return selectedChampions.find((champion) => {
-    const values = [
-      champion.champion,
-      champion.identity,
-      champion.function,
-      champion.tempo,
-      ...asArray(champion.strengths),
-      ...asArray(champion.weaknesses),
-    ];
-    return values.some((value) => matchesAny(value, tags));
-  });
-}
-
 function buildQuestionAnswers(analysis, selectedChampions) {
-  const winCondition = analysis?.winCondition?.detail || analysis?.winCondition?.label || 'jugar alrededor de tu identidad';
+  const winCondition = analysis?.winCondition?.detail || analysis?.winCondition?.label || 'Juega alrededor de tu identidad.';
   const tempo = analysis?.tempoDetail?.label || analysis?.tempo || 'tu ventana natural de poder';
   const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase));
   const gamePlan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step));
   const risks = asArray(analysis?.weaknesses).slice(0, 2).map(normalizeEntry);
   const coach = analysis?.coach || analysis?.assistant || {};
   const advisor = analysis?.advisor || analysis?.assistant || {};
-  const engager = findChampionByTags(selectedChampions, ['engage', 'iniciar', 'iniciación', 'frontline', 'start']);
+  const engager = findChampionByTags(selectedChampions, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start']);
   const firstRisk = risks[0];
   const loseConditions = asArray(advisor.loseConditions).slice(0, 2).map((item) => asText(item));
 
   return {
     howWin: {
       title: 'Cómo ganas',
-      text: `Tu plan principal es ${winCondition}. La IA te resume la partida para que sepas qué hacer sin leer datos técnicos.`,
+      text: `Tu plan principal es ${winCondition}.`,
       chips: [...toChips([analysis?.winCondition?.label, analysis?.tempoDetail?.label || analysis?.tempo, analysis?.coherence?.label]), ...toChips(gamePlan, 2)],
     },
     whoStarts: {
       title: 'Quién inicia',
-      text: engager ? `${engager.champion} debería marcar el arranque de la pelea.` : 'No hay un iniciador clarísimo. La IA te recomienda jugar a contraengage y no forzar la entrada.',
+      text: engager ? `${engager.champion} debería marcar el arranque de la pelea.` : 'No hay un iniciador clarísimo. La IA te recomienda jugar a contraengage.',
       chips: toChips([engager?.identity, engager?.function, 'contraengage']),
     },
     whatAvoid: {
@@ -274,12 +277,12 @@ function buildQuestionAnswers(analysis, selectedChampions) {
     },
     behind: {
       title: 'Si vas por detrás',
-      text: 'Baja el ritmo: visión, oleadas seguras y peleas cortas. No fuerces objetivos sin prioridad.',
+      text: 'Baja el ritmo: visión, oleadas seguras y peleas cortas.',
       chips: ['visión', 'oleadas seguras', 'peleas cortas'],
     },
     powerSpike: {
       title: 'Tu pico de poder',
-      text: `Tu composición se siente mejor en ${tempo}. Ahí es donde tu plan empieza a funcionar de verdad.`,
+      text: `Tu composición se siente mejor en ${tempo}.`,
       chips: [...toChips(phases, 3), ...toChips([analysis?.tempoDetail?.label || analysis?.tempo], 1)],
     },
     coach: {
@@ -292,126 +295,50 @@ function buildQuestionAnswers(analysis, selectedChampions) {
 
 function renderHero(score, analysis) {
   return `
-    <section class='composition-visual__hero'>
-      <div class='composition-visual__score-card'>
-        <div class='composition-visual__score-ring' style='--score-angle: ${score.score * 3.6}deg;'>
-          <div class='composition-visual__score-ring-inner'>
-            <span class='composition-visual__score-grade'>${escapeHtml(score.grade)}</span>
+    <section class="composition-visual__hero">
+      <div class="composition-visual__score-card">
+        <div class="composition-visual__score-ring" style="--score-angle: ${score.score * 3.6}deg;">
+          <div class="composition-visual__score-ring-inner">
+            <span class="composition-visual__score-grade">${escapeHtml(score.grade)}</span>
             <strong>${score.score}</strong>
             <span>Composition Score</span>
           </div>
         </div>
-        <span class='composition-visual__score-label'>${escapeHtml(score.label)}</span>
+        <span class="composition-visual__score-label">${escapeHtml(score.label)}</span>
       </div>
 
-      <div class='composition-visual__hero-copy'>
-        <p class='eyebrow'>Composition View</p>
+      <div class="composition-visual__hero-copy">
+        <p class="eyebrow">Composition View</p>
         <h3>${escapeHtml(analysis?.primaryIdentity || 'Sin identidad clara')}</h3>
-        <p class='analysis-note'>${escapeHtml(analysis?.summaryText || 'La composición se resume de forma visual: qué es, cómo gana, qué evita y qué te recomienda la IA.')}</p>
-        <div class='analysis-chip-list analysis-chip-list--compact'>
-          <span class='analysis-chip'>${escapeHtml(analysis?.winCondition?.label || 'Sin win condition')}</span>
-          <span class='analysis-chip'>${escapeHtml(analysis?.tempoDetail?.label || analysis?.tempo || 'Sin tempo')}</span>
-          <span class='analysis-chip'>${escapeHtml(analysis?.coherence?.label || 'Sin coherencia')}</span>
-          <span class='analysis-chip'>Dominante: ${escapeHtml(score.dominantMetric?.blueprint?.label || 'Sin definir')}</span>
+        <p class="analysis-note">${escapeHtml(analysis?.summaryText || 'La composición se resume de forma visual: qué es, cómo gana, qué evita y qué te recomienda la IA.')}</p>
+        <div class="composition-visual__hero-stats">
+          <span class="composition-visual__stat-pill">${escapeHtml(analysis?.winCondition?.label || 'Sin win condition')}</span>
+          <span class="composition-visual__stat-pill">${escapeHtml(analysis?.tempoDetail?.label || analysis?.tempo || 'Sin tempo')}</span>
+          <span class="composition-visual__stat-pill">${escapeHtml(analysis?.coherence?.label || 'Sin coherencia')}</span>
+          <span class="composition-visual__stat-pill">Dominante: ${escapeHtml(score.dominantMetric?.blueprint?.label || 'Sin definir')}</span>
         </div>
       </div>
     </section>
   `;
 }
 
-function renderAiBrief(analysis) {
-  const brief = buildSimpleBrief(analysis);
+function renderPlan(analysis) {
+  const plan = asArray(analysis?.gamePlan).slice(0, 3).map((item) => asText(item));
+  const fallback = ['Escalar con calma', 'Controlar visión', 'Buscar el 5v5'];
+  const steps = plan.length ? plan : fallback;
   return `
-    <section class='composition-visual__panel composition-visual__ai-panel'>
-      <div class='composition-visual__section-head'>
-        <p class='eyebrow'>IA en lenguaje simple</p>
-        <h4>Lo que Rift Architect te dice sin jerga</h4>
+    <section class="composition-visual__panel composition-visual__panel--wide">
+      <div class="composition-visual__section-head">
+        <p class="eyebrow">Qué debo hacer</p>
+        <h4>Plan de partida</h4>
       </div>
-      <div class='composition-visual__brief-grid'>
-        <article class='composition-visual__brief-card composition-visual__brief-card--info'>
-          <span>Qué es</span>
-          <strong>${escapeHtml(brief.identity)}</strong>
-        </article>
-        <article class='composition-visual__brief-card composition-visual__brief-card--success'>
-          <span>Cómo gana</span>
-          <strong>${escapeHtml(brief.win)}</strong>
-        </article>
-        <article class='composition-visual__brief-card composition-visual__brief-card--coach'>
-          <span>Tu mayor fortaleza</span>
-          <strong>${escapeHtml(brief.strength)}</strong>
-        </article>
-        <article class='composition-visual__brief-card composition-visual__brief-card--danger'>
-          <span>Tu mayor riesgo</span>
-          <strong>${escapeHtml(brief.risk)}</strong>
-        </article>
-      </div>
-      <div class='composition-visual__brief-note'>
-        <strong>Consejo IA</strong>
-        <p>${escapeHtml(brief.coach)}</p>
-        <span class='composition-visual__brief-objective'>Objetivo: ${escapeHtml(brief.objective)}</span>
-      </div>
-      <div class='composition-visual__prompt-row'>
-        <span class='analysis-chip'>¿Cómo gano con esta composición?</span>
-        <span class='analysis-chip'>¿Quién debe iniciar?</span>
-        <span class='analysis-chip'>¿Qué debo evitar?</span>
-        <span class='analysis-chip'>¿Qué hago si voy por detrás?</span>
-      </div>
-    </section>
-  `;
-}
-
-function renderLineup(selectedChampions) {
-  return `
-    <section class='composition-visual__panel composition-visual__lineup-panel'>
-      <div class='composition-visual__section-head'>
-        <p class='eyebrow'>Línea de campeones</p>
-        <h4>Tu composición actual</h4>
-      </div>
-      <div class='composition-visual__lineup'>
-        ${ROLE_ORDER.map((role) => {
-          const champion = selectedChampions.find((item) => item.role === role) || null;
-          return `
-            <article class='composition-visual__lane-card ${champion ? 'is-filled' : 'is-empty'}'>
-              <span class='composition-visual__lane-role'>${escapeHtml(ROLE_LABELS[role] || role)}</span>
-              ${champion ? `<strong>${escapeHtml(champion.champion)}</strong>` : '<strong>Vacío</strong>'}
-              <span>${escapeHtml(champion?.function || champion?.identity || 'Selecciona un campeón')}</span>
-              <div class='analysis-chip-list analysis-chip-list--compact'>
-                ${champion?.tempo ? `<span class='analysis-chip'>${escapeHtml(asText(champion.tempo))}</span>` : ''}
-                ${champion?.identity ? `<span class='analysis-chip'>${escapeHtml(asText(champion.identity))}</span>` : ''}
-              </div>
-            </article>
-          `;
-        }).join('')}
-      </div>
-    </section>
-  `;
-}
-
-function renderMetrics(analysis) {
-  return `
-    <section class='composition-visual__panel composition-visual__panel--wide'>
-      <div class='composition-visual__section-head'>
-        <p class='eyebrow'>Métricas visuales</p>
-        <h4>Perfil funcional de la composición</h4>
-      </div>
-      <div class='composition-visual__metrics-grid'>
-        ${METRIC_BLUEPRINTS.map((blueprint) => {
-          const value = getMetricScore(analysis, blueprint);
-          const tone = value >= 80 ? 'good' : value >= 60 ? 'warn' : 'danger';
-          return `
-            <article class='composition-visual__metric-card composition-visual__metric-card--${tone}'>
-              <div class='composition-visual__metric-head'>
-                <span class='composition-visual__metric-icon'>${escapeHtml(blueprint.icon)}</span>
-                <strong>${escapeHtml(blueprint.label)}</strong>
-                <span>${value}/10</span>
-              </div>
-              <div class='composition-visual__meter' aria-hidden='true'>
-                <span class='composition-visual__meter-fill' style='width:${percent(value, 10)}%'></span>
-              </div>
-              <p class='composition-visual__metric-detail'>${escapeHtml(blueprint.detail)}</p>
-            </article>
-          `;
-        }).join('')}
+      <div class="composition-visual__plan-grid">
+        ${steps.map((step, index) => `
+          <article class="composition-visual__plan-card">
+            <span class="composition-visual__plan-step">${index + 1}</span>
+            <strong>${escapeHtml(step)}</strong>
+          </article>
+        `).join('')}
       </div>
     </section>
   `;
@@ -421,37 +348,37 @@ function renderStrengthsRisks(analysis) {
   const strengths = asArray(analysis?.strengths).slice(0, 3).map(normalizeEntry);
   const risks = asArray(analysis?.weaknesses).slice(0, 3).map(normalizeEntry);
   return `
-    <div class='composition-visual__two-col'>
-      <article class='composition-visual__panel'>
-        <div class='composition-visual__section-head'>
-          <p class='eyebrow'>Fortalezas</p>
+    <div class="composition-visual__two-col">
+      <article class="composition-visual__panel">
+        <div class="composition-visual__section-head">
+          <p class="eyebrow">Fortalezas</p>
           <h4>Lo que mejor hace tu equipo</h4>
         </div>
-        ${strengths.length ? `<div class='composition-visual__stack-list'>${strengths.map((item) => `
-          <div class='composition-visual__stack-item composition-visual__stack-item--good'>
-            <div class='composition-visual__stack-head'>
+        ${strengths.length ? `<div class="composition-visual__stack-list">${strengths.map((item) => `
+          <div class="composition-visual__stack-item composition-visual__stack-item--good">
+            <div class="composition-visual__stack-head">
               <strong>${escapeHtml(item.label)}</strong>
               ${item.score !== null ? `<span>${stars(item.score)}</span>` : ''}
             </div>
             ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
-            ${item.champions.length ? `<div class='analysis-chip-list analysis-chip-list--compact'>${item.champions.map((champion) => `<span class='analysis-chip'>${escapeHtml(champion)}</span>`).join('')}</div>` : ''}
+            ${item.champions.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${item.champions.map((champion) => `<span class="analysis-chip">${escapeHtml(champion)}</span>`).join('')}</div>` : ''}
           </div>
         `).join('')}</div>` : '<p class="analysis-empty">Sin fortalezas claras.</p>'}
       </article>
 
-      <article class='composition-visual__panel'>
-        <div class='composition-visual__section-head'>
-          <p class='eyebrow'>Riesgos</p>
+      <article class="composition-visual__panel">
+        <div class="composition-visual__section-head">
+          <p class="eyebrow">Riesgos</p>
           <h4>Qué debes compensar</h4>
         </div>
-        ${risks.length ? `<div class='composition-visual__stack-list'>${risks.map((item) => `
-          <div class='composition-visual__stack-item composition-visual__stack-item--danger'>
-            <div class='composition-visual__stack-head'>
+        ${risks.length ? `<div class="composition-visual__stack-list">${risks.map((item) => `
+          <div class="composition-visual__stack-item composition-visual__stack-item--danger">
+            <div class="composition-visual__stack-head">
               <strong>${escapeHtml(item.label)}</strong>
               ${item.score !== null ? `<span>${stars(item.score)}</span>` : ''}
             </div>
             ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
-            ${item.missing.length ? `<div class='analysis-chip-list analysis-chip-list--compact'>${item.missing.map((missing) => `<span class='analysis-chip analysis-chip--danger'>Falta: ${escapeHtml(missing)}</span>`).join('')}</div>` : ''}
+            ${item.missing.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${item.missing.map((missing) => `<span class="analysis-chip analysis-chip--danger">Falta: ${escapeHtml(missing)}</span>`).join('')}</div>` : ''}
           </div>
         `).join('')}</div>` : '<p class="analysis-empty">Sin riesgos claros.</p>'}
       </article>
@@ -459,32 +386,31 @@ function renderStrengthsRisks(analysis) {
   `;
 }
 
-function renderTimeline(analysis) {
-  const phases = asArray(analysis?.tempoDetail?.phases);
-  const plan = asArray(analysis?.gamePlan);
-  const steps = [
-    { label: 'Early', title: asText(phases[0] || plan[0] || 'Farm y visión'), detail: 'Evita peleas largas y prepara el mapa.' },
-    { label: 'Mid', title: asText(phases[1] || plan[1] || 'Objetivos y rotaciones'), detail: 'Convierte prioridad en dragones o control de mapa.' },
-    { label: 'Late', title: asText(phases[2] || plan[2] || '5v5 y cierre'), detail: 'Protege al carry y resuelve la partida.' },
-  ];
-
+function renderMetrics(analysis) {
   return `
-    <section class='composition-visual__panel composition-visual__panel--wide'>
-      <div class='composition-visual__section-head'>
-        <p class='eyebrow'>Plan de partida</p>
-        <h4>Secuencia visual de la partida</h4>
+    <section class="composition-visual__panel composition-visual__panel--wide">
+      <div class="composition-visual__section-head">
+        <p class="eyebrow">Métricas visuales</p>
+        <h4>Perfil funcional de la composición</h4>
       </div>
-      <div class='composition-visual__timeline'>
-        ${steps.map((step, index) => `
-          <div class='composition-visual__timeline-step'>
-            <span class='composition-visual__timeline-dot'>${index + 1}</span>
-            <div>
-              <span class='composition-visual__timeline-label'>${escapeHtml(step.label)}</span>
-              <strong>${escapeHtml(step.title)}</strong>
-              <p>${escapeHtml(step.detail)}</p>
-            </div>
-          </div>
-        `).join('')}
+      <div class="composition-visual__metrics-grid">
+        ${METRIC_BLUEPRINTS.map((blueprint) => {
+          const value = getMetricScore(analysis, blueprint);
+          const tone = value >= 80 ? 'good' : value >= 60 ? 'warn' : 'danger';
+          return `
+            <article class="composition-visual__metric-card composition-visual__metric-card--${tone}">
+              <div class="composition-visual__metric-head">
+                <span class="composition-visual__metric-icon">${escapeHtml(blueprint.icon)}</span>
+                <strong>${escapeHtml(blueprint.label)}</strong>
+                <span>${value}/10</span>
+              </div>
+              <div class="composition-visual__meter" aria-hidden="true">
+                <span class="composition-visual__meter-fill" style="width:${percent(value, 10)}%"></span>
+              </div>
+              <p class="composition-visual__metric-detail">${escapeHtml(blueprint.detail)}</p>
+            </article>
+          `;
+        }).join('')}
       </div>
     </section>
   `;
@@ -501,30 +427,33 @@ function renderExplainability(analysis, selectedChampions) {
   const summary = asArray(analysis?.explanation?.summary).slice(0, 3).map(normalizeEntry);
 
   return `
-    <section class='composition-visual__panel composition-visual__panel--wide'>
-      <div class='composition-visual__section-head'>
-        <p class='eyebrow'>Explainability</p>
-        <h4>Por qué la IA entiende así tu composición</h4>
+    <section class="composition-visual__panel composition-visual__panel--wide">
+      <div class="composition-visual__section-head">
+        <p class="eyebrow">¿Por qué?</p>
+        <h4>Cómo se entiende tu composición</h4>
       </div>
-      <div class='composition-visual__tree'>
-        <div class='composition-visual__tree-root'>
+
+      <div class="composition-visual__tree">
+        <div class="composition-visual__tree-root">
           <span>${escapeHtml(rootIdentity)}</span>
           <strong>Identidad dominante</strong>
           <p>${escapeHtml(asText(analysis?.summaryText || 'La composición se analiza como una unidad visual y funcional.'))}</p>
         </div>
-        <div class='composition-visual__tree-branches'>
+
+        <div class="composition-visual__tree-branches">
           ${branches.map((branch) => `
-            <article class='composition-visual__tree-node'>
-              <span class='composition-visual__tree-role'>${escapeHtml(ROLE_LABELS[branch.role] || branch.role)}</span>
+            <article class="composition-visual__tree-node">
+              <span class="composition-visual__tree-role">${escapeHtml(ROLE_LABELS[branch.role] || branch.role)}</span>
               <strong>${escapeHtml(branch.champion)}</strong>
               <p>${escapeHtml(branch.contribution)}</p>
-              ${branch.tempo ? `<span class='analysis-chip'>${escapeHtml(asText(branch.tempo))}</span>` : ''}
+              ${branch.tempo ? `<span class="analysis-chip">${escapeHtml(asText(branch.tempo))}</span>` : ''}
             </article>
           `).join('')}
         </div>
       </div>
-      ${summary.length ? `<div class='composition-visual__summary-list'>${summary.map((item) => `
-        <div class='composition-visual__summary-item'>
+
+      ${summary.length ? `<div class="composition-visual__summary-list">${summary.map((item) => `
+        <div class="composition-visual__summary-item">
           <strong>${escapeHtml(item.label)}</strong>
           ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
         </div>
@@ -533,77 +462,50 @@ function renderExplainability(analysis, selectedChampions) {
   `;
 }
 
-function renderGuidance(analysis) {
-  const coach = analysis?.coach || analysis?.assistant || {};
-  const advisor = analysis?.advisor || analysis?.assistant || {};
-  const coachNotes = [
-    ...asArray(coach.priorities).slice(0, 1),
-    ...asArray(coach.insights).slice(0, 1),
-  ].map(normalizeEntry);
-  const advisorNotes = [
-    ...asArray(advisor.objectivePriority).slice(0, 1),
-    ...asArray(advisor.loseConditions).slice(0, 1),
-  ].map(normalizeEntry);
-
-  return `
-    <div class='composition-visual__two-col'>
-      <article class='composition-visual__panel'>
-        <div class='composition-visual__section-head'>
-          <p class='eyebrow'>Consejo IA</p>
-          <h4>${escapeHtml(coach.headline || 'Juega alrededor de tu identidad')}</h4>
-        </div>
-        <div class='composition-visual__stack-list'>
-          ${coachNotes.length ? coachNotes.map((item) => `
-            <div class='composition-visual__stack-item composition-visual__stack-item--coach'>
-              <strong>${escapeHtml(item.label)}</strong>
-              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
-            </div>
-          `).join('') : '<p class="analysis-empty">Sin consejo claro.</p>'}
-        </div>
-      </article>
-
-      <article class='composition-visual__panel'>
-        <div class='composition-visual__section-head'>
-          <p class='eyebrow'>Objetivo</p>
-          <h4>${escapeHtml(advisor.primaryObjective || advisor.summary?.priority || 'Jugar alrededor de la identidad')}</h4>
-        </div>
-        <div class='composition-visual__stack-list'>
-          ${advisorNotes.length ? advisorNotes.map((item) => `
-            <div class='composition-visual__stack-item composition-visual__stack-item--advisor'>
-              <strong>${escapeHtml(item.label)}</strong>
-              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
-            </div>
-          `).join('') : '<p class="analysis-empty">Sin objetivo claro.</p>'}
-        </div>
-      </article>
-    </div>
-  `;
-}
-
-function renderQuestionPanel(analysis, selectedChampions) {
+function renderQuestions(analysis, selectedChampions) {
   const answers = buildQuestionAnswers(analysis, selectedChampions);
-  const current = answers[state.activeQuestion] || answers.howWin;
+  const active = answers[state.activeQuestion] || answers.howWin;
 
   return `
-    <section class='composition-visual__panel composition-visual__panel--wide composition-visual__question-panel'>
-      <div class='composition-visual__section-head'>
-        <p class='eyebrow'>Pregunta a Rift</p>
-        <h4>Haz clic en una pregunta y recibe una respuesta simple</h4>
+    <section class="composition-visual__panel composition-visual__panel--wide composition-visual__questions">
+      <div class="composition-visual__section-head">
+        <p class="eyebrow">Pregunta a Rift</p>
+        <h4>IA simple, basada en tu composición</h4>
       </div>
-      <div class='composition-visual__question-grid'>
+
+      <div class="composition-visual__question-tabs" role="tablist" aria-label="Preguntas rápidas a Rift">
         ${QUESTION_BLUEPRINTS.map((question) => `
-          <button type='button' class='composition-visual__question-button ${question.key === state.activeQuestion ? 'is-active' : ''}' data-question='${question.key}'>
+          <button
+            type="button"
+            class="composition-visual__question-btn ${question.key === state.activeQuestion ? 'is-active' : ''}"
+            data-question="${escapeHtml(question.key)}"
+            aria-pressed="${question.key === state.activeQuestion ? 'true' : 'false'}"
+          >
             ${escapeHtml(question.label)}
           </button>
         `).join('')}
       </div>
-      <div class='composition-visual__question-answer'>
-        <span class='composition-visual__question-answer-label'>Respuesta IA</span>
-        <strong class='composition-visual__question-answer-title'>${escapeHtml(current.title)}</strong>
-        <p class='composition-visual__question-answer-text'>${escapeHtml(current.text)}</p>
-        <div class='analysis-chip-list analysis-chip-list--compact'>
-          ${current.chips.map((chip) => `<span class='analysis-chip analysis-chip--question'>${escapeHtml(chip)}</span>`).join('')}
-        </div>
+
+      <article class="composition-visual__answer-card">
+        <span class="composition-visual__answer-kicker">${escapeHtml(active.title)}</span>
+        <p class="composition-visual__answer-text">${escapeHtml(active.text)}</p>
+        ${active.chips?.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${active.chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')}</div>` : ''}
+      </article>
+    </section>
+  `;
+}
+
+function renderEmptyState() {
+  return `
+    <section class="composition-visual composition-visual--empty">
+      <p class="eyebrow">Composition View</p>
+      <h3>Selecciona cinco campeones para ver el análisis visual</h3>
+      <p class="analysis-note">La vista mostrará una explicación simple basada en el Excel: identidad, cómo gana, riesgos, plan e IA explicativa.</p>
+      <div class="composition-visual__empty-grid">
+        <div class="composition-visual__empty-chip">Identidad</div>
+        <div class="composition-visual__empty-chip">Cómo gana</div>
+        <div class="composition-visual__empty-chip">Riesgos</div>
+        <div class="composition-visual__empty-chip">IA</div>
       </div>
     </section>
   `;
@@ -614,32 +516,13 @@ function renderView(analysis) {
   const score = compositionScore(analysis, selectedChampions);
 
   return `
-    <section class='composition-visual'>
+    <section class="composition-visual">
       ${renderHero(score, analysis)}
-      ${renderAiBrief(analysis)}
-      ${renderLineup(selectedChampions)}
-      ${renderMetrics(analysis)}
+      ${renderPlan(analysis)}
       ${renderStrengthsRisks(analysis)}
-      ${renderTimeline(analysis)}
+      ${renderMetrics(analysis)}
       ${renderExplainability(analysis, selectedChampions)}
-      ${renderGuidance(analysis)}
-      ${renderQuestionPanel(analysis, selectedChampions)}
-    </section>
-  `;
-}
-
-function renderEmptyState() {
-  return `
-    <section class='composition-visual composition-visual--empty'>
-      <p class='eyebrow'>Composition View</p>
-      <h3>Selecciona cinco campeones para ver el análisis visual</h3>
-      <p class='analysis-note'>La vista mostrará una explicación simple basada en el Excel: identidad, cómo gana, riesgos, plan e IA explicativa.</p>
-      <div class='composition-visual__empty-grid'>
-        <div class='composition-visual__empty-chip'>Identidad</div>
-        <div class='composition-visual__empty-chip'>Cómo gana</div>
-        <div class='composition-visual__empty-chip'>Riesgos</div>
-        <div class='composition-visual__empty-chip'>IA</div>
-      </div>
+      ${renderQuestions(analysis, selectedChampions)}
     </section>
   `;
 }
@@ -658,14 +541,15 @@ function renderSummary() {
   root.innerHTML = renderView(analysis);
 }
 
-function handlePanelClick(event) {
+function handleQuestionClick(event) {
   const button = event.target instanceof Element ? event.target.closest('[data-question]') : null;
   if (!button) return;
 
-  const nextQuestion = String(button.getAttribute('data-question') || 'howWin');
-  if (nextQuestion === state.activeQuestion) return;
+  const nextQuestion = button.getAttribute('data-question');
+  if (!nextQuestion || nextQuestion === state.activeQuestion) return;
+
   state.activeQuestion = nextQuestion;
-  schedulePatch();
+  renderSummary();
 }
 
 function observeComposition() {
@@ -690,13 +574,14 @@ function schedulePatch() {
 
 async function init() {
   await loadRoleData();
-
-  const root = document.getElementById('compositionView');
-  if (root) root.addEventListener('click', handlePanelClick);
-
   observeComposition();
   renderSummary();
-  window.setInterval(renderSummary, 1500);
+
+  const root = document.getElementById('compositionView');
+  if (root && !state.interactionBound) {
+    root.addEventListener('click', handleQuestionClick);
+    state.interactionBound = true;
+  }
 }
 
 init().catch((error) => console.error(error));
