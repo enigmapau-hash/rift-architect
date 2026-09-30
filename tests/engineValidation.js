@@ -38,6 +38,42 @@ function includesAnyLabel(items = [], expected = []) {
   return expected.every((term) => labels.some((label) => label.includes(normalizeText(term)) || normalizeText(term).includes(label)));
 }
 
+function matchPattern(pattern, selectedChampions = []) {
+  const matchedChampions = selectedChampions.filter((champion) => {
+    const text = [
+      champion?.champion,
+      champion?.displayName,
+      champion?.identity,
+      champion?.function,
+      champion?.tempo,
+      ...(Array.isArray(champion?.strengths) ? champion.strengths : []),
+      ...(Array.isArray(champion?.weaknesses) ? champion.weaknesses : []),
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    return (pattern.categories || []).some((category) => {
+      const normalizedCategory = normalizeText(category);
+      return text.includes(normalizedCategory);
+    });
+  });
+
+  if (matchedChampions.length < Number(pattern.minHits || 1)) return null;
+
+  return {
+    key: pattern.key,
+    label: pattern.label,
+    detail: pattern.detail,
+    champions: matchedChampions.slice(0, 4).map((item) => item.champion || item.displayName || 'Sin definir'),
+    score: matchedChampions.length,
+  };
+}
+
+function detectPatterns(selectedChampions = []) {
+  return PATTERN_RULES.map((pattern) => matchPattern(pattern, selectedChampions)).filter(Boolean);
+}
+
 function loadFixture(name) {
   return fetch(`./compositions/${name}`, { cache: 'no-store' }).then((response) => {
     if (!response.ok) {
@@ -49,6 +85,7 @@ function loadFixture(name) {
 
 function compareFixture(fixture) {
   const analysis = analyzeComposition(fixture.selectedChampions || []);
+  const patterns = detectPatterns(fixture.selectedChampions || []);
   const expectations = fixture.expectations || {};
   const checks = [];
   const dependencies = asArray(analysis.dependencies?.items);
@@ -114,9 +151,9 @@ function compareFixture(fixture) {
   if (asArray(expectations.patternsInclude).length) {
     pushCheck(
       'Patrones',
-      includesAnyLabel(analysis.patterns || [], expectations.patternsInclude),
+      includesAnyLabel(patterns, expectations.patternsInclude),
       expectations.patternsInclude.join(' · '),
-      asArray(analysis.patterns).map((item) => item?.label || item).join(' · ') || 'Sin patrones'
+      patterns.map((item) => item?.label || item).join(' · ') || 'Sin patrones'
     );
   }
 
@@ -144,7 +181,7 @@ function compareFixture(fixture) {
     description: fixture.description,
     checks,
     pass: checks.every((item) => item.pass),
-    patterns: analysis.patterns || [],
+    patterns,
     dependencies,
     analysis,
   };
@@ -246,8 +283,8 @@ export async function runEngineValidation() {
   const knowledge = validateKnowledgeLayer();
   const fixtures = await Promise.all(FIXTURE_FILES.map(loadFixture));
   const results = fixtures.map(compareFixture);
-  const coveredPatterns = [...new Set(results.flatMap((item) => item.patterns.map((pattern) => pattern.label)) )];
-  const coveredDependencies = [...new Set(results.flatMap((item) => item.dependencies.map((dependency) => dependency.label)) )];
+  const coveredPatterns = [...new Set(results.flatMap((item) => item.patterns.map((pattern) => pattern.label)))];
+  const coveredDependencies = [...new Set(results.flatMap((item) => item.dependencies.map((dependency) => dependency.label)))];
   const report = {
     knowledge,
     results,
