@@ -20,108 +20,30 @@
 - Sinergias, dependencias, coherencia y win condition.
 - Coach, Strategic Advisor y Explainability.
 
-## Fase 4 — Asistente IA ⏳
+## Fase 4 — Asistente IA ✅
 - Explicar la composición seleccionada.
 - Responder preguntas de draft.
 - Ampliar el análisis sin usar datos externos.
 
-## Fase 5 — Knowledge + IA ⏳
+## Fase 5 — Knowledge + IA ✅
 - Separar el conocimiento estratégico del código.
 - Validar identidades, sinergias, conflictos y win conditions.
-- Preparar inferencias para la futura IA.
+- Preparar inferencias para la IA.
 
-## Fase 6 — Explainability + Coach + Advisor ✅
-- Exponer evidencias compactas del motor.
-- Mostrar por qué cada conclusión existe.
-- Traducir el análisis en una guía práctica de draft.
-- Derivar objetivos, ventanas de juego y condiciones de derrota.
+## Fase 6 — Composition Story ✅
+- Convertir el análisis en una sola historia visual.
+- Mostrar qué eres, cómo ganas, qué debes hacer y qué debes evitar.
+- Reducir paneles redundantes y priorizar la lectura rápida.
 
-## Fase 7 — Player Experience + Dashboard ✅
-- Rediseñar el panel de análisis para leer la composición en segundos.
-- Integrar una hero card de identidad más clara.
-- Separar fortalezas, riesgos, plan, coach, advisor y explicación en bloques propios.
-- Mantener el simulador como ayuda para probar swaps dentro de la propia composición.
+## Fase 7 — UX Pass ✅
+- Simplificar la pantalla principal a una vista más clara.
+- Dar más protagonismo a la historia de la composición.
+- Eliminar bloques repetidos de la experiencia principal.
 
-### Sprint 7.1 — Draft Simulator UI ✅
-- Simular swaps de campeones sin mutar el draft original.
-- Recalcular análisis, coach y strategic advisor.
-- Mostrar diffs compactos para el futuro UI.
-- Renderizar un panel visual de comparación interno en la composición actual.
-- Publicar la entrega con README, roadmap, changelog y Pages actualizados.
-
-### Sprint 7.2 — Analysis Dashboard v3 ✅
-- Rediseñar el bloque principal de identidad.
-- Sustituir listas crudas por tarjetas legibles.
-- Separar fortalezas, riesgos, métricas, plan, coach y advisor.
-- Reducir densidad visual y mejorar jerarquía.
-
-### Sprint 7.3 — Dashboard v4 / Player Experience v1 ✅
-- Reforzar jerarquía visual y lectura rápida.
-- Hacer más claro qué composición tengo, cómo gano y qué debo evitar.
-- Transformar datos técnicos en tarjetas simples y accionables.
-- Reducir ruido y priorizar comprensión en pocos segundos.
-
-### Sprint 7.4 — Product Map visual ✅
-- Mostrar la estructura visual completa de la app.
-- Agrupar entrada, motor, dashboard, optimización y futuro en bloques claros.
-- Servir de guía visual para las siguientes iteraciones.
-
-### Sprint 7.5 — Design System v1 ✅
-- Definir tokens, tarjetas, badges, chips y timeline comunes.
-- Documentar reglas visuales para futuros módulos.
-- Preparar una guía visual reutilizable en toda la app.
-
-## Fase 8 — Composition View AI ✅
-- Convertir el análisis en una vista visual y fácil de leer.
-- Mostrar una explicación simple en lenguaje natural apoyada en el Excel.
-- Mantener hero card, línea de campeones, métricas, timeline, coach, advisor y explicabilidad.
-- Servir como pantalla principal definitiva de Composition Architect.
-
-### Sprint 8.1 — Composition View v1 ✅
-- Unificar la salida del motor en una vista principal clara.
-- Añadir composición visual, score y jerarquía rápida de lectura.
-- Reforzar la lectura de qué composición tengo y cómo se juega.
-
-### Sprint 8.2 — Composition Optimizer ✅
-- Recomendar swaps internos que mejoren la composición.
-- Detectar huecos de la composición actual.
-- Priorizar cambios de campeones por impacto estratégico.
-- Convertir el simulador en una herramienta de mejora guiada.
-
-### Sprint 8.3 — Visual AI Brief ✅
-- Resumir la composición en lenguaje simple.
-- Mostrar preguntas útiles para profundizar con la IA.
-- Reforzar la lectura visual frente al texto técnico.
-
-### Sprint 8.4 — Pregunta a Rift ✅
-- Hacer clicables las preguntas rápidas.
-- Responder con lenguaje simple y contexto del motor.
-- Mantener la IA visible como ayuda directa en la composición.
-
-### Sprint 8.5 — Structured Composition View ✅
-- Organizar la pantalla en hero, plan, fortalezas, riesgos, explicación y preguntas.
-- Hacer más evidente la jerarquía visual del análisis.
-- Mostrar la composición como una herramienta de lectura rápida, no como un documento.
-
-### Sprint 8.6 — Game Plan Engine ✅
-- Convertir el análisis en un plan de partida claro por fases.
-- Mostrar qué hacer en early, mid, late y si vas por detrás.
-- Traducir el motor en acciones simples para jugar la partida.
-
-### Sprint 8.7 — Decision Engine ✅
-- Priorizar qué hacer, qué evitar y cuál es la pieza clave de la composición.
-- Convertir el análisis en acciones concretas.
-- Responder a las preguntas clave del jugador antes de entrar en partida.
-
-### Sprint 8.8 — State Integration ✅
-- Unificar el estado de la composición y los paneles visuales.
-- Hacer que los bloques lean el análisis real sin quedarse en placeholders.
-- Mantener el comportamiento consistente al cambiar campeones.
-
-### Sprint 8.9 — UX Pass ✅
-- Dar más protagonismo al Decision Engine por encima del Game Plan.
-- Compactar el Game Plan y reducir huecos visuales.
-- Ordenar la lectura de arriba abajo como piensa el jugador.
+## Fase 8 — Validación y pulido ⏳
+- Validar el motor con composiciones de referencia.
+- Revisar coherencia tras cambios en el Excel.
+- Afinar textos, espaciado, accesibilidad y rendimiento.
 
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
@@ -133,5 +55,5 @@
 - Respuestas apoyadas en el motor determinista y el knowledge layer.
 
 ## Regla del proyecto
-- Cada sprint debe actualizar código, README, roadmap y Pages.
-- Cada sprint incluye una revisión de regresiones visuales y de estado.
+- Cada entrega debe actualizar código, README, roadmap y Pages.
+- Cada entrega incluye revisión de regresiones visuales y de estado.
