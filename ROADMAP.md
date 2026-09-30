@@ -94,6 +94,7 @@
 - Reusar `StrategicPlan` sin depender del rival.
 - Arrancar con una base de necesidades, prioridades y señales de pick/ban antes de mapear campeones concretos.
 - Mostrar el razonamiento del asistente en el Analysis Hub antes de traducirlo a campeones concretos.
+- Agrupar necesidades por prioridad e incluir el impacto sobre el plan antes de pasar a picks/bans.
 - Pulir la interfaz para que el panel sea más ejecutivo, más compacto y más coherente con el resto del hub.
 
 ## Fase 8 — Validación y pulido ⏳
