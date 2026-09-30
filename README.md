@@ -18,10 +18,10 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
 - El panel de análisis v2 ya es el único panel visible del resumen.
-- El Core Engine v3.1 añade sinergias, coherencia, condición de victoria y plan priorizado.
-- La Knowledge Layer separa identidad, sinergias, patrones, conflictos y win conditions del motor.
+- El Core Engine v3.1 añade sinergias, dependencias, coherencia, condición de victoria y plan priorizado.
+- La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
-- Existe un banco de pruebas del motor para composiciones de referencia, cobertura de patrones y regresiones.
+- Existe un banco de pruebas del motor para composiciones de referencia, cobertura de patrones y dependencias, y regresiones.
 - Se añadió un `data/index.json` mínimo para evitar 404 en Pages y un icono SVG como favicon.
 - Responsive compartido para PC, tablet y móvil.
 
@@ -51,6 +51,7 @@ Core engine en curso:
 - `js/engine/weaknessEngine.js`
 - `js/engine/tempoEngine.js`
 - `js/engine/synergyEngine.js`
+- `js/engine/dependencyEngine.js`
 - `js/engine/coherenceEngine.js`
 - `js/engine/winConditionEngine.js`
 - `js/engine/planEngine.js`
@@ -62,6 +63,7 @@ Knowledge layer:
 - `knowledge/identity-relations.js`
 - `knowledge/synergies.js`
 - `knowledge/patterns.js`
+- `knowledge/dependencies.js`
 - `knowledge/conflicts.js`
 - `knowledge/win-conditions.js`
 - `knowledge/validator.js`
