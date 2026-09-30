@@ -1,7 +1,7 @@
 import { analyzeComposition } from './analyzer.js';
 
-const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
+const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const ROLE_FILES = [
   { key: 'top', file: './data/top.json', sheet: 'Tabla Top' },
   { key: 'jungle', file: './data/jungle.json', sheet: 'Tabla Jungla' },
@@ -30,10 +30,12 @@ init().catch((error) => console.error(error));
 
 async function init() {
   els.root = document.getElementById('decisionView');
+  if (!els.root) return;
+
   await loadRoleData();
   observeComposition();
   renderSummary();
-  window.setInterval(renderSummary, 1400);
+  window.setInterval(renderSummary, 1200);
 }
 
 function escapeHtml(value) {
@@ -51,7 +53,10 @@ function asText(value, fallback = 'Sin definir') {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (Array.isArray(value)) return value.map((item) => asText(item, '')).filter(Boolean).join(' · ') || fallback;
   if (typeof value === 'object') {
-    return asText(value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '', fallback);
+    return asText(
+      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
+      fallback
+    );
   }
   return String(value) || fallback;
 }
@@ -65,7 +70,11 @@ function uniqueValues(values = []) {
 }
 
 function normalizeText(value = '') {
-  return String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
 }
 
 function normalizeSelectedChampion(champion) {
@@ -81,11 +90,18 @@ function normalizeSelectedChampion(champion) {
   };
 }
 
+function normalizeEntry(item) {
+  return {
+    label: asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir'),
+    detail: asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', ''),
+  };
+}
+
 async function loadRoleData() {
   if (state.dataLoaded) return;
   state.dataLoaded = true;
 
-  const loaded = await loadJsonDataset() || await loadWorkbookDataset();
+  const loaded = (await loadJsonDataset()) || (await loadWorkbookDataset());
   if (loaded) {
     Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
     return;
@@ -98,14 +114,17 @@ async function loadJsonDataset() {
   try {
     const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: 'reload' });
     if (!manifestResponse.ok) return null;
+
     const manifest = await manifestResponse.json();
     if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
 
-    const loaded = await Promise.all(ROLE_FILES.map(async ({ key, file }) => {
-      const response = await fetch(file, { cache: 'reload' });
-      if (!response.ok) throw new Error(`No se pudo leer ${file}`);
-      return [key, await response.json()];
-    }));
+    const loaded = await Promise.all(
+      ROLE_FILES.map(async ({ key, file }) => {
+        const response = await fetch(file, { cache: 'reload' });
+        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
+        return [key, await response.json()];
+      })
+    );
 
     return Object.fromEntries(loaded);
   } catch {
@@ -115,12 +134,18 @@ async function loadJsonDataset() {
 
 async function loadWorkbookDataset() {
   if (!window.XLSX) return null;
+
   try {
     const response = await fetch(WORKBOOK_URL, { cache: 'reload' });
     if (!response.ok) return null;
+
     const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
     const dataset = {};
-    ROLE_FILES.forEach(({ key, sheet }) => { dataset[key] = worksheetToRows(workbook.Sheets[sheet]); });
+
+    ROLE_FILES.forEach(({ key, sheet }) => {
+      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
+    });
+
     return dataset;
   } catch {
     return null;
@@ -130,19 +155,25 @@ async function loadWorkbookDataset() {
 function worksheetToRows(worksheet) {
   if (!worksheet) return [];
   const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-  return rows.slice(1).filter((row) => row[0]).map((row) => ({
-    champion: String(row[0]).trim(),
-    identity: String(row[1] || '').trim(),
-    function: String(row[2] || '').trim(),
-    tempo: String(row[3] || '').trim(),
-    strengths: splitTags(row[4]),
-    weaknesses: splitTags(row[5]),
-  }));
+  return rows
+    .slice(1)
+    .filter((row) => row[0])
+    .map((row) => ({
+      champion: String(row[0]).trim(),
+      identity: String(row[1] || '').trim(),
+      function: String(row[2] || '').trim(),
+      tempo: String(row[3] || '').trim(),
+      strengths: splitTags(row[4]),
+      weaknesses: splitTags(row[5]),
+    }));
 }
 
 function splitTags(value) {
   if (!value) return [];
-  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
+  return String(value)
+    .split('·')
+    .map((part) => part.trim())
+    .filter(Boolean);
 }
 
 function findChampion(roleKey, championName) {
@@ -157,9 +188,20 @@ function collectSelectedChampions() {
       const role = String(slot.dataset.role || 'top');
       const name = slot.querySelector('.slot__name')?.textContent?.trim() || '';
       const champion = findChampion(role, name);
-      return normalizeSelectedChampion(champion ? { role, ...champion } : null);
+
+      if (champion) return normalizeSelectedChampion({ role, ...champion });
+
+      return {
+        role,
+        champion: name || 'Sin definir',
+        identity: 'Sin definir',
+        function: 'Sin definir',
+        tempo: 'Sin definir',
+        strengths: [],
+        weaknesses: [],
+      };
     })
-    .filter(Boolean);
+    .filter((item) => Boolean(item?.champion));
 }
 
 function hasTag(champion, tags = []) {
@@ -169,28 +211,43 @@ function hasTag(champion, tags = []) {
 }
 
 function buildDecisionModel(analysis, selectedChampions) {
-  const risks = asArray(analysis?.weaknesses).slice(0, 3).map((item) => ({
-    label: asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir'),
-    detail: asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', ''),
-  }));
+  const risks = asArray(analysis?.weaknesses).slice(0, 3).map(normalizeEntry);
   const coach = analysis?.coach || analysis?.assistant || {};
   const advisor = analysis?.advisor || analysis?.assistant || {};
   const tempo = analysis?.tempoDetail?.label || analysis?.tempo || 'tu ventana natural de poder';
   const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase));
   const plan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step));
+
+  const botCarry = selectedChampions.find((item) => item.role === 'botline') || selectedChampions.find((item) => hasTag(item, ['adc', 'carry', 'hypercarry', 'escalado'])) || null;
   const engager = selectedChampions.find((item) => hasTag(item, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start'])) || null;
-  const carry = selectedChampions.find((item) => hasTag(item, ['adc', 'carry', 'hypercarry', 'escalado'])) || null;
   const protector = selectedChampions.find((item) => hasTag(item, ['peel', 'protect', 'shield'])) || null;
   const frontline = selectedChampions.find((item) => hasTag(item, ['frontline', 'tanque', 'front', 'defensa'])) || null;
-  const keyPiece = carry || engager || protector || frontline || selectedChampions[0] || null;
-  const coherence = Number.isFinite(Number(analysis?.coherence?.score)) ? Math.round(Number(analysis.coherence.score)) : 0;
-  const objectives = uniqueValues((asArray(advisor.objectivePriority).slice(0, 3).map((item) => asText(item))).filter(Boolean));
-  const loseConditions = uniqueValues((asArray(advisor.loseConditions).slice(0, 3).map((item) => asText(item))).filter(Boolean));
+  const keyPiece = botCarry || engager || protector || frontline || selectedChampions[0] || null;
+
+  const coherence = Number.isFinite(Number(analysis?.coherence?.score))
+    ? Math.round(Number(analysis.coherence.score))
+    : Number.isFinite(Number(analysis?.confidence))
+      ? Math.round(Number(analysis.confidence))
+      : Math.max(60, 50 + selectedChampions.length * 6);
+
+  const objectives = uniqueValues(asArray(advisor.objectivePriority).slice(0, 3).map((item) => asText(item)).filter(Boolean));
+  const loseConditions = uniqueValues(asArray(advisor.loseConditions).slice(0, 3).map((item) => asText(item)).filter(Boolean));
 
   const priorities = [
-    { label: carry ? `Protege a ${carry.champion}` : 'Protege a tu carry principal', detail: carry ? `Si ${carry.champion} vive, tu composición gana mucho valor.` : 'La pieza que más escale o aporte daño necesita espacio y visión.' },
-    { label: `Juega a ${tempo}`, detail: phases.length ? `Tu plan real pasa por ${phases[0] || tempo}.` : 'Respeta tu ventana natural de fuerza.' },
-    { label: objectives[0] || plan[1] || 'Asegura un objetivo con visión', detail: objectives[1] || plan[2] || 'Convierte tu prioridad en una pelea favorable antes de cerrar la partida.' },
+    {
+      label: botCarry ? `Protege a ${botCarry.champion}` : 'Protege a tu carry principal',
+      detail: botCarry
+        ? `Si ${botCarry.champion} vive, tu composición gana mucho valor.`
+        : 'La pieza que más escale o aporte daño necesita espacio y visión a su alrededor.',
+    },
+    {
+      label: `Juega a ${tempo}`,
+      detail: phases.length ? `Tu plan real pasa por ${phases[0] || tempo}.` : 'Respeta tu ventana natural de fuerza y no fuerces peleas fuera de ella.',
+    },
+    {
+      label: objectives[0] || plan[1] || 'Asegura un objetivo con visión',
+      detail: objectives[1] || plan[2] || 'Convierte tu prioridad en una pelea favorable antes de cerrar la partida.',
+    },
   ];
 
   const avoid = uniqueValues([
@@ -199,12 +256,38 @@ function buildDecisionModel(analysis, selectedChampions) {
     loseConditions[2] || risks[2]?.label || 'Forzar peleas antes del pico de poder',
   ].filter(Boolean)).slice(0, 3);
 
-  const initiativeLabel = phases[0] ? `Tu iniciativa principal aparece en ${phases[0]}.` : 'Tu iniciativa aparece en mid game.';
+  const initiativeLabel = phases[0]
+    ? `Tu iniciativa principal aparece en ${phases[0]}.`
+    : 'Tu iniciativa aparece en mid game.';
+
   const behindPlan = [
     loseConditions[0] || 'No fuerces todos los objetivos.',
     'Busca picks y peleas cortas.',
     'Mantén el oro cerca y evita 5v5 abiertos.',
   ];
+
+  const answers = {
+    priorities: {
+      title: 'Tus 3 prioridades',
+      text: priorities.map((item) => item.label).join(' · '),
+      chips: uniqueValues([analysis?.primaryIdentity, analysis?.winCondition?.label, analysis?.tempoDetail?.label || analysis?.tempo].filter(Boolean)).slice(0, 4),
+    },
+    avoid: {
+      title: 'Qué evitar',
+      text: avoid.join(' · '),
+      chips: avoid,
+    },
+    piece: {
+      title: 'Pieza clave',
+      text: keyPiece?.champion ? `${keyPiece.champion} es la pieza que más condiciona tu plan.` : 'La composición todavía no tiene una pieza clave clara.',
+      chips: uniqueValues([keyPiece?.champion, keyPiece?.identity, keyPiece?.function].filter(Boolean)).slice(0, 4),
+    },
+    initiative: {
+      title: 'Iniciativa',
+      text: initiativeLabel,
+      chips: uniqueValues(['Early', 'Mid', 'Late', tempo].filter(Boolean)).slice(0, 4),
+    },
+  };
 
   return {
     score: coherence,
@@ -214,19 +297,17 @@ function buildDecisionModel(analysis, selectedChampions) {
     initiativeLabel,
     behindPlan,
     coach,
-    answers: {
-      priorities: { title: 'Tus 3 prioridades', text: priorities.map((item) => item.label).join(' · '), chips: uniqueValues([analysis?.primaryIdentity, analysis?.winCondition?.label, analysis?.tempoDetail?.label || analysis?.tempo].filter(Boolean)).slice(0, 4) },
-      avoid: { title: 'Qué evitar', text: avoid.join(' · '), chips: avoid },
-      piece: { title: 'Pieza clave', text: keyPiece?.champion ? `${keyPiece.champion} es la pieza que más condiciona tu plan.` : 'La composición todavía no tiene una pieza clave clara.', chips: uniqueValues([keyPiece?.champion, keyPiece?.identity, keyPiece?.function].filter(Boolean)).slice(0, 4) },
-      initiative: { title: 'Iniciativa', text: initiativeLabel, chips: uniqueValues(['Early', 'Mid', 'Late', tempo].filter(Boolean)).slice(0, 4) },
-    },
+    answers,
+    activeQuestion: state.activeQuestion,
   };
 }
 
 function renderDecisionEngine(model) {
-  const active = model.answers[state.activeQuestion] || model.answers.priorities;
+  const active = model.answers[model.activeQuestion] || model.answers.priorities;
   const keyPieceTitle = model.keyPiece?.champion || 'Pieza clave no definida';
-  const keyPieceDetail = model.keyPiece ? model.keyPiece.function || model.keyPiece.identity || 'La composición gira a su alrededor.' : 'La composición aún no tiene una pieza clave clara.';
+  const keyPieceDetail = model.keyPiece
+    ? model.keyPiece.function || model.keyPiece.identity || 'La composición gira a su alrededor.'
+    : 'La composición aún no tiene una pieza clave clara.';
 
   return `
     <section class="decision-engine">
