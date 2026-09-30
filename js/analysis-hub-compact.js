@@ -55,6 +55,7 @@ function mountRoot(storyView) {
 
 function observeComposition(node) {
   if (state.observer) return;
+
   state.observer = new MutationObserver(scheduleRender);
   state.observer.observe(node, { childList: true, subtree: true, characterData: true });
 }
@@ -85,7 +86,7 @@ function renderHub() {
   }
 
   const model = buildModel(analyzeComposition(selectedChampions), selectedChampions, state.activeAction);
-  if (!state.expandedCard) state.expandedCard = 'verdict';
+  if (!state.expandedCard) state.expandedCard = null;
 
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
@@ -140,108 +141,6 @@ function bindHubInteractions() {
   });
 }
 
-function renderDetailCard(card, model, open) {
-  return `
-    <details class="analysis-hub__card analysis-hub__card--${card.id}" data-hub-card="${card.id}" ${open ? 'open' : ''}>
-      <summary class="analysis-hub__summary">
-        <div class="analysis-hub__summary-head">
-          <div class="analysis-hub__summary-copy">
-            <span class="analysis-hub__card-kicker">${card.icon} ${escapeHtml(card.title)}</span>
-            <strong>${escapeHtml(model.summary)}</strong>
-            <p class="analysis-hub__summary-line">${escapeHtml(model.line)}</p>
-          </div>
-          <span class="analysis-hub__card-badge">${escapeHtml(model.badge)}</span>
-        </div>
-        <div class="analysis-hub__summary-footer">
-          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--closed">Ver más</span>
-          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--open">Ocultar</span>
-          <span class="analysis-hub__summary-chevron" aria-hidden="true">▾</span>
-        </div>
-      </summary>
-      <div class="analysis-hub__body">
-        ${renderCardBody(card.id, model)}
-      </div>
-    </details>
-  `;
-}
-
-function renderCardBody(cardId, model) {
-  switch (cardId) {
-    case 'verdict':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
-        </div>
-        <div class="analysis-hub__metric-list">${model.metrics.map(renderMetricRow).join('')}</div>
-      `;
-    case 'plan':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
-        </div>
-        <div class="analysis-hub__list">${model.phases.map(renderPhaseRow).join('')}</div>
-      `;
-    case 'risks':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__list">${model.items.map(renderLineRow).join('')}</div>
-      `;
-    case 'timing':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
-        </div>
-        <div class="analysis-hub__list">${model.windows.map(renderPhaseRow).join('')}</div>
-      `;
-    case 'advisor':
-      return `
-        <div class="analysis-hub__actions" role="tablist" aria-label="Acciones del asesor">
-          ${ACTIONS.map((action) => `
-            <button
-              class="analysis-hub__action ${action.key === model.activeAction ? 'is-active' : ''}"
-              type="button"
-              role="tab"
-              aria-selected="${action.key === model.activeAction ? 'true' : 'false'}"
-              data-hub-action="${action.key}"
-            >
-              <span class="analysis-hub__action-icon">${action.icon}</span>
-              <span class="analysis-hub__action-copy">
-                <strong>${escapeHtml(action.label)}</strong>
-                <small>${escapeHtml(model.actionHints[action.key] || '')}</small>
-              </span>
-            </button>
-          `).join('')}
-        </div>
-
-        <p class="analysis-hub__lead">${escapeHtml(model.line)}</p>
-
-        <article class="analysis-hub__response-card analysis-hub__response-card--compact">
-          <span class="analysis-hub__card-kicker">Respuesta contextual</span>
-          <strong>${escapeHtml(model.response.title)}</strong>
-          <p>${escapeHtml(model.response.text)}</p>
-          <details class="analysis-hub__why">
-            <summary>¿Por qué?</summary>
-            <p>${escapeHtml(model.why)}</p>
-          </details>
-        </article>
-
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--${chip.tone}">${escapeHtml(chip.label)}</span>`).join('')}
-        </div>
-        <div class="analysis-hub__list">${model.insights.map(renderLineRow).join('')}</div>
-        <div class="analysis-hub__signal">
-          <strong>${escapeHtml(model.signal.title)}</strong>
-          <p>${escapeHtml(model.signal.text)}</p>
-        </div>
-      `;
-    default:
-      return '';
-  }
-}
-
 function collectSelectedChampions() {
   return [...document.querySelectorAll(SELECTOR)]
     .map((slot) => ({
@@ -285,15 +184,15 @@ function buildModel(analysis, selectedChampions, activeAction) {
     verdict: {
       summary: `${grade} · ${analysis?.coherence?.label || 'Lectura clara'}`,
       badge: analysis?.winCondition?.label || 'Veredicto',
-      line: clampWords(analysis?.winCondition?.detail || analysis?.summaryText || 'La composición se entiende como una historia visual.', 12),
+      line: clampWords(analysis?.winCondition?.detail || analysis?.summaryText || 'La composición se entiende como una historia visual.', 10),
       text: buildVerdictText(analysis, advisor, phases, risks),
       metrics,
       chips: uniqueValues([analysis?.primaryIdentity, analysis?.winCondition?.label, analysis?.tempoDetail?.label]).slice(0, 3),
     },
     plan: {
-      summary: clampWords(primaryObjective, 7),
+      summary: clampWords(primaryObjective, 6),
       badge: primaryObjective === analysis?.primaryIdentity ? 'Juega tu identidad' : 'Plan claro',
-      line: clampWords(analysis?.winCondition?.detail || advisor?.summary?.reason || 'El plan debe seguir la identidad principal.', 12),
+      line: clampWords(analysis?.winCondition?.detail || advisor?.summary?.reason || 'El plan debe seguir la identidad principal.', 10),
       text: buildPlanText(analysis, advisor, phases, priorities),
       phases: phases.slice(0, 3),
       chips: uniqueValues([primaryObjective, powerSpike, initiator?.champion]).slice(0, 3),
@@ -301,22 +200,22 @@ function buildModel(analysis, selectedChampions, activeAction) {
     risks: {
       summary: risks[0]?.label || 'Sin riesgo claro',
       badge: risks.length ? 'Vigilar' : 'Sin riesgo',
-      line: clampWords(risks[0]?.detail || 'No hay una debilidad crítica evidente.', 12),
+      line: clampWords(risks[0]?.detail || 'No hay una debilidad crítica evidente.', 10),
       text: clampWords(buildRiskOverview(risks), 18),
       items: risks,
     },
     timing: {
       summary: `${powerSpike} · ${phases[1]?.label || 'Mid Game'}`,
       badge: 'Timing',
-      line: clampWords(buildTimingText(analysis, advisor, phases), 12),
+      line: clampWords(buildTimingText(analysis, advisor, phases), 10),
       text: buildTimingText(analysis, advisor, phases),
       windows: phases,
       chips: uniqueValues([phases[0]?.label, phases[1]?.label, phases[2]?.label, powerSpike]).slice(0, 3),
     },
     advisor: {
-      summary: clampWords(response.title, 7),
+      summary: clampWords(response.title, 6),
       badge: 'IA',
-      line: clampWords(response.text, 14),
+      line: clampWords(response.text, 12),
       text: clampWords(response.text, 18),
       why: clampWords(response.why, 22),
       chips: response.chips,
@@ -330,44 +229,137 @@ function buildModel(analysis, selectedChampions, activeAction) {
   };
 }
 
-function renderMetricRow(metric) {
+function renderDetailCard(card, model, open) {
   return `
-    <article class="analysis-hub__metric">
-      <div class="analysis-hub__metric-head">
-        <strong>${escapeHtml(metric.label)}</strong>
-        <span>${metric.score}/100</span>
+    <details class="analysis-hub__card analysis-hub__card--${card.id}" data-hub-card="${card.id}" ${open ? 'open' : ''}>
+      <summary class="analysis-hub__summary">
+        <div class="analysis-hub__summary-head">
+          <div class="analysis-hub__summary-copy">
+            <span class="analysis-hub__card-kicker">${card.icon} ${escapeHtml(card.title)}</span>
+            <strong>${escapeHtml(model.summary)}</strong>
+            <p class="analysis-hub__summary-line">${escapeHtml(model.line)}</p>
+          </div>
+          <span class="analysis-hub__card-badge">${escapeHtml(model.badge)}</span>
+        </div>
+        <div class="analysis-hub__summary-footer">
+          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--closed">Ver más</span>
+          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--open">Ocultar</span>
+          <span class="analysis-hub__summary-chevron" aria-hidden="true">▾</span>
+        </div>
+      </summary>
+      <div class="analysis-hub__body">
+        ${renderCardBody(card.id, model)}
       </div>
-      <div class="analysis-hub__metric-bar" aria-hidden="true">
-        <div class="analysis-hub__metric-fill" style="--meter:${clamp(metric.score, 0, 100)}%"></div>
-      </div>
-      <p>${escapeHtml(metric.detail)}</p>
-    </article>
+    </details>
   `;
 }
 
-function renderLineRow(item) {
-  return `
-    <div class="analysis-hub__row">
-      <div class="analysis-hub__row-copy">
-        <strong>${escapeHtml(item.label)}</strong>
-        <p>${escapeHtml(item.detail)}</p>
-      </div>
-      ${item.score != null ? `<span class="analysis-hub__row-score">${item.score}/10</span>` : ''}
-    </div>
-  `;
+function renderCardBody(cardId, model) {
+  switch (cardId) {
+    case 'verdict':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+        <details class="analysis-hub__why">
+          <summary>Ver análisis técnico</summary>
+          <div class="analysis-hub__metric-list">${model.metrics.map(renderMetricRow).join('')}</div>
+        </details>
+      `;
+    case 'plan':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+        <details class="analysis-hub__why">
+          <summary>Ver plan por fases</summary>
+          <div class="analysis-hub__list">${model.phases.map(renderPhaseRow).join('')}</div>
+        </details>
+      `;
+    case 'risks':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.items.slice(0, 2).map((item) => `<span class="story-pill story-pill--warning">${escapeHtml(item.label)}</span>`).join('')}
+        </div>
+        <details class="analysis-hub__why">
+          <summary>Ver riesgos completos</summary>
+          <div class="analysis-hub__list">${model.items.map(renderLineRow).join('')}</div>
+        </details>
+      `;
+    case 'timing':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+        <details class="analysis-hub__why">
+          <summary>Ver ventanas de poder</summary>
+          <div class="analysis-hub__list">${model.windows.map(renderPhaseRow).join('')}</div>
+        </details>
+      `;
+    case 'advisor':
+      return `
+        <div class="analysis-hub__actions" role="tablist" aria-label="Acciones del asesor">
+          ${ACTIONS.map((action) => `
+            <button
+              class="analysis-hub__action ${action.key === model.activeAction ? 'is-active' : ''}"
+              type="button"
+              role="tab"
+              aria-selected="${action.key === model.activeAction ? 'true' : 'false'}"
+              data-hub-action="${action.key}"
+            >
+              <span class="analysis-hub__action-icon">${action.icon}</span>
+              <span class="analysis-hub__action-copy">
+                <strong>${escapeHtml(action.label)}</strong>
+                <small>${escapeHtml(model.actionHints[action.key] || '')}</small>
+              </span>
+            </button>
+          `).join('')}
+        </div>
+
+        <p class="analysis-hub__lead">${escapeHtml(model.response.text)}</p>
+
+        <article class="analysis-hub__response-card analysis-hub__response-card--compact">
+          <span class="analysis-hub__card-kicker">Respuesta contextual</span>
+          <strong>${escapeHtml(model.response.title)}</strong>
+          <p>${escapeHtml(model.why)}</p>
+        </article>
+
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--${chip.tone}">${escapeHtml(chip.label)}</span>`).join('')}
+        </div>
+
+        <details class="analysis-hub__why">
+          <summary>Ver apoyo de la IA</summary>
+          <div class="analysis-hub__list">
+            ${model.insights.map(renderLineRow).join('')}
+          </div>
+          <div class="analysis-hub__signal">
+            <strong>${escapeHtml(model.signal.title)}</strong>
+            <p>${escapeHtml(model.signal.text)}</p>
+          </div>
+        </details>
+      `;
+    default:
+      return '';
+  }
 }
 
-function renderPhaseRow(phase) {
-  const chips = Array.isArray(phase.actions) ? phase.actions.slice(0, 2) : [];
-  return `
-    <div class="analysis-hub__phase-row">
-      <div class="analysis-hub__row-copy">
-        <strong>${escapeHtml(phase.label)}</strong>
-        <p>${escapeHtml(phase.detail)}</p>
-      </div>
-      <div class="analysis-hub__chip-list">${chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}</div>
-    </div>
-  `;
+function collectSelectedChampions() {
+  return [...document.querySelectorAll(SELECTOR)]
+    .map((slot) => ({
+      role: String(slot.dataset.role || 'top'),
+      champion: slot.querySelector('.slot__name')?.textContent?.trim() || '',
+      identity: slot.querySelector('.slot__meta')?.textContent?.trim() || '',
+      function: slot.querySelector('.champion-item__sub')?.textContent?.trim() || '',
+      tempo: slot.querySelector('.slot__tempo')?.textContent?.trim() || '',
+      strengths: [],
+      weaknesses: [],
+    }))
+    .filter((champion) => champion.champion);
 }
 
 function buildPriorities(analysis, coach, advisor) {
@@ -558,81 +550,118 @@ function buildSignal(analysis, coach, advisor, priorities, risks) {
 }
 
 function buildInsights(analysis, coach, advisor, priorities) {
-  const items = [
-    ...(Array.isArray(coach?.insights) ? coach.insights : []).slice(0, 2).map((item) => ({
-      label: item?.label,
-      detail: item?.detail || 'Señal que refuerza la lectura del motor.',
-    })),
-    ...(Array.isArray(advisor?.objectivePriority) ? advisor.objectivePriority : []).slice(0, 1).map((item) => ({
-      label: item?.label,
-      detail: item?.detail || 'Prioridad del plan.',
-    })),
-    {
-      label: analysis?.primaryIdentity || 'Juega tu identidad',
-      detail: analysis?.summaryText || 'La lectura general de la composición sigue esta línea.',
-    },
-  ];
+  const fromCoach = buildInsightRows(coach);
+  const fromAdvisor = buildInsightRowsFromAdvisor(advisor);
+  const fromAnalysis = uniqueValues([analysis?.primaryIdentity, analysis?.tempoDetail?.label, analysis?.coherence?.label, priorities[0]?.label])
+    .filter(Boolean)
+    .slice(0, 1)
+    .map((label) => ({ label, detail: 'Encaja con la lectura general de la composición.' }));
 
-  return uniqueByLabel(items).slice(0, 3);
+  return uniqueByLabel([...fromCoach, ...fromAdvisor, ...fromAnalysis]).slice(0, 3);
 }
 
-function buildTimingText(analysis, advisor, phases) {
-  const pieces = [
-    phases[0]?.detail,
-    advisor?.summary?.powerSpike ? `Pico clave: ${advisor.summary.powerSpike}.` : null,
-    phases[1]?.detail,
-    phases[2]?.detail,
-  ].filter(Boolean);
-  return pieces.slice(0, 2).join(' ');
+function buildInsightRows(coach) {
+  return uniqueValues([
+    ...(Array.isArray(coach?.insights) ? coach.insights : []).map((item) => item?.label),
+    coach?.summary?.priority,
+    coach?.summary?.powerSpike,
+  ])
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((label) => ({
+      label,
+      detail: coach?.insights?.find?.((item) => item?.label === label)?.detail || 'Señal que refuerza la lectura del motor.',
+    }));
+}
+
+function buildInsightRowsFromAdvisor(advisor) {
+  return uniqueValues((Array.isArray(advisor?.objectivePriority) ? advisor.objectivePriority : []).map((item) => item?.label))
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((label) => ({
+      label,
+      detail: advisor?.objectivePriority?.find?.((item) => item?.label === label)?.detail || 'Prioridad del plan.',
+    }));
 }
 
 function buildVerdictText(analysis, advisor, phases, risks) {
-  const parts = [
+  return [
     analysis?.winCondition?.detail || analysis?.summaryText || 'La composición se entiende como una historia visual.',
     advisor?.summary?.powerSpike ? `Tu ventana más importante llega en ${advisor.summary.powerSpike}.` : null,
     phases[1]?.detail ? `Momento fuerte: ${phases[1].detail}` : null,
     risks[0]?.label ? `Mayor riesgo: ${risks[0].label}.` : null,
-  ].filter(Boolean);
-
-  return parts.slice(0, 3).join(' ');
+  ].filter(Boolean).slice(0, 3).join(' ');
 }
 
 function buildPlanText(analysis, advisor, phases, priorities) {
-  const parts = [
-    analysis?.winCondition?.detail || advisor?.summary?.reason || 'El plan debe seguir la identidad principal.',
-    priorities[0]?.label ? `Prioridad principal: ${priorities[0].label}.` : null,
+  return [
+    advisor?.summary?.reason || analysis?.winCondition?.detail || 'Sigue la identidad principal del draft.',
+    priorities[0]?.detail ? `Primera prioridad: ${priorities[0].detail}` : null,
     phases[0]?.detail ? `Early: ${phases[0].detail}` : null,
-  ].filter(Boolean);
-
-  return parts.slice(0, 2).join(' ');
+  ].filter(Boolean).slice(0, 3).join(' ');
 }
 
 function buildRiskOverview(risks) {
   if (!risks.length) return 'No hay una debilidad crítica evidente.';
-  return `Los riesgos principales son ${risks.map((risk) => risk.label).join(' y ')}.`;
+  return risks.map((item) => `${item.label}: ${item.detail}`).join(' ');
 }
 
-function buildFallbackPhases() {
+function buildTimingText(analysis, advisor, phases) {
   return [
-    { label: 'Early', detail: 'Gana tiempo y controla visión.', actions: [] },
-    { label: 'Mid Game', detail: 'Convierte la ventaja en objetivos.', actions: [] },
-    { label: 'Late Game', detail: 'Cierra con carry protegido.', actions: [] },
-  ];
+    advisor?.summary?.powerSpike ? `Tu ventana más importante llega en ${advisor.summary.powerSpike}.` : null,
+    phases[1]?.detail ? `Mid Game: ${phases[1].detail}` : null,
+    analysis?.tempoDetail?.detail || null,
+  ].filter(Boolean).slice(0, 3).join(' ');
 }
 
-function computeExecutionEase(selectedChampions) {
-  const complexTerms = ['exigente', 'técnico', 'tecnico', 'difícil', 'dificil', 'caótico', 'caotico', 'mecánico', 'mecanico', 'preciso'];
-  const complexityHits = selectedChampions.reduce((total, champion) => {
-    const text = [champion.champion, champion.identity, champion.function, champion.tempo].filter(Boolean).join(' ').toLowerCase();
-    return total + (complexTerms.some((term) => text.includes(term)) ? 1 : 0);
-  }, 0);
+function buildIntent(analysis) {
+  return analysis?.primaryIdentity || 'Tu composición';
+}
 
-  return clamp(10 - complexityHits * 2, 1, 10);
+function renderMetricRow(metric) {
+  return `
+    <article class="analysis-hub__metric">
+      <div class="analysis-hub__metric-head">
+        <strong>${escapeHtml(metric.label)}</strong>
+        <span>${metric.score}/100</span>
+      </div>
+      <div class="analysis-hub__metric-bar" aria-hidden="true">
+        <div class="analysis-hub__metric-fill" style="--meter:${clamp(metric.score, 0, 100)}%"></div>
+      </div>
+      <p>${escapeHtml(metric.detail)}</p>
+    </article>
+  `;
+}
+
+function renderLineRow(item) {
+  return `
+    <div class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
+        <strong>${escapeHtml(item.label)}</strong>
+        <p>${escapeHtml(item.detail)}</p>
+      </div>
+      ${item.score != null ? `<span class="analysis-hub__row-score">${item.score}/10</span>` : ''}
+    </div>
+  `;
+}
+
+function renderPhaseRow(phase) {
+  const chips = Array.isArray(phase.actions) ? phase.actions.slice(0, 2) : [];
+  return `
+    <div class="analysis-hub__phase-row">
+      <div class="analysis-hub__row-copy">
+        <strong>${escapeHtml(phase.label)}</strong>
+        <p>${escapeHtml(phase.detail)}</p>
+      </div>
+      <div class="analysis-hub__chip-list">${chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}</div>
+    </div>
+  `;
 }
 
 function uniqueByLabel(items = []) {
   const seen = new Set();
   const result = [];
+
   items.forEach((item) => {
     const label = String(item?.label || '').trim();
     if (!label) return;
@@ -641,16 +670,21 @@ function uniqueByLabel(items = []) {
     seen.add(key);
     result.push({ ...item, label });
   });
-  return result;
-}
 
-function uniqueValues(values = []) {
-  return [...new Set(values.filter(Boolean))];
+  return result;
 }
 
 function containsAny(text, terms = []) {
   const normalized = normalizeText(text);
   return terms.some((term) => normalized.includes(normalizeText(term)));
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function uniqueValues(values = []) {
+  return [...new Set(values.filter(Boolean))];
 }
 
 function toLabel(value, fallback = '') {
@@ -672,16 +706,6 @@ function normalizeText(value = '') {
     .replace(/[^a-z0-9]+/g, '');
 }
 
-function clampWords(text, maxWords = 12) {
-  const words = String(text || '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .split(' ')
-    .filter(Boolean);
-
-  return words.slice(0, maxWords).join(' ');
-}
-
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -693,6 +717,16 @@ function escapeHtml(value) {
 
 function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
+}
+
+function clampWords(text, maxWords = 12) {
+  const words = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean);
+
+  return words.slice(0, maxWords).join(' ');
 }
 
 function toneByScore(score) {
@@ -709,4 +743,14 @@ function gradeFromScore(score) {
   if (score >= 64) return 'C+';
   if (score >= 56) return 'C';
   return 'D';
+}
+
+function computeExecutionEase(selectedChampions) {
+  const complexTerms = ['exigente', 'técnico', 'tecnico', 'difícil', 'dificil', 'caótico', 'caotico', 'mecánico', 'mecanico', 'preciso'];
+  const complexityHits = selectedChampions.reduce((total, champion) => {
+    const text = [champion.champion, champion.identity, champion.function, champion.tempo].filter(Boolean).join(' ').toLowerCase();
+    return total + (complexTerms.some((term) => text.includes(term)) ? 1 : 0);
+  }, 0);
+
+  return clamp(10 - complexityHits * 2, 1, 10);
 }
