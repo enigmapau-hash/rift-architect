@@ -23,7 +23,8 @@
 - The layout is now more balanced between desktop and mobile, with less vertical scroll and a larger selection modal.
 - The view stays visual-first and focused on the own composition, not rival comparison.
 - The AI continues to translate the motor output into simple language and quick answers.
-- The service worker cache was bumped to v76 for the Analysis Hub delivery.
+- The Analysis Hub now runs from a single internal model after removing the stale assistant reference.
+- The service worker cache was bumped to v77 for the Analysis Hub fix.
 
 ### Notes
 - The dashboard is intended to answer the key draft questions about your own composition in a few seconds.
