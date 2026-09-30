@@ -74,7 +74,6 @@ function renderPanel() {
   const summary = draftAssistant.summary || 'La composición necesita reforzar su plan de juego antes de elegir un campeón o un ban.';
   const headline = buildHeadline(needs, strategicProfiles, draftAssistant);
   const planLine = buildPlanLine(strategicPlan);
-  const profileLine = buildProfileLine(strategicProfiles);
   const primaryNeed = needs[0] || null;
   const secondaryNeed = needs[1] || null;
   const topProfile = strategicProfiles[0] || null;
@@ -86,18 +85,17 @@ function renderPanel() {
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
         <span class="analysis-hub__card-kicker">Draft Assistant</span>
-        <span class="analysis-hub__summary-panel-note">Vista ejecutiva · necesidades, perfiles y decisiones</span>
+        <span class="analysis-hub__summary-panel-note">Vista ejecutiva · lectura rápida primero</span>
       </div>
 
       <div class="analysis-hub__assistant-hero">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(headline)}</p>
         <p>${escapeHtml(summary)}</p>
         ${planLine ? `<p class="analysis-hub__assistant-hero-meta">Plan detectado: ${escapeHtml(planLine)}</p>` : ''}
-        ${profileLine ? `<p class="analysis-hub__assistant-hero-meta">Perfil detectado: ${escapeHtml(profileLine)}</p>` : ''}
       </div>
 
       <div class="analysis-hub__assistant-chip-row">
-        ${priorities.slice(0, 3).map((item) => `
+        ${priorities.slice(0, 2).map((item) => `
           <span class="analysis-hub__priority-pill analysis-hub__priority-pill--assistant">
             ${escapeHtml(item.label)}
           </span>
@@ -115,7 +113,7 @@ function renderPanel() {
           </div>
         </article>
 
-        <details class="analysis-hub__assistant-card">
+        <details class="analysis-hub__assistant-card" open>
           <summary>
             <strong>Necesidades</strong>
             <span>${needs.length} señales</span>
@@ -127,28 +125,19 @@ function renderPanel() {
 
         <details class="analysis-hub__assistant-card">
           <summary>
-            <strong>Perfiles y rutas</strong>
-            <span>${strategicProfiles.length} perfiles</span>
+            <strong>Ruta recomendada</strong>
+            <span>${topProfile ? 1 : 0} perfil</span>
           </summary>
           <div class="analysis-hub__assistant-list">
-            ${renderProfileRows(strategicProfiles)}
-            ${renderRecommendationRows(pickRecommendations, 'PICK')}
-          </div>
-        </details>
-
-        <details class="analysis-hub__assistant-card">
-          <summary>
-            <strong>Evitar</strong>
-            <span>${banRecommendations.length} rutas</span>
-          </summary>
-          <div class="analysis-hub__assistant-list">
-            ${renderRecommendationRows(banRecommendations, 'BAN')}
+            ${renderProfileRows(strategicProfiles.slice(0, 1))}
+            ${renderRecommendationRows(pickRecommendations.slice(0, 1), 'PICK')}
+            ${renderRecommendationRows(banRecommendations.slice(0, 1), 'BAN')}
           </div>
         </details>
       </div>
 
       <details class="analysis-hub__assistant-footer">
-        <summary>Ver análisis completo</summary>
+        <summary>Ver detalle completo</summary>
         <div class="analysis-hub__assistant-list">
           ${renderNeedRows(needs, strategicPlan)}
           ${renderProfileRows(strategicProfiles)}
@@ -234,21 +223,6 @@ function renderExecutiveRows(primaryNeed, secondaryNeed, topProfile, topPick, to
       </div>
     </article>
   `).join('');
-}
-
-function groupNeeds(needs = []) {
-  const groups = [
-    { key: 'critical', title: 'Críticas' },
-    { key: 'important', title: 'Importantes' },
-    { key: 'minor', title: 'Opcionales' },
-  ];
-
-  return groups
-    .map((group) => ({
-      ...group,
-      items: needs.filter((item) => item.priority === group.key),
-    }))
-    .filter((group) => group.items.length);
 }
 
 function renderNeedRows(needs = [], strategicPlan = {}) {
@@ -340,11 +314,6 @@ function buildPlanLine(strategicPlan = {}) {
     .map((value) => String(value || '').trim())
     .filter(Boolean);
   return pieces.length ? pieces.join(' · ') : '';
-}
-
-function buildProfileLine(profiles = []) {
-  if (!profiles.length) return '';
-  return profiles.slice(0, 3).map((profile) => profile.label).join(' · ');
 }
 
 function buildNeedImpact(need = {}, strategicPlan = {}) {
