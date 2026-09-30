@@ -73,16 +73,17 @@
 - Revisar orden de lectura, espaciado y lenguaje visual.
 - Mantener una sola narrativa clara desde el hero hasta el cierre.
 
-## Fase 13 — Rift Advisor ✅
-- Respuestas directas sobre cómo ganar, qué castiga y quién inicia.
-- Acciones rápidas en lugar de un chat abierto.
-- Prioridades por fase y explicaciones contextuales enlazadas.
-- Consejo apoyado en el motor determinista y el knowledge layer.
+## Fase 13 — Analysis Hub ✅
+- Unificar assessment y Rift Advisor en una sola superficie de análisis.
+- Mostrar veredicto, diagnósticos, prioridades, fases y respuestas rápidas.
+- Mantener explicaciones contextuales enlazadas al mismo análisis.
+- Reducir duplicidad entre bloques y simplificar la lectura principal.
 
-## Fase 8 — Validación y pulido ⏳
-- Validar el motor con composiciones de referencia.
+## Fase 14 — Release Candidate ⏳
+- Validar el hub con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
 - Afinar textos, espaciado, accesibilidad y rendimiento.
+- Preparar la v1.0 con una narrativa final limpia y estable.
 
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
