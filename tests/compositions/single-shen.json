@@ -1,0 +1,23 @@
+{
+  "slug": "single-shen",
+  "description": "Un solo campeón para validar el comportamiento mínimo del motor.",
+  "selectedChampions": [
+    {
+      "champion": "Shen",
+      "role": "top",
+      "identity": "Frontline",
+      "function": "Tank Warden",
+      "tempo": "Late",
+      "strengths": ["Frontline", "Peel", "Teamfight"],
+      "weaknesses": ["Poke"]
+    }
+  ],
+  "expectations": {
+    "primaryIdentity": "Frontline",
+    "dominance": "dominant",
+    "coherence": "Muy coherente",
+    "winCondition": "Jugar alrededor de la identidad",
+    "tempoIncludes": ["Late"],
+    "confidenceMin": 20
+  }
+}
