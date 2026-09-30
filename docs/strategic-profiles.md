@@ -1,97 +1,77 @@
-# Strategic Profiles
+# Need Engine
 
 ## Objective
 
-Translate the current composition into a small set of strategic profiles that the Draft Assistant can use without depending on the enemy team.
+Translate the current composition into a small set of clear needs that the Draft Assistant can use without depending on the enemy team.
 
 ## Design rules
 
 - The Excel remains the source of truth.
-- The document does not add raw gameplay data.
-- The engine should stay simple, readable, and deterministic.
+- The engine does not add raw gameplay data.
+- It should stay simple, readable, and deterministic.
 - The UI must show only the result that helps the user decide faster.
 - The IA explains the result; it does not replace the motor.
 - The system must not turn into a full statistics platform.
 
 ## Pipeline
 
-`Champion` → `derived capabilities` → `Strategic Profiles` → `Needs` → `StrategicPlan` → `IA explanation`
+`Champion` → `analysis` → `Need Engine` → `Strategic Profiles` → `StrategicPlan` → `IA explanation`
 
-The key idea is that the engine first detects what the composition can do, then translates that into what the composition needs, and finally exposes that in a compact explanation.
+The key idea is that the engine first detects what the composition needs, then translates those needs into compact profile families, and finally exposes that in a short explanation.
 
 ## Internal concepts
 
-### Derived capabilities
-These are not meant to be shown directly as a large technical block. They are internal signals used by the motor.
+### Need categories
+These are the high-signal needs the motor can detect and prioritize.
 
 Examples:
-- Engage
-- Peel
 - Frontline
-- Burst
-- DPS
-- Poke
-- Disengage
-- Waveclear
-- Objective Control
-- Vision Control
-- Siege
-- Pick
-- Dive
+- Engage
+- Damage
 - Scaling
+- Objective Control
+- Control
+- Teamfight
+- Poke
+- Mobility
+- Pick
 - Splitpush
-- Anti-Dive
-- Zone Control
-- Reset Power
-- Tempo
 
 ### Strategic profiles
-These are the actionable roles the composition needs to cover.
+These are the reusable profile families the assistant can match to those needs.
 
 Proposed catalog:
-- Primary Engage
-- Secondary Engage
-- Frontline
-- Peel
-- Backline Protection
-- Primary Carry
-- Secondary Carry
-- Pick Creator
-- Objective Controller
-- Vision Controller
-- Zone Controller
-- Siege Enabler
-- Dive Enabler
-- Anti-Dive
-- Scaling Anchor
-- Early Tempo
-- Late Game Anchor
-- Splitpush Threat
+- Iniciador fiable
+- Ancla de daño
+- Control de objetivos
+- Core de teamfight
+- Asedio / poke
+- Pieza de tempo
+- Cazador de ventanas
+- Presión lateral
 
 ## Output contract
 
 The engine should return a compact object like this:
 
 ```ts
-StrategicAnalysis {
-  identity,
-  tempo,
-  winCondition,
-  detectedNeeds[],
-  recommendedProfiles[],
-  compatibleChampions[],
-  confidence,
-  explanation
+NeedAnalysis {
+  summary,
+  compositionNeeds[],
+  strategicProfiles[],
+  priorities[],
+  pickRecommendations[],
+  banRecommendations[]
 }
 ```
 
 ## How the engine should reason
 
 1. Read the composition.
-2. Derive the main capabilities from the selected champions.
-3. Convert those capabilities into a limited set of strategic profiles.
-4. Detect the missing profiles and priorities.
-5. Map those needs to compatible champions.
+2. Derive the main needs from the selected champions and the `StrategicPlan`.
+3. Prioritize the missing needs.
+4. Map those needs to compatible profile families.
+5. Convert profiles into simple pick and ban guidance.
 6. Return a short explanation that is easy to read in seconds.
 
 ## Priority rule
@@ -117,8 +97,8 @@ Composition: `Ornn / Vi / Orianna / Kai'Sa / Rakan`
 
 Possible reading:
 - Identity: Front to Back
-- Main needs: Frontline, Primary Engage, Peel
-- Recommended profiles: Frontline, Secondary Engage, Backline Protection
+- Main needs: Frontline, Engage, Peel
+- Recommended profiles: Iniciador fiable, Presión lateral no, Ancla de daño sí
 - Best explanation: the comp already has damage and initiation, so the main value is protecting Kai'Sa and making fights easy to start and hard to escape.
 
 ## Relation with the existing engine
