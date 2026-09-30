@@ -70,6 +70,7 @@ function renderPanel() {
   const banRecommendations = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
   const priorities = Array.isArray(draftAssistant.priorities) ? draftAssistant.priorities : [];
   const summary = draftAssistant.summary || 'La composición necesita reforzar su plan de juego antes de elegir un campeón o un ban.';
+  const headline = buildHeadline(needs, draftAssistant);
 
   state.root.hidden = false;
   state.root.innerHTML = `
@@ -80,6 +81,7 @@ function renderPanel() {
       </div>
 
       <div class="analysis-hub__assistant-hero">
+        <p class="analysis-hub__assistant-hero-title">${escapeHtml(headline)}</p>
         <p>${escapeHtml(summary)}</p>
       </div>
 
@@ -155,8 +157,8 @@ function renderNeedRows(needs = []) {
   return needs.slice(0, 6).map((need) => `
     <article class="analysis-hub__row">
       <div class="analysis-hub__row-copy">
-        <strong>${escapeHtml(priorityPrefix(need.priority))} ${escapeHtml(need.label)}</strong>
-        <p>${escapeHtml(need.detail)}</p>
+        <strong>${escapeHtml(priorityPrefix(need.priority))} · ${escapeHtml(need.label)}</strong>
+        <p>${escapeHtml(clampWords(need.detail, 14))}</p>
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(String(need.score ?? 0))}/5</span>
     </article>
@@ -179,11 +181,29 @@ function renderRecommendationRows(items = [], kind = 'ITEM') {
     <article class="analysis-hub__row">
       <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(kind)} · ${escapeHtml(item.label)}</strong>
-        <p>${escapeHtml(item.detail)}</p>
+        <p>${escapeHtml(clampWords(item.detail, 16))}</p>
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority))}</span>
     </article>
   `).join('');
+}
+
+function buildHeadline(needs, draftAssistant) {
+  if (!needs.length) return 'La composición está bastante equilibrada.';
+
+  const top = needs.slice(0, 3).map((item) => item.label.toLowerCase());
+  const focus = draftAssistant?.summary ? clampWords(draftAssistant.summary, 10) : 'reforzar el plan';
+  return `Foco: ${top.join(' · ')} · ${focus}`;
+}
+
+function clampWords(text, maxWords = 12) {
+  const words = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean);
+
+  return words.slice(0, maxWords).join(' ');
 }
 
 function priorityPrefix(priority) {
