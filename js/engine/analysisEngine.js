@@ -8,6 +8,7 @@ import { summarizeDependencies } from './dependencyEngine.js';
 import { evaluateCoherence } from './coherenceEngine.js';
 import { determineWinCondition } from './winConditionEngine.js';
 import { buildGamePlan } from './planEngine.js';
+import { buildExplainability } from './explainabilityEngine.js';
 
 const METRIC_LABELS = {
   frontline: 'Frontline',
@@ -171,7 +172,7 @@ export function analyzeComposition(selectedChampions = []) {
   const damageSplit = buildDamageSplit(safeChampions);
   const confidence = computeConfidence(identitySummary, tempoSummary, coherence, synergies, winCondition, dependencies);
 
-  return {
+  const analysis = {
     engineVersion: ENGINE_VERSION,
     primaryIdentity: identitySummary.primary.label,
     secondaryIdentities,
@@ -193,4 +194,8 @@ export function analyzeComposition(selectedChampions = []) {
     profiles,
     damageSplit,
   };
+
+  analysis.explanation = buildExplainability(analysis, safeChampions);
+
+  return analysis;
 }
