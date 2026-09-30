@@ -40,7 +40,7 @@
 - Dar más protagonismo a la historia de la composición.
 - Eliminar bloques repetidos de la experiencia principal.
 
-## Fase 10 — UX Refactor ⏳
+## Fase 10 — UX Refactor ✅
 - Reorganizar la Composition Story en una rejilla de dos columnas en escritorio.
 - Añadir el perfil táctico visual de la composición con barras.
 - Mostrar el plan principal como checklist visual.
@@ -48,28 +48,35 @@
 - Dar más ancho al selector de campeones.
 - Afinar espaciados, jerarquía y consistencia visual antes de la beta.
 
-## Fase 11A — Analysis Experience ⏳
+## Fase 11A — Analysis Experience ✅
 - Convertir las barras tácticas en una lectura realmente ejecutiva.
 - Añadir el Índice de salud de la composición.
 - Mostrar la condición de victoria de forma más explícita.
 - Destacar el mayor error castigado por el draft.
 - Contextualizar fortalezas y riesgos con frases accionables.
 
-## Fase 11B — Executive Analysis ⏳
+## Fase 11B — Executive Analysis ✅
 - Mostrar un veredicto ejecutivo en el hero de análisis.
 - Ordenar prioridades dinámicas según identidad, tempo y win condition.
 - Explicar cada indicador con el botón “¿Por qué?”.
 - Reducir texto suelto y dar más peso a indicadores visuales.
 
-## Fase 12 — Analysis Quality ⏳
+## Fase 12 — Analysis Quality ✅
 - Unificar las puntuaciones del motor en una lectura más fiable.
 - Medir cobertura, coherencia y señales fuertes del análisis.
 - Destacar mejoras prioritarias para cada composición.
 - Validar composiciones de referencia y ajustar pesos del Draft Pool.
 
-## Fase 13 — AI Coach ⏳
+## Fase 12.5 — Product Audit ⏳
+- Fusionar la salud y la calidad en un único bloque de assessment.
+- Reducir redundancias entre hero, assessment, plan y perfil táctico.
+- Revisar orden de lectura, espaciado y lenguaje visual.
+- Mantener una sola narrativa clara desde el hero hasta el cierre.
+
+## Fase 13 — Rift Advisor ⏳
 - Conversación guiada sobre ejecución, errores y win condition.
 - Respuestas apoyadas en el motor determinista y el knowledge layer.
+- Explicaciones contextuales apoyadas en el assessment unificado.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
