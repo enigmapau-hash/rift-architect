@@ -67,7 +67,7 @@ function renderPanel() {
   const analysis = analyzeComposition(selectedChampions);
   const draftAssistant = analysis.draftAssistant || {};
   const strategicPlan = analysis.strategicPlan || analysis.plan || analysis.coach?.strategicPlan || {};
-  const narrative = buildNarrative(analysis);
+  const narrative = analysis.narrative || buildNarrative(analysis);
   const needs = Array.isArray(draftAssistant.compositionNeeds) ? draftAssistant.compositionNeeds : [];
   const profiles = Array.isArray(draftAssistant.strategicProfiles) ? draftAssistant.strategicProfiles : [];
   const picks = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
@@ -85,7 +85,7 @@ function renderPanel() {
       <div class="analysis-hub__assistant-narrative">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(narrative.title || 'Tu composición quiere ganar por un plan claro.')}</p>
         <p>${escapeHtml(narrative.summary || 'La composición se entiende mejor como una historia simple.')}</p>
-        ${narrative.needLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.needLine)}</p>` : ''}
+        ${narrative.becauseLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.becauseLine)}</p>` : ''}
         ${narrative.solutionLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.solutionLine)}</p>` : ''}
         ${narrative.warningLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.warningLine)}</p>` : ''}
       </div>
