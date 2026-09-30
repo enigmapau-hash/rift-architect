@@ -113,11 +113,17 @@
 - Añadir composiciones de referencia para cubrir patrones faltantes.
 - Mantener reportes de cobertura simples y trazables.
 
-### Sprint 5.4 — Strategic Dependencies 🚧
+### Sprint 5.4 — Strategic Dependencies ✅
 - Definir dependencias estratégicas por identidad y patrón.
 - Detectar composiciones incompletas o parciales.
 - Mostrar niveles de madurez y evidencias internas.
 - Validar cobertura de dependencias en el banco de pruebas.
+
+### Sprint 5.5 — Certification Sprint 🚧
+- Verificar cobertura total del banco de pruebas.
+- Añadir casos límite para composiciones vacías, mínimas y extremas.
+- Medir tiempo de análisis y carga de conocimiento.
+- Congelar la arquitectura estable antes de la IA.
 
 ## Fase 6 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.
