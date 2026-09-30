@@ -1,7 +1,7 @@
 /* UX Refactor overrides */
 
 #app {
-  max-width: 1240px;
+  max-width: 1320px;
 }
 
 body {
@@ -19,13 +19,17 @@ body {
 }
 
 .picker-modal {
-  width: min(980px, calc(100vw - 24px));
-  max-height: calc(100dvh - 24px);
+  width: min(1120px, calc(100vw - 24px));
+  max-height: calc(92dvh - 24px);
 }
 
-@media (min-width: 921px) {
+.champion-list {
+  max-height: min(66vh, 640px);
+}
+
+@media (min-width: 1280px) {
   .picker-modal {
-    width: min(1040px, calc(100vw - 32px));
+    width: min(1180px, calc(100vw - 32px));
   }
 }
 
@@ -40,6 +44,6 @@ body {
 
   .picker-modal {
     width: calc(100vw - 16px);
-    max-height: calc(100dvh - 16px);
+    max-height: calc(96dvh - 16px);
   }
 }
