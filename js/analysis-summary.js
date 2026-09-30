@@ -71,12 +71,13 @@ function renderSummary() {
   const executionProfile = Array.isArray(summary.executionProfile) ? summary.executionProfile : [];
   const checklist = Array.isArray(summary.checklist) ? summary.checklist : [];
   const criticalErrors = Array.isArray(summary.criticalErrors) ? summary.criticalErrors : [];
+  const gamePlanTimeline = buildGamePlanTimeline(analysis, summary);
 
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
       <header class="analysis-hub__hero">
         <div class="analysis-hub__hero-copy">
-          <p class="eyebrow">Sprint 13.5 · Executive Summary</p>
+          <p class="eyebrow">Sprint 14.3 · Executive Summary</p>
           <h4>${escapeHtml(summary.title)}</h4>
           <p>${escapeHtml(summary.text)}</p>
           <div class="analysis-hub__flow-mini">
@@ -108,6 +109,16 @@ function renderSummary() {
         </div>
         <div class="analysis-hub__execution-grid">
           ${executionProfile.map(renderExecutionRow).join('')}
+        </div>
+      </section>
+
+      <section class="analysis-hub__summary-panel">
+        <div class="analysis-hub__summary-panel-head">
+          <span class="analysis-hub__card-kicker">Plan de partida</span>
+          <span class="analysis-hub__summary-panel-note">Qué hacer por fases</span>
+        </div>
+        <div class="analysis-hub__timeline-grid">
+          ${gamePlanTimeline.map(renderTimelineRow).join('')}
         </div>
       </section>
 
@@ -151,6 +162,81 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
+function buildGamePlanTimeline(analysis = {}, summary = {}) {
+  const context = normalizeText(
+    [
+      analysis?.primaryIdentity,
+      analysis?.winCondition?.label,
+      analysis?.winCondition?.detail,
+      analysis?.tempoDetail?.label,
+      analysis?.tempoDetail?.detail,
+      analysis?.summaryText,
+      summary?.text,
+    ]
+      .filter(Boolean)
+      .join(' ')
+  );
+
+  const isFrontToBack = containsAny(context, ['front to back', 'fronttoback', 'protect', 'peel', 'frontline', 'teamfight', 'wombo']);
+  const isPoke = containsAny(context, ['poke', 'siege']);
+  const isPick = containsAny(context, ['pick', 'dive']);
+  const isSplitPush = containsAny(context, ['splitpush', 'side lane', 'sidelane', 'abrir mapa']);
+  const isScaling = containsAny(context, ['scaling', 'late', 'escala']);
+
+  const checklist = Array.isArray(summary.checklist) ? summary.checklist : [];
+  const criticalErrors = Array.isArray(summary.criticalErrors) ? summary.criticalErrors : [];
+
+  const early = {
+    phase: 'EARLY (0–10)',
+    title: isPoke ? 'Desgasta y toma visión' : isPick ? 'Busca ventanas cortas' : isSplitPush ? 'Gana tempo en laterales' : isFrontToBack ? 'Escala sin regalar ventajas' : 'Asegura la base',
+    detail: isPoke
+      ? 'Prioriza visión de río y poke seguro. No comprometas la entrada si no has debilitado al rival.'
+      : isPick
+        ? 'Juega alrededor de niebla y castiga errores rápidos. No alargues la pelea.'
+        : isSplitPush
+          ? 'Abre el mapa y fuerza respuestas tempranas. Tu valor aparece en laterales y rotaciones.'
+          : isFrontToBack
+            ? 'No fuerces peleas largas si no tienes prioridad. Protege recursos y prepara el escalado.'
+            : 'Gana tiempo, evita desventajas gratis y prepara la composición para su ventana real.',
+    actions: checklist.slice(0, 2).map((item) => item.label),
+    avoid: criticalErrors.slice(0, 1).map((item) => item.label),
+  };
+
+  const mid = {
+    phase: 'MID (10–20)',
+    title: isPoke ? 'Convierte poke en objetivo' : isPick ? 'Encadena picks y objetivos' : isSplitPush ? 'Convierte presión en mapa' : isFrontToBack ? 'Agrúpate y fuerza objetivos' : 'Transforma la ventaja',
+    detail: isPoke
+      ? 'Tu ventana real está en convertir desgaste en torre, dragón o heraldo.'
+      : isPick
+        ? 'La visión ya debe producir picks y esas ventanas tienen que acabar en objetivos.'
+        : isSplitPush
+          ? 'Obliga al rival a responder en más de una línea y usa esa ventaja para tomar objetivos.'
+          : isFrontToBack
+            ? 'Es el momento de agruparte, controlar espacio y jugar alrededor del objetivo clave.'
+            : 'Tu composición debe convertir el mapa en una ventaja concreta y repetible.',
+    actions: checklist.slice(1, 3).map((item) => item.label),
+    avoid: criticalErrors.slice(1, 2).map((item) => item.label),
+  };
+
+  const late = {
+    phase: 'LATE (20+)',
+    title: isSplitPush ? 'Cierra por presión lateral' : isFrontToBack ? 'Juega el 5v5 limpio' : isPoke ? 'No entres sin ventaja' : isScaling ? 'Cierra con calma y orden' : 'Ejecuta la condición de victoria',
+    detail: isSplitPush
+      ? 'Sigue abriendo el mapa y castiga las respuestas tarde. No regales el control central.'
+      : isFrontToBack
+        ? 'Protege al carry y fuerza peleas limpias. Tu victoria depende de un 5v5 ordenado.'
+        : isPoke
+          ? 'Usa el daño previo para evitar entradas malas y cierra la partida sin regalar el tempo.'
+          : isScaling
+            ? 'Tu ventaja aparece aquí: agrúpate, protege la condición de victoria y no improvises.'
+            : 'Haz que todo el trabajo previo termine en una pelea clara o en un cierre de objetivo.',
+    actions: checklist.slice(2, 4).map((item) => item.label),
+    avoid: criticalErrors.slice(2, 3).map((item) => item.label),
+  };
+
+  return [early, mid, late];
+}
+
 function renderProfileRow(item) {
   return `
     <article class="analysis-hub__profile-row">
@@ -181,6 +267,22 @@ function renderExecutionRow(item) {
   `;
 }
 
+function renderTimelineRow(item) {
+  return `
+    <article class="analysis-hub__profile-row">
+      <div class="analysis-hub__profile-head">
+        <strong>${escapeHtml(item.phase)}</strong>
+        <span>${escapeHtml(item.title)}</span>
+      </div>
+      <p>${escapeHtml(item.detail)}</p>
+      <div class="analysis-hub__chip-list">
+        ${(item.actions || []).slice(0, 3).map((label) => `<span class="story-pill story-pill--info">${escapeHtml(label)}</span>`).join('')}
+        ${(item.avoid || []).slice(0, 1).map((label) => `<span class="story-pill story-pill--warning">${escapeHtml(label)}</span>`).join('')}
+      </div>
+    </article>
+  `;
+}
+
 function renderChecklistRow(item) {
   return `
     <article class="analysis-hub__row">
@@ -201,6 +303,20 @@ function renderCriticalErrorRow(item) {
       </div>
     </article>
   `;
+}
+
+function normalizeText(value = '') {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function containsAny(text, terms = []) {
+  const normalized = normalizeText(text);
+  return terms.some((term) => normalized.includes(normalizeText(term)));
 }
 
 function clamp(value, min, max) {
