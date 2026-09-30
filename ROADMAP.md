@@ -94,6 +94,7 @@
 - Reusar `StrategicPlan` sin depender del rival.
 - Arrancar con una base de necesidades, prioridades y señales de pick/ban antes de mapear campeones concretos.
 - Mostrar el razonamiento del asistente en el Analysis Hub antes de traducirlo a campeones concretos.
+- Pulir la interfaz para que el panel sea más ejecutivo, más compacto y más coherente con el resto del hub.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
