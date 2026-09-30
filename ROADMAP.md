@@ -88,6 +88,11 @@
 - Restabilizar helpers compartidos del Executive Summary y evitar regresiones por referencias rotas.
 - Preparar el siguiente paso del Draft Assistant sin salir de la filosofía de analizar solo la propia composición.
 
+## Fase 15 — Draft Assistant ⏳
+- Recomendar el pick que mejor completa la composición.
+- Proponer bans que protejan el plan de juego.
+- Reusar `StrategicPlan` sin depender del rival.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
