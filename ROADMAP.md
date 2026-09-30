@@ -66,6 +66,11 @@
 - Agrupar entrada, motor, dashboard, optimización y futuro en bloques claros.
 - Servir de guía visual para las siguientes iteraciones.
 
+### Sprint 7.5 — Design System v1 ✅
+- Definir tokens, tarjetas, badges, chips y timeline comunes.
+- Documentar reglas visuales para futuros módulos.
+- Preparar una guía visual reutilizable en toda la app.
+
 ## Fase 8 — Composition Optimizer ⏳
 - Recomendar swaps internos que mejoren la composición.
 - Detectar huecos de la composición actual.
