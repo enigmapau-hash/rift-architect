@@ -98,15 +98,13 @@
 - Introducir una capa de perfiles estratégicos entre las necesidades y las clases para mantener la explicación y el motor desacoplados de campeones concretos.
 - Pulir la interfaz para que el panel sea más ejecutivo, más compacto y más coherente con el resto del hub.
 
-## Fase 16 — Strategic Profiles 🔄
-- Definir el catálogo corto de capacidades derivadas.
-- Traducir esas capacidades en perfiles estratégicos reutilizables.
-- Usar perfiles para detectar necesidades de la composición.
-- Mapear necesidades a perfiles antes de llegar a campeones concretos.
+## Fase 16 — Need Engine 🔄
+- Extraer la detección de necesidades a un módulo propio.
+- Priorizar necesidades reales de la composición con una salida corta y fácil de leer.
+- Mantener el motor simple reutilizando atributos existentes antes de añadir nuevos campos al Excel.
+- Reusar esas necesidades para alimentar perfiles y recomendaciones de picks/bans.
 - Mantener la IA como capa de explicación y no de decisión.
 - Evitar añadir complejidad visual innecesaria.
-- Implementar la capa en el motor con un módulo pequeño y reutilizable.
-- Usar `docs/strategic-profiles.md` como especificación base.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
