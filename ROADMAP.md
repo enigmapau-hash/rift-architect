@@ -85,6 +85,7 @@
 - Generar briefing, fases, riesgos, picos de poder y perfil de ejecución desde una sola fuente.
 - Reducir duplicidades entre resumen, plan, checklist y Advisor.
 - Afinar el lenguaje para que el briefing sea corto, claro y accionable.
+- Restabilizar helpers compartidos del Executive Summary y evitar regresiones por referencias rotas.
 - Preparar el siguiente paso del Draft Assistant sin salir de la filosofía de analizar solo la propia composición.
 
 ## Fase 8 — Validación y pulido ⏳
