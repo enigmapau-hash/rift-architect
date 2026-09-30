@@ -1,12 +1,13 @@
 import { analyzeComposition } from './analyzer.js';
 
+const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
 const ROLE_FILES = [
-  { key: 'top', label: 'Top', file: './data/top.json' },
-  { key: 'jungle', label: 'Jungla', file: './data/jungle.json' },
-  { key: 'mid', label: 'Mid', file: './data/mid.json' },
-  { key: 'botline', label: 'Botline', file: './data/bot.json' },
-  { key: 'support', label: 'Support', file: './data/support.json' },
+  { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
+  { key: 'jungle', label: 'Jungla', file: './data/jungle.json', sheet: 'Tabla Jungla' },
+  { key: 'mid', label: 'Mid', file: './data/mid.json', sheet: 'Tabla Mid' },
+  { key: 'botline', label: 'Botline', file: './data/bot.json', sheet: 'Tabla Botline' },
+  { key: 'support', label: 'Support', file: './data/support.json', sheet: 'Tabla Support' },
 ];
 
 const ROLE_ORDER = ROLE_FILES.map(({ key }) => key);
@@ -32,11 +33,25 @@ const state = {
   data: new Map(),
   dataLoaded: false,
   patchScheduled: false,
-  interactionBound: false,
   activeQuestion: 'howWin',
 };
 
+const els = {};
+
 init().catch((error) => console.error(error));
+
+function cacheElements() {
+  els.root = document.getElementById('compositionView');
+  if (!els.root) return;
+}
+
+async function init() {
+  cacheElements();
+  await loadRoleData();
+  observeComposition();
+  renderSummary();
+  window.setInterval(renderSummary, 1400);
+}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -138,12 +153,22 @@ async function loadRoleData() {
   if (state.dataLoaded) return;
   state.dataLoaded = true;
 
+  const loaded = await loadJsonDataset() || await loadWorkbookDataset();
+  if (loaded) {
+    Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
+    return;
+  }
+
+  ROLE_FILES.forEach(({ key }) => state.data.set(key, []));
+}
+
+async function loadJsonDataset() {
   try {
     const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: 'reload' });
-    if (!manifestResponse.ok) return;
+    if (!manifestResponse.ok) return null;
 
     const manifest = await manifestResponse.json();
-    if (!Array.isArray(manifest?.files) || !manifest.files.length) return;
+    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
 
     const loaded = await Promise.all(
       ROLE_FILES.map(async ({ key, file }) => {
@@ -153,10 +178,57 @@ async function loadRoleData() {
       })
     );
 
-    loaded.forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
+    return Object.fromEntries(loaded);
   } catch {
-    ROLE_FILES.forEach(({ key }) => state.data.set(key, []));
+    return null;
   }
+}
+
+async function loadWorkbookDataset() {
+  if (!window.XLSX) return null;
+
+  try {
+    const response = await fetch(WORKBOOK_URL, { cache: 'reload' });
+    if (!response.ok) return null;
+
+    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    const dataset = {};
+
+    ROLE_FILES.forEach(({ key, sheet }) => {
+      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
+    });
+
+    return dataset;
+  } catch {
+    return null;
+  }
+}
+
+function worksheetToRows(worksheet) {
+  if (!worksheet) return [];
+
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+    blankrows: false,
+    defval: '',
+  });
+
+  return rows
+    .slice(1)
+    .filter((row) => row[0])
+    .map((row) => ({
+      champion: String(row[0]).trim(),
+      identity: String(row[1] || '').trim(),
+      function: String(row[2] || '').trim(),
+      tempo: String(row[3] || '').trim(),
+      strengths: splitTags(row[4]),
+      weaknesses: splitTags(row[5]),
+    }));
+}
+
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function findChampion(roleKey, championName) {
@@ -178,23 +250,16 @@ function collectSelectedChampions() {
 
 function findChampionByTags(selectedChampions, tags = []) {
   return selectedChampions.find((champion) => {
-    const values = [
-      champion.champion,
-      champion.identity,
-      champion.function,
-      champion.tempo,
-      ...asArray(champion.strengths),
-      ...asArray(champion.weaknesses),
-    ];
+    const values = [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)];
     return values.some((value) => matchesAny(value, tags));
   });
 }
 
-function getMetricScore(analysis, blueprint) {
+function getMetricScore(analysis, label, aliases = []) {
   const metrics = asArray(analysis?.metrics);
   const found = metrics.find((metric) => {
-    const label = normalizeText(asText(metric?.label ?? metric?.name ?? metric?.key));
-    return label.includes(normalizeText(blueprint.label)) || blueprint.aliases.some((alias) => label.includes(normalizeText(alias)));
+    const metricLabel = normalizeText(asText(metric?.label ?? metric?.name ?? metric?.key));
+    return metricLabel.includes(normalizeText(label)) || aliases.some((alias) => metricLabel.includes(normalizeText(alias)));
   });
   return Number.isFinite(Number(found?.score)) ? Math.round(Number(found.score)) : 0;
 }
@@ -205,8 +270,6 @@ function compositionScore(analysis, selectedChampions) {
     : Number.isFinite(Number(analysis?.confidence))
       ? Number(analysis.confidence)
       : 0;
-  const metricScores = METRIC_BLUEPRINTS.map((blueprint) => getMetricScore(analysis, blueprint));
-  const metricAverage = metricScores.length ? metricScores.reduce((sum, score) => sum + score, 0) / metricScores.length : 0;
   const uniqueRoles = new Set(asArray(selectedChampions).map((champion) => champion.role).filter(Boolean));
   const roleCoverage = Math.round((uniqueRoles.size / ROLE_ORDER.length) * 100);
   const planClarity = asArray(analysis?.gamePlan).length >= 3 ? 92 : asArray(analysis?.gamePlan).length === 2 ? 84 : 68;
@@ -228,7 +291,7 @@ function compositionScore(analysis, selectedChampions) {
     grade: gradeFromScore(score),
     label: score >= 88 ? 'Excelente' : score >= 72 ? 'Sólida' : score >= 60 ? 'Funcional' : 'Frágil',
     parts,
-    dominantMetric: METRIC_BLUEPRINTS.map((blueprint) => ({ blueprint, score: getMetricScore(analysis, blueprint) }))
+    dominantMetric: METRIC_BLUEPRINTS.map((blueprint) => ({ blueprint, score: getMetricScore(analysis, blueprint.label, blueprint.aliases) }))
       .sort((a, b) => b.score - a.score || normalizeText(a.blueprint.label).localeCompare(normalizeText(b.blueprint.label)))[0] || null,
   };
 }
@@ -261,7 +324,7 @@ function buildQuestionAnswers(analysis, selectedChampions) {
 
   return {
     howWin: {
-      title: 'Cómo ganas',
+      title: 'Cómo gano',
       text: `Tu plan principal es ${winCondition}.`,
       chips: [...toChips([analysis?.winCondition?.label, analysis?.tempoDetail?.label || analysis?.tempo, analysis?.coherence?.label]), ...toChips(gamePlan, 2)],
     },
@@ -311,34 +374,109 @@ function renderHero(score, analysis) {
         <p class="eyebrow">Composition View</p>
         <h3>${escapeHtml(analysis?.primaryIdentity || 'Sin identidad clara')}</h3>
         <p class="analysis-note">${escapeHtml(analysis?.summaryText || 'La composición se resume de forma visual: qué es, cómo gana, qué evita y qué te recomienda la IA.')}</p>
-        <div class="composition-visual__hero-stats">
-          <span class="composition-visual__stat-pill">${escapeHtml(analysis?.winCondition?.label || 'Sin win condition')}</span>
-          <span class="composition-visual__stat-pill">${escapeHtml(analysis?.tempoDetail?.label || analysis?.tempo || 'Sin tempo')}</span>
-          <span class="composition-visual__stat-pill">${escapeHtml(analysis?.coherence?.label || 'Sin coherencia')}</span>
-          <span class="composition-visual__stat-pill">Dominante: ${escapeHtml(score.dominantMetric?.blueprint?.label || 'Sin definir')}</span>
+        <div class="analysis-chip-list analysis-chip-list--compact">
+          <span class="analysis-chip">${escapeHtml(analysis?.winCondition?.label || 'Sin win condition')}</span>
+          <span class="analysis-chip">${escapeHtml(analysis?.tempoDetail?.label || analysis?.tempo || 'Sin tempo')}</span>
+          <span class="analysis-chip">${escapeHtml(analysis?.coherence?.label || 'Sin coherencia')}</span>
+          <span class="analysis-chip">Dominante: ${escapeHtml(score.dominantMetric?.blueprint?.label || 'Sin definir')}</span>
         </div>
       </div>
     </section>
   `;
 }
 
-function renderPlan(analysis) {
-  const plan = asArray(analysis?.gamePlan).slice(0, 3).map((item) => asText(item));
-  const fallback = ['Escalar con calma', 'Controlar visión', 'Buscar el 5v5'];
-  const steps = plan.length ? plan : fallback;
+function renderAiBrief(analysis) {
+  const brief = buildSimpleBrief(analysis);
+  return `
+    <section class="composition-visual__panel composition-visual__ai-panel">
+      <div class="composition-visual__section-head">
+        <p class="eyebrow">IA en lenguaje simple</p>
+        <h4>Lo que Rift Architect te dice sin jerga</h4>
+      </div>
+      <div class="composition-visual__brief-grid">
+        <article class="composition-visual__brief-card composition-visual__brief-card--info">
+          <span>Qué es</span>
+          <strong>${escapeHtml(brief.identity)}</strong>
+        </article>
+        <article class="composition-visual__brief-card composition-visual__brief-card--success">
+          <span>Cómo gana</span>
+          <strong>${escapeHtml(brief.win)}</strong>
+        </article>
+        <article class="composition-visual__brief-card composition-visual__brief-card--coach">
+          <span>Tu mayor fortaleza</span>
+          <strong>${escapeHtml(brief.strength)}</strong>
+        </article>
+        <article class="composition-visual__brief-card composition-visual__brief-card--danger">
+          <span>Tu mayor riesgo</span>
+          <strong>${escapeHtml(brief.risk)}</strong>
+        </article>
+      </div>
+      <div class="composition-visual__brief-note">
+        <strong>Consejo IA</strong>
+        <p>${escapeHtml(brief.coach)}</p>
+      </div>
+      <div class="composition-visual__prompt-row">
+        <span class="analysis-chip">¿Cómo gano con esta composición?</span>
+        <span class="analysis-chip">¿Quién debe iniciar?</span>
+        <span class="analysis-chip">¿Qué debo evitar?</span>
+        <span class="analysis-chip">¿Qué hago si voy por detrás?</span>
+      </div>
+    </section>
+  `;
+}
+
+function renderLineup(selectedChampions) {
+  return `
+    <section class="composition-visual__panel composition-visual__lineup-panel">
+      <div class="composition-visual__section-head">
+        <p class="eyebrow">Línea de campeones</p>
+        <h4>Tu composición actual</h4>
+      </div>
+      <div class="composition-visual__lineup">
+        ${ROLE_ORDER.map((role) => {
+          const champion = selectedChampions.find((item) => item.role === role) || null;
+          return `
+            <article class="composition-visual__lane-card ${champion ? 'is-filled' : 'is-empty'}">
+              <span class="composition-visual__lane-role">${escapeHtml(ROLE_LABELS[role] || role)}</span>
+              ${champion ? `<strong>${escapeHtml(champion.champion)}</strong>` : '<strong>Vacío</strong>'}
+              <span>${escapeHtml(champion?.function || champion?.identity || 'Selecciona un campeón')}</span>
+              <div class="analysis-chip-list analysis-chip-list--compact">
+                ${champion?.tempo ? `<span class="analysis-chip">${escapeHtml(asText(champion.tempo))}</span>` : ''}
+                ${champion?.identity ? `<span class="analysis-chip">${escapeHtml(asText(champion.identity))}</span>` : ''}
+              </div>
+            </article>
+          `;
+        }).join('')}
+      </div>
+    </section>
+  `;
+}
+
+function renderMetrics(analysis) {
   return `
     <section class="composition-visual__panel composition-visual__panel--wide">
       <div class="composition-visual__section-head">
-        <p class="eyebrow">Qué debo hacer</p>
-        <h4>Plan de partida</h4>
+        <p class="eyebrow">Métricas visuales</p>
+        <h4>Perfil funcional de la composición</h4>
       </div>
-      <div class="composition-visual__plan-grid">
-        ${steps.map((step, index) => `
-          <article class="composition-visual__plan-card">
-            <span class="composition-visual__plan-step">${index + 1}</span>
-            <strong>${escapeHtml(step)}</strong>
-          </article>
-        `).join('')}
+      <div class="composition-visual__metrics-grid">
+        ${METRIC_BLUEPRINTS.map((blueprint) => {
+          const value = getMetricScore(analysis, blueprint.label, blueprint.aliases);
+          const tone = value >= 80 ? 'good' : value >= 60 ? 'warn' : 'danger';
+          return `
+            <article class="composition-visual__metric-card composition-visual__metric-card--${tone}">
+              <div class="composition-visual__metric-head">
+                <span class="composition-visual__metric-icon">${escapeHtml(blueprint.icon)}</span>
+                <strong>${escapeHtml(blueprint.label)}</strong>
+                <span>${value}/10</span>
+              </div>
+              <div class="composition-visual__meter" aria-hidden="true">
+                <span class="composition-visual__meter-fill" style="width:${percent(value, 10)}%"></span>
+              </div>
+              <p class="composition-visual__metric-detail">${escapeHtml(blueprint.detail)}</p>
+            </article>
+          `;
+        }).join('')}
       </div>
     </section>
   `;
@@ -386,31 +524,32 @@ function renderStrengthsRisks(analysis) {
   `;
 }
 
-function renderMetrics(analysis) {
+function renderTimeline(analysis) {
+  const phases = asArray(analysis?.tempoDetail?.phases);
+  const plan = asArray(analysis?.gamePlan);
+  const steps = [
+    { label: 'Early', title: asText(phases[0] || plan[0] || 'Farm y visión'), detail: 'Evita peleas largas y prepara el mapa.' },
+    { label: 'Mid', title: asText(phases[1] || plan[1] || 'Objetivos y rotaciones'), detail: 'Convierte prioridad en dragones o control de mapa.' },
+    { label: 'Late', title: asText(phases[2] || plan[2] || '5v5 y cierre'), detail: 'Protege al carry y resuelve la partida.' },
+  ];
+
   return `
     <section class="composition-visual__panel composition-visual__panel--wide">
       <div class="composition-visual__section-head">
-        <p class="eyebrow">Métricas visuales</p>
-        <h4>Perfil funcional de la composición</h4>
+        <p class="eyebrow">Plan de partida</p>
+        <h4>Secuencia visual de la partida</h4>
       </div>
-      <div class="composition-visual__metrics-grid">
-        ${METRIC_BLUEPRINTS.map((blueprint) => {
-          const value = getMetricScore(analysis, blueprint);
-          const tone = value >= 80 ? 'good' : value >= 60 ? 'warn' : 'danger';
-          return `
-            <article class="composition-visual__metric-card composition-visual__metric-card--${tone}">
-              <div class="composition-visual__metric-head">
-                <span class="composition-visual__metric-icon">${escapeHtml(blueprint.icon)}</span>
-                <strong>${escapeHtml(blueprint.label)}</strong>
-                <span>${value}/10</span>
-              </div>
-              <div class="composition-visual__meter" aria-hidden="true">
-                <span class="composition-visual__meter-fill" style="width:${percent(value, 10)}%"></span>
-              </div>
-              <p class="composition-visual__metric-detail">${escapeHtml(blueprint.detail)}</p>
-            </article>
-          `;
-        }).join('')}
+      <div class="composition-visual__timeline">
+        ${steps.map((step, index) => `
+          <div class="composition-visual__timeline-step">
+            <span class="composition-visual__timeline-dot">${index + 1}</span>
+            <div>
+              <span class="composition-visual__timeline-label">${escapeHtml(step.label)}</span>
+              <strong>${escapeHtml(step.title)}</strong>
+              <p>${escapeHtml(step.detail)}</p>
+            </div>
+          </div>
+        `).join('')}
       </div>
     </section>
   `;
@@ -429,17 +568,15 @@ function renderExplainability(analysis, selectedChampions) {
   return `
     <section class="composition-visual__panel composition-visual__panel--wide">
       <div class="composition-visual__section-head">
-        <p class="eyebrow">¿Por qué?</p>
-        <h4>Cómo se entiende tu composición</h4>
+        <p class="eyebrow">Explainability</p>
+        <h4>Por qué la IA entiende así tu composición</h4>
       </div>
-
       <div class="composition-visual__tree">
         <div class="composition-visual__tree-root">
           <span>${escapeHtml(rootIdentity)}</span>
           <strong>Identidad dominante</strong>
           <p>${escapeHtml(asText(analysis?.summaryText || 'La composición se analiza como una unidad visual y funcional.'))}</p>
         </div>
-
         <div class="composition-visual__tree-branches">
           ${branches.map((branch) => `
             <article class="composition-visual__tree-node">
@@ -451,7 +588,6 @@ function renderExplainability(analysis, selectedChampions) {
           `).join('')}
         </div>
       </div>
-
       ${summary.length ? `<div class="composition-visual__summary-list">${summary.map((item) => `
         <div class="composition-visual__summary-item">
           <strong>${escapeHtml(item.label)}</strong>
@@ -462,35 +598,92 @@ function renderExplainability(analysis, selectedChampions) {
   `;
 }
 
+function renderGuidance(analysis) {
+  const coach = analysis?.coach || analysis?.assistant || {};
+  const advisor = analysis?.advisor || analysis?.assistant || {};
+  const coachNotes = [
+    ...asArray(coach.priorities).slice(0, 1),
+    ...asArray(coach.insights).slice(0, 1),
+  ].map(normalizeEntry);
+  const advisorNotes = [
+    ...asArray(advisor.objectivePriority).slice(0, 1),
+    ...asArray(advisor.loseConditions).slice(0, 1),
+  ].map(normalizeEntry);
+
+  return `
+    <div class="composition-visual__two-col">
+      <article class="composition-visual__panel">
+        <div class="composition-visual__section-head">
+          <p class="eyebrow">Consejo IA</p>
+          <h4>${escapeHtml(coach.headline || 'Juega alrededor de tu identidad')}</h4>
+        </div>
+        <div class="composition-visual__stack-list">
+          ${coachNotes.length ? coachNotes.map((item) => `
+            <div class="composition-visual__stack-item composition-visual__stack-item--coach">
+              <strong>${escapeHtml(item.label)}</strong>
+              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
+            </div>
+          `).join('') : '<p class="analysis-empty">Sin consejo claro.</p>'}
+        </div>
+      </article>
+
+      <article class="composition-visual__panel">
+        <div class="composition-visual__section-head">
+          <p class="eyebrow">Objetivo</p>
+          <h4>${escapeHtml(advisor.primaryObjective || advisor.summary?.priority || 'Jugar alrededor de la identidad')}</h4>
+        </div>
+        <div class="composition-visual__stack-list">
+          ${advisorNotes.length ? advisorNotes.map((item) => `
+            <div class="composition-visual__stack-item composition-visual__stack-item--advisor">
+              <strong>${escapeHtml(item.label)}</strong>
+              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
+            </div>
+          `).join('') : '<p class="analysis-empty">Sin objetivo claro.</p>'}
+        </div>
+      </article>
+    </div>
+  `;
+}
+
 function renderQuestions(analysis, selectedChampions) {
   const answers = buildQuestionAnswers(analysis, selectedChampions);
   const active = answers[state.activeQuestion] || answers.howWin;
 
   return `
-    <section class="composition-visual__panel composition-visual__panel--wide composition-visual__questions">
+    <section class="composition-visual__panel composition-visual__panel--wide">
       <div class="composition-visual__section-head">
-        <p class="eyebrow">Pregunta a Rift</p>
-        <h4>IA simple, basada en tu composición</h4>
+        <p class="eyebrow">Pregunta a la IA</p>
+        <h4>Preguntas rápidas para profundizar</h4>
       </div>
-
-      <div class="composition-visual__question-tabs" role="tablist" aria-label="Preguntas rápidas a Rift">
-        ${QUESTION_BLUEPRINTS.map((question) => `
-          <button
-            type="button"
-            class="composition-visual__question-btn ${question.key === state.activeQuestion ? 'is-active' : ''}"
-            data-question="${escapeHtml(question.key)}"
-            aria-pressed="${question.key === state.activeQuestion ? 'true' : 'false'}"
-          >
-            ${escapeHtml(question.label)}
-          </button>
-        `).join('')}
+      <div class="analysis-chip-list analysis-chip-list--compact">
+        ${QUESTION_BLUEPRINTS.map((question) => `<button type="button" class="analysis-chip analysis-chip--question ${state.activeQuestion === question.key ? 'is-active' : ''}" data-question="${question.key}">${escapeHtml(question.label)}</button>`).join('')}
       </div>
+      <div class="composition-visual__brief-note" style="margin-top: 12px;">
+        <strong>${escapeHtml(active.title)}</strong>
+        <p>${escapeHtml(active.text)}</p>
+        <div class="analysis-chip-list analysis-chip-list--compact" style="margin-top: 10px;">
+          ${active.chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+      </div>
+    </section>
+  `;
+}
 
-      <article class="composition-visual__answer-card">
-        <span class="composition-visual__answer-kicker">${escapeHtml(active.title)}</span>
-        <p class="composition-visual__answer-text">${escapeHtml(active.text)}</p>
-        ${active.chips?.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${active.chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')}</div>` : ''}
-      </article>
+function renderView(analysis) {
+  const selectedChampions = collectSelectedChampions();
+  const score = compositionScore(analysis, selectedChampions);
+
+  return `
+    <section class="composition-visual">
+      ${renderHero(score, analysis)}
+      ${renderAiBrief(analysis)}
+      ${renderLineup(selectedChampions)}
+      ${renderMetrics(analysis)}
+      ${renderStrengthsRisks(analysis)}
+      ${renderTimeline(analysis)}
+      ${renderExplainability(analysis, selectedChampions)}
+      ${renderGuidance(analysis)}
+      ${renderQuestions(analysis, selectedChampions)}
     </section>
   `;
 }
@@ -511,45 +704,32 @@ function renderEmptyState() {
   `;
 }
 
-function renderView(analysis) {
-  const selectedChampions = collectSelectedChampions();
-  const score = compositionScore(analysis, selectedChampions);
-
-  return `
-    <section class="composition-visual">
-      ${renderHero(score, analysis)}
-      ${renderPlan(analysis)}
-      ${renderStrengthsRisks(analysis)}
-      ${renderMetrics(analysis)}
-      ${renderExplainability(analysis, selectedChampions)}
-      ${renderQuestions(analysis, selectedChampions)}
-    </section>
-  `;
-}
-
 function renderSummary() {
-  const root = document.getElementById('compositionView');
-  if (!root) return;
+  if (!els.root) return;
 
   const selectedChampions = collectSelectedChampions();
   if (!selectedChampions.length) {
-    root.innerHTML = renderEmptyState();
+    els.root.innerHTML = renderEmptyState();
     return;
   }
 
   const analysis = analyzeComposition(selectedChampions);
-  root.innerHTML = renderView(analysis);
+  els.root.innerHTML = renderView(analysis);
+  bindQuestionActions(analysis);
 }
 
-function handleQuestionClick(event) {
-  const button = event.target instanceof Element ? event.target.closest('[data-question]') : null;
-  if (!button) return;
+function bindQuestionActions(analysis) {
+  if (state.interactionBound) {
+    // intentional no-op: listeners are delegated below
+  }
+  if (!els.root) return;
 
-  const nextQuestion = button.getAttribute('data-question');
-  if (!nextQuestion || nextQuestion === state.activeQuestion) return;
-
-  state.activeQuestion = nextQuestion;
-  renderSummary();
+  els.root.querySelectorAll('[data-question]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeQuestion = button.dataset.question || 'howWin';
+      renderSummary();
+    });
+  });
 }
 
 function observeComposition() {
@@ -571,17 +751,3 @@ function schedulePatch() {
     renderSummary();
   });
 }
-
-async function init() {
-  await loadRoleData();
-  observeComposition();
-  renderSummary();
-
-  const root = document.getElementById('compositionView');
-  if (root && !state.interactionBound) {
-    root.addEventListener('click', handleQuestionClick);
-    state.interactionBound = true;
-  }
-}
-
-init().catch((error) => console.error(error));
