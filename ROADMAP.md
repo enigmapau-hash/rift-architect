@@ -42,6 +42,7 @@
 
 ## Fase 10 — UX Refactor ⏳
 - Reorganizar la Composition Story en una rejilla de dos columnas en escritorio.
+- Dar más peso visual al Hero y al bloque de decisión para escanear mejor la composición.
 - Mantener la lectura compacta en móvil para reducir scroll.
 - Dar más ancho al selector de campeones.
 - Afinar espaciados, jerarquía y consistencia visual antes de la beta.
