@@ -32,3 +32,81 @@
   border-color: rgba(124, 140, 255, 0.18);
   background: rgba(124, 140, 255, 0.08);
 }
+
+.draft-simulator-shell {
+  margin-top: 16px;
+}
+
+.draft-simulator {
+  display: grid;
+  gap: 14px;
+}
+
+.draft-simulator__toolbar {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.draft-simulator__control {
+  display: grid;
+  gap: 6px;
+  font-size: 0.82rem;
+  color: var(--muted-text, #c7cedb);
+}
+
+.draft-simulator__control select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.draft-simulator__grid,
+.draft-simulator__diff-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.draft-simulator__state,
+.draft-simulator__diff-card,
+.draft-simulator__impact {
+  height: 100%;
+}
+
+.draft-simulator__state h4 {
+  margin: 0 0 8px;
+  font-size: 1.05rem;
+}
+
+.draft-simulator__mini-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--muted-text, #c7cedb);
+}
+
+.draft-simulator__verdict {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.draft-simulator__verdict strong {
+  font-size: 1.05rem;
+}
+
+@media (max-width: 860px) {
+  .draft-simulator__toolbar,
+  .draft-simulator__grid,
+  .draft-simulator__diff-grid {
+    grid-template-columns: 1fr;
+  }
+}
