@@ -36,17 +36,17 @@
 - Traducir el análisis en una guía práctica de draft.
 - Derivar objetivos, ventanas de juego y condiciones de derrota.
 
-## Fase 7 — UX del Dashboard y simulación ✅
+## Fase 7 — Player Experience + Dashboard ✅
 - Rediseñar el panel de análisis para leer la composición en segundos.
 - Integrar una hero card de identidad más clara.
 - Separar fortalezas, riesgos, plan, coach, advisor y explicación en bloques propios.
-- Mostrar el Draft Simulator como herramienta visual de swaps.
+- Mantener el simulador como ayuda para probar swaps dentro de la propia composición.
 
 ### Sprint 7.1 — Draft Simulator UI ✅
 - Simular swaps de campeones sin mutar el draft original.
 - Recalcular análisis, coach y strategic advisor.
 - Mostrar diffs compactos para el futuro UI.
-- Renderizar un panel visual de comparación en la composición actual.
+- Renderizar un panel visual de comparación interno en la composición actual.
 - Publicar la entrega con README, roadmap, changelog y Pages actualizados.
 
 ### Sprint 7.2 — Analysis Dashboard v3 ✅
@@ -55,15 +55,16 @@
 - Separar fortalezas, riesgos, métricas, plan, coach y advisor.
 - Reducir densidad visual y mejorar jerarquía.
 
-### Sprint 7.3 — Draft Comparison visual ⏳
-- Comparar dos composiciones completas.
-- Resumir ventajas, riesgos y win condition de ambos lados.
-- Reutilizar el Comparison Engine del simulador.
+### Sprint 7.3 — Dashboard v4 / Player Experience v1 ✅
+- Reforzar jerarquía visual y lectura rápida.
+- Hacer más claro qué composición tengo, cómo gano y qué debo evitar.
+- Transformar datos técnicos en tarjetas simples y accionables.
+- Reducir ruido y priorizar comprensión en pocos segundos.
 
-## Fase 8 — Decision Engine ⏳
-- Pick Advisor.
-- Ban Advisor.
-- Evaluación de alternativas y recomendaciones.
+## Fase 8 — Composition Optimizer ⏳
+- Recomendar swaps internos que mejoren la composición.
+- Detectar huecos de la composición actual.
+- Priorizar cambios de campeones por impacto estratégico.
 
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
