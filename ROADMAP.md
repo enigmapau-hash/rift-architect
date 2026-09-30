@@ -48,6 +48,13 @@
 - Dar más ancho al selector de campeones.
 - Afinar espaciados, jerarquía y consistencia visual antes de la beta.
 
+## Fase 11A — Analysis Experience ⏳
+- Convertir las barras tácticas en una lectura realmente ejecutiva.
+- Añadir el Índice de salud de la composición.
+- Mostrar la condición de victoria de forma más explícita.
+- Destacar el mayor error castigado por el draft.
+- Contextualizar fortalezas y riesgos con frases accionables.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
@@ -58,7 +65,7 @@
 - Recomendar campeones por pool y rol.
 - Detectar huecos del pool y prioridades de práctica.
 
-## Fase 11 — AI Coach ⏳
+## Fase 11B — AI Coach ⏳
 - Conversación guiada sobre ejecución, errores y win condition.
 - Respuestas apoyadas en el motor determinista y el knowledge layer.
 
