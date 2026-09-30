@@ -2,11 +2,13 @@ import { CATEGORY_TERMS, normalizeText } from '../js/engine/utils.js';
 import { IDENTITY_RELATIONS } from './identity-relations.js';
 import { DIRECT_SYNERGY_RULES, MACRO_SYNERGY_RULES } from './synergies.js';
 import { PATTERN_RULES } from './patterns.js';
+import { DEPENDENCY_RULES } from './dependencies.js';
 import { CONFLICT_RULES } from './conflicts.js';
 import { WIN_CONDITION_RULES } from './win-conditions.js';
 
 const VALID_CATEGORIES = new Set(Object.keys(CATEGORY_TERMS));
 const KNOWN_IDENTITY_LABELS = new Set(IDENTITY_RELATIONS.map((rule) => normalizeText(rule.label)));
+const KNOWN_PATTERN_LABELS = new Set(PATTERN_RULES.map((rule) => normalizeText(rule.label)));
 
 function pushIssue(issues, severity, scope, message, path = '') {
   issues.push({ severity, scope, path, message });
@@ -38,6 +40,24 @@ function validateCategories(issues, scope, path, categories = []) {
 
     if (!VALID_CATEGORIES.has(normalized)) {
       pushIssue(issues, 'warning', scope, `Categoría no reconocida: ${category}`, `${path}[${index}]`);
+    }
+  });
+}
+
+function validateTextList(issues, scope, path, values = [], required = true) {
+  if (!Array.isArray(values)) {
+    pushIssue(issues, 'error', scope, 'Debe ser un array.', path);
+    return;
+  }
+
+  if (required && !values.length) {
+    pushIssue(issues, 'error', scope, 'Debe incluir al menos un valor.', path);
+    return;
+  }
+
+  values.forEach((value, index) => {
+    if (!normalizeText(value)) {
+      pushIssue(issues, 'error', scope, 'Los valores no pueden estar vacíos.', `${path}[${index}]`);
     }
   });
 }
@@ -132,6 +152,36 @@ function validatePatterns(issues) {
   if (hasDuplicates(keys)) pushIssue(issues, 'error', 'patterns', 'Hay claves de patrón duplicadas.', 'PATTERN_RULES');
 }
 
+function validateDependencies(issues) {
+  const keys = [];
+
+  DEPENDENCY_RULES.forEach((rule, index) => {
+    const path = `DEPENDENCY_RULES[${index}]`;
+    if (!rule?.key) pushIssue(issues, 'error', 'dependencies', 'Falta la clave de dependencia.', `${path}.key`);
+    if (!rule?.label) pushIssue(issues, 'error', 'dependencies', 'Falta la etiqueta de dependencia.', `${path}.label`);
+    if (!rule?.kind) pushIssue(issues, 'error', 'dependencies', 'Falta el tipo de dependencia.', `${path}.kind`);
+    if (!rule?.detail) pushIssue(issues, 'warning', 'dependencies', 'La dependencia no tiene detalle.', `${path}.detail`);
+
+    keys.push(rule?.key);
+
+    if (!['identity', 'pattern'].includes(rule?.kind)) {
+      pushIssue(issues, 'error', 'dependencies', 'kind debe ser identity o pattern.', `${path}.kind`);
+    }
+
+    validateCategories(issues, 'dependencies', `${path}.match`, rule?.match);
+    validateTextList(issues, 'dependencies', `${path}.needs`, rule?.needs, true);
+    validateTextList(issues, 'dependencies', `${path}.wants`, rule?.wants, false);
+    validateTextList(issues, 'dependencies', `${path}.avoids`, rule?.avoids, false);
+    validateTextList(issues, 'dependencies', `${path}.evidence`, rule?.evidence, false);
+
+    if (rule?.kind === 'pattern' && !KNOWN_PATTERN_LABELS.has(normalizeText(rule?.label))) {
+      pushIssue(issues, 'warning', 'dependencies', `El patrón no está reconocido: ${rule?.label}`, `${path}.label`);
+    }
+  });
+
+  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'dependencies', 'Hay claves de dependencia duplicadas.', 'DEPENDENCY_RULES');
+}
+
 function validateConflicts(issues) {
   const keys = [];
 
@@ -204,6 +254,7 @@ export function validateKnowledgeLayer() {
   validateIdentityRelations(issues);
   validateSynergyRules(issues);
   validatePatterns(issues);
+  validateDependencies(issues);
   validateConflicts(issues);
   validateWinConditions(issues);
 
@@ -220,6 +271,7 @@ export function validateKnowledgeLayer() {
       directSynergies: DIRECT_SYNERGY_RULES.length,
       macroSynergies: MACRO_SYNERGY_RULES.length,
       patterns: PATTERN_RULES.length,
+      dependencies: DEPENDENCY_RULES.length,
       conflicts: CONFLICT_RULES.length,
       winConditions: WIN_CONDITION_RULES.length,
     },
