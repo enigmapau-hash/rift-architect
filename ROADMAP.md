@@ -106,6 +106,13 @@
 - Mantener la IA como capa de explicación y no de decisión.
 - Evitar añadir complejidad visual innecesaria.
 
+## Fase 17 — Executive UX Pass 🔄
+- Convertir el Draft Assistant en una vista ejecutiva primero, con el veredicto por delante.
+- Mantener el detalle completo como ampliación opcional.
+- Reducir superficies de lectura redundantes sin tocar el motor.
+- Conservar toda la profundidad estratégica detrás de una interfaz más compacta.
+- Priorizar comprensión rápida sin devaluar el trabajo del análisis.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
