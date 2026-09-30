@@ -35,6 +35,8 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
 - Analiza la composición seleccionada.
 - Construye un `StrategicPlan`.
 - Genera resumen ejecutivo, perfil de ejecución, plan por fases, checklist y errores críticos.
+- Deriva un bloque de necesidades desde un **Need Engine** propio.
+- Traduce esas necesidades a perfiles estratégicos y recomendaciones de picks/bans.
 - Muestra un panel de Draft Assistant con:
   - necesidades detectadas,
   - impacto sobre el plan,
@@ -43,19 +45,18 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
 
 ## Arquitectura mental actual
 
-`analysisEngine` → `coachEngine` → `strategicPlan` → `executiveSummary` + `analysis hub` + `draft assistant`
+`analysisEngine` → `coachEngine` → `strategicPlan` → `needEngine` → `strategicProfiles` → `draft assistant`
 
 La fuente de verdad estratégica está en el análisis de la propia composición, no en el equipo rival.
 
 ## Lo siguiente por hacer
 
 ### Próximo bloque lógico
-1. Implementar **Strategic Profiles** como capa intermedia entre necesidad y campeón.
+1. Consolidar el **Need Engine** como capa estable y reutilizable.
 2. Traducir necesidades a perfiles de campeón.
-3. Mapear perfiles a campeones concretos.
+3. Revisar qué parte del Excel ya cubre esas necesidades sin añadir campos nuevos.
 4. Mejorar la explicación de por qué un pick o un ban encaja con el plan.
-5. Usar `docs/strategic-profiles.md` como especificación base de esa capa.
-6. Mantener el motor simple: derivar perfiles desde los atributos existentes antes de añadir nuevos campos al Excel.
+5. Mantener la interfaz compacta y fácil de leer.
 
 ### Mejoras pendientes
 - Afinar la UX del Draft Assistant para que sea más ejecutiva.
@@ -78,6 +79,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Draft Assistant / Strategic Profiles
+**Fase actual:** Need Engine / Draft Assistant
 
-**Meta inmediata:** pasar de necesidades a perfiles y después a campeones concretos.
+**Meta inmediata:** consolidar las necesidades y convertirlas en perfiles y recomendaciones simples.
