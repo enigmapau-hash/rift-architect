@@ -1,0 +1,225 @@
+/* Composition Health */
+
+.composition-health {
+  display: grid;
+  gap: 16px;
+}
+
+.composition-health__shell,
+.composition-health__empty {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(12, 18, 35, 0.98), rgba(13, 17, 31, 0.96));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.composition-health__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.composition-health__header-copy {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.composition-health__header-copy h4,
+.composition-health__card strong,
+.composition-health__empty h4 {
+  margin: 0;
+}
+
+.composition-health__header-copy p,
+.composition-health__card p,
+.composition-health__empty p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.composition-health__score-card {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  justify-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(124, 140, 255, 0.2);
+  background: rgba(124, 140, 255, 0.08);
+  text-align: center;
+}
+
+.composition-health__score-card strong {
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1;
+}
+
+.composition-health__score-kicker,
+.composition-health__card-kicker,
+.composition-health__row span,
+.composition-health__metric span {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+}
+
+.composition-health__score-card.is-good {
+  border-color: rgba(70, 211, 161, 0.28);
+  background: rgba(70, 211, 161, 0.1);
+}
+
+.composition-health__score-card.is-mid {
+  border-color: rgba(255, 209, 138, 0.28);
+  background: rgba(255, 209, 138, 0.1);
+}
+
+.composition-health__score-card.is-low {
+  border-color: rgba(255, 122, 122, 0.28);
+  background: rgba(255, 122, 122, 0.1);
+}
+
+.composition-health__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.composition-health__card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.composition-health__card--index,
+.composition-health__card--profile {
+  background: rgba(124, 140, 255, 0.06);
+  border-color: rgba(124, 140, 255, 0.18);
+}
+
+.composition-health__card--win {
+  background: rgba(70, 211, 161, 0.06);
+  border-color: rgba(70, 211, 161, 0.18);
+}
+
+.composition-health__card--risk {
+  background: rgba(255, 122, 122, 0.06);
+  border-color: rgba(255, 122, 122, 0.18);
+}
+
+.composition-health__health-list,
+.composition-health__metric-list,
+.composition-health__chip-list {
+  display: grid;
+  gap: 10px;
+}
+
+.composition-health__row,
+.composition-health__metric {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.composition-health__row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.composition-health__row strong,
+.composition-health__metric strong,
+.composition-health__card strong {
+  margin: 0;
+}
+
+.composition-health__row p,
+.composition-health__metric p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.composition-health__row span,
+.composition-health__metric span {
+  color: var(--text);
+  align-self: start;
+}
+
+.composition-health__metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.composition-health__bar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.composition-health__bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(124, 140, 255, 0.85), rgba(70, 211, 161, 0.9));
+}
+
+.composition-health__row.is-good,
+.composition-health__metric.is-good {
+  border-color: rgba(70, 211, 161, 0.2);
+  background: rgba(70, 211, 161, 0.07);
+}
+
+.composition-health__row.is-mid,
+.composition-health__metric.is-mid {
+  border-color: rgba(255, 209, 138, 0.2);
+  background: rgba(255, 209, 138, 0.07);
+}
+
+.composition-health__row.is-low,
+.composition-health__metric.is-low {
+  border-color: rgba(255, 122, 122, 0.2);
+  background: rgba(255, 122, 122, 0.07);
+}
+
+.composition-health__card .story-pill {
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .composition-health__header,
+  .composition-health__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .composition-health__score-card {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 620px) {
+  .composition-health__shell,
+  .composition-health__empty {
+    padding: 14px;
+  }
+
+  .composition-health__card,
+  .composition-health__row,
+  .composition-health__metric {
+    padding: 12px;
+  }
+}
