@@ -165,11 +165,17 @@
 - Preguntas sobre ejecución, errores y win condition.
 - Respuestas guiadas por la información del Excel.
 
-### Sprint 7.1 — Draft Simulator v0 🚧
+### Sprint 7.1 — Draft Simulator UI ✅
 - Simular swaps de campeones sin mutar el draft original.
 - Recalcular análisis, coach y strategic advisor.
 - Mostrar diffs compactos para el futuro UI.
-- Servir como base para el recomendador.
+- Renderizar un panel visual de comparación en la composición actual.
+- Publicar la entrega con README, roadmap, changelog y Pages actualizados.
+
+### Sprint 7.2 — Draft Comparison visual ⏳
+- Comparar dos composiciones completas.
+- Resumir ventajas, riesgos y win condition de ambos lados.
+- Reutilizar el Comparison Engine del simulador.
 
 ## Regla del proyecto
 - Cada sprint debe actualizar código, README, roadmap y Pages.
