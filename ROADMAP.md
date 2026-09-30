@@ -96,7 +96,12 @@
 ### Sprint 8.4 — Pregunta a Rift ✅
 - Hacer clicables las preguntas rápidas.
 - Responder con lenguaje simple y contexto del motor.
-- Mantener la IA como capa visible de explicación sobre el Excel.
+- Mantener la IA visible como ayuda directa en la composición.
+
+### Sprint 8.5 — Structured Composition View ✅
+- Organizar la pantalla en hero, plan, fortalezas, riesgos, explicación y preguntas.
+- Hacer más evidente la jerarquía visual del análisis.
+- Mostrar la composición como una herramienta de lectura rápida, no como un documento.
 
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
