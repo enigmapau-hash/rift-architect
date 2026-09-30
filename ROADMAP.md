@@ -105,6 +105,8 @@
 - Mapear necesidades a perfiles antes de llegar a campeones concretos.
 - Mantener la IA como capa de explicación y no de decisión.
 - Evitar añadir complejidad visual innecesaria.
+- Implementar la capa en el motor con un módulo pequeño y reutilizable.
+- Usar `docs/strategic-profiles.md` como especificación base.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
