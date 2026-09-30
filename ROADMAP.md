@@ -93,6 +93,11 @@
 - Mostrar preguntas útiles para profundizar con la IA.
 - Reforzar la lectura visual frente al texto técnico.
 
+### Sprint 8.4 — Pregunta a Rift ✅
+- Hacer clicables las preguntas rápidas.
+- Responder con lenguaje simple y contexto del motor.
+- Mantener la IA como capa visible de explicación sobre el Excel.
+
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
 - Recomendar campeones por pool y rol.
