@@ -7,6 +7,7 @@ Rift Architect now includes a small validation layer for the Core Engine and the
 - Loads canonical composition fixtures from `tests/compositions/`.
 - Runs `analyzeComposition()` against each fixture.
 - Compares the result with the expected identity, tempo, win condition, coherence and synergies.
+- Checks knowledge-pattern coverage.
 - Reads the boot-time knowledge report exposed by `knowledge/validator.js`.
 
 ## Files
