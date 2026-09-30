@@ -29,10 +29,11 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
 - El **Draft Assistant** ya incorpora una capa de perfiles estratégicos para traducir necesidades en clases compatibles antes de llegar a campeones concretos.
+- El documento `docs/strategic-profiles.md` define la siguiente capa del motor: capacidades derivadas, perfiles estratégicos y traducción a necesidades.
 - El **Draft Assistant UI** ya puede mostrar necesidades, perfiles estratégicos, clases compatibles y bans en un panel propio dentro del Analysis Hub.
 - La capa visual del Draft Assistant se está ajustando para que el panel sea más ejecutivo, más compacto y más coherente con el resto del hub.
 - El Executive Summary volvió a renderizar correctamente tras restaurar los helpers de confidencia.
-- La disciplina de trabajo obliga a actualizar código, README, ROADMAP y auditoría funcional/técnica en cada entrega.
+- La disciplina de trabajo obliga a actualizar código, README, ROADMAP y `docs/PROJECT_STATE.md` en cada entrega.
 - Responsive compartido para PC, tablet y móvil.
 
 ## GitHub Pages
@@ -44,7 +45,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 1. Implementar la funcionalidad.
 2. Ejecutar auditoría técnica y funcional.
 3. Corregir regresiones antes de cerrar el sprint.
-4. Actualizar README y ROADMAP.
+4. Actualizar README, ROADMAP y `docs/PROJECT_STATE.md`.
 5. Publicar en Pages si hay cambios de versión.
 
 ## Roadmap
