@@ -1,8 +1,8 @@
-import { clampNumber, normalizeText, uniqueOrdered } from './utils.js';
+import { clampNumber, compareLabels, getLabelText, normalizeText, uniqueOrdered } from './utils.js';
 
 function toLabels(values = []) {
   return values
-    .map((value) => (typeof value === 'string' ? value : value?.label))
+    .map((value) => getLabelText(value))
     .filter(Boolean);
 }
 
@@ -42,12 +42,14 @@ function uniqueByLabel(items = []) {
 }
 
 function buildObjectivePriority(analysis) {
-  const raw = uniqueOrdered([
-    ...(analysis?.winCondition?.priorities || []),
-    ...(analysis?.strengths || []).slice(0, 2),
-    ...(analysis?.dependencies?.items || []).slice(0, 2).map((item) => item?.label),
-    ...(analysis?.synergies || []).slice(0, 1).map((item) => item?.label),
-  ]).filter(Boolean);
+  const raw = uniqueOrdered(
+    toLabels([
+      ...(analysis?.winCondition?.priorities || []),
+      ...(analysis?.strengths || []).slice(0, 2),
+      ...(analysis?.dependencies?.items || []).slice(0, 2).map((item) => item?.label),
+      ...(analysis?.synergies || []).slice(0, 1).map((item) => item?.label),
+    ])
+  ).filter(Boolean);
 
   const ordered = raw
     .slice(0, 4)
@@ -84,7 +86,7 @@ function buildObjectivePriority(analysis) {
         detail: buildPriorityDetail(label, analysis),
       };
     })
-    .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'es'));
+    .sort((a, b) => b.score - a.score || compareLabels(a.label, b.label));
 
   return ordered.length
     ? ordered
