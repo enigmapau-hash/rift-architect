@@ -33,6 +33,15 @@ function toScore(value) {
   return Number.isFinite(Number(value.score)) ? Math.round(Number(value.score)) : null;
 }
 
+function uniqueValues(values = []) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function stars(score = 0) {
+  const numeric = Math.max(0, Math.min(5, Number(score) || 0));
+  return '★★★★★'.slice(0, numeric) + '☆☆☆☆☆'.slice(0, 5 - numeric);
+}
+
 async function loadRoleData() {
   if (dataLoaded) return;
   dataLoaded = true;
@@ -96,7 +105,6 @@ function renderList(items, className) {
         .map((item) => {
           const label = escapeHtml(toLabel(item));
           const score = toScore(item);
-          const status = typeof item === 'object' && item.status ? escapeHtml(item.status) : '';
           const detail = typeof item === 'object' ? escapeHtml(item.detail || item.summary || item.description || item.reason || '') : '';
           const champions = typeof item === 'object' && Array.isArray(item.champions) && item.champions.length
             ? escapeHtml(item.champions.join(' · '))
@@ -109,7 +117,6 @@ function renderList(items, className) {
             <li>
               <div>
                 <span>${label}</span>
-                ${status ? `<small>${status}</small>` : ''}
                 ${detail ? `<small>${detail}</small>` : ''}
                 ${champions ? `<small>${champions}</small>` : ''}
                 ${missing ? `<small>${missing}</small>` : ''}
@@ -123,18 +130,38 @@ function renderList(items, className) {
   `;
 }
 
-function renderTempo(tempo) {
-  const value = typeof tempo === 'object' ? tempo.label : tempo;
-  const confidence = typeof tempo === 'object' ? tempo.confidence : null;
-  const phases = typeof tempo === 'object' && Array.isArray(tempo.phases) ? tempo.phases : [];
+function renderPriorityList(items = []) {
+  if (!items.length) return '<p class="analysis-empty">Sin prioridades claras.</p>';
 
   return `
-    <div class="analysis-tempo">
-      <span class="analysis-tempo__label">Tempo</span>
-      <span class="analysis-tempo__badge">${escapeHtml(value && String(value).trim() ? value : 'Sin definir')}</span>
-      ${confidence !== null ? `<span class="analysis-chip">Confianza ${confidence}%</span>` : ''}
-      ${phases.length ? `<div class="analysis-chip-list">${phases.map((phase) => `<span class="analysis-chip">${escapeHtml(phase)}</span>`).join('')}</div>` : ''}
-    </div>
+    <ul class="analysis-list analysis-list--neutral">
+      ${items
+        .map(
+          (item) => `
+            <li>
+              <div>
+                <span>${escapeHtml(item.label)}</span>
+                ${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ''}
+              </div>
+              <span class="analysis-chip">${escapeHtml(stars(item.score))}</span>
+            </li>
+          `
+        )
+        .join('')}
+    </ul>
+  `;
+}
+
+function renderCoachPhase(phase) {
+  if (!phase) return '';
+
+  const actions = Array.isArray(phase.actions) ? phase.actions.filter(Boolean) : [];
+  return `
+    <article class="analysis-block" style="padding: 12px 14px;">
+      <p class="eyebrow">${escapeHtml(phase.label)}</p>
+      <p class="analysis-note">${escapeHtml(phase.detail || 'Sin detalle disponible.')}</p>
+      ${actions.length ? `<div class="analysis-chip-list">${actions.map((action) => `<span class="analysis-chip">${escapeHtml(action)}</span>`).join('')}</div>` : ''}
+    </article>
   `;
 }
 
@@ -149,22 +176,21 @@ function renderAnalysisSummary() {
   }
 
   const analysis = analyzeComposition(selectedChampions);
+  const coach = analysis.coach || {};
+  const explanationSummary = Array.isArray(analysis.explanation?.summary) ? analysis.explanation.summary.slice(0, 3) : [];
   const primaryIdentity = analysis.primaryIdentity || 'Sin definir';
   const secondaryIdentities = (analysis.secondaryIdentities || []).slice(0, 2);
   const strengths = (analysis.strengths || []).slice(0, 4);
-  const weaknesses = (analysis.weaknesses || []).slice(0, 3);
-  const gamePlan = (analysis.gamePlan || []).slice(0, 3);
   const synergies = (analysis.synergies || []).slice(0, 3);
-  const dependencies = (analysis.dependencies?.items || []).slice(0, 3);
-  const explanationSummary = (Array.isArray(analysis.explanation?.summary) ? analysis.explanation.summary : []).slice(0, 3);
-  const coherence = analysis.coherence || {};
-  const winCondition = analysis.winCondition || {};
-  const tempo = analysis.tempoDetail || analysis.tempo || 'Sin definir';
+  const risks = uniqueValues([
+    ...(coach.risks || []).map((item) => item?.label || item),
+    ...(analysis.weaknesses || []).slice(0, 3),
+  ]).slice(0, 3);
   const confidence = Number.isFinite(Number(analysis.confidence)) ? Math.round(Number(analysis.confidence)) : null;
   const dominanceLabel = analysis.dominance === 'dominant' ? 'Dominante' : analysis.dominance === 'hybrid' ? 'Híbrida' : analysis.dominance === 'flexible' ? 'Flexible' : null;
-  const winPriorities = Array.isArray(winCondition.priorities) ? winCondition.priorities.slice(0, 3) : [];
-  const winAvoid = Array.isArray(winCondition.avoid) ? winCondition.avoid.slice(0, 2) : [];
-  const coherenceConflicts = Array.isArray(coherence.conflicts) ? coherence.conflicts.slice(0, 2) : [];
+  const tempoLabel = analysis.tempoDetail?.label || analysis.tempo || 'Sin definir';
+  const winConditionLabel = analysis.winCondition?.label || 'Sin definir';
+  const coherenceLabel = analysis.coherence?.label || 'Sin definir';
 
   summary.innerHTML = `
     <div class="analysis-engine">
@@ -175,75 +201,50 @@ function renderAnalysisSummary() {
         <div class="analysis-chip-list">
           ${dominanceLabel ? `<span class="analysis-chip">${escapeHtml(dominanceLabel)}</span>` : ''}
           ${confidence !== null ? `<span class="analysis-chip">Confianza ${confidence}%</span>` : ''}
-          ${coherence.label ? `<span class="analysis-chip">${escapeHtml(coherence.label)}</span>` : ''}
-          ${winCondition.label ? `<span class="analysis-chip">Victoria: ${escapeHtml(winCondition.label)}</span>` : ''}
+          ${coherenceLabel ? `<span class="analysis-chip">${escapeHtml(coherenceLabel)}</span>` : ''}
+          ${winConditionLabel ? `<span class="analysis-chip">Victoria: ${escapeHtml(winConditionLabel)}</span>` : ''}
+          ${tempoLabel ? `<span class="analysis-chip">Tempo: ${escapeHtml(tempoLabel)}</span>` : ''}
+          ${secondaryIdentities.length ? secondaryIdentities.map((identity) => `<span class="analysis-chip">${escapeHtml(identity)}</span>`).join('') : ''}
         </div>
       </section>
 
-      ${explanationSummary.length ? `
-        <section class="analysis-block">
-          <p class="eyebrow">Por qué</p>
-          <details>
-            <summary>Ver evidencias del motor</summary>
-            ${renderList(explanationSummary, 'analysis-list--neutral')}
-          </details>
-        </section>
-      ` : ''}
-
       <div class="analysis-grid">
         <section class="analysis-block">
-          <p class="eyebrow">Secundarias</p>
-          <div class="analysis-chip-list">
-            ${secondaryIdentities.length
-              ? secondaryIdentities.map((identity) => `<span class="analysis-chip">${escapeHtml(identity)}</span>`).join('')
-              : '<span class="analysis-empty">Sin secundarias claras</span>'}
+          <p class="eyebrow">Fortalezas</p>
+          ${renderList(strengths, 'analysis-list--good')}
+          ${synergies.length ? `<div class="analysis-chip-list">${synergies.map((item) => `<span class="analysis-chip">${escapeHtml(item.label)}</span>`).join('')}</div>` : ''}
+        </section>
+
+        <section class="analysis-block analysis-block--hero">
+          <p class="eyebrow">Plan</p>
+          <h3>${escapeHtml(coach.headline || analysis.winCondition?.label || 'Jugar alrededor de la identidad')}</h3>
+          <div class="analysis-grid" style="grid-template-columns: 1fr; gap: 12px;">
+            <article class="analysis-block" style="padding: 12px 14px;">
+              <p class="eyebrow">Prioridades</p>
+              ${renderPriorityList(coach.priorities || [])}
+            </article>
+            <article class="analysis-block" style="padding: 12px 14px;">
+              <p class="eyebrow">Power spikes</p>
+              <div class="analysis-chip-list">
+                ${(coach.powerSpikes || []).length
+                  ? coach.powerSpikes.map((spike) => `<span class="analysis-chip">${escapeHtml(spike.label)}</span>`).join('')
+                  : '<span class="analysis-empty">Sin picos claros.</span>'}
+              </div>
+            </article>
+            ${renderCoachPhase((coach.phases || [])[0])}
+            ${renderCoachPhase((coach.phases || [])[1])}
+            ${renderCoachPhase((coach.phases || [])[2])}
           </div>
         </section>
 
-        <section class="analysis-block analysis-block--tempo">
-          <p class="eyebrow">Tempo</p>
-          ${renderTempo(tempo)}
+        <section class="analysis-block">
+          <p class="eyebrow">Riesgos</p>
+          ${renderList(risks, 'analysis-list--bad')}
         </section>
 
         <section class="analysis-block">
-          <p class="eyebrow">Sinergias</p>
-          ${renderList(synergies, 'analysis-list--good')}
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">Dependencias</p>
-          ${renderList(dependencies, 'analysis-list--neutral')}
-          ${analysis.dependencies?.summary ? `<p class="analysis-note">${escapeHtml(analysis.dependencies.summary)}</p>` : ''}
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">Coherencia</p>
-          <h4>${escapeHtml(coherence.label || 'Sin definir')}</h4>
-          <p class="analysis-note">${escapeHtml(coherence.detail || 'Sin detalle disponible.')}</p>
-          ${coherenceConflicts.length ? `<div class="analysis-chip-list">${coherenceConflicts.map((conflict) => `<span class="analysis-chip">${escapeHtml(conflict.label)}</span>`).join('')}</div>` : ''}
-        </section>
-
-        <section class="analysis-block analysis-block--hero analysis-block--plan">
-          <p class="eyebrow">Condición de victoria</p>
-          <h3>${escapeHtml(winCondition.label || 'Sin definir')}</h3>
-          <p>${escapeHtml(winCondition.detail || 'Sin detalle disponible.')}</p>
-          ${winPriorities.length ? `<div class="analysis-chip-list">${winPriorities.map((item) => `<span class="analysis-chip">${escapeHtml(item)}</span>`).join('')}</div>` : ''}
-        </section>
-
-        <section class="analysis-block analysis-block--hero analysis-block--plan">
-          <p class="eyebrow">Plan</p>
-          ${renderList(gamePlan, 'analysis-list--plan')}
-          ${winAvoid.length ? `<p class="analysis-note">Evitar: ${escapeHtml(winAvoid.join(' · '))}</p>` : ''}
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">🟢 Hace bien</p>
-          ${renderList(strengths, 'analysis-list--good')}
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">🔴 Le falta</p>
-          ${renderList(weaknesses, 'analysis-list--bad')}
+          <p class="eyebrow">Por qué</p>
+          ${explanationSummary.length ? renderList(explanationSummary, 'analysis-list--neutral') : '<p class="analysis-empty">Sin explicación disponible.</p>'}
         </section>
       </div>
     </div>
