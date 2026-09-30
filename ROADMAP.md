@@ -98,6 +98,14 @@
 - Introducir una capa de perfiles estratégicos entre las necesidades y las clases para mantener la explicación y el motor desacoplados de campeones concretos.
 - Pulir la interfaz para que el panel sea más ejecutivo, más compacto y más coherente con el resto del hub.
 
+## Fase 16 — Strategic Profiles 🔄
+- Definir el catálogo corto de capacidades derivadas.
+- Traducir esas capacidades en perfiles estratégicos reutilizables.
+- Usar perfiles para detectar necesidades de la composición.
+- Mapear necesidades a perfiles antes de llegar a campeones concretos.
+- Mantener la IA como capa de explicación y no de decisión.
+- Evitar añadir complejidad visual innecesaria.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
