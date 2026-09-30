@@ -11,6 +11,7 @@ Rift Architect now includes a small validation layer for the Core Engine and the
 - Checks explainability coverage.
 - Checks coach guidance coverage.
 - Checks strategic advisor coverage, including objective priority, game windows and lose conditions.
+- Checks simulation coverage on the reference protect-carry swap.
 - Checks knowledge-pattern coverage.
 - Checks dependency coverage.
 - Tracks basic validation timing.
