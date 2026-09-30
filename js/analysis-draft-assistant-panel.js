@@ -65,12 +65,15 @@ function renderPanel() {
 
   const analysis = analyzeComposition(selectedChampions);
   const draftAssistant = analysis.draftAssistant || {};
+  const strategicPlan = analysis.strategicPlan || analysis.plan || analysis.coach?.strategicPlan || {};
   const needs = Array.isArray(draftAssistant.compositionNeeds) ? draftAssistant.compositionNeeds : [];
   const pickRecommendations = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
   const banRecommendations = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
   const priorities = Array.isArray(draftAssistant.priorities) ? draftAssistant.priorities : [];
   const summary = draftAssistant.summary || 'La composición necesita reforzar su plan de juego antes de elegir un campeón o un ban.';
   const headline = buildHeadline(needs, draftAssistant);
+  const planLine = buildPlanLine(strategicPlan);
+  const groupedNeeds = groupNeeds(needs);
 
   state.root.hidden = false;
   state.root.innerHTML = `
@@ -83,6 +86,7 @@ function renderPanel() {
       <div class="analysis-hub__assistant-hero">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(headline)}</p>
         <p>${escapeHtml(summary)}</p>
+        ${planLine ? `<p class="analysis-hub__assistant-hero-meta">Plan detectado: ${escapeHtml(planLine)}</p>` : ''}
       </div>
 
       <div class="analysis-hub__assistant-chip-row">
@@ -94,15 +98,17 @@ function renderPanel() {
       </div>
 
       <div class="analysis-hub__assistant-grid">
-        <details class="analysis-hub__assistant-card" open>
-          <summary>
-            <strong>Necesidades detectadas</strong>
-            <span>${needs.length} señales</span>
-          </summary>
-          <div class="analysis-hub__assistant-list">
-            ${renderNeedRows(needs)}
-          </div>
-        </details>
+        ${groupedNeeds.map((group, index) => `
+          <details class="analysis-hub__assistant-card" ${index === 0 ? 'open' : ''}>
+            <summary>
+              <strong>${escapeHtml(group.title)}</strong>
+              <span>${group.items.length} señales</span>
+            </summary>
+            <div class="analysis-hub__assistant-list">
+              ${renderNeedRows(group.items, strategicPlan)}
+            </div>
+          </details>
+        `).join('')}
 
         <details class="analysis-hub__assistant-card">
           <summary>
@@ -110,7 +116,7 @@ function renderPanel() {
             <span>${pickRecommendations.length} recomendaciones</span>
           </summary>
           <div class="analysis-hub__assistant-list">
-            ${renderRecommendationRows(pickRecommendations, 'PICK')}
+            ${renderRecommendationRows(pickRecommendations, 'PICK', planLine)}
           </div>
         </details>
 
@@ -120,7 +126,7 @@ function renderPanel() {
             <span>${banRecommendations.length} recomendaciones</span>
           </summary>
           <div class="analysis-hub__assistant-list">
-            ${renderRecommendationRows(banRecommendations, 'BAN')}
+            ${renderRecommendationRows(banRecommendations, 'BAN', planLine)}
           </div>
         </details>
       </div>
@@ -142,7 +148,22 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
-function renderNeedRows(needs = []) {
+function groupNeeds(needs = []) {
+  const groups = [
+    { key: 'critical', title: 'Críticas' },
+    { key: 'important', title: 'Importantes' },
+    { key: 'minor', title: 'Opcionales' },
+  ];
+
+  return groups
+    .map((group) => ({
+      ...group,
+      items: needs.filter((item) => item.priority === group.key),
+    }))
+    .filter((group) => group.items.length);
+}
+
+function renderNeedRows(needs = [], strategicPlan = {}) {
   if (!needs.length) {
     return `
       <article class="analysis-hub__row">
@@ -159,13 +180,14 @@ function renderNeedRows(needs = []) {
       <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(priorityPrefix(need.priority))} · ${escapeHtml(need.label)}</strong>
         <p>${escapeHtml(clampWords(need.detail, 14))}</p>
+        <p class="analysis-hub__row-note">Impacto: ${escapeHtml(clampWords(need.impact || buildNeedImpact(need, strategicPlan), 16))}</p>
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(String(need.score ?? 0))}/5</span>
     </article>
   `).join('');
 }
 
-function renderRecommendationRows(items = [], kind = 'ITEM') {
+function renderRecommendationRows(items = [], kind = 'ITEM', planLine = '') {
   if (!items.length) {
     return `
       <article class="analysis-hub__row">
@@ -182,6 +204,7 @@ function renderRecommendationRows(items = [], kind = 'ITEM') {
       <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(kind)} · ${escapeHtml(item.label)}</strong>
         <p>${escapeHtml(clampWords(item.detail, 16))}</p>
+        ${planLine ? `<p class="analysis-hub__row-note">Plan: ${escapeHtml(planLine)}</p>` : ''}
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority))}</span>
     </article>
@@ -194,6 +217,34 @@ function buildHeadline(needs, draftAssistant) {
   const top = needs.slice(0, 3).map((item) => item.label.toLowerCase());
   const focus = draftAssistant?.summary ? clampWords(draftAssistant.summary, 10) : 'reforzar el plan';
   return `Foco: ${top.join(' · ')} · ${focus}`;
+}
+
+function buildPlanLine(strategicPlan = {}) {
+  const pieces = [strategicPlan?.fightStyle, strategicPlan?.mapFocus, strategicPlan?.tempo]
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
+  return pieces.length ? pieces.join(' · ') : '';
+}
+
+function buildNeedImpact(need = {}, strategicPlan = {}) {
+  const style = String(strategicPlan?.fightStyle || 'tu plan').toLowerCase();
+  const focus = String(strategicPlan?.mapFocus || 'los objetivos').toLowerCase();
+
+  const impacts = {
+    frontline: `Sin frontline, ${style} pierde espacio para ejecutarse.`,
+    engage: 'Te costará iniciar peleas y asegurar objetivos.',
+    damage: 'No tendrás cierre claro en peleas largas o Barón.',
+    scaling: 'El plan se queda corto en late game.',
+    objective: `Convertir ventaja en ${focus} será más difícil.`,
+    control: 'Perderás espacio y visión en los puntos clave.',
+    teamfight: 'El 5v5 se volverá más caótico y menos fiable.',
+    poke: 'No podrás desgastar al rival antes del engage.',
+    mobility: 'Rotar y reposicionarte costará más.',
+    pick: 'No castigarás errores cortos ni niebla.',
+    splitpush: 'No abrirás mapa ni forzarás respuestas laterales.',
+  };
+
+  return impacts[need.key] || 'El plan detectado quedará más débil.';
 }
 
 function clampWords(text, maxWords = 12) {
