@@ -61,6 +61,11 @@
 - Transformar datos técnicos en tarjetas simples y accionables.
 - Reducir ruido y priorizar comprensión en pocos segundos.
 
+### Sprint 7.4 — Product Map visual ✅
+- Mostrar la estructura visual completa de la app.
+- Agrupar entrada, motor, dashboard, optimización y futuro en bloques claros.
+- Servir de guía visual para las siguientes iteraciones.
+
 ## Fase 8 — Composition Optimizer ⏳
 - Recomendar swaps internos que mejoren la composición.
 - Detectar huecos de la composición actual.
