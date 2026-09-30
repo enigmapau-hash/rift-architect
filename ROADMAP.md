@@ -118,7 +118,12 @@
 - Unificar cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - Mostrar la narrativa antes del detalle técnico.
 - Reutilizar el motor existente sin añadir nuevos datos al Excel.
-- Mantener la IA como capa de explicación y no de decisión.
+
+## Fase 19 — Explainability Engine 🔄
+- Hacer que cada conclusión responda al “por qué”.
+- Conectar las necesidades con su causa principal.
+- Dar soporte a la narrativa sin añadir ruido.
+- Mantener la explicación corta, estructurada y reutilizable.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
