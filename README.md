@@ -28,7 +28,8 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
-- Se han restaurado los helpers de confidencia del Executive Summary para estabilizar el render del hub.
+- El **Draft Assistant UI** ya puede mostrar necesidades, picks y bans en un panel propio dentro del Analysis Hub.
+- El Executive Summary volvió a renderizar correctamente tras restaurar los helpers de confidencia.
 - La disciplina de trabajo obliga a actualizar código, README, ROADMAP y auditoría funcional/técnica en cada entrega.
 - Responsive compartido para PC, tablet y móvil.
 
