@@ -67,12 +67,14 @@ function renderPanel() {
   const draftAssistant = analysis.draftAssistant || {};
   const strategicPlan = analysis.strategicPlan || analysis.plan || analysis.coach?.strategicPlan || {};
   const needs = Array.isArray(draftAssistant.compositionNeeds) ? draftAssistant.compositionNeeds : [];
+  const strategicProfiles = Array.isArray(draftAssistant.strategicProfiles) ? draftAssistant.strategicProfiles : [];
   const pickRecommendations = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
   const banRecommendations = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
   const priorities = Array.isArray(draftAssistant.priorities) ? draftAssistant.priorities : [];
   const summary = draftAssistant.summary || 'La composición necesita reforzar su plan de juego antes de elegir un campeón o un ban.';
-  const headline = buildHeadline(needs, draftAssistant);
+  const headline = buildHeadline(needs, strategicProfiles, draftAssistant);
   const planLine = buildPlanLine(strategicPlan);
+  const profileLine = buildProfileLine(strategicProfiles);
   const groupedNeeds = groupNeeds(needs);
 
   state.root.hidden = false;
@@ -80,13 +82,14 @@ function renderPanel() {
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
         <span class="analysis-hub__card-kicker">Draft Assistant</span>
-        <span class="analysis-hub__summary-panel-note">Necesidades, picks y bans</span>
+        <span class="analysis-hub__summary-panel-note">Necesidades, perfiles, clases y bans</span>
       </div>
 
       <div class="analysis-hub__assistant-hero">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(headline)}</p>
         <p>${escapeHtml(summary)}</p>
         ${planLine ? `<p class="analysis-hub__assistant-hero-meta">Plan detectado: ${escapeHtml(planLine)}</p>` : ''}
+        ${profileLine ? `<p class="analysis-hub__assistant-hero-meta">Perfiles requeridos: ${escapeHtml(profileLine)}</p>` : ''}
       </div>
 
       <div class="analysis-hub__assistant-chip-row">
@@ -110,23 +113,33 @@ function renderPanel() {
           </details>
         `).join('')}
 
-        <details class="analysis-hub__assistant-card">
+        <details class="analysis-hub__assistant-card" open>
           <summary>
-            <strong>Draft Picks</strong>
-            <span>${pickRecommendations.length} recomendaciones</span>
+            <strong>Perfiles requeridos</strong>
+            <span>${strategicProfiles.length} perfiles</span>
           </summary>
           <div class="analysis-hub__assistant-list">
-            ${renderRecommendationRows(pickRecommendations, 'PICK', planLine)}
+            ${renderProfileRows(strategicProfiles)}
           </div>
         </details>
 
         <details class="analysis-hub__assistant-card">
           <summary>
-            <strong>Draft Bans</strong>
-            <span>${banRecommendations.length} recomendaciones</span>
+            <strong>Clases compatibles</strong>
+            <span>${pickRecommendations.length} rutas</span>
           </summary>
           <div class="analysis-hub__assistant-list">
-            ${renderRecommendationRows(banRecommendations, 'BAN', planLine)}
+            ${renderRecommendationRows(pickRecommendations, 'CLASE')}
+          </div>
+        </details>
+
+        <details class="analysis-hub__assistant-card">
+          <summary>
+            <strong>Amenazas a evitar</strong>
+            <span>${banRecommendations.length} rutas</span>
+          </summary>
+          <div class="analysis-hub__assistant-list">
+            ${renderRecommendationRows(banRecommendations, 'BAN')}
           </div>
         </details>
       </div>
@@ -187,7 +200,33 @@ function renderNeedRows(needs = [], strategicPlan = {}) {
   `).join('');
 }
 
-function renderRecommendationRows(items = [], kind = 'ITEM', planLine = '') {
+function renderProfileRows(profiles = []) {
+  if (!profiles.length) {
+    return `
+      <article class="analysis-hub__row">
+        <div class="analysis-hub__row-copy">
+          <strong>Perfil flexible</strong>
+          <p>La composición no muestra una especialización dominante todavía.</p>
+        </div>
+      </article>
+    `;
+  }
+
+  return profiles.slice(0, 4).map((profile) => `
+    <article class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
+        <strong>${escapeHtml(profile.label)}</strong>
+        <p>${escapeHtml(clampWords(profile.detail, 16))}</p>
+        <p class="analysis-hub__row-note">Por qué: ${escapeHtml(clampWords(profile.why || profile.impact || 'Encaja con el plan actual.', 16))}</p>
+        ${Array.isArray(profile.relatedNeeds) && profile.relatedNeeds.length ? `<p class="analysis-hub__row-note">Señales: ${escapeHtml(profile.relatedNeeds.slice(0, 3).join(' · '))}</p>` : ''}
+        ${Array.isArray(profile.classes) && profile.classes.length ? `<div class="analysis-hub__assistant-chip-row">${profile.classes.slice(0, 3).map((item) => `<span class="analysis-hub__priority-pill analysis-hub__priority-pill--assistant">${escapeHtml(item)}</span>`).join('')}</div>` : ''}
+      </div>
+      <span class="analysis-hub__assistant-score">${escapeHtml(confidencePrefix(profile.confidence))}<br>${escapeHtml(String(profile.confidence ?? 0))}/100</span>
+    </article>
+  `).join('');
+}
+
+function renderRecommendationRows(items = [], kind = 'ITEM') {
   if (!items.length) {
     return `
       <article class="analysis-hub__row">
@@ -204,19 +243,23 @@ function renderRecommendationRows(items = [], kind = 'ITEM', planLine = '') {
       <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(kind)} · ${escapeHtml(item.label)}</strong>
         <p>${escapeHtml(clampWords(item.detail, 16))}</p>
-        ${planLine ? `<p class="analysis-hub__row-note">Plan: ${escapeHtml(planLine)}</p>` : ''}
+        ${item.profileLabel ? `<p class="analysis-hub__row-note">Perfil: ${escapeHtml(item.profileLabel)}</p>` : ''}
+        ${Array.isArray(item.classTags) && item.classTags.length ? `<div class="analysis-hub__assistant-chip-row">${item.classTags.slice(0, 3).map((tag) => `<span class="analysis-hub__priority-pill analysis-hub__priority-pill--assistant">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority))}</span>
     </article>
   `).join('');
 }
 
-function buildHeadline(needs, draftAssistant) {
+function buildHeadline(needs, profiles, draftAssistant) {
   if (!needs.length) return 'La composición está bastante equilibrada.';
 
-  const top = needs.slice(0, 3).map((item) => item.label.toLowerCase());
   const focus = draftAssistant?.summary ? clampWords(draftAssistant.summary, 10) : 'reforzar el plan';
-  return `Foco: ${top.join(' · ')} · ${focus}`;
+  const profileFocus = profiles.length
+    ? profiles.slice(0, 2).map((item) => item.label.toLowerCase()).join(' · ')
+    : needs.slice(0, 2).map((item) => item.label.toLowerCase()).join(' · ');
+
+  return `Foco: ${profileFocus} · ${focus}`;
 }
 
 function buildPlanLine(strategicPlan = {}) {
@@ -224,6 +267,11 @@ function buildPlanLine(strategicPlan = {}) {
     .map((value) => String(value || '').trim())
     .filter(Boolean);
   return pieces.length ? pieces.join(' · ') : '';
+}
+
+function buildProfileLine(profiles = []) {
+  if (!profiles.length) return '';
+  return profiles.slice(0, 3).map((profile) => profile.label).join(' · ');
 }
 
 function buildNeedImpact(need = {}, strategicPlan = {}) {
@@ -261,6 +309,14 @@ function priorityPrefix(priority) {
   if (priority === 'critical') return 'Crítico';
   if (priority === 'important') return 'Importante';
   return 'Menor';
+}
+
+function confidencePrefix(confidence) {
+  const value = Number(confidence) || 0;
+  if (value >= 85) return 'Muy alta';
+  if (value >= 70) return 'Alta';
+  if (value >= 55) return 'Media';
+  return 'Baja';
 }
 
 function escapeHtml(value) {
