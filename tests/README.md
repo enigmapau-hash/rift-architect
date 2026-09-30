@@ -4,13 +4,13 @@ This folder contains canonical composition fixtures used to validate the Core En
 
 ## Structure
 
-- `compositions/` — reference drafts and their expected outcomes.
+- `compositions/` — reference drafts, edge cases, and their expected outcomes.
 - `engineValidation.js` — validation runner.
 - `index.html` — simple browser report.
 
 ## Coverage
 
-The report now checks pattern coverage and dependency coverage in addition to the core analysis checks.
+The report now checks pattern coverage, dependency coverage, and basic timing in addition to the core analysis checks.
 
 ## Goal
 
