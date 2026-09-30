@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v61';
+const CACHE_NAME = 'rift-architect-v62';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -11,6 +11,7 @@ const STATIC_ASSETS = [
   './css/design-tokens.css',
   './css/components.css',
   './css/design-system.css',
+  './css/composition-report.css',
   './css/composition-visual.css',
   './css/composition-visual-ai.css',
   './css/game-plan.css',
@@ -18,6 +19,7 @@ const STATIC_ASSETS = [
   './js/bootstrap.js',
   './js/app-v2.js',
   './js/v2_patch.js',
+  './js/composition-report-panel.js',
   './js/composition-visual-panel.js',
   './js/game-plan-panel.js',
   './js/decision-engine-panel.js',
@@ -63,7 +65,6 @@ const STATIC_ASSETS = [
   './tests/compositions/triple-carry.json',
   './tests/compositions/global-pressure.json',
   './manifest.webmanifest',
-  './data/index.json',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
   './DESIGN_SYSTEM.md',
