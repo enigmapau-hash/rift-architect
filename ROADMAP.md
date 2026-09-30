@@ -119,22 +119,28 @@
 - Mostrar niveles de madurez y evidencias internas.
 - Validar cobertura de dependencias en el banco de pruebas.
 
-### Sprint 5.5 — Certification Sprint 🚧
+### Sprint 5.5 — Certification Sprint ✅
 - Verificar cobertura total del banco de pruebas.
 - Añadir casos límite para composiciones vacías, mínimas y extremas.
 - Medir tiempo de análisis y carga de conocimiento.
 - Congelar la arquitectura estable antes de la IA.
 
-## Fase 6 — Explainability Engine 🚧
+## Fase 6 — Explainability + Coach 🚧
 - Exponer evidencias compactas del motor.
 - Mostrar por qué cada conclusión existe.
-- Preparar la capa de IA explicativa.
+- Traducir el análisis en una guía práctica de draft.
 
-### Sprint 6.0 — Explainability Engine 🚧
+### Sprint 6.0 — Explainability Engine ✅
 - Añadir evidencias al análisis.
 - Construir bloques de explicación cortos.
 - Mostrar por qué el motor decide.
 - Mantener la UI compacta.
+
+### Sprint 6.1 — Draft Coach v1 🚧
+- Añadir prioridades visuales al análisis.
+- Exponer power spikes y riesgos del draft.
+- Resumir objetivos por fase (early, mid y late).
+- Mantener la guía práctica sin añadir ruido.
 
 ## Fase 7 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.
