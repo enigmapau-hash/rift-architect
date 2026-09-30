@@ -6,13 +6,35 @@ function toLabels(values = []) {
     .filter(Boolean);
 }
 
-function toText(values = []) {
-  return values.filter(Boolean).join(' ');
-}
-
 function containsAny(text, terms = []) {
   const normalized = normalizeText(text);
   return terms.some((term) => normalized.includes(normalizeText(term)));
+}
+
+function clampWords(text, maxWords = 12) {
+  const words = String(text || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .split(' ')
+    .filter(Boolean);
+
+  return words.slice(0, maxWords).join(' ');
+}
+
+function uniqueByLabel(items = []) {
+  const seen = new Set();
+  const result = [];
+
+  items.forEach((item) => {
+    const label = String(item?.label || '').trim();
+    if (!label) return;
+    const key = normalizeText(label);
+    if (seen.has(key)) return;
+    seen.add(key);
+    result.push({ ...item, label });
+  });
+
+  return result.slice(0, 3);
 }
 
 function buildPriorityDetail(label, analysis) {
@@ -203,6 +225,80 @@ function buildRisks(analysis) {
   });
 }
 
+function buildInsights(analysis, priorities, powerSpikes) {
+  const insights = [];
+  const win = normalizeText(analysis?.winCondition?.label || '');
+
+  if (containsAny(win, ['escalar', 'front to back', 'protect', 'teamfight', '5v5'])) {
+    insights.push({
+      label: 'Escalas mejor que la rival',
+      detail: 'Tu composición gana valor con el tiempo y la pelea ordenada.',
+    });
+  } else if (containsAny(win, ['pick', 'dive'])) {
+    insights.push({
+      label: 'Busca picks cortos',
+      detail: 'Las ventanas breves valen más que las peleas largas.',
+    });
+  } else if (containsAny(win, ['poke', 'siege'])) {
+    insights.push({
+      label: 'Desgasta antes de entrar',
+      detail: 'Tu rango debe abrir la pelea y no cerrarla a ciegas.',
+    });
+  } else if (containsAny(win, ['splitpush'])) {
+    insights.push({
+      label: 'Abre el mapa',
+      detail: 'La presión lateral es tu mejor salida.',
+    });
+  } else {
+    insights.push({
+      label: analysis?.primaryIdentity || 'Juega tu identidad',
+      detail: 'Sigue el plan dominante de la composición.',
+    });
+  }
+
+  if (priorities[0]) {
+    insights.push({
+      label: `Prioridad: ${priorities[0].label}`,
+      detail: priorities[0].detail || 'Debe ejecutarse primero.',
+    });
+  }
+
+  if (powerSpikes[0]) {
+    insights.push({
+      label: `Power spike: ${powerSpikes[0].label}`,
+      detail: powerSpikes[0].detail || 'Es una ventana para pelear.',
+    });
+  }
+
+  return uniqueByLabel(insights);
+}
+
+function buildAlerts(risks) {
+  return uniqueByLabel(
+    risks.slice(0, 3).map((risk) => ({
+      label: risk.label,
+      detail: risk.detail || 'Puede romper el plan principal.',
+    }))
+  );
+}
+
+function buildSummary(analysis, priorities, powerSpikes, risks) {
+  const priority = priorities[0]?.label || analysis?.winCondition?.label || 'Jugar alrededor de la identidad';
+  const risk = risks[0]?.label || 'Sin riesgo claro';
+  const powerSpike = powerSpikes[0]?.label || 'Sin pico claro';
+
+  return {
+    identity: analysis?.primaryIdentity || 'Sin definir',
+    priority,
+    risk,
+    powerSpike,
+    reason: clampWords(
+      analysis?.summaryText || analysis?.coherence?.detail || 'La composición sigue su identidad.',
+      12
+    ),
+  };
+}
+
 function summarizeHeadline(priorities, phases, analysis) {
   const parts = [priorities[0]?.label || analysis?.primaryIdentity || 'Jugar alrededor de la identidad'];
 
@@ -217,9 +313,15 @@ export function buildCoach(analysis = {}, selectedChampions = []) {
   const powerSpikes = buildPowerSpikes(analysis, selectedChampions);
   const phases = buildPhases(analysis, priorities, powerSpikes);
   const risks = buildRisks(analysis, selectedChampions);
+  const insights = buildInsights(analysis, priorities, powerSpikes);
+  const alerts = buildAlerts(risks);
+  const summary = buildSummary(analysis, priorities, powerSpikes, risks);
 
   return {
     headline: summarizeHeadline(priorities, phases, analysis),
+    summary,
+    insights,
+    alerts,
     priorities,
     powerSpikes,
     phases,
