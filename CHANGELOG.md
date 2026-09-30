@@ -20,6 +20,7 @@
 - Canonical engine test bank with reference compositions, edge cases, pattern coverage, dependency coverage and browser report.
 - Empty and single-champion edge-case fixtures for the certification sprint.
 - Timing and certification metadata in the engine test bank.
+- Explainability engine with compact evidence blocks for the analysis panel.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -36,7 +37,9 @@
 - The engine test bank now surfaces a certification badge when the suite is fully green.
 - The analysis engine now exposes strategic dependencies.
 - The analysis panel now shows strategic dependencies.
-- Service worker cache bumped to v41 after the certification update.
+- The analysis engine now exposes explainability evidence.
+- The analysis panel now shows a compact why-block.
+- Service worker cache bumped to v42 after the explainability update.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
