@@ -7,6 +7,7 @@
 - Story-first layout with identity, win condition, priorities, key piece, timeline and quick questions.
 - A visual composition profile with bars for engage, peel, scaling, frontline, mobility and CC.
 - A checklist-style plan so the main actions and avoid list are easier to scan.
+- An Índice de salud de la composición with executive diagnosis, victory condition and biggest punished mistake.
 - A more balanced Composition Story layout on desktop, with a two-column arrangement that reduces vertical scroll.
 - A stronger Hero and decision emphasis so the most important draft signals stand out faster.
 - Simple language summaries built from the motor and the Excel.
@@ -21,7 +22,7 @@
 - The layout is now more balanced between desktop and mobile, with less vertical scroll and a larger selection modal.
 - The view stays visual-first and focused on the own composition, not rival comparison.
 - The AI continues to translate the motor output into simple language and quick answers.
-- The service worker cache was bumped to v69 for the Sprint 10 UX refactor.
+- The service worker cache was bumped to v70 for the Sprint 11 health index delivery.
 
 ### Notes
 - The dashboard is intended to answer the key draft questions about your own composition in a few seconds.
