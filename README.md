@@ -21,6 +21,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - La identidad se muestra como hero card con win condition, tempo, coherencia y confianza.
 - Fortalezas, riesgos, plan, coach, advisor y explicabilidad se muestran en bloques separados.
 - El mapa visual del producto muestra cómo se conectan los módulos de la app.
+- El Design System v1 define tokens, tarjetas, badges, timeline y reglas de uso comunes.
 - El Draft Simulator sirve para probar swaps dentro de tu propia composición.
 - La normalización segura de etiquetas evita errores al ordenar y renderizar listas.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
@@ -40,6 +41,7 @@ Documentación base del hito:
 - [`docs/analysis-engine.md`](./docs/analysis-engine.md)
 - [`docs/knowledge-layer.md`](./docs/knowledge-layer.md)
 - [`docs/testing.md`](./docs/testing.md)
+- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
 - [`CHANGELOG.md`](./CHANGELOG.md)
 
 Objetivo del hito:
@@ -67,6 +69,8 @@ Core engine en curso:
 - `js/engine/analysisEngine.js`
 - `js/analysis-panel.js`
 - `js/draft-simulator-panel.js`
+- `js/design-system-panel.js`
+- `js/product-map-panel.js`
 
 Knowledge layer:
 
