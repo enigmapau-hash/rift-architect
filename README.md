@@ -1,6 +1,6 @@
 # Rift Architect
 
-PWA para construir y entender una composición de League of Legends a partir de `Draft Pool.xlsx`.
+PWA para entender una composición de League of Legends a partir de `Draft Pool.xlsx`.
 
 ## Fuente de verdad
 
@@ -17,99 +17,16 @@ PWA para construir y entender una composición de League of Legends a partir de 
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
-- La vista principal es ahora **Composition View**, estructurada en hero, plan, fortalezas, riesgos, explicación e IA.
-- La IA resume la composición en lenguaje natural: qué es, cómo gana, qué debe evitar y qué te recomienda hacer.
-- La IA también ofrece preguntas rápidas dentro de la vista para profundizar sin jerga.
-- El **Decision Engine** gana más protagonismo visual y muestra prioridades, evitaciones, pieza clave e iniciativa antes que el plan por fases.
-- El **Game Plan Engine** añade una lectura clara de early, mid, late y qué hacer si vas por detrás.
-- Los paneles visuales ya leen la composición real y se actualizan al cambiar campeones.
-- Fortalezas, riesgos, métricas, plan, coach, advisor y explicabilidad se muestran en bloques separados.
-- La lectura está pensada para entender tu composición en pocos segundos.
+- La pantalla principal se ha simplificado a una sola **Composition Story**.
+- La Story resume identidad, cómo gana, qué hacer, qué evitar, pieza clave, timeline y preguntas rápidas.
+- La vista está pensada para leer la composición en segundos y no como un dashboard técnico.
+- La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - Se añadió un `data/index.json` mínimo para evitar 404 en Pages y un icono SVG como favicon.
 - Responsive compartido para PC, tablet y móvil.
-
-## Hito 2 — Core Engine v0.5
-
-Documentación base del hito:
-
-- [`docs/product-vision.md`](./docs/product-vision.md)
-- [`docs/data-contract.md`](./docs/data-contract.md)
-- [`docs/draft-pool-audit.md`](./docs/draft-pool-audit.md)
-- [`docs/attribute-catalog.md`](./docs/attribute-catalog.md)
-- [`docs/analysis-engine.md`](./docs/analysis-engine.md)
-- [`docs/knowledge-layer.md`](./docs/knowledge-layer.md)
-- [`docs/testing.md`](./docs/testing.md)
-- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
-- [`CHANGELOG.md`](./CHANGELOG.md)
-
-## Motor y UI principales
-
-- `js/analyzer.js`
-- `js/composition-visual-panel.js`
-- `js/game-plan-panel.js`
-- `js/decision-engine-panel.js`
-- `js/engine/analysisEngine.js`
-- `js/engine/comparisonEngine.js`
-- `js/engine/simulationEngine.js`
-- `js/engine/explainabilityEngine.js`
-- `js/engine/coachEngine.js`
-- `js/engine/strategicAdvisor.js`
-- `js/engine/planEngine.js`
-- `js/engine/identityEngine.js`
-- `js/engine/strengthEngine.js`
-- `js/engine/weaknessEngine.js`
-- `js/engine/tempoEngine.js`
-- `js/engine/synergyEngine.js`
-- `js/engine/dependencyEngine.js`
-- `js/engine/coherenceEngine.js`
-- `js/engine/winConditionEngine.js`
-
-## Knowledge layer
-
-- `knowledge/identity-relations.js`
-- `knowledge/synergies.js`
-- `knowledge/patterns.js`
-- `knowledge/dependencies.js`
-- `knowledge/conflicts.js`
-- `knowledge/win-conditions.js`
-- `knowledge/validator.js`
-- `knowledge/index.js`
-
-## Testing
-
-- `tests/index.html`
-- `tests/engineValidation.js`
-- `tests/compositions/*.json`
-
-## Estructura de datos
-
-- `data/index.json`
-- `data/top.json`
-- `data/jungle.json`
-- `data/mid.json`
-- `data/bot.json`
-- `data/support.json`
-- `data/attributes.json`
-- `data/audit.json`
-
-## Hoja opcional de atributos
-
-Si añades una hoja `09_Attributes` o `Attributes`, el generador la detecta y mezcla esos valores en cada campeón.
-
-Plantilla exacta:
-
-- [`docs/attributes-template.md`](./docs/attributes-template.md)
-
-## Scripts
-
-```bash
-npm install
-npm run generate:data
-```
 
 ## GitHub Pages
 
