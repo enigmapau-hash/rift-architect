@@ -18,6 +18,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La Story resume identidad, perfil táctico, cómo gana, qué hacer, qué evitar, pieza clave, timeline y preguntas rápidas.
 - El plan principal se muestra como checklist visual para que sea más rápido de leer.
 - El bloque de **Índice de salud** añade diagnóstico ejecutivo, condición de victoria y mayor error castigado.
+- El bloque ejecutivo del Sprint 11B añade veredicto, prioridades dinámicas y explicaciones más contextuales.
 - El selector de campeones se ha ampliado para ser más cómodo en escritorio.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
