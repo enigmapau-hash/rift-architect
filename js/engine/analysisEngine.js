@@ -11,6 +11,7 @@ import { buildGamePlan } from './planEngine.js';
 import { buildExplainability } from './explainabilityEngine.js';
 import { buildCoach } from './coachEngine.js';
 import { buildStrategicAdvisor } from './strategicAdvisor.js';
+import { buildExecutiveSummary } from './executiveSummary.js';
 
 const METRIC_LABELS = {
   frontline: 'Frontline',
@@ -210,6 +211,7 @@ export function analyzeComposition(selectedChampions = []) {
     loseConditions: analysis.advisor.loseConditions,
   };
   analysis.summary = analysis.advisor.summary;
+  analysis.executiveSummary = buildExecutiveSummary(analysis);
 
   return analysis;
 }
