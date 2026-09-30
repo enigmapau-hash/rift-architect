@@ -294,6 +294,11 @@ function buildPriorityChips(analysis = {}) {
 
 export function buildExecutiveSummary(analysis = {}) {
   const confidence = clamp(Number(analysis?.confidence) || 0, 0, 100);
+  const executionProfile = buildExecutionProfile(analysis);
+  const executionTag = (label) => {
+    const item = executionProfile.find((entry) => normalizeText(entry.label) === normalizeText(label));
+    return item ? `${item.label}: ${item.badge}` : null;
+  };
   const title = `${analysis?.primaryIdentity || 'Draft'} · ${analysis?.winCondition?.label || 'Plan claro'}`;
   const text = clampWords(
     [
@@ -311,15 +316,14 @@ export function buildExecutiveSummary(analysis = {}) {
     badge: labelFromScore(confidence),
     score: confidence,
     tags: uniqueValues([
-      analysis?.primaryIdentity,
-      analysis?.winCondition?.label,
-      analysis?.tempoDetail?.label,
-      analysis?.coherence?.label,
-      `${confidence}%`,
+      executionTag('Coordinación'),
+      executionTag('Macro'),
+      executionTag('Visión'),
+      executionTag('Dificultad'),
     ]).slice(0, 4),
     profile: buildDraftProfile(analysis),
     priorities: buildPriorityChips(analysis),
-    executionProfile: buildExecutionProfile(analysis),
+    executionProfile,
     criticalErrors: buildCriticalErrors(analysis),
     checklist: buildChecklist(analysis),
   };
