@@ -38,6 +38,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El **Draft Assistant** ya se muestra en una vista ejecutiva: primero el veredicto, luego las necesidades y solo después el detalle completo si se expande.
 - El **Narrative Engine** convierte el análisis ejecutivo en una historia corta: cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - La línea de razón del Narrative Engine muestra el “por qué” detrás de la necesidad principal.
+- En la cabecera hay un badge visible de build para comprobar de un vistazo la versión cargada.
 - El documento `docs/architecture.md` describe el modelo de tres capas: Knowledge, Inference y Communication.
 - El documento `docs/narrative-engine.md` define la narrativa ejecutiva como capa de comunicación.
 - El documento `docs/strategic-profiles.md` define el Need Engine y la traducción de necesidades a perfiles estratégicos.
