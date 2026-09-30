@@ -1,17 +1,16 @@
+import { analyzeComposition } from './analysisEngine.js';
 import { clampNumber, getLabelText, normalizeText, uniqueOrdered } from './utils.js';
-
-function toLabelList(values = []) {
-  return values
-    .map((value) => getLabelText(value))
-    .filter(Boolean);
-}
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
 function normalizeList(values = []) {
-  return uniqueOrdered(toLabelList(values));
+  return uniqueOrdered(
+    values
+      .map((value) => getLabelText(value))
+      .filter(Boolean)
+  );
 }
 
 function compareText(beforeValue, afterValue) {
@@ -60,10 +59,7 @@ function getMetricEntries(metrics = []) {
 function buildMetricChange(beforeMetrics = [], afterMetrics = []) {
   const beforeMap = new Map(getMetricEntries(beforeMetrics).map((metric) => [metric.key, metric]));
   const afterMap = new Map(getMetricEntries(afterMetrics).map((metric) => [metric.key, metric]));
-  const keys = uniqueOrdered([
-    ...beforeMap.keys(),
-    ...afterMap.keys(),
-  ]);
+  const keys = uniqueOrdered([...beforeMap.keys(), ...afterMap.keys()]);
 
   return keys.map((key) => {
     const before = beforeMap.get(key) || { key, label: getLabelText(key) || key, score: 0 };
@@ -102,40 +98,6 @@ function buildWindowChange(beforeWindows = {}, afterWindows = {}) {
       detailAfter: getLabelText(after.detail),
     };
   });
-}
-
-function buildImpactSummary(comparison) {
-  const metricScore = asArray(comparison.metrics).reduce((total, metric) => total + (metric.delta || 0), 0);
-  const strengthScore = (comparison.strengths.added.length * 2) + (comparison.strengths.kept.length * 0.5) - (comparison.strengths.removed.length * 2);
-  const weaknessScore = (comparison.weaknesses.removed.length * 2) - (comparison.weaknesses.added.length * 2);
-  const synergyScore = (comparison.synergies.added.length * 1.5) - (comparison.synergies.removed.length * 1.5);
-  const dependencyScore = (comparison.dependencies.removed.length * 1.5) - (comparison.dependencies.added.length * 1.5);
-  const confidenceScore = comparison.confidence.delta * 0.5;
-  const rawScore = metricScore + strengthScore + weaknessScore + synergyScore + dependencyScore + confidenceScore;
-  const impactScore = clampNumber(Math.round(rawScore), -100, 100);
-  const verdict = impactScore > 2 ? 'Mejora' : impactScore < -2 ? 'Empeora' : 'Neutro';
-
-  const positiveMetric = asArray(comparison.metrics)
-    .filter((metric) => metric.delta > 0)
-    .sort((a, b) => b.delta - a.delta || normalizeText(a.label).localeCompare(normalizeText(b.label)))[0];
-  const negativeMetric = asArray(comparison.metrics)
-    .filter((metric) => metric.delta < 0)
-    .sort((a, b) => a.delta - b.delta || normalizeText(a.label).localeCompare(normalizeText(b.label)))[0];
-
-  const gain = positiveMetric?.delta
-    ? `${positiveMetric.label} +${positiveMetric.delta}`
-    : comparison.strengths.added[0] || comparison.synergies.added[0] || comparison.dependencies.removed[0] || 'Sin mejora clara';
-  const loss = negativeMetric?.delta
-    ? `${negativeMetric.label} ${negativeMetric.delta}`
-    : comparison.strengths.removed[0] || comparison.weaknesses.added[0] || comparison.synergies.removed[0] || 'Sin pérdida clara';
-
-  return {
-    score: impactScore,
-    verdict,
-    gain,
-    loss,
-    reason: comparison.highlights[0] || 'Comparación equilibrada entre ambos estados del draft.',
-  };
 }
 
 function buildHighlights(comparison) {
@@ -177,17 +139,57 @@ function buildHighlights(comparison) {
   return highlights;
 }
 
-function buildOrderedChangeSummary(listChange) {
-  const added = listChange.added.slice(0, 3);
-  const removed = listChange.removed.slice(0, 3);
-  const kept = listChange.kept.slice(0, 3);
+function buildImpactSummary(comparison) {
+  const metricScore = asArray(comparison.metrics).reduce((total, metric) => total + (metric.delta || 0), 0);
+  const strengthScore = (comparison.strengths.added.length * 2) + (comparison.strengths.kept.length * 0.5) - (comparison.strengths.removed.length * 2);
+  const weaknessScore = (comparison.weaknesses.removed.length * 2) - (comparison.weaknesses.added.length * 2);
+  const synergyScore = (comparison.synergies.added.length * 1.5) - (comparison.synergies.removed.length * 1.5);
+  const dependencyScore = (comparison.dependencies.removed.length * 1.5) - (comparison.dependencies.added.length * 1.5);
+  const confidenceScore = comparison.confidence.delta * 0.5;
+  const rawScore = metricScore + strengthScore + weaknessScore + synergyScore + dependencyScore + confidenceScore;
+  const impactScore = clampNumber(Math.round(rawScore), -100, 100);
+  const verdict = impactScore > 2 ? 'Mejora' : impactScore < -2 ? 'Empeora' : 'Neutro';
+
+  const positiveMetric = asArray(comparison.metrics)
+    .filter((metric) => metric.delta > 0)
+    .sort((a, b) => b.delta - a.delta || normalizeText(a.label).localeCompare(normalizeText(b.label)))[0];
+  const negativeMetric = asArray(comparison.metrics)
+    .filter((metric) => metric.delta < 0)
+    .sort((a, b) => a.delta - b.delta || normalizeText(a.label).localeCompare(normalizeText(b.label)))[0];
+
+  const gain = positiveMetric?.delta
+    ? `${positiveMetric.label} +${positiveMetric.delta}`
+    : comparison.strengths.added[0] || comparison.synergies.added[0] || comparison.dependencies.removed[0] || 'Sin mejora clara';
+  const loss = negativeMetric?.delta
+    ? `${negativeMetric.label} ${negativeMetric.delta}`
+    : comparison.strengths.removed[0] || comparison.weaknesses.added[0] || comparison.synergies.removed[0] || 'Sin pérdida clara';
 
   return {
-    ...listChange,
-    added,
-    removed,
-    kept,
+    score: impactScore,
+    verdict,
+    gain,
+    loss,
+    reason: comparison.highlights[0] || 'Comparación equilibrada entre ambos estados del draft.',
   };
+}
+
+function buildOrderedChangeSummary(listChange) {
+  return {
+    ...listChange,
+    added: listChange.added.slice(0, 3),
+    removed: listChange.removed.slice(0, 3),
+    kept: listChange.kept.slice(0, 3),
+  };
+}
+
+function resolveAnalysis(input) {
+  if (!input) return analyzeComposition([]);
+  if (Array.isArray(input)) return analyzeComposition(input);
+  if (typeof input === 'object' && input.primaryIdentity) return input;
+  if (typeof input === 'object' && Array.isArray(input.selectedChampions)) {
+    return analyzeComposition(input.selectedChampions);
+  }
+  return analyzeComposition([]);
 }
 
 export function compareAnalyses(beforeAnalysis = {}, afterAnalysis = {}) {
@@ -257,34 +259,7 @@ export function compareAnalyses(beforeAnalysis = {}, afterAnalysis = {}) {
 }
 
 export function compareCompositions(beforeSelectedChampions = [], afterSelectedChampions = []) {
-  const beforeAnalysis = beforeSelectedChampions?.analysis ? beforeSelectedChampions.analysis : Array.isArray(beforeSelectedChampions) ? null : beforeSelectedChampions;
-  const afterAnalysis = afterSelectedChampions?.analysis ? afterSelectedChampions.analysis : Array.isArray(afterSelectedChampions) ? null : afterSelectedChampions;
-
-  const resolvedBefore = beforeAnalysis && beforeAnalysis.primaryIdentity ? beforeAnalysis : analyzeIfNeeded(beforeSelectedChampions);
-  const resolvedAfter = afterAnalysis && afterAnalysis.primaryIdentity ? afterAnalysis : analyzeIfNeeded(afterSelectedChampions);
-
-  return compareAnalyses(resolvedBefore, resolvedAfter);
-}
-
-function analyzeIfNeeded(value) {
-  if (value && typeof value === 'object' && !Array.isArray(value) && value.primaryIdentity) {
-    return value;
-  }
-
-  const { analyzeComposition } = awaitableAnalyzer();
-  return analyzeComposition(Array.isArray(value) ? value : []);
-}
-
-let analyzerModule = null;
-function awaitableAnalyzer() {
-  if (!analyzerModule) {
-    throw new Error('Analyzer module not initialized yet.');
-  }
-  return analyzerModule;
-}
-
-export function attachAnalyzer(analyzer) {
-  analyzerModule = analyzer;
+  return compareAnalyses(resolveAnalysis(beforeSelectedChampions), resolveAnalysis(afterSelectedChampions));
 }
 
 export function buildComparisonSummary(beforeAnalysis = {}, afterAnalysis = {}) {
