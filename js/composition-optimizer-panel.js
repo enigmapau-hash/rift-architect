@@ -1,4 +1,4 @@
-import { analyzeComposition, simulateChampionSwap } from './analyzer.js';
+import { analyzeComposition, simulateChampionSwap, normalizeText } from './analyzer.js';
 
 const DATA_MANIFEST_URL = './data/index.json';
 const ROLE_FILES = [
@@ -15,7 +15,6 @@ const ROLE_LABELS = Object.fromEntries(ROLE_FILES.map(({ key, label }) => [key, 
 const state = {
   data: new Map(),
   dataLoaded: false,
-  activeRole: 'top',
   patchScheduled: false,
 };
 
@@ -58,7 +57,7 @@ function uniqueValues(values = []) {
   return [...new Set(values.filter(Boolean))];
 }
 
-function percent(score, max = 100) {
+function percent(score, max = 10) {
   const numeric = Number.isFinite(Number(score)) ? Number(score) : 0;
   return Math.max(0, Math.min(100, Math.round((numeric / max) * 100)));
 }
@@ -153,10 +152,6 @@ function compositionScore(analysis) {
   };
 }
 
-function buildScoreBar(value) {
-  return Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
-}
-
 function renderPills(items = [], emptyText = 'Sin datos') {
   const chips = uniqueValues(items.map((item) => asText(item)).filter((item) => item && item !== 'Sin definir'));
   return chips.length
@@ -183,7 +178,7 @@ function renderMetricList(metrics = []) {
       ${safeMetrics
         .map((metric) => {
           const score = Number.isFinite(Number(metric?.score)) ? Number(metric.score) : 0;
-          const width = percent(score, 10);
+          const width = percent(score);
           return `
             <div class="analysis-metric">
               <div class="analysis-metric__head">
@@ -282,8 +277,35 @@ function renderHeroSummary(analysis, score, recommendations) {
   `;
 }
 
+function renderMetricsDelta(metrics = []) {
+  const changes = asArray(metrics).filter((metric) => metric.changed).slice(0, 6);
+  if (!changes.length) return '<p class="analysis-empty">No hay variación relevante en métricas.</p>';
+
+  return `
+    <div class="analysis-metric-list">
+      ${changes
+        .map((metric) => {
+          const width = percent(Math.max(0, metric.after));
+          const sign = metric.delta > 0 ? '+' : '';
+          return `
+            <div class="analysis-metric">
+              <div class="analysis-metric__head">
+                <span>${escapeHtml(metric.label)}</span>
+                <strong>${escapeHtml(String(metric.before))} → ${escapeHtml(String(metric.after))} (${sign}${escapeHtml(String(metric.delta))})</strong>
+              </div>
+              <div class="analysis-meter">
+                <span class="analysis-meter__fill" style="width:${width}%"></span>
+              </div>
+            </div>
+          `;
+        })
+        .join('')}
+    </div>
+  `;
+}
+
 function renderRecommendationCard(recommendation, index) {
-  const { role, current, candidate, beforeChampion, afterChampion, impact, beforeAnalysis, afterAnalysis } = recommendation;
+  const { role, current, candidate, beforeChampion, afterChampion, impact, beforeAnalysis, afterAnalysis, diff } = recommendation;
   const roleLabel = ROLE_LABELS[role] || role;
   const beforeIdentity = beforeAnalysis?.primaryIdentity || 'Sin definir';
   const afterIdentity = afterAnalysis?.primaryIdentity || 'Sin definir';
@@ -318,36 +340,9 @@ function renderRecommendationCard(recommendation, index) {
       </div>
 
       <p class="analysis-note">${escapeHtml(impact.reason)}</p>
-      ${renderMetricsDelta(recommendation.diff.metrics || [])}
-      ${renderPills(recommendation.diff.changedFields || [], 'Sin cambios claros')}
+      ${renderMetricsDelta(diff.metrics || [])}
+      ${renderPills(diff.changedFields || [], 'Sin cambios claros')}
     </article>
-  `;
-}
-
-function renderMetricsDelta(metrics = []) {
-  const changes = asArray(metrics).filter((metric) => metric.changed).slice(0, 6);
-  if (!changes.length) return '<p class="analysis-empty">No hay variación relevante en métricas.</p>';
-
-  return `
-    <div class="analysis-metric-list">
-      ${changes
-        .map((metric) => {
-          const width = percent(Math.max(0, metric.after));
-          const sign = metric.delta > 0 ? '+' : '';
-          return `
-            <div class="analysis-metric">
-              <div class="analysis-metric__head">
-                <span>${escapeHtml(metric.label)}</span>
-                <strong>${escapeHtml(String(metric.before))} → ${escapeHtml(String(metric.after))} (${sign}${escapeHtml(String(metric.delta))})</strong>
-              </div>
-              <div class="analysis-meter">
-                <span class="analysis-meter__fill" style="width:${width}%"></span>
-              </div>
-            </div>
-          `;
-        })
-        .join('')}
-    </div>
   `;
 }
 
@@ -369,8 +364,6 @@ function collectCandidatePools(selectedChampions) {
 }
 
 function buildRecommendations(selectedChampions) {
-  const currentAnalysis = analyzeComposition(selectedChampions);
-  const currentScore = compositionScore(currentAnalysis);
   const candidatePools = collectCandidatePools(selectedChampions);
   const recommendations = [];
 
@@ -378,7 +371,6 @@ function buildRecommendations(selectedChampions) {
     const scoredCandidates = pool
       .map((candidate) => {
         const simulation = simulateChampionSwap(selectedChampions, role, candidate);
-        const impactScore = Number.isFinite(Number(simulation?.diff?.impact?.score)) ? Number(simulation.diff.impact.score) : -999;
         return {
           role,
           current: selectedChampions.find((champion) => champion.role === role) || null,
@@ -388,8 +380,7 @@ function buildRecommendations(selectedChampions) {
           beforeAnalysis: simulation.beforeAnalysis,
           afterAnalysis: simulation.afterAnalysis,
           diff: simulation.diff,
-          impact: simulation.diff?.impact || { score: impactScore, verdict: 'Neutro', gain: 'Sin mejora clara', loss: 'Sin pérdida clara', reason: 'Sin datos' },
-          scoreDelta: currentScore.score ? impactScore : impactScore,
+          impact: simulation.diff?.impact || { score: -999, verdict: 'Neutro', gain: 'Sin mejora clara', loss: 'Sin pérdida clara', reason: 'Sin datos' },
         };
       })
       .sort((a, b) => {
@@ -505,10 +496,6 @@ async function init() {
   schedulePatch();
   observeComposition();
   window.setInterval(schedulePatch, 1500);
-}
-
-function renderRoleOptions() {
-  return ROLE_ORDER.map((role) => `<option value="${escapeHtml(role)}">${escapeHtml(ROLE_LABELS[role] || role)}</option>`).join('');
 }
 
 export { renderOptimizer as buildCompositionOptimizer };
