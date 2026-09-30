@@ -78,12 +78,12 @@
 - Mostrar veredicto, diagnósticos, prioridades, fases y respuestas rápidas.
 - Mantener explicaciones contextuales enlazadas al mismo análisis.
 - Reducir duplicidad entre bloques y simplificar la lectura principal.
+- Cerrar la dependencia del asistente obsoleto y trabajar con un único modelo interno.
 
-## Fase 14 — Release Candidate ⏳
-- Validar el hub con composiciones de referencia.
+## Fase 8 — Validación y pulido ⏳
+- Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
 - Afinar textos, espaciado, accesibilidad y rendimiento.
-- Preparar la v1.0 con una narrativa final limpia y estable.
 
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
