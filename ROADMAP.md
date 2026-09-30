@@ -113,6 +113,11 @@
 - Convertir el análisis en acciones concretas.
 - Responder a las preguntas clave del jugador antes de entrar en partida.
 
+### Sprint 8.8 — State Integration ✅
+- Unificar el estado de la composición y los paneles visuales.
+- Hacer que los bloques lean el análisis real sin quedarse en placeholders.
+- Mantener el comportamiento consistente al cambiar campeones.
+
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
 - Recomendar campeones por pool y rol.
