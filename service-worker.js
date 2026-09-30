@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v60';
+const CACHE_NAME = 'rift-architect-v61';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -63,6 +63,7 @@ const STATIC_ASSETS = [
   './tests/compositions/triple-carry.json',
   './tests/compositions/global-pressure.json',
   './manifest.webmanifest',
+  './data/index.json',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
   './DESIGN_SYSTEM.md',
