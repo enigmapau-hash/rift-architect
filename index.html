@@ -1,76 +1,77 @@
 <!doctype html>
-<html lang="es">
+<html lang='es'>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0f172a" />
+    <meta charset='utf-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <meta name='theme-color' content='#0f172a' />
     <title>Rift Architect</title>
-    <link rel="icon" href="./assets/icon.svg" type="image/svg+xml" />
-    <link rel="manifest" href="./manifest.webmanifest" />
-    <link rel="stylesheet" href="./css/main.css" />
-    <link rel="stylesheet" href="./css/v2.css" />
-    <link rel="stylesheet" href="./css/v2_patch.css" />
-    <link rel="stylesheet" href="./css/fixes.css" />
-    <link rel="stylesheet" href="./css/analysis.css" />
-    <link rel="stylesheet" href="./css/analysis-v2.css" />
-    <link rel="stylesheet" href="./css/design-tokens.css" />
-    <link rel="stylesheet" href="./css/components.css" />
-    <link rel="stylesheet" href="./css/design-system.css" />
-    <link rel="stylesheet" href="./css/composition-visual.css" />
-    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel='icon' href='./assets/icon.svg' type='image/svg+xml' />
+    <link rel='manifest' href='./manifest.webmanifest' />
+    <link rel='stylesheet' href='./css/main.css' />
+    <link rel='stylesheet' href='./css/v2.css' />
+    <link rel='stylesheet' href='./css/v2_patch.css' />
+    <link rel='stylesheet' href='./css/fixes.css' />
+    <link rel='stylesheet' href='./css/analysis.css' />
+    <link rel='stylesheet' href='./css/analysis-v2.css' />
+    <link rel='stylesheet' href='./css/design-tokens.css' />
+    <link rel='stylesheet' href='./css/components.css' />
+    <link rel='stylesheet' href='./css/design-system.css' />
+    <link rel='stylesheet' href='./css/composition-visual.css' />
+    <link rel='stylesheet' href='./css/composition-visual-ai.css' />
+    <script src='https://unpkg.com/xlsx/dist/xlsx.full.min.js'></script>
   </head>
   <body>
-    <div id="app">
-      <header class="app-header">
-        <div class="app-brand">
-          <h1 class="app-title">Rift Architect</h1>
+    <div id='app'>
+      <header class='app-header'>
+        <div class='app-brand'>
+          <h1 class='app-title'>Rift Architect</h1>
         </div>
-        <div class="header-actions">
-          <span id="statusBadge" class="status">Cargando…</span>
-          <button id="refreshBtn" class="ghost-btn" type="button">Actualizar</button>
+        <div class='header-actions'>
+          <span id='statusBadge' class='status'>Cargando…</span>
+          <button id='refreshBtn' class='ghost-btn' type='button'>Actualizar</button>
         </div>
       </header>
 
-      <main class="layout">
-        <section class="panel panel--main">
-          <div class="panel-title-row">
+      <main class='layout'>
+        <section class='panel panel--main'>
+          <div class='panel-title-row'>
             <h2>Tu composición</h2>
-            <button id="clearBtn" class="ghost-btn" type="button">Limpiar</button>
+            <button id='clearBtn' class='ghost-btn' type='button'>Limpiar</button>
           </div>
 
-          <div id="compositionGrid" class="composition-grid"></div>
+          <div id='compositionGrid' class='composition-grid'></div>
 
-          <div class="summary-card">
-            <div id="compositionView" class="composition-visual-shell" aria-live="polite"></div>
-            <div id="recommendations" class="recommendation-list"></div>
+          <div class='summary-card'>
+            <div id='compositionView' class='composition-visual-shell' aria-live='polite'></div>
+            <div id='recommendations' class='recommendation-list'></div>
           </div>
         </section>
       </main>
     </div>
 
-    <div id="pickerBackdrop" class="picker-backdrop is-hidden" aria-hidden="true">
-      <section class="picker-modal" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
-        <div class="picker-header">
+    <div id='pickerBackdrop' class='picker-backdrop is-hidden' aria-hidden='true'>
+      <section class='picker-modal' role='dialog' aria-modal='true' aria-labelledby='pickerTitle'>
+        <div class='picker-header'>
           <div>
-            <p id="pickerRoleLabel" class="eyebrow"></p>
-            <h2 id="pickerTitle">Elegir campeón</h2>
+            <p id='pickerRoleLabel' class='eyebrow'></p>
+            <h2 id='pickerTitle'>Elegir campeón</h2>
           </div>
-          <button id="closePickerBtn" class="ghost-btn" type="button">Cerrar</button>
+          <button id='closePickerBtn' class='ghost-btn' type='button'>Cerrar</button>
         </div>
 
-        <label class="search">
-          <span class="sr-only">Buscar campeón</span>
-          <input id="searchInput" type="search" placeholder="Buscar campeón…" autocomplete="off" />
+        <label class='search'>
+          <span class='sr-only'>Buscar campeón</span>
+          <input id='searchInput' type='search' placeholder='Buscar campeón…' autocomplete='off' />
         </label>
 
-        <div id="championList" class="champion-list"></div>
-        <p id="pickerHint" class="picker-hint"></p>
+        <div id='championList' class='champion-list'></div>
+        <p id='pickerHint' class='picker-hint'></p>
       </section>
     </div>
 
-    <script type="module" src="./js/bootstrap.js"></script>
-    <script type="module" src="./js/app-v2.js"></script>
-    <script type="module" src="./js/v2_patch.js"></script>
-    <script type="module" src="./js/composition-visual-panel.js"></script>
+    <script type='module' src='./js/bootstrap.js'></script>
+    <script type='module' src='./js/app-v2.js'></script>
+    <script type='module' src='./js/v2_patch.js'></script>
+    <script type='module' src='./js/composition-visual-panel.js'></script>
   </body>
 </html>
