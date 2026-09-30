@@ -45,12 +45,11 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant en una vista ejecutiva primero:
-  - veredicto rápido,
-  - narrativa,
-  - necesidades principales,
-  - perfiles y rutas,
-  - detalle completo solo si se despliega.
+- Muestra el Draft Assistant como una beta de una sola conversación:
+  - respuesta arriba,
+  - detalle completo solo al desplegarlo,
+  - menos nombres técnicos visibles,
+  - más sensación de producto terminado.
 
 ## Arquitectura mental actual
 
@@ -62,7 +61,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ### Próximo bloque lógico
 1. Consolidar el **Explainability Engine** como soporte estable de la narrativa.
-2. Mantener el Draft Assistant en formato ejecutivo primero, con detalle plegado.
+2. Mantener el Draft Assistant en formato beta de una sola conversación.
 3. Revisar qué parte del Excel ya cubre esas necesidades sin añadir campos nuevos.
 4. Mejorar la explicación de por qué un pick o un ban encaja con el plan.
 5. Mantener la interfaz compacta y fácil de leer.
@@ -88,6 +87,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Explainability Engine / Narrative Engine
+**Fase actual:** Beta 0.2 / One Conversation
 
-**Meta inmediata:** mantener la historia corta, clara y con el porqué de cada decisión visible.
+**Meta inmediata:** que la parte superior se lea como una sola conversación clara, con la respuesta primero y el detalle después.
