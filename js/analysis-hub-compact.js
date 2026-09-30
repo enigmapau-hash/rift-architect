@@ -3,6 +3,14 @@ import { analyzeComposition } from './analyzer.js';
 const ROOT_ID = 'analysisHubView';
 const SELECTOR = '#compositionGrid .slot.is-filled';
 
+const CARD_ORDER = [
+  { id: 'verdict', icon: '📊', title: 'Veredicto' },
+  { id: 'plan', icon: '🎯', title: 'Plan' },
+  { id: 'risks', icon: '⚠️', title: 'Riesgos' },
+  { id: 'timing', icon: '⏱️', title: 'Timing' },
+  { id: 'advisor', icon: '🤖', title: 'Advisor' },
+];
+
 const ACTIONS = [
   { key: 'win', icon: '🎯', label: '¿Cómo gano?' },
   { key: 'risk', icon: '⚠️', label: '¿Qué me castiga?' },
@@ -10,20 +18,12 @@ const ACTIONS = [
   { key: 'priority', icon: '🏆', label: '¿Qué priorizo?' },
 ];
 
-const CARD_ORDER = [
-  { id: 'verdict', icon: '📊', title: 'Veredicto' },
-  { id: 'plan', icon: '🎯', title: 'Plan de partida' },
-  { id: 'risks', icon: '⚠️', title: 'Riesgos' },
-  { id: 'timing', icon: '⏱️', title: 'Timing' },
-  { id: 'advisor', icon: '🤖', title: 'Advisor' },
-];
-
 const state = {
   root: null,
   observer: null,
   scheduled: false,
+  activeCard: 'verdict',
   activeAction: 'win',
-  expandedCard: null,
 };
 
 init().catch((error) => console.error(error));
@@ -55,7 +55,6 @@ function mountRoot(storyView) {
 
 function observeComposition(node) {
   if (state.observer) return;
-
   state.observer = new MutationObserver(scheduleRender);
   state.observer.observe(node, { childList: true, subtree: true, characterData: true });
 }
@@ -63,7 +62,6 @@ function observeComposition(node) {
 function scheduleRender() {
   if (state.scheduled) return;
   state.scheduled = true;
-
   window.requestAnimationFrame(() => {
     state.scheduled = false;
     renderHub();
@@ -77,24 +75,34 @@ function renderHub() {
   if (selectedChampions.length < 5) {
     state.root.innerHTML = `
       <article class="analysis-hub__empty">
-        <p class="eyebrow">Sprint 13.5 · Panel de decisión</p>
+        <p class="eyebrow">Sprint 13.5 · Decision Flow</p>
         <h4>Completa los cinco campeones para ver el análisis</h4>
-        <p>La lectura unificada aparece cuando la composición está completa.</p>
+        <p>La lectura aparece cuando la composición está completa.</p>
       </article>
     `;
     return;
   }
 
+  if (!CARD_ORDER.some((card) => card.id === state.activeCard)) {
+    state.activeCard = 'verdict';
+  }
+
   const model = buildModel(analyzeComposition(selectedChampions), selectedChampions, state.activeAction);
-  if (!state.expandedCard) state.expandedCard = null;
 
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
       <header class="analysis-hub__hero">
         <div class="analysis-hub__hero-copy">
-          <p class="eyebrow">Sprint 13.5 · Panel de decisión</p>
+          <p class="eyebrow">Sprint 13.5 · Decision Flow</p>
           <h4>${escapeHtml(model.heroHeadline)}</h4>
           <p>${escapeHtml(model.summary)}</p>
+          <div class="analysis-hub__flow-mini">
+            ${CARD_ORDER.map((step, index) => `
+              <span class="analysis-hub__flow-mini-item ${step.id === state.activeCard ? 'is-active' : ''}">
+                ${index + 1}. ${escapeHtml(step.title)}
+              </span>
+            `).join('')}
+          </div>
         </div>
 
         <div class="analysis-hub__score-card ${toneByScore(model.score.overall)}">
@@ -104,12 +112,12 @@ function renderHub() {
         </div>
       </header>
 
+      <nav class="analysis-hub__flow" aria-label="Flujo de decisión">
+        ${CARD_ORDER.map((card, index) => renderFlowButton(card, index + 1, model[card.id], state.activeCard === card.id)).join('')}
+      </nav>
+
       <div class="analysis-hub__cards">
-        ${renderDetailCard(CARD_ORDER[0], model.verdict, state.expandedCard === 'verdict')}
-        ${renderDetailCard(CARD_ORDER[1], model.plan, state.expandedCard === 'plan')}
-        ${renderDetailCard(CARD_ORDER[2], model.risks, state.expandedCard === 'risks')}
-        ${renderDetailCard(CARD_ORDER[3], model.timing, state.expandedCard === 'timing')}
-        ${renderDetailCard(CARD_ORDER[4], model.advisor, state.expandedCard === 'advisor')}
+        ${CARD_ORDER.map((card) => renderDetailCard(card, model[card.id], state.activeCard === card.id)).join('')}
       </div>
     </section>
   `;
@@ -118,16 +126,23 @@ function renderHub() {
 }
 
 function bindHubInteractions() {
+  state.root.querySelectorAll('[data-hub-step]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeCard = String(button.dataset.hubStep || 'verdict');
+      renderHub();
+    });
+  });
+
   state.root.querySelectorAll('details[data-hub-card]').forEach((details) => {
     details.addEventListener('toggle', () => {
       const cardId = String(details.dataset.hubCard || '');
       if (details.open) {
-        state.expandedCard = cardId;
+        state.activeCard = cardId;
         state.root.querySelectorAll('details[data-hub-card]').forEach((other) => {
           if (other !== details) other.open = false;
         });
-      } else if (state.expandedCard === cardId) {
-        state.expandedCard = null;
+      } else if (state.activeCard === cardId) {
+        state.activeCard = 'verdict';
       }
     });
   });
@@ -135,10 +150,117 @@ function bindHubInteractions() {
   state.root.querySelectorAll('[data-hub-action]').forEach((button) => {
     button.addEventListener('click', () => {
       state.activeAction = String(button.dataset.hubAction || 'win');
-      state.expandedCard = 'advisor';
+      state.activeCard = 'advisor';
       renderHub();
     });
   });
+}
+
+function renderFlowButton(card, index, model, active) {
+  return `
+    <button class="analysis-hub__flow-btn ${active ? 'is-active' : ''}" type="button" data-hub-step="${card.id}">
+      <span class="analysis-hub__flow-index">${index}</span>
+      <span class="analysis-hub__flow-copy">
+        <strong>${card.icon} ${escapeHtml(card.title)}</strong>
+        <small>${escapeHtml(model?.summary || '—')}</small>
+      </span>
+      <span class="analysis-hub__flow-arrow" aria-hidden="true">▸</span>
+    </button>
+  `;
+}
+
+function renderDetailCard(card, model, open) {
+  return `
+    <details class="analysis-hub__card analysis-hub__card--${card.id}" data-hub-card="${card.id}" ${open ? 'open' : ''}>
+      <summary class="analysis-hub__summary">
+        <div class="analysis-hub__summary-head">
+          <div class="analysis-hub__summary-copy">
+            <span class="analysis-hub__card-kicker">${card.icon} ${escapeHtml(card.title)}</span>
+            <strong>${escapeHtml(model.summary)}</strong>
+            <p class="analysis-hub__summary-line">${escapeHtml(model.line)}</p>
+          </div>
+          <span class="analysis-hub__card-badge">${escapeHtml(model.badge)}</span>
+        </div>
+        <div class="analysis-hub__summary-footer">
+          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--closed">Ver más</span>
+          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--open">Ocultar</span>
+          <span class="analysis-hub__summary-chevron" aria-hidden="true">▾</span>
+        </div>
+      </summary>
+      <div class="analysis-hub__body">${renderCardBody(card.id, model)}</div>
+    </details>
+  `;
+}
+
+function renderCardBody(cardId, model) {
+  switch (cardId) {
+    case 'verdict':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+        <div class="analysis-hub__metric-list">${model.metrics.map(renderMetricRow).join('')}</div>
+      `;
+    case 'plan':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+        <div class="analysis-hub__list">${model.phases.map(renderPhaseRow).join('')}</div>
+      `;
+    case 'risks':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--warning">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+        <div class="analysis-hub__list">${model.items.map(renderLineRow).join('')}</div>
+      `;
+    case 'timing':
+      return `
+        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
+        </div>
+        <div class="analysis-hub__list">${model.windows.map(renderPhaseRow).join('')}</div>
+      `;
+    case 'advisor':
+      return `
+        <div class="analysis-hub__actions" role="tablist" aria-label="Acciones del asesor">
+          ${ACTIONS.map((action) => `
+            <button class="analysis-hub__action ${action.key === model.activeAction ? 'is-active' : ''}" type="button" role="tab" aria-selected="${action.key === model.activeAction ? 'true' : 'false'}" data-hub-action="${action.key}">
+              <span class="analysis-hub__action-icon">${action.icon}</span>
+              <span class="analysis-hub__action-copy">
+                <strong>${escapeHtml(action.label)}</strong>
+                <small>${escapeHtml(model.actionHints[action.key] || '')}</small>
+              </span>
+            </button>
+          `).join('')}
+        </div>
+
+        <p class="analysis-hub__lead">${escapeHtml(model.response.text)}</p>
+
+        <article class="analysis-hub__response-card analysis-hub__response-card--compact">
+          <span class="analysis-hub__card-kicker">Respuesta contextual</span>
+          <strong>${escapeHtml(model.response.title)}</strong>
+          <p>${escapeHtml(model.why)}</p>
+        </article>
+
+        <div class="analysis-hub__chip-list">
+          ${model.chips.map((chip) => `<span class="story-pill story-pill--${chip.tone}">${escapeHtml(chip.label)}</span>`).join('')}
+        </div>
+
+        <div class="analysis-hub__list">${model.insights.map(renderLineRow).join('')}</div>
+        <div class="analysis-hub__signal">
+          <strong>${escapeHtml(model.signal.title)}</strong>
+          <p>${escapeHtml(model.signal.text)}</p>
+        </div>
+      `;
+    default:
+      return '';
+  }
 }
 
 function collectSelectedChampions() {
@@ -175,7 +297,7 @@ function buildModel(analysis, selectedChampions, activeAction) {
 
   return {
     heroHeadline: analysis?.primaryIdentity || 'Tu composición',
-    summary: clampWords(analysis?.summaryText || advisor?.summary?.reason || 'La lectura unificada resume identidad, plan y riesgos.', 14),
+    summary: clampWords(analysis?.summaryText || advisor?.summary?.reason || 'La lectura resume identidad, plan y riesgos.', 12),
     score: {
       grade,
       overall,
@@ -184,7 +306,7 @@ function buildModel(analysis, selectedChampions, activeAction) {
     verdict: {
       summary: `${grade} · ${analysis?.coherence?.label || 'Lectura clara'}`,
       badge: analysis?.winCondition?.label || 'Veredicto',
-      line: clampWords(analysis?.winCondition?.detail || analysis?.summaryText || 'La composición se entiende como una historia visual.', 10),
+      line: clampWords(analysis?.winCondition?.label || analysis?.summaryText || 'La composición se entiende de un vistazo.', 9),
       text: buildVerdictText(analysis, advisor, phases, risks),
       metrics,
       chips: uniqueValues([analysis?.primaryIdentity, analysis?.winCondition?.label, analysis?.tempoDetail?.label]).slice(0, 3),
@@ -192,7 +314,7 @@ function buildModel(analysis, selectedChampions, activeAction) {
     plan: {
       summary: clampWords(primaryObjective, 6),
       badge: primaryObjective === analysis?.primaryIdentity ? 'Juega tu identidad' : 'Plan claro',
-      line: clampWords(analysis?.winCondition?.detail || advisor?.summary?.reason || 'El plan debe seguir la identidad principal.', 10),
+      line: clampWords(analysis?.winCondition?.detail || advisor?.summary?.reason || 'El plan debe seguir la identidad principal.', 9),
       text: buildPlanText(analysis, advisor, phases, priorities),
       phases: phases.slice(0, 3),
       chips: uniqueValues([primaryObjective, powerSpike, initiator?.champion]).slice(0, 3),
@@ -200,14 +322,15 @@ function buildModel(analysis, selectedChampions, activeAction) {
     risks: {
       summary: risks[0]?.label || 'Sin riesgo claro',
       badge: risks.length ? 'Vigilar' : 'Sin riesgo',
-      line: clampWords(risks[0]?.detail || 'No hay una debilidad crítica evidente.', 10),
-      text: clampWords(buildRiskOverview(risks), 18),
+      line: clampWords(risks[0]?.detail || 'No hay una debilidad crítica evidente.', 9),
+      text: buildRiskOverview(risks),
       items: risks,
+      chips: risks.slice(0, 2).map((risk) => risk.label),
     },
     timing: {
       summary: `${powerSpike} · ${phases[1]?.label || 'Mid Game'}`,
       badge: 'Timing',
-      line: clampWords(buildTimingText(analysis, advisor, phases), 10),
+      line: clampWords(buildTimingText(analysis, advisor, phases), 9),
       text: buildTimingText(analysis, advisor, phases),
       windows: phases,
       chips: uniqueValues([phases[0]?.label, phases[1]?.label, phases[2]?.label, powerSpike]).slice(0, 3),
@@ -215,9 +338,9 @@ function buildModel(analysis, selectedChampions, activeAction) {
     advisor: {
       summary: clampWords(response.title, 6),
       badge: 'IA',
-      line: clampWords(response.text, 12),
-      text: clampWords(response.text, 18),
-      why: clampWords(response.why, 22),
+      line: clampWords(response.text, 10),
+      text: clampWords(response.text, 16),
+      why: clampWords(response.why, 18),
       chips: response.chips,
       insights: buildInsights(analysis, coach, advisor, priorities),
       actionHints: buildActionHints(analysis, coach, advisor, priorities, risks, initiator),
@@ -227,139 +350,6 @@ function buildModel(analysis, selectedChampions, activeAction) {
     },
     activeAction,
   };
-}
-
-function renderDetailCard(card, model, open) {
-  return `
-    <details class="analysis-hub__card analysis-hub__card--${card.id}" data-hub-card="${card.id}" ${open ? 'open' : ''}>
-      <summary class="analysis-hub__summary">
-        <div class="analysis-hub__summary-head">
-          <div class="analysis-hub__summary-copy">
-            <span class="analysis-hub__card-kicker">${card.icon} ${escapeHtml(card.title)}</span>
-            <strong>${escapeHtml(model.summary)}</strong>
-            <p class="analysis-hub__summary-line">${escapeHtml(model.line)}</p>
-          </div>
-          <span class="analysis-hub__card-badge">${escapeHtml(model.badge)}</span>
-        </div>
-        <div class="analysis-hub__summary-footer">
-          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--closed">Ver más</span>
-          <span class="analysis-hub__summary-hint analysis-hub__summary-hint--open">Ocultar</span>
-          <span class="analysis-hub__summary-chevron" aria-hidden="true">▾</span>
-        </div>
-      </summary>
-      <div class="analysis-hub__body">
-        ${renderCardBody(card.id, model)}
-      </div>
-    </details>
-  `;
-}
-
-function renderCardBody(cardId, model) {
-  switch (cardId) {
-    case 'verdict':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
-        </div>
-        <details class="analysis-hub__why">
-          <summary>Ver análisis técnico</summary>
-          <div class="analysis-hub__metric-list">${model.metrics.map(renderMetricRow).join('')}</div>
-        </details>
-      `;
-    case 'plan':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
-        </div>
-        <details class="analysis-hub__why">
-          <summary>Ver plan por fases</summary>
-          <div class="analysis-hub__list">${model.phases.map(renderPhaseRow).join('')}</div>
-        </details>
-      `;
-    case 'risks':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__chip-list">
-          ${model.items.slice(0, 2).map((item) => `<span class="story-pill story-pill--warning">${escapeHtml(item.label)}</span>`).join('')}
-        </div>
-        <details class="analysis-hub__why">
-          <summary>Ver riesgos completos</summary>
-          <div class="analysis-hub__list">${model.items.map(renderLineRow).join('')}</div>
-        </details>
-      `;
-    case 'timing':
-      return `
-        <p class="analysis-hub__lead">${escapeHtml(model.text)}</p>
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
-        </div>
-        <details class="analysis-hub__why">
-          <summary>Ver ventanas de poder</summary>
-          <div class="analysis-hub__list">${model.windows.map(renderPhaseRow).join('')}</div>
-        </details>
-      `;
-    case 'advisor':
-      return `
-        <div class="analysis-hub__actions" role="tablist" aria-label="Acciones del asesor">
-          ${ACTIONS.map((action) => `
-            <button
-              class="analysis-hub__action ${action.key === model.activeAction ? 'is-active' : ''}"
-              type="button"
-              role="tab"
-              aria-selected="${action.key === model.activeAction ? 'true' : 'false'}"
-              data-hub-action="${action.key}"
-            >
-              <span class="analysis-hub__action-icon">${action.icon}</span>
-              <span class="analysis-hub__action-copy">
-                <strong>${escapeHtml(action.label)}</strong>
-                <small>${escapeHtml(model.actionHints[action.key] || '')}</small>
-              </span>
-            </button>
-          `).join('')}
-        </div>
-
-        <p class="analysis-hub__lead">${escapeHtml(model.response.text)}</p>
-
-        <article class="analysis-hub__response-card analysis-hub__response-card--compact">
-          <span class="analysis-hub__card-kicker">Respuesta contextual</span>
-          <strong>${escapeHtml(model.response.title)}</strong>
-          <p>${escapeHtml(model.why)}</p>
-        </article>
-
-        <div class="analysis-hub__chip-list">
-          ${model.chips.map((chip) => `<span class="story-pill story-pill--${chip.tone}">${escapeHtml(chip.label)}</span>`).join('')}
-        </div>
-
-        <details class="analysis-hub__why">
-          <summary>Ver apoyo de la IA</summary>
-          <div class="analysis-hub__list">
-            ${model.insights.map(renderLineRow).join('')}
-          </div>
-          <div class="analysis-hub__signal">
-            <strong>${escapeHtml(model.signal.title)}</strong>
-            <p>${escapeHtml(model.signal.text)}</p>
-          </div>
-        </details>
-      `;
-    default:
-      return '';
-  }
-}
-
-function collectSelectedChampions() {
-  return [...document.querySelectorAll(SELECTOR)]
-    .map((slot) => ({
-      role: String(slot.dataset.role || 'top'),
-      champion: slot.querySelector('.slot__name')?.textContent?.trim() || '',
-      identity: slot.querySelector('.slot__meta')?.textContent?.trim() || '',
-      function: slot.querySelector('.champion-item__sub')?.textContent?.trim() || '',
-      tempo: slot.querySelector('.slot__tempo')?.textContent?.trim() || '',
-      strengths: [],
-      weaknesses: [],
-    }))
-    .filter((champion) => champion.champion);
 }
 
 function buildPriorities(analysis, coach, advisor) {
@@ -392,7 +382,7 @@ function buildRisks(analysis, coach, advisor) {
   const items = uniqueValues([
     ...(Array.isArray(coach?.alerts) ? coach.alerts : []).map((item) => item?.label),
     ...(Array.isArray(advisor?.loseConditions) ? advisor.loseConditions : []).map((item) => item?.label),
-    ...(Array.isArray(analysis?.weaknesses) ? analysis?.weaknesses : []).map((item) => item?.label || item),
+    ...(Array.isArray(analysis?.weaknesses) ? analysis.weaknesses : []).map((item) => item?.label || item),
     ...(Array.isArray(analysis?.winCondition?.avoid) ? analysis.winCondition.avoid.map((item) => toLabel(item)) : []),
   ]).filter(Boolean);
 
@@ -556,7 +546,6 @@ function buildInsights(analysis, coach, advisor, priorities) {
     .filter(Boolean)
     .slice(0, 1)
     .map((label) => ({ label, detail: 'Encaja con la lectura general de la composición.' }));
-
   return uniqueByLabel([...fromCoach, ...fromAdvisor, ...fromAnalysis]).slice(0, 3);
 }
 
@@ -586,7 +575,7 @@ function buildInsightRowsFromAdvisor(advisor) {
 
 function buildVerdictText(analysis, advisor, phases, risks) {
   return [
-    analysis?.winCondition?.detail || analysis?.summaryText || 'La composición se entiende como una historia visual.',
+    analysis?.winCondition?.detail || analysis?.summaryText || 'La composición se entiende de un vistazo.',
     advisor?.summary?.powerSpike ? `Tu ventana más importante llega en ${advisor.summary.powerSpike}.` : null,
     phases[1]?.detail ? `Momento fuerte: ${phases[1].detail}` : null,
     risks[0]?.label ? `Mayor riesgo: ${risks[0].label}.` : null,
@@ -614,10 +603,6 @@ function buildTimingText(analysis, advisor, phases) {
   ].filter(Boolean).slice(0, 3).join(' ');
 }
 
-function buildIntent(analysis) {
-  return analysis?.primaryIdentity || 'Tu composición';
-}
-
 function renderMetricRow(metric) {
   return `
     <article class="analysis-hub__metric">
@@ -625,9 +610,7 @@ function renderMetricRow(metric) {
         <strong>${escapeHtml(metric.label)}</strong>
         <span>${metric.score}/100</span>
       </div>
-      <div class="analysis-hub__metric-bar" aria-hidden="true">
-        <div class="analysis-hub__metric-fill" style="--meter:${clamp(metric.score, 0, 100)}%"></div>
-      </div>
+      <div class="analysis-hub__metric-bar" aria-hidden="true"><div class="analysis-hub__metric-fill" style="--meter:${clamp(metric.score, 0, 100)}%"></div></div>
       <p>${escapeHtml(metric.detail)}</p>
     </article>
   `;
@@ -661,7 +644,6 @@ function renderPhaseRow(phase) {
 function uniqueByLabel(items = []) {
   const seen = new Set();
   const result = [];
-
   items.forEach((item) => {
     const label = String(item?.label || '').trim();
     if (!label) return;
@@ -670,17 +652,12 @@ function uniqueByLabel(items = []) {
     seen.add(key);
     result.push({ ...item, label });
   });
-
   return result;
 }
 
 function containsAny(text, terms = []) {
   const normalized = normalizeText(text);
   return terms.some((term) => normalized.includes(normalizeText(term)));
-}
-
-function asArray(value) {
-  return Array.isArray(value) ? value : [];
 }
 
 function uniqueValues(values = []) {
@@ -725,7 +702,6 @@ function clampWords(text, maxWords = 12) {
     .trim()
     .split(' ')
     .filter(Boolean);
-
   return words.slice(0, maxWords).join(' ');
 }
 
@@ -751,6 +727,5 @@ function computeExecutionEase(selectedChampions) {
     const text = [champion.champion, champion.identity, champion.function, champion.tempo].filter(Boolean).join(' ').toLowerCase();
     return total + (complexTerms.some((term) => text.includes(term)) ? 1 : 0);
   }, 0);
-
   return clamp(10 - complexityHits * 2, 1, 10);
 }
