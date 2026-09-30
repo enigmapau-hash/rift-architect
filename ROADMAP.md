@@ -71,10 +71,23 @@
 - Documentar reglas visuales para futuros módulos.
 - Preparar una guía visual reutilizable en toda la app.
 
-## Fase 8 — Composition Optimizer ⏳
+## Fase 8 — Composition Report v1 ✅
+- Convertir el análisis en una ficha ejecutiva clara.
+- Mostrar hero card, score, fortalezas, riesgos, métricas, timeline, coach, advisor y explicabilidad.
+- Mantener una lectura rápida y centrada solo en la propia composición.
+- Servir como pantalla principal definitiva de Composition Architect.
+
+### Sprint 8.1 — Composition Report v1 ✅
+- Unificar la salida del motor en una página ejecutiva.
+- Añadir Composition Score y semáforo de calidad.
+- Reforzar la jerarquía visual de identidad, plan y riesgos.
+- Reducir el ruido y priorizar lectura en segundos.
+
+### Sprint 8.2 — Composition Optimizer 🟡
 - Recomendar swaps internos que mejoren la composición.
 - Detectar huecos de la composición actual.
 - Priorizar cambios de campeones por impacto estratégico.
+- Convertir el simulador en una herramienta de mejora guiada.
 
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
