@@ -1,0 +1,54 @@
+{
+  "slug": "global-pressure",
+  "description": "Composición de presión global y caza de objetivos aislados.",
+  "selectedChampions": [
+    {
+      "champion": "Twisted Fate",
+      "role": "mid",
+      "identity": "Pick",
+      "function": "Mage",
+      "tempo": "Mid",
+      "strengths": ["Pick", "Mobility", "Control"],
+      "weaknesses": ["All-in"]
+    },
+    {
+      "champion": "Nocturne",
+      "role": "jungle",
+      "identity": "Engage",
+      "function": "Assassin",
+      "tempo": "Mid",
+      "strengths": ["Mobility", "Pick", "Dive"],
+      "weaknesses": ["Frontline"]
+    },
+    {
+      "champion": "Pantheon",
+      "role": "top",
+      "identity": "Engage",
+      "function": "Fighter",
+      "tempo": "Early/Mid",
+      "strengths": ["Engage", "Pick", "Global"],
+      "weaknesses": ["Scaling"]
+    },
+    {
+      "champion": "Bard",
+      "role": "support",
+      "identity": "Control",
+      "function": "Enchanter",
+      "tempo": "Mid",
+      "strengths": ["Control", "Mobility", "Pick"],
+      "weaknesses": ["Frontline"]
+    },
+    {
+      "champion": "Ashe",
+      "role": "botline",
+      "identity": "Control",
+      "function": "Marksman",
+      "tempo": "Mid",
+      "strengths": ["Control", "Poke", "Vision"],
+      "weaknesses": ["Diving"]
+    }
+  ],
+  "expectations": {
+    "patternsInclude": ["Global Pressure", "Heavy Pick", "Double Engage"]
+  }
+}
