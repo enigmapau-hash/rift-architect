@@ -124,6 +124,7 @@
 - Conectar las necesidades con su causa principal.
 - Dar soporte a la narrativa sin añadir ruido.
 - Mantener la explicación corta, estructurada y reutilizable.
+- Mostrar un badge visible de build y versión en la cabecera para confirmar el despliegue.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
