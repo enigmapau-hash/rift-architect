@@ -15,7 +15,7 @@ Translate the current composition into a small set of clear needs that the Draft
 
 ## Pipeline
 
-`Champion` → `analysis` → `Need Engine` → `Strategic Profiles` → `StrategicPlan` → `IA explanation`
+`analysis` → `StrategicPlan` → `Need Engine` → `Strategic Profiles` → `IA explanation`
 
 The key idea is that the engine first detects what the composition needs, then translates those needs into compact profile families, and finally exposes that in a short explanation.
 
@@ -98,7 +98,7 @@ Composition: `Ornn / Vi / Orianna / Kai'Sa / Rakan`
 Possible reading:
 - Identity: Front to Back
 - Main needs: Frontline, Engage, Peel
-- Recommended profiles: Iniciador fiable, Presión lateral no, Ancla de daño sí
+- Recommended profiles: Iniciador fiable, Control de objetivos, Ancla de daño
 - Best explanation: the comp already has damage and initiation, so the main value is protecting Kai'Sa and making fights easy to start and hard to escape.
 
 ## Relation with the existing engine
