@@ -19,6 +19,7 @@ PWA para construir y entender una composición de League of Legends a partir de 
 - Modal de selección estabilizado con controles nativos.
 - La vista principal es ahora **Composition View**, con una lectura más visual y simple.
 - La IA resume la composición en lenguaje natural: qué es, cómo gana, qué debe evitar y qué te recomienda hacer.
+- La IA también ofrece preguntas rápidas dentro de la vista para profundizar sin jerga.
 - Fortalezas, riesgos, métricas, plan, coach, advisor y explicabilidad se muestran en bloques separados.
 - La lectura está pensada para entender tu composición en pocos segundos.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
