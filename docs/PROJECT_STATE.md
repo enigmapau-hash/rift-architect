@@ -43,6 +43,7 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué le falta,
   - qué solución tiene,
   - qué debe evitar.
+- Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Muestra el Draft Assistant en una vista ejecutiva primero:
   - veredicto rápido,
   - narrativa,
@@ -59,7 +60,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 ## Lo siguiente por hacer
 
 ### Próximo bloque lógico
-1. Consolidar el **Narrative Engine** como capa de comunicación estable.
+1. Consolidar el **Explainability Engine** como soporte estable de la narrativa.
 2. Mantener el Draft Assistant en formato ejecutivo primero, con detalle plegado.
 3. Revisar qué parte del Excel ya cubre esas necesidades sin añadir campos nuevos.
 4. Mejorar la explicación de por qué un pick o un ban encaja con el plan.
@@ -86,6 +87,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Narrative Engine / Executive UX Pass
+**Fase actual:** Explainability Engine / Narrative Engine
 
-**Meta inmediata:** mostrar primero la historia de la composición y dejar el detalle como ampliación opcional.
+**Meta inmediata:** mantener la historia corta, clara y con el porqué de cada decisión visible.
