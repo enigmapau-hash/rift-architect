@@ -125,7 +125,7 @@
 - Medir tiempo de análisis y carga de conocimiento.
 - Congelar la arquitectura estable antes de la IA.
 
-## Fase 6 — Explainability + Coach + Advisor 🚧
+## Fase 6 — Explainability + Coach + Advisor ✅
 - Exponer evidencias compactas del motor.
 - Mostrar por qué cada conclusión existe.
 - Traducir el análisis en una guía práctica de draft.
@@ -153,6 +153,12 @@
 - Priorizar objetivos estratégicos.
 - Mostrar ventanas de juego claras.
 - Exponer condiciones de derrota relevantes.
+
+### Sprint 6.4 — Release Candidate (RC1) ✅
+- Ejecutar una auditoría funcional completa.
+- Revisar el rendimiento del motor y del Knowledge Layer.
+- Limpiar código duplicado o muerto.
+- Verificar documentación y Pages.
 
 ## Fase 7 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.

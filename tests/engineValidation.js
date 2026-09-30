@@ -18,6 +18,8 @@ const FIXTURE_FILES = [
   'global-pressure.json',
 ];
 
+const ADVISOR_WINDOW_KEYS = ['early', 'mid', 'late'];
+
 function normalizeText(value) {
   return String(value || '')
     .normalize('NFD')
@@ -75,7 +77,9 @@ function detectPatterns(selectedChampions = []) {
 
 function loadFixture(name) {
   return fetch(`./compositions/${name}`, { cache: 'no-store' }).then((response) => {
-    if (!response.ok) throw new Error(`No se pudo cargar ${name}`);
+    if (!response.ok) {
+      throw new Error(`No se pudo cargar ${name}`);
+    }
     return response.json();
   });
 }
@@ -87,7 +91,11 @@ function compareFixture(fixture) {
   const checks = [];
   const dependencies = asArray(analysis.dependencies?.items);
   const assistant = analysis.assistant || analysis.coach || {};
-  const summary = assistant.summary || {};
+  const advisor = analysis.advisor || assistant || {};
+  const summary = advisor.summary || assistant.summary || {};
+  const objectivePriority = asArray(advisor.objectivePriority);
+  const gameWindows = advisor.gameWindows || {};
+  const loseConditions = asArray(advisor.loseConditions);
   const insights = asArray(assistant.insights);
   const alerts = asArray(assistant.alerts);
   const explanationSummary = asArray(analysis.explanation?.summary);
@@ -176,10 +184,38 @@ function compareFixture(fixture) {
   );
 
   pushCheck(
-    'Resumen asistido',
+    'Resumen estratégico',
     Boolean(summary.identity && summary.priority && summary.risk && summary.powerSpike && summary.reason),
     'Resumen compacto completo',
     [summary.identity, summary.priority, summary.risk, summary.powerSpike, summary.reason].filter(Boolean).join(' · ') || 'Sin resumen'
+  );
+
+  pushCheck(
+    'Objetivo estratégico',
+    Boolean(advisor.primaryObjective),
+    'Objetivo principal definido',
+    advisor.primaryObjective || 'Sin objetivo'
+  );
+
+  pushCheck(
+    'Prioridades estratégicas',
+    objectivePriority.length > 0,
+    'Al menos una prioridad',
+    objectivePriority.map((item) => item?.label || item).join(' · ') || 'Sin prioridades'
+  );
+
+  pushCheck(
+    'Ventanas de juego',
+    ADVISOR_WINDOW_KEYS.every((key) => Boolean(gameWindows[key]?.label)),
+    'Early · Mid · Late definidos',
+    ADVISOR_WINDOW_KEYS.map((key) => gameWindows[key]?.label || 'Sin definir').join(' · ')
+  );
+
+  pushCheck(
+    'Condiciones de derrota',
+    loseConditions.length > 0,
+    'Al menos un riesgo',
+    loseConditions.map((item) => item?.label || item).join(' · ') || 'Sin riesgos'
   );
 
   pushCheck(
@@ -210,6 +246,7 @@ function compareFixture(fixture) {
     summary,
     insights,
     alerts,
+    advisor,
     analysis,
   };
 }
@@ -247,6 +284,7 @@ function renderReport(report) {
   const explainable = report.summary?.explainable || 0;
   const coachable = report.summary?.coachable || 0;
   const summarizable = report.summary?.summarizable || 0;
+  const advisorable = report.summary?.advisorable || 0;
 
   root.innerHTML = `
     <style>
@@ -276,7 +314,7 @@ function renderReport(report) {
       <section class="hero">
         <span class="badge ${report.summary.certified ? 'is-ok' : 'is-warn'}">${report.summary.certified ? 'CERTIFIED' : 'REVIEW'}</span>
         <h1>Core Engine test bank</h1>
-        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns, explainability, coach guidance and win conditions.</p>
+        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns, explainability, coach guidance, strategic advisor and win conditions.</p>
         <div class="stats">
           <div class="stat"><strong>${report.results.length}</strong><span>composiciones</span></div>
           <div class="stat"><strong>${passed}</strong><span>OK</span></div>
@@ -286,6 +324,7 @@ function renderReport(report) {
           <div class="stat"><strong>${summarizable}/${report.results.length}</strong><span>resúmenes</span></div>
           <div class="stat"><strong>${explainable}/${report.results.length}</strong><span>explicables</span></div>
           <div class="stat"><strong>${coachable}/${report.results.length}</strong><span>coach</span></div>
+          <div class="stat"><strong>${advisorable}/${report.results.length}</strong><span>advisor</span></div>
           <div class="stat"><strong>${durationMs} ms</strong><span>total</span></div>
           <div class="stat"><strong>${averageMs.toFixed(1)} ms</strong><span>media</span></div>
           <div class="stat"><strong>${report.knowledge.valid ? 'OK' : 'WARN'}</strong><span>knowledge</span></div>
@@ -307,6 +346,8 @@ function renderReport(report) {
                 <h2>${item.pass ? '✓' : '✗'} ${item.slug}</h2>
                 <p>${item.description || ''}</p>
                 ${item.summary?.identity ? `<p><strong>Resumen:</strong> ${item.summary.identity} · ${item.summary.priority} · ${item.summary.risk} · ${item.summary.powerSpike}</p>` : ''}
+                ${item.advisor?.primaryObjective ? `<p><strong>Advisor:</strong> ${item.advisor.primaryObjective} · ${item.advisor.summary?.priority || ''} · ${item.advisor.summary?.risk || ''}</p>` : ''}
+                ${item.advisor?.gameWindows ? `<p><strong>Ventanas:</strong> ${ADVISOR_WINDOW_KEYS.map((key) => item.advisor.gameWindows[key]?.label || '').filter(Boolean).join(' · ')}</p>` : ''}
                 ${item.insights?.length ? `<p><strong>Insights:</strong> ${item.insights.map((insight) => insight.label).join(' · ')}</p>` : ''}
                 ${item.alerts?.length ? `<p><strong>Alertas:</strong> ${item.alerts.map((alert) => alert.label).join(' · ')}</p>` : ''}
                 ${item.patterns?.length ? `<p><strong>Patrones:</strong> ${item.patterns.map((pattern) => pattern.label).join(' · ')}</p>` : ''}
@@ -343,6 +384,7 @@ export async function runEngineValidation() {
   const explainable = results.filter((item) => item.explanationSummary.length > 0).length;
   const coachable = results.filter((item) => Array.isArray(item.insights) && item.insights.length > 0).length;
   const summarizable = results.filter((item) => Boolean(item.summary?.identity && item.summary?.priority && item.summary?.risk && item.summary?.powerSpike && item.summary?.reason)).length;
+  const advisorable = results.filter((item) => Boolean(item.advisor?.primaryObjective && item.advisor?.objectivePriority?.length && item.advisor?.gameWindows?.early?.label && item.advisor?.gameWindows?.mid?.label && item.advisor?.gameWindows?.late?.label && item.advisor?.loseConditions?.length)).length;
 
   const report = {
     knowledge,
@@ -362,11 +404,12 @@ export async function runEngineValidation() {
     summary: {
       total: results.length,
       passed: results.filter((item) => item.pass).length,
-      failed: results.filter((item) => !item.pass).length,
+      failed: results.length - results.filter((item) => item.pass).length,
       certified,
       explainable,
       coachable,
       summarizable,
+      advisorable,
     },
   };
 

@@ -23,6 +23,8 @@
 - Explainability engine with compact evidence blocks for the analysis panel.
 - Coach engine with priorities, power spikes, phase guidance and risks.
 - Strategic advisor engine with objective priorities, game windows and lose conditions.
+- Strategic advisor coverage in the engine test bank.
+- Release-candidate audit notes for the analysis stack.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -45,7 +47,7 @@
 - The analysis panel now shows coach priorities and risks.
 - The analysis engine now exposes strategic advisor data.
 - The analysis panel now shows the strategic advisor block.
-- Service worker cache bumped to v44 after the strategic advisor update.
+- Service worker cache bumped to v45 after the RC1 audit update.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
