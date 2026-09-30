@@ -14,7 +14,7 @@ let dataLoaded = false;
 let patchScheduled = false;
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
@@ -22,15 +22,30 @@ function escapeHtml(value) {
     .replaceAll("'", '&#39;');
 }
 
-function toLabel(value) {
-  if (!value) return 'Sin definir';
-  if (typeof value === 'string') return value;
-  return value.label || value.name || value.title || 'Sin definir';
+function asText(value, fallback = 'Sin definir') {
+  if (value == null) return fallback;
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return trimmed || fallback;
+  }
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+  if (Array.isArray(value)) {
+    const joined = value.map((item) => asText(item, '')).filter(Boolean).join(' · ');
+    return joined || fallback;
+  }
+  if (typeof value === 'object') {
+    return asText(
+      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
+      fallback
+    );
+  }
+  return String(value) || fallback;
 }
 
-function toScore(value) {
-  if (!value || typeof value === 'string') return null;
-  return Number.isFinite(Number(value.score)) ? Math.round(Number(value.score)) : null;
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
 }
 
 function uniqueValues(values = []) {
@@ -40,6 +55,135 @@ function uniqueValues(values = []) {
 function stars(score = 0) {
   const numeric = Math.max(0, Math.min(5, Number(score) || 0));
   return '★★★★★'.slice(0, numeric) + '☆☆☆☆☆'.slice(0, 5 - numeric);
+}
+
+function percent(score, max = 10) {
+  const numeric = Number.isFinite(Number(score)) ? Number(score) : 0;
+  return Math.max(0, Math.min(100, Math.round((numeric / max) * 100)));
+}
+
+function formatSigned(value) {
+  const rounded = Math.round(Number(value) || 0);
+  return `${rounded > 0 ? '+' : ''}${rounded}`;
+}
+
+function normalizeEntry(item) {
+  const label = asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir');
+  const detail = asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', '');
+  const champions = asArray(item?.champions).map((entry) => asText(entry)).filter(Boolean);
+  const missing = asArray(item?.missing).map((entry) => asText(entry)).filter(Boolean);
+  const score = Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null;
+  return { label, detail, champions, missing, score };
+}
+
+function renderPills(items = [], emptyText = 'Sin datos') {
+  const chips = uniqueValues(items.map((item) => asText(item)).filter((item) => item && item !== 'Sin definir'));
+  return chips.length
+    ? `<div class="analysis-chip-list">${chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')}</div>`
+    : `<p class="analysis-empty">${escapeHtml(emptyText)}</p>`;
+}
+
+function renderMiniStat(label, value, detail = '') {
+  return `
+    <article class="analysis-mini-stat">
+      <span class="analysis-mini-stat__label">${escapeHtml(label)}</span>
+      <strong class="analysis-mini-stat__value">${escapeHtml(value || 'Sin definir')}</strong>
+      ${detail ? `<span class="analysis-mini-stat__detail">${escapeHtml(detail)}</span>` : ''}
+    </article>
+  `;
+}
+
+function renderItemCard(item, variant = 'neutral') {
+  const normalized = normalizeEntry(item);
+  const scoreMarkup = normalized.score !== null
+    ? `<span class="analysis-item-card__score">${stars(normalized.score)}</span>`
+    : '';
+  const subtitle = normalized.detail
+    ? `<p class="analysis-item-card__detail">${escapeHtml(normalized.detail)}</p>`
+    : '';
+  const championMarkup = normalized.champions.length
+    ? `<div class="analysis-chip-list analysis-chip-list--compact">${normalized.champions.map((champion) => `<span class="analysis-chip">${escapeHtml(champion)}</span>`).join('')}</div>`
+    : '';
+  const missingMarkup = normalized.missing.length
+    ? `<div class="analysis-chip-list analysis-chip-list--compact">${normalized.missing.map((missing) => `<span class="analysis-chip analysis-chip--danger">Falta: ${escapeHtml(missing)}</span>`).join('')}</div>`
+    : '';
+  return `
+    <article class="analysis-item-card analysis-item-card--${variant}">
+      <div class="analysis-item-card__head">
+        <strong>${escapeHtml(normalized.label)}</strong>
+        ${scoreMarkup}
+      </div>
+      ${subtitle}
+      ${championMarkup}
+      ${missingMarkup}
+    </article>
+  `;
+}
+
+function renderItemGrid(title, items = [], variant = 'neutral', emptyText = 'Sin datos claros.') {
+  const safeItems = asArray(items).slice(0, 4);
+  return `
+    <article class="analysis-card analysis-card--${variant}">
+      <div class="analysis-card__header">
+        <p class="eyebrow">${escapeHtml(title)}</p>
+        <h4>${escapeHtml(title)}</h4>
+      </div>
+      ${
+        safeItems.length
+          ? `<div class="analysis-item-grid">${safeItems.map((item) => renderItemCard(item, variant)).join('')}</div>`
+          : `<p class="analysis-empty">${escapeHtml(emptyText)}</p>`
+      }
+    </article>
+  `;
+}
+
+function renderMetricRow(metrics = []) {
+  const safeMetrics = asArray(metrics).slice(0, 6);
+  if (!safeMetrics.length) {
+    return '<p class="analysis-empty">Sin métricas disponibles.</p>';
+  }
+
+  return `
+    <div class="analysis-metric-list">
+      ${safeMetrics
+        .map((metric) => {
+          const score = Number.isFinite(Number(metric?.score)) ? Number(metric.score) : 0;
+          const width = percent(score);
+          return `
+            <div class="analysis-metric">
+              <div class="analysis-metric__head">
+                <span>${escapeHtml(asText(metric?.label ?? metric?.name ?? metric?.key))}</span>
+                <strong>${escapeHtml(String(score))}/10</strong>
+              </div>
+              <div class="analysis-meter">
+                <span class="analysis-meter__fill" style="width:${width}%"></span>
+              </div>
+            </div>
+          `;
+        })
+        .join('')}
+    </div>
+  `;
+}
+
+function renderPlanList(plan = []) {
+  const steps = asArray(plan).map((step) => asText(step)).filter(Boolean).slice(0, 3);
+  if (!steps.length) return '<p class="analysis-empty">Sin plan claro.</p>';
+
+  return `
+    <ol class="analysis-step-list">
+      ${steps
+        .map(
+          (step, index) => `
+            <li class="analysis-step">
+              <span class="analysis-step__index">${index + 1}</span>
+              <span class="analysis-step__text">${escapeHtml(step)}</span>
+            </li>
+          `
+        )
+        .join('')}
+    </ol>
+  `;
 }
 
 async function loadRoleData() {
@@ -94,123 +238,261 @@ function collectSelectedChampions() {
     .filter(Boolean);
 }
 
-function renderList(items, className) {
-  if (!items.length) {
-    return '<p class="analysis-empty">Sin datos claros.</p>';
-  }
+function renderHero(analysis) {
+  const primaryIdentity = analysis.primaryIdentity || 'Sin definir';
+  const summaryText = analysis.summaryText || 'Resumen compacto basado en el Excel.';
+  const confidence = Number.isFinite(Number(analysis.confidence)) ? Math.round(Number(analysis.confidence)) : null;
+  const dominanceLabel =
+    analysis.dominance === 'dominant'
+      ? 'Dominante'
+      : analysis.dominance === 'hybrid'
+        ? 'Híbrida'
+        : analysis.dominance === 'flexible'
+          ? 'Flexible'
+          : 'Sin definir';
+  const winConditionLabel = analysis.winCondition?.label || 'Sin definir';
+  const tempoLabel = analysis.tempoDetail?.label || analysis.tempo || 'Sin definir';
+  const coherenceLabel = analysis.coherence?.label || 'Sin definir';
+  const secondaryIdentities = asArray(analysis.secondaryIdentities).slice(0, 3);
+  const tempoPhases = asArray(analysis.tempoDetail?.phases);
+  const damageSplit = analysis.damageSplit || {};
+  const damageChips = [
+    `AD ${Number(damageSplit.ad || 0)}`,
+    `AP ${Number(damageSplit.ap || 0)}`,
+    `Híbrido ${Number(damageSplit.hybrid || 0)}`,
+  ];
 
   return `
-    <ul class="analysis-list ${className}">
-      ${items
-        .map((item) => {
-          const label = escapeHtml(toLabel(item));
-          const score = toScore(item);
-          const detail = typeof item === 'object' ? escapeHtml(item.detail || item.summary || item.description || item.reason || '') : '';
-          const champions = typeof item === 'object' && Array.isArray(item.champions) && item.champions.length
-            ? escapeHtml(item.champions.join(' · '))
-            : '';
-          const missing = typeof item === 'object' && Array.isArray(item.missing) && item.missing.length
-            ? escapeHtml(`Falta: ${item.missing.join(' · ')}`)
-            : '';
+    <section class="analysis-hero">
+      <div class="analysis-hero__main">
+        <p class="eyebrow">Identidad</p>
+        <h3>${escapeHtml(primaryIdentity)}</h3>
+        <p class="analysis-hero__summary">${escapeHtml(summaryText)}</p>
+        <div class="analysis-chip-list">
+          ${dominanceLabel ? `<span class="analysis-chip">Dominio: ${escapeHtml(dominanceLabel)}</span>` : ''}
+          ${confidence !== null ? `<span class="analysis-chip">Confianza ${confidence}%</span>` : ''}
+          ${coherenceLabel ? `<span class="analysis-chip">Coherencia: ${escapeHtml(coherenceLabel)}</span>` : ''}
+          ${winConditionLabel ? `<span class="analysis-chip">Victoria: ${escapeHtml(winConditionLabel)}</span>` : ''}
+          ${tempoLabel ? `<span class="analysis-chip">Tempo: ${escapeHtml(tempoLabel)}</span>` : ''}
+        </div>
 
-          return `
-            <li>
-              <div>
-                <span>${label}</span>
-                ${detail ? `<small>${detail}</small>` : ''}
-                ${champions ? `<small>${champions}</small>` : ''}
-                ${missing ? `<small>${missing}</small>` : ''}
-              </div>
-              ${score !== null ? `<span class="analysis-list__score">${score}</span>` : ''}
-            </li>
-          `;
-        })
-        .join('')}
-    </ul>
+        <div class="analysis-meta-strip">
+          <div class="analysis-meta-strip__group">
+            <span class="analysis-meta-strip__label">Secundarias</span>
+            ${renderPills(secondaryIdentities, 'Sin identidades secundarias')}
+          </div>
+
+          <div class="analysis-meta-strip__group">
+            <span class="analysis-meta-strip__label">Ventana</span>
+            ${renderPills(tempoPhases.length ? tempoPhases : [tempoLabel], 'Sin tempo')}
+          </div>
+
+          <div class="analysis-meta-strip__group">
+            <span class="analysis-meta-strip__label">Daño</span>
+            ${renderPills(damageChips, 'Sin reparto')}
+          </div>
+        </div>
+      </div>
+
+      <aside class="analysis-hero__aside">
+        ${renderMiniStat('Confianza', confidence !== null ? `${confidence}%` : 'Sin definir', 'Solidez del análisis')}
+        ${renderMiniStat('Coherencia', coherenceLabel, 'Alineación del plan')}
+        ${renderMiniStat('Tempo', tempoLabel, 'Ritmo natural')}
+        ${renderMiniStat('Victoria', winConditionLabel, 'Cómo se gana')}
+      </aside>
+    </section>
   `;
 }
 
-function renderPriorityList(items = []) {
-  if (!items.length) return '<p class="analysis-empty">Sin prioridades claras.</p>';
+function renderCoachCard(coach = {}) {
+  const phases = asArray(coach.phases).slice(0, 3);
+  const priorities = asArray(coach.priorities).slice(0, 3);
+  const powerSpikes = asArray(coach.powerSpikes).slice(0, 3);
+  const insights = asArray(coach.insights).slice(0, 3);
+  const alerts = asArray(coach.alerts).slice(0, 3);
 
   return `
-    <ul class="analysis-list analysis-list--neutral">
-      ${items
-        .map(
-          (item) => `
-            <li>
-              <div>
-                <span>${escapeHtml(item.label)}</span>
-                ${item.detail ? `<small>${escapeHtml(item.detail)}</small>` : ''}
-              </div>
-              <span class="analysis-chip">${escapeHtml(stars(item.score))}</span>
-            </li>
-          `
-        )
-        .join('')}
-    </ul>
-  `;
-}
+    <article class="analysis-card analysis-card--wide">
+      <div class="analysis-card__header">
+        <p class="eyebrow">Coach</p>
+        <h4>${escapeHtml(coach.headline || 'Guía de ejecución')}</h4>
+      </div>
 
-function renderCoachPhase(phase) {
-  if (!phase) return '';
+      ${phases.length ? `<div class="analysis-phase-grid">${phases.map((phase) => renderPhaseCard(phase)).join('')}</div>` : '<p class="analysis-empty">Sin fases definidas.</p>'}
 
-  const actions = Array.isArray(phase.actions) ? phase.actions.filter(Boolean) : [];
-  return `
-    <article class="analysis-block" style="padding: 12px 14px;">
-      <p class="eyebrow">${escapeHtml(phase.label)}</p>
-      <p class="analysis-note">${escapeHtml(phase.detail || 'Sin detalle disponible.')}</p>
-      ${actions.length ? `<div class="analysis-chip-list">${actions.map((action) => `<span class="analysis-chip">${escapeHtml(action)}</span>`).join('')}</div>` : ''}
+      <div class="analysis-subgrid">
+        <section class="analysis-subcard">
+          <p class="eyebrow">Prioridades</p>
+          ${priorities.length ? `<div class="analysis-item-grid">${priorities.map((item) => renderItemCard(item, 'good')).join('')}</div>` : '<p class="analysis-empty">Sin prioridades.</p>'}
+        </section>
+        <section class="analysis-subcard">
+          <p class="eyebrow">Picos de poder</p>
+          ${powerSpikes.length ? `<div class="analysis-item-grid">${powerSpikes.map((item) => renderItemCard(item, 'neutral')).join('')}</div>` : '<p class="analysis-empty">Sin picos.</p>'}
+        </section>
+      </div>
+
+      <div class="analysis-subgrid">
+        <section class="analysis-subcard">
+          <p class="eyebrow">Insights</p>
+          ${insights.length ? `<div class="analysis-item-grid">${insights.map((item) => renderItemCard(item, 'good')).join('')}</div>` : '<p class="analysis-empty">Sin insights.</p>'}
+        </section>
+        <section class="analysis-subcard">
+          <p class="eyebrow">Alertas</p>
+          ${alerts.length ? `<div class="analysis-item-grid">${alerts.map((item) => renderItemCard(item, 'bad')).join('')}</div>` : '<p class="analysis-empty">Sin alertas.</p>'}
+        </section>
+      </div>
     </article>
   `;
 }
 
-function renderSummaryBlock(advisor = {}, analysis = {}) {
-  const summary = advisor.summary || {};
-  const chips = uniqueValues([
-    summary.identity ? `Identidad: ${summary.identity}` : null,
-    summary.priority ? `Prioridad: ${summary.priority}` : null,
-    summary.risk ? `Riesgo: ${summary.risk}` : null,
-    summary.powerSpike ? `Power spike: ${summary.powerSpike}` : null,
-    analysis.tempoDetail?.label ? `Tempo: ${analysis.tempoDetail.label}` : null,
-  ]);
+function renderPhaseCard(phase) {
+  const normalized = normalizeEntry(phase);
+  const actions = asArray(phase?.actions).map((item) => asText(item)).filter(Boolean);
 
   return `
-    <section class="analysis-block analysis-block--hero">
-      <p class="eyebrow">Resumen 15s</p>
-      <div class="analysis-chip-list">
-        ${chips.length
-          ? chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')
-          : '<span class="analysis-empty">Sin resumen claro</span>'}
+    <article class="analysis-phase">
+      <div class="analysis-item-card__head">
+        <strong>${escapeHtml(normalized.label)}</strong>
       </div>
-      <p class="analysis-note">${escapeHtml(summary.reason || analysis.summaryText || 'Resumen compacto del draft.')}</p>
-    </section>
+      ${normalized.detail ? `<p class="analysis-item-card__detail">${escapeHtml(normalized.detail)}</p>` : ''}
+      ${actions.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${actions.map((action) => `<span class="analysis-chip">${escapeHtml(action)}</span>`).join('')}</div>` : ''}
+    </article>
   `;
 }
 
-function renderWindows(windows = {}) {
-  const entries = ['early', 'mid', 'late']
+function renderAdvisorCard(advisor = {}) {
+  const priorities = asArray(advisor.objectivePriority).slice(0, 3);
+  const windows = advisor.gameWindows || {};
+  const windowEntries = ['early', 'mid', 'late']
     .map((key) => windows[key])
     .filter(Boolean)
-    .map((window) => `${window.label}: ${stars(window.score)}`);
-
-  return entries.length ? `<div class="analysis-chip-list">${entries.map((item) => `<span class="analysis-chip">${escapeHtml(item)}</span>`).join('')}</div>` : '<p class="analysis-empty">Sin ventanas claras.</p>';
-}
-
-function renderAdvisorBlock(advisor = {}) {
-  const objectivePriority = Array.isArray(advisor.objectivePriority) ? advisor.objectivePriority.slice(0, 3) : [];
-  const loseConditions = Array.isArray(advisor.loseConditions) ? advisor.loseConditions.slice(0, 3) : [];
-  const summary = advisor.summary || {};
+    .slice(0, 3);
+  const loseConditions = asArray(advisor.loseConditions).slice(0, 3);
 
   return `
-    <section class="analysis-block analysis-block--hero">
-      <p class="eyebrow">Strategic Advisor</p>
-      <h3>${escapeHtml(advisor.primaryObjective || summary.priority || 'Jugar alrededor de la identidad')}</h3>
-      <p class="analysis-note">${escapeHtml(summary.reason || 'Prioridad estratégica derivada del análisis.')}</p>
-      ${objectivePriority.length ? renderPriorityList(objectivePriority) : '<p class="analysis-empty">Sin prioridades claras.</p>'}
-      <div style="margin-top: 10px;">${renderWindows(advisor.gameWindows)}</div>
-      ${loseConditions.length ? `<p class="eyebrow" style="margin-top: 12px;">Pierdes si...</p>${renderList(loseConditions, 'analysis-list--bad')}` : ''}
-    </section>
+    <article class="analysis-card analysis-card--accent">
+      <div class="analysis-card__header">
+        <p class="eyebrow">Strategic Advisor</p>
+        <h4>${escapeHtml(advisor.primaryObjective || advisor.summary?.priority || 'Jugar alrededor de la identidad')}</h4>
+      </div>
+
+      <div class="analysis-subgrid">
+        <section class="analysis-subcard">
+          <p class="eyebrow">Prioridades</p>
+          ${priorities.length ? `<div class="analysis-item-grid">${priorities.map((item) => renderItemCard(item, 'good')).join('')}</div>` : '<p class="analysis-empty">Sin prioridades.</p>'}
+        </section>
+        <section class="analysis-subcard">
+          <p class="eyebrow">Ventanas</p>
+          ${windowEntries.length ? `<div class="analysis-item-grid">${windowEntries.map((item) => renderItemCard(item, 'neutral')).join('')}</div>` : '<p class="analysis-empty">Sin ventanas.</p>'}
+        </section>
+      </div>
+
+      <section class="analysis-subcard">
+        <p class="eyebrow">Pierdes si...</p>
+        ${loseConditions.length ? `<div class="analysis-item-grid">${loseConditions.map((item) => renderItemCard(item, 'bad')).join('')}</div>` : '<p class="analysis-empty">Sin riesgos claros.</p>'}
+      </section>
+    </article>
+  `;
+}
+
+function renderExplainabilityCard(explanation = {}) {
+  const sections = asArray(explanation.summary).slice(0, 3);
+  const identity = explanation.identity;
+  const tempo = explanation.tempo;
+  const win = explanation.winCondition;
+  const coherence = explanation.coherence;
+
+  return `
+    <article class="analysis-card analysis-card--wide">
+      <div class="analysis-card__header">
+        <p class="eyebrow">Por qué</p>
+        <h4>Señales que explican la lectura</h4>
+      </div>
+
+      ${sections.length ? `<div class="analysis-item-grid">${sections.map((item) => renderItemCard(item, 'neutral')).join('')}</div>` : '<p class="analysis-empty">Sin explicación disponible.</p>'}
+
+      <div class="analysis-subgrid">
+        <section class="analysis-subcard">
+          <p class="eyebrow">Identidad</p>
+          ${identity ? renderItemCard(identity, 'neutral') : '<p class="analysis-empty">Sin detalle.</p>'}
+        </section>
+        <section class="analysis-subcard">
+          <p class="eyebrow">Tempo</p>
+          ${tempo ? renderItemCard(tempo, 'neutral') : '<p class="analysis-empty">Sin detalle.</p>'}
+        </section>
+      </div>
+
+      <div class="analysis-subgrid">
+        <section class="analysis-subcard">
+          <p class="eyebrow">Victoria</p>
+          ${win ? renderItemCard(win, 'good') : '<p class="analysis-empty">Sin detalle.</p>'}
+        </section>
+        <section class="analysis-subcard">
+          <p class="eyebrow">Coherencia</p>
+          ${coherence ? renderItemCard(coherence, 'neutral') : '<p class="analysis-empty">Sin detalle.</p>'}
+        </section>
+      </div>
+    </article>
+  `;
+}
+
+function renderMetricsCard(analysis = {}) {
+  const metrics = asArray(analysis.metrics);
+  const damageSplit = analysis.damageSplit || {};
+  const damageChips = [
+    `AD ${Number(damageSplit.ad || 0)}`,
+    `AP ${Number(damageSplit.ap || 0)}`,
+    `Híbrido ${Number(damageSplit.hybrid || 0)}`,
+  ];
+
+  return `
+    <article class="analysis-card analysis-card--wide">
+      <div class="analysis-card__header">
+        <p class="eyebrow">Perfil de la composición</p>
+        <h4>Métricas y reparto de daño</h4>
+      </div>
+      ${renderMetricRow(metrics)}
+      <div class="analysis-chip-list analysis-chip-list--compact analysis-chip-list--spaced">
+        ${damageChips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderPlanCard(analysis = {}) {
+  const plan = asArray(analysis.gamePlan);
+  const winConditionDetail = analysis.winCondition?.detail || analysis.summaryText || 'Plan compacto de la composición.';
+
+  return `
+    <article class="analysis-card">
+      <div class="analysis-card__header">
+        <p class="eyebrow">Plan</p>
+        <h4>${escapeHtml(analysis.assistant?.headline || analysis.winCondition?.label || 'Jugar alrededor de la identidad')}</h4>
+      </div>
+      ${renderPlanList(plan)}
+      <p class="analysis-summary-note">${escapeHtml(winConditionDetail)}</p>
+    </article>
+  `;
+}
+
+function renderDashboard(analysis) {
+  const coach = analysis.coach || analysis.assistant || {};
+  const advisor = analysis.advisor || analysis.assistant || {};
+  const explanation = analysis.explanation || {};
+
+  return `
+    <div class="analysis-dashboard">
+      ${renderHero(analysis)}
+      <div class="analysis-grid-v3">
+        ${renderItemGrid('Fortalezas', analysis.strengths || [], 'good', 'Sin fortalezas claras.')}
+        ${renderItemGrid('Riesgos', analysis.weaknesses || [], 'bad', 'Sin riesgos claros.')}
+        ${renderMetricsCard(analysis)}
+        ${renderPlanCard(analysis)}
+        ${renderCoachCard(coach)}
+        ${renderAdvisorCard(advisor)}
+        ${renderExplainabilityCard(explanation)}
+      </div>
+    </div>
   `;
 }
 
@@ -225,83 +507,7 @@ function renderAnalysisSummary() {
   }
 
   const analysis = analyzeComposition(selectedChampions);
-  const advisor = analysis.advisor || analysis.assistant || analysis.coach || {};
-  const explanationSummary = Array.isArray(analysis.explanation?.summary) ? analysis.explanation.summary.slice(0, 3) : [];
-  const insights = Array.isArray(analysis.assistant?.insights) ? analysis.assistant.insights.slice(0, 3) : [];
-  const alerts = Array.isArray(analysis.assistant?.alerts) ? analysis.assistant.alerts.slice(0, 3) : [];
-  const primaryIdentity = analysis.primaryIdentity || 'Sin definir';
-  const secondaryIdentities = (analysis.secondaryIdentities || []).slice(0, 2);
-  const strengths = (analysis.strengths || []).slice(0, 4);
-  const confidence = Number.isFinite(Number(analysis.confidence)) ? Math.round(Number(analysis.confidence)) : null;
-  const dominanceLabel = analysis.dominance === 'dominant' ? 'Dominante' : analysis.dominance === 'hybrid' ? 'Híbrida' : analysis.dominance === 'flexible' ? 'Flexible' : null;
-  const tempoLabel = analysis.tempoDetail?.label || analysis.tempo || 'Sin definir';
-  const winConditionLabel = analysis.winCondition?.label || 'Sin definir';
-  const coherenceLabel = analysis.coherence?.label || 'Sin definir';
-
-  summary.innerHTML = `
-    <div class="analysis-engine">
-      <section class="analysis-block analysis-block--hero">
-        <p class="eyebrow">Identidad</p>
-        <h3>${escapeHtml(primaryIdentity)}</h3>
-        <p>${escapeHtml(analysis.summaryText || 'Resumen compacto basado en el Excel.')}</p>
-        <div class="analysis-chip-list">
-          ${dominanceLabel ? `<span class="analysis-chip">${escapeHtml(dominanceLabel)}</span>` : ''}
-          ${confidence !== null ? `<span class="analysis-chip">Confianza ${confidence}%</span>` : ''}
-          ${coherenceLabel ? `<span class="analysis-chip">${escapeHtml(coherenceLabel)}</span>` : ''}
-          ${winConditionLabel ? `<span class="analysis-chip">Victoria: ${escapeHtml(winConditionLabel)}</span>` : ''}
-          ${tempoLabel ? `<span class="analysis-chip">Tempo: ${escapeHtml(tempoLabel)}</span>` : ''}
-          ${secondaryIdentities.length ? secondaryIdentities.map((identity) => `<span class="analysis-chip">${escapeHtml(identity)}</span>`).join('') : ''}
-        </div>
-      </section>
-
-      ${renderSummaryBlock(advisor, analysis)}
-      ${renderAdvisorBlock(advisor)}
-
-      <div class="analysis-grid">
-        <section class="analysis-block">
-          <p class="eyebrow">Insights</p>
-          ${renderList(insights, 'analysis-list--good')}
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">Alertas</p>
-          ${renderList(alerts, 'analysis-list--bad')}
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">Fortalezas</p>
-          ${renderList(strengths, 'analysis-list--good')}
-        </section>
-
-        <section class="analysis-block analysis-block--hero">
-          <p class="eyebrow">Plan</p>
-          <h3>${escapeHtml(analysis.assistant?.headline || analysis.winCondition?.label || 'Jugar alrededor de la identidad')}</h3>
-          <div class="analysis-grid" style="grid-template-columns: 1fr; gap: 12px;">
-            <article class="analysis-block" style="padding: 12px 14px;">
-              <p class="eyebrow">Prioridades</p>
-              ${renderPriorityList(analysis.assistant?.objectivePriority || [])}
-            </article>
-            <article class="analysis-block" style="padding: 12px 14px;">
-              <p class="eyebrow">Power spikes</p>
-              <div class="analysis-chip-list">
-                ${(analysis.advisor?.gameWindows ? Object.values(analysis.advisor.gameWindows) : []).length
-                  ? Object.values(analysis.advisor.gameWindows).map((spike) => `<span class="analysis-chip">${escapeHtml(`${spike.label}: ${stars(spike.score)}`)}</span>`).join('')
-                  : '<span class="analysis-empty">Sin picos claros.</span>'}
-              </div>
-            </article>
-            ${renderCoachPhase((analysis.assistant?.phases || [])[0])}
-            ${renderCoachPhase((analysis.assistant?.phases || [])[1])}
-            ${renderCoachPhase((analysis.assistant?.phases || [])[2])}
-          </div>
-        </section>
-
-        <section class="analysis-block">
-          <p class="eyebrow">Por qué</p>
-          ${explanationSummary.length ? renderList(explanationSummary, 'analysis-list--neutral') : '<p class="analysis-empty">Sin explicación disponible.</p>'}
-        </section>
-      </div>
-    </div>
-  `;
+  summary.innerHTML = renderDashboard(analysis);
 }
 
 function schedulePatch() {
