@@ -1,0 +1,313 @@
+/* Compact Analysis Hub overrides */
+
+.analysis-hub--compact {
+  gap: 12px;
+}
+
+.analysis-hub--compact .analysis-hub__shell--compact,
+.analysis-hub--compact .analysis-hub__empty {
+  gap: 12px;
+  padding: 14px;
+}
+
+.analysis-hub__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(200px, 230px);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.analysis-hub__metric-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.analysis-hub__metric {
+  display: grid;
+  gap: 8px;
+  padding: 10px 11px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.analysis-hub__metric-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.analysis-hub__metric-head strong,
+.analysis-hub__metric-head span {
+  margin: 0;
+}
+
+.analysis-hub__metric-head strong {
+  font-size: 0.8rem;
+}
+
+.analysis-hub__metric-head span {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.analysis-hub__metric-bar {
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.analysis-hub__metric-fill {
+  width: var(--meter, 0%);
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(124, 140, 255, 0.9), rgba(70, 211, 161, 0.95));
+}
+
+.analysis-hub__metric p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.35;
+  font-size: 0.84rem;
+}
+
+.analysis-hub__main,
+.analysis-hub__footer-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.analysis-hub__main {
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+}
+
+.analysis-hub__footer-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.analysis-hub__panel {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-hub__panel--plan {
+  background: rgba(124, 140, 255, 0.05);
+  border-color: rgba(124, 140, 255, 0.18);
+}
+
+.analysis-hub__panel--advisor {
+  background: rgba(70, 211, 161, 0.05);
+  border-color: rgba(70, 211, 161, 0.16);
+}
+
+.analysis-hub__panel--danger {
+  background: rgba(255, 122, 122, 0.06);
+  border-color: rgba(255, 122, 122, 0.18);
+}
+
+.analysis-hub__row {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-hub__row--lead {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  background: rgba(124, 140, 255, 0.07);
+  border-color: rgba(124, 140, 255, 0.16);
+}
+
+.analysis-hub__row-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.analysis-hub__row-copy strong,
+.analysis-hub__mini-card strong,
+.analysis-hub__response-card strong {
+  margin: 0;
+}
+
+.analysis-hub__row-copy p,
+.analysis-hub__mini-card p,
+.analysis-hub__response-card p,
+.analysis-hub__empty p,
+.analysis-hub__why p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.analysis-hub__row-score {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-2);
+}
+
+.analysis-hub__mini-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.analysis-hub__mini-card {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-hub__actions,
+.analysis-hub__response-grid,
+.analysis-hub__list,
+.analysis-hub__chip-list {
+  display: grid;
+  gap: 8px;
+}
+
+.analysis-hub__action {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  text-align: left;
+}
+
+.analysis-hub__action.is-active {
+  border-color: rgba(124, 140, 255, 0.4);
+  background: rgba(124, 140, 255, 0.12);
+}
+
+.analysis-hub__action-icon {
+  font-size: 1.05rem;
+  line-height: 1;
+}
+
+.analysis-hub__action-copy {
+  display: grid;
+  gap: 2px;
+}
+
+.analysis-hub__action-copy strong {
+  margin: 0;
+}
+
+.analysis-hub__action-copy small {
+  color: var(--muted);
+}
+
+.analysis-hub__response-card {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-hub__response-card--compact {
+  background: rgba(124, 140, 255, 0.05);
+  border-color: rgba(124, 140, 255, 0.16);
+}
+
+.analysis-hub__card-kicker,
+.analysis-hub__score-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.7rem;
+  color: var(--accent-2);
+}
+
+.analysis-hub__verdict {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(124, 140, 255, 0.16);
+  background: rgba(124, 140, 255, 0.06);
+}
+
+.analysis-hub__verdict strong {
+  margin: 0;
+}
+
+.analysis-hub__verdict p,
+.analysis-hub__hero-copy p,
+.analysis-hub__empty p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.analysis-hub__why {
+  display: grid;
+  gap: 6px;
+}
+
+.analysis-hub__why summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.84rem;
+  color: var(--text);
+}
+
+.analysis-hub__why summary::-webkit-details-marker {
+  display: none;
+}
+
+.analysis-hub__empty {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(12, 18, 35, 0.98), rgba(13, 17, 31, 0.96));
+}
+
+@media (max-width: 1080px) {
+  .analysis-hub__hero,
+  .analysis-hub__main,
+  .analysis-hub__footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-hub__metric-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .analysis-hub--compact,
+  .analysis-hub--compact .analysis-hub__shell--compact,
+  .analysis-hub--compact .analysis-hub__empty {
+    gap: 10px;
+  }
+
+  .analysis-hub__metric-strip,
+  .analysis-hub__mini-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-hub__row--lead,
+  .analysis-hub__action {
+    grid-template-columns: 1fr;
+  }
+}
