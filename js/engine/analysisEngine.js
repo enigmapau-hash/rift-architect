@@ -214,6 +214,9 @@ export function analyzeComposition(selectedChampions = []) {
   analysis.summary = analysis.advisor.summary;
   analysis.executiveSummary = buildExecutiveSummary(analysis);
   analysis.draftProfile = analysis.executiveSummary.profile;
+  analysis.executionProfile = analysis.executiveSummary.executionProfile;
+  analysis.criticalErrors = analysis.executiveSummary.criticalErrors;
+  analysis.checklist = analysis.executiveSummary.checklist;
   analysis.priorities = analysis.executiveSummary.priorities;
   analysis.decisionFlowBase = buildDecisionFlowBase(analysis, safeChampions);
 
