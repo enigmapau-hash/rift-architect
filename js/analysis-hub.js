@@ -1,1 +1,1 @@
-import './analysis-hub-compact.js';
+import './analysis-hub-cards.js';
