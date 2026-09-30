@@ -72,46 +72,52 @@ function renderPanel() {
   const profiles = Array.isArray(draftAssistant.strategicProfiles) ? draftAssistant.strategicProfiles : [];
   const picks = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
   const bans = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
-  const priorities = Array.isArray(draftAssistant.priorities) ? draftAssistant.priorities : [];
-  const primaryNeed = needs[0] || null;
-  const topProfile = profiles[0] || null;
-  const topPick = picks[0] || null;
-  const topBan = bans[0] || null;
+
+  const story = [
+    { label: 'Cómo gana', text: narrative.winLine || fallbackWinLine(analysis, strategicPlan) },
+    { label: 'Qué necesita', text: narrative.needLine || fallbackNeedLine(needs) },
+    { label: 'Por qué', text: narrative.becauseLine || fallbackBecauseLine(needs[0] || null, strategicPlan) },
+    { label: 'Mejor decisión', text: narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan) },
+    { label: 'Qué evitar', text: narrative.warningLine || fallbackWarningLine(bans[0] || null) },
+  ];
 
   state.root.hidden = false;
   state.root.innerHTML = `
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
-        <span class="analysis-hub__card-kicker">Beta 0.2</span>
-        <span class="analysis-hub__summary-panel-note">Una sola conversación · respuesta arriba, detalle abajo</span>
+        <span class="analysis-hub__card-kicker">Beta 0.3</span>
+        <span class="analysis-hub__summary-panel-note">Una sola conversación · respuesta primero</span>
       </div>
 
       <div class="analysis-hub__assistant-story">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(narrative.title || 'Tu composición quiere ganar por un plan claro.')}</p>
-        <p>${escapeHtml(narrative.summary || 'La composición se entiende mejor como una historia simple.')}</p>
-        <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
-          ${renderQuickRows({ narrative, primaryNeed, topProfile, topPick, topBan, strategicPlan })}
-        </div>
+        <p>${escapeHtml(narrative.summary || 'La composición se entiende mejor como una sola historia.')}</p>
       </div>
 
-      <div class="analysis-hub__assistant-chip-row">
-        ${priorities.slice(0, 2).map((item) => `
-          <span class="analysis-hub__priority-pill analysis-hub__priority-pill--assistant">${escapeHtml(item.label)}</span>
-        `).join('')}
-      </div>
+      <div class="analysis-hub__assistant-grid analysis-hub__assistant-grid--compact">
+        <article class="analysis-hub__assistant-card analysis-hub__assistant-card--summary">
+          <div class="analysis-hub__assistant-card-head">
+            <strong>Respuesta rápida</strong>
+            <span>Lo esencial</span>
+          </div>
+          <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
+            ${story.map(renderStoryLine).join('')}
+          </div>
+        </article>
 
-      <details class="analysis-hub__assistant-card" open>
-        <summary>
-          <strong>Ver análisis completo</strong>
-          <span>${needs.length} señales</span>
-        </summary>
-        <div class="analysis-hub__assistant-list">
-          ${renderNeedRows(needs, strategicPlan)}
-          ${renderProfileRows(profiles.slice(0, 2))}
-          ${renderRecommendationRows(picks.slice(0, 2), 'PICK')}
-          ${renderRecommendationRows(bans.slice(0, 2), 'BAN')}
-        </div>
-      </details>
+        <details class="analysis-hub__assistant-card">
+          <summary>
+            <strong>Ver análisis completo</strong>
+            <span>${needs.length} señales</span>
+          </summary>
+          <div class="analysis-hub__assistant-list">
+            ${renderNeedRows(needs, strategicPlan)}
+            ${renderProfileRows(profiles)}
+            ${renderRecommendationRows(picks, 'Mejor decisión')}
+            ${renderRecommendationRows(bans, 'Qué evitar')}
+          </div>
+        </details>
+      </div>
     </section>
   `;
 }
@@ -130,62 +136,20 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
-function renderQuickRows({ narrative, primaryNeed, topProfile, topPick, topBan, strategicPlan = {} }) {
-  const rows = [];
-
-  if (narrative?.winLine) {
-    rows.push({ title: 'Cómo gana', text: narrative.winLine, note: 'La historia principal' });
-  }
-
-  if (primaryNeed) {
-    rows.push({
-      title: `Qué necesita · ${primaryNeed.label}`,
-      text: clampWords(primaryNeed.impact || buildNeedImpact(primaryNeed, strategicPlan), 16),
-      note: `Peso ${String(primaryNeed.score ?? 0)}/5`,
-    });
-  }
-
-  if (topProfile || topPick) {
-    const solutionTitle = topProfile ? `Mejor solución · ${topProfile.label}` : `Mejor decisión · ${topPick.label}`;
-    const solutionText = topProfile
-      ? clampWords(topProfile.why || topProfile.detail || 'Encaja con el plan actual.', 16)
-      : clampWords(topPick.detail, 16);
-    const solutionNote = topProfile
-      ? `Confianza ${String(topProfile.confidence ?? 0)}/100`
-      : `Confianza ${String(topPick.confidence ?? 0)}/100`;
-
-    rows.push({ title: solutionTitle, text: solutionText, note: solutionNote });
-  }
-
-  if (topBan) {
-    rows.push({
-      title: `Qué evitar · ${topBan.label}`,
-      text: clampWords(topBan.detail, 16),
-      note: topBan.profileLabel ? `Perfil ${topBan.profileLabel}` : 'Evitar',
-    });
-  }
-
-  return rows.slice(0, 4).map((row) => `
+function renderStoryLine(item = {}) {
+  return `
     <article class="analysis-hub__row analysis-hub__row--executive">
       <div class="analysis-hub__row-copy">
-        <strong>${escapeHtml(row.title)}</strong>
-        <p>${escapeHtml(row.text)}</p>
-        <p class="analysis-hub__row-note">${escapeHtml(row.note)}</p>
+        <strong>${escapeHtml(item.label || 'Historia')}</strong>
+        <p>${escapeHtml(item.text || 'Sin detalle disponible.')}</p>
       </div>
     </article>
-  `).join('');
+  `;
 }
 
 function renderNeedRows(needs = [], strategicPlan = {}) {
   if (!needs.length) {
-    return `
-      <article class="analysis-hub__row">
-        <div class="analysis-hub__row-copy">
-          <strong>Sin carencias claras</strong>
-          <p>La composición está razonablemente alineada con su plan principal.</p>
-        </div>
-      </article>
-    `;
+    return '';
   }
 
   return needs.slice(0, 3).map((need) => `
@@ -217,7 +181,7 @@ function renderProfileRows(profiles = []) {
   `).join('');
 }
 
-function renderRecommendationRows(items = [], kind = 'ITEM') {
+function renderRecommendationRows(items = [], title = 'ITEM') {
   if (!items.length) {
     return '';
   }
@@ -225,13 +189,44 @@ function renderRecommendationRows(items = [], kind = 'ITEM') {
   return items.slice(0, 2).map((item) => `
     <article class="analysis-hub__row">
       <div class="analysis-hub__row-copy">
-        <strong>${escapeHtml(kind)} · ${escapeHtml(item.label)}</strong>
+        <strong>${escapeHtml(title)} · ${escapeHtml(item.label)}</strong>
         <p>${escapeHtml(clampWords(item.detail, 12))}</p>
         ${item.profileLabel ? `<p class="analysis-hub__row-note">Perfil: ${escapeHtml(item.profileLabel)}</p>` : ''}
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority || 'minor'))}</span>
     </article>
   `).join('');
+}
+
+function fallbackWinLine(analysis = {}, strategicPlan = {}) {
+  const identity = analysis?.primaryIdentity || strategicPlan?.fightStyle || 'Tu composición';
+  const objective = strategicPlan?.primaryObjective || analysis?.winCondition?.label || 'su plan principal';
+  return `${identity} quiere ganar por ${String(objective).toLowerCase()}.`;
+}
+
+function fallbackNeedLine(needs = []) {
+  if (!needs.length) return 'La composición no muestra una carencia dominante.';
+  const topNeeds = needs.slice(0, 3).map((item) => item.label.toLowerCase()).join(', ');
+  return `Ahora mismo necesita reforzar ${topNeeds}.`;
+}
+
+function fallbackBecauseLine(primaryNeed = null, strategicPlan = {}) {
+  if (!primaryNeed) return 'La necesidad principal sale del plan de juego actual.';
+  const plan = String(strategicPlan?.fightStyle || strategicPlan?.mode || 'el plan actual').toLowerCase();
+  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composición todavía tiene un hueco importante').toLowerCase();
+  return `Necesita ${primaryNeed.label.toLowerCase()} porque ${reason} y eso afecta a ${plan}.`;
+}
+
+function fallbackSolutionLine(topProfile = null, topPick = null, strategicPlan = {}) {
+  const profile = topProfile?.label || 'un perfil estable';
+  const pick = topPick?.profileLabel || topPick?.label || 'una opción compatible';
+  const focus = String(strategicPlan?.fightStyle || strategicPlan?.mapFocus || 'el plan').toLowerCase();
+  return `La mejor forma de resolverlo es buscar ${profile.toLowerCase()} y, si hace falta, traducirlo a ${pick.toLowerCase()} para sostener ${focus}.`;
+}
+
+function fallbackWarningLine(topBan = null) {
+  if (!topBan) return 'Evita añadir ruido: prioriza decisiones que encajen con el plan.';
+  return `Ten cuidado con ${topBan.label.toLowerCase()}: ${clampWords(topBan.detail, 16)}.`;
 }
 
 function buildNeedImpact(need = {}, strategicPlan = {}) {
