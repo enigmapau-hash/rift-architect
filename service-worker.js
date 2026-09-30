@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v38';
+const CACHE_NAME = 'rift-architect-v39';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -27,6 +27,7 @@ const STATIC_ASSETS = [
   './knowledge/validator.js',
   './knowledge/identity-relations.js',
   './knowledge/synergies.js',
+  './knowledge/patterns.js',
   './knowledge/conflicts.js',
   './knowledge/win-conditions.js',
   './tests/index.html',
@@ -39,6 +40,10 @@ const STATIC_ASSETS = [
   './tests/compositions/protect-carry.json',
   './tests/compositions/hybrid-front-pick.json',
   './tests/compositions/incoherent.json',
+  './tests/compositions/wombo-combo.json',
+  './tests/compositions/siege.json',
+  './tests/compositions/triple-carry.json',
+  './tests/compositions/global-pressure.json',
   './manifest.webmanifest',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
