@@ -146,17 +146,7 @@
   align-self: start;
 }
 
-.composition-story__section:nth-of-type(2),
-.composition-story__section:nth-of-type(4) {
-  grid-column: 1;
-}
-
-.composition-story__section:nth-of-type(3),
-.composition-story__section:nth-of-type(5) {
-  grid-column: 2;
-}
-
-.composition-story__section:nth-of-type(6) {
+.composition-story__section--wide {
   grid-column: 1 / -1;
 }
 
@@ -168,7 +158,10 @@
 
 .composition-story__overview-grid,
 .composition-story__card-grid,
-.composition-story__two-col {
+.composition-story__two-col,
+.composition-story__profile-grid,
+.composition-story__checklist-grid,
+.composition-story__timeline-track {
   display: grid;
   gap: 12px;
 }
@@ -179,7 +172,10 @@
 
 .composition-story__overview-card,
 .composition-story__card,
-.composition-story__stack-item {
+.composition-story__stack-item,
+.composition-story__profile-card,
+.composition-story__checklist,
+.composition-story__timeline-step {
   display: grid;
   gap: 8px;
   padding: 14px;
@@ -189,7 +185,8 @@
 }
 
 .composition-story__overview-card--info,
-.composition-story__card--info {
+.composition-story__card--info,
+.composition-story__profile-card--high {
   border-color: rgba(124, 140, 255, 0.18);
   background: rgba(124, 140, 255, 0.08);
 }
@@ -197,7 +194,8 @@
 .composition-story__overview-card--success,
 .composition-story__card--success,
 .composition-story__panel--good,
-.composition-story__stack-item--good {
+.composition-story__stack-item--good,
+.composition-story__profile-card--mid {
   border-color: rgba(70, 211, 161, 0.18);
   background: rgba(70, 211, 161, 0.08);
 }
@@ -211,7 +209,9 @@
 
 .composition-story__card--danger,
 .composition-story__panel--danger,
-.composition-story__stack-item--danger {
+.composition-story__stack-item--danger,
+.composition-story__profile-card--low,
+.composition-story__checklist--danger {
   border-color: rgba(255, 122, 122, 0.18);
   background: rgba(255, 122, 122, 0.08);
 }
@@ -221,7 +221,8 @@
 }
 
 .composition-story__card-grid--two,
-.composition-story__two-col {
+.composition-story__two-col,
+.composition-story__checklist-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
@@ -241,9 +242,108 @@
   align-items: center;
 }
 
-.composition-story__stack-head span {
+.composition-story__stack-head span,
+.composition-story__profile-head span {
   color: var(--muted);
   font-size: 0.8rem;
+}
+
+.composition-story__profile-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.composition-story__profile-card {
+  padding: 14px 14px 12px;
+}
+
+.composition-story__profile-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.composition-story__meter {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.composition-story__meter-fill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(70, 211, 161, 0.85), rgba(124, 140, 255, 0.9));
+}
+
+.composition-story__checklist {
+  gap: 10px;
+}
+
+.composition-story__checklist-title {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+}
+
+.composition-story__checkline {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 10px 0;
+}
+
+.composition-story__checkline + .composition-story__checkline {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.composition-story__checkmark {
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.composition-story__checkline--yes .composition-story__checkmark {
+  background: rgba(70, 211, 161, 0.16);
+}
+
+.composition-story__checkline--no .composition-story__checkmark {
+  background: rgba(255, 122, 122, 0.16);
+}
+
+.composition-story__timeline-track {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.composition-story__timeline-step {
+  position: relative;
+}
+
+.composition-story__timeline-step.is-mid {
+  border-color: rgba(70, 211, 161, 0.2);
+  background: rgba(70, 211, 161, 0.08);
+}
+
+.composition-story__timeline-step span {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-2);
+  font-size: 0.72rem;
+}
+
+.composition-story__timeline-step p {
+  color: var(--muted);
+  line-height: 1.5;
+  margin: 0;
 }
 
 .composition-story__question {
@@ -309,23 +409,20 @@
     grid-template-columns: 1fr;
   }
 
-  .composition-story__section:nth-of-type(2),
-  .composition-story__section:nth-of-type(3),
-  .composition-story__section:nth-of-type(4),
-  .composition-story__section:nth-of-type(5),
-  .composition-story__section:nth-of-type(6),
-  .composition-story__panel--wide {
-    grid-column: auto;
-  }
-}
-
-@media (max-width: 760px) {
   .composition-story__hero,
   .composition-story__overview-grid,
   .composition-story__card-grid--three,
   .composition-story__card-grid--two,
-  .composition-story__two-col {
+  .composition-story__two-col,
+  .composition-story__profile-grid,
+  .composition-story__checklist-grid,
+  .composition-story__timeline-track {
     grid-template-columns: 1fr;
+  }
+
+  .composition-story__panel--wide,
+  .composition-story__section--wide {
+    grid-column: auto;
   }
 }
 
@@ -345,7 +442,10 @@
   .composition-story__overview-card,
   .composition-story__card,
   .composition-story__stack-item,
-  .composition-story__answer-card {
+  .composition-story__answer-card,
+  .composition-story__profile-card,
+  .composition-story__checklist,
+  .composition-story__timeline-step {
     padding: 12px;
   }
 }
