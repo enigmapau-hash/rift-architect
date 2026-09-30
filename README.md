@@ -20,6 +20,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - El Dashboard v3 resume la composición en bloques más claros y legibles.
 - La identidad se muestra como hero card con win condition, tempo, coherencia y confianza.
 - Fortalezas, riesgos, plan, coach, advisor y explicabilidad se muestran en bloques separados.
+- El mapa visual del producto muestra cómo se conectan los módulos de la app.
 - El Draft Simulator sirve para probar swaps dentro de tu propia composición.
 - La normalización segura de etiquetas evita errores al ordenar y renderizar listas.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
