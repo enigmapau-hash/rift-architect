@@ -10,7 +10,7 @@ This folder contains canonical composition fixtures used to validate the Core En
 
 ## Coverage
 
-The report now checks pattern coverage in addition to the core analysis checks.
+The report now checks pattern coverage and dependency coverage in addition to the core analysis checks.
 
 ## Goal
 
