@@ -61,6 +61,16 @@
 - Explicar cada indicador con el botón “¿Por qué?”.
 - Reducir texto suelto y dar más peso a indicadores visuales.
 
+## Fase 12 — Analysis Quality ⏳
+- Unificar las puntuaciones del motor en una lectura más fiable.
+- Medir cobertura, coherencia y señales fuertes del análisis.
+- Destacar mejoras prioritarias para cada composición.
+- Validar composiciones de referencia y ajustar pesos del Draft Pool.
+
+## Fase 13 — AI Coach ⏳
+- Conversación guiada sobre ejecución, errores y win condition.
+- Respuestas apoyadas en el motor determinista y el knowledge layer.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
@@ -70,10 +80,6 @@
 - Analizar el estilo del jugador.
 - Recomendar campeones por pool y rol.
 - Detectar huecos del pool y prioridades de práctica.
-
-## Fase 12 — AI Coach ⏳
-- Conversación guiada sobre ejecución, errores y win condition.
-- Respuestas apoyadas en el motor determinista y el knowledge layer.
 
 ## Regla del proyecto
 - Cada entrega debe actualizar código, README, roadmap y Pages.
