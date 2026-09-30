@@ -17,8 +17,9 @@
 - Synergy, coherence and win-condition engines for the Core Engine v3.1 pass.
 - Knowledge layer files for identities, synergies, patterns, dependencies, conflicts and win conditions.
 - Knowledge-layer validation with boot-time auditing and traceable reports.
-- Canonical engine test bank with reference compositions, pattern coverage and browser report.
-- Strategic dependencies for identities and patterns.
+- Canonical engine test bank with reference compositions, edge cases, pattern coverage, dependency coverage and browser report.
+- Empty and single-champion edge-case fixtures for the certification sprint.
+- Timing and certification metadata in the engine test bank.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -31,10 +32,11 @@
 - The analysis panel now renders the weighted v3.1 output.
 - The analysis panel now surfaces knowledge-layer synergies, coherence and win condition outputs.
 - Knowledge-layer validation now runs at boot and exposes a report for debugging.
-- The engine test bank now tracks pattern coverage across fixtures.
+- The engine test bank now tracks pattern and dependency coverage, plus timing.
+- The engine test bank now surfaces a certification badge when the suite is fully green.
 - The analysis engine now exposes strategic dependencies.
 - The analysis panel now shows strategic dependencies.
-- Service worker cache bumped to v40 after the dependency update.
+- Service worker cache bumped to v41 after the certification update.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
