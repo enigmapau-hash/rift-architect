@@ -71,13 +71,13 @@ function renderSummary() {
   const executionProfile = Array.isArray(summary.executionProfile) ? summary.executionProfile : [];
   const checklist = Array.isArray(summary.checklist) ? summary.checklist : [];
   const criticalErrors = Array.isArray(summary.criticalErrors) ? summary.criticalErrors : [];
-  const gamePlanTimeline = buildGamePlanTimeline(analysis, summary);
+  const gamePlanTimeline = buildGamePlanTimeline(analysis, summary, analysis.coach || {});
 
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
       <header class="analysis-hub__hero">
         <div class="analysis-hub__hero-copy">
-          <p class="eyebrow">Sprint 14.3 · Executive Summary</p>
+          <p class="eyebrow">Sprint 14.4 · Executive Summary</p>
           <h4>${escapeHtml(summary.title)}</h4>
           <p>${escapeHtml(summary.text)}</p>
           <div class="analysis-hub__flow-mini">
@@ -162,7 +162,18 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
-function buildGamePlanTimeline(analysis = {}, summary = {}) {
+function buildGamePlanTimeline(analysis = {}, summary = {}, coach = {}) {
+  const coachPhases = Array.isArray(coach.phases) ? coach.phases : [];
+  if (coachPhases.length >= 3) {
+    return coachPhases.slice(0, 3).map((phase, index) => ({
+      phase: phase.phase || ['EARLY (0–10)', 'MID (10–20)', 'LATE (20+)'][index] || `PHASE ${index + 1}`,
+      title: phase.title || phase.label || 'Ajusta tu plan',
+      detail: phase.detail || 'Sigue la condición de victoria principal.',
+      actions: uniqueValues([...(phase.actions || []), ...(phase.avoid || [])].filter(Boolean)).slice(0, 3),
+      avoid: uniqueValues(phase.avoid || []).slice(0, 2),
+    }));
+  }
+
   const context = normalizeText(
     [
       analysis?.primaryIdentity,
@@ -237,6 +248,10 @@ function buildGamePlanTimeline(analysis = {}, summary = {}) {
   return [early, mid, late];
 }
 
+function uniqueValues(values = []) {
+  return [...new Set(values.filter(Boolean))];
+}
+
 function renderProfileRow(item) {
   return `
     <article class="analysis-hub__profile-row">
@@ -269,16 +284,14 @@ function renderExecutionRow(item) {
 
 function renderTimelineRow(item) {
   return `
-    <article class="analysis-hub__profile-row">
+    <article class="analysis-hub__timeline-row">
       <div class="analysis-hub__profile-head">
         <strong>${escapeHtml(item.phase)}</strong>
         <span>${escapeHtml(item.title)}</span>
       </div>
       <p>${escapeHtml(item.detail)}</p>
-      <div class="analysis-hub__chip-list">
-        ${(item.actions || []).slice(0, 3).map((label) => `<span class="story-pill story-pill--info">${escapeHtml(label)}</span>`).join('')}
-        ${(item.avoid || []).slice(0, 1).map((label) => `<span class="story-pill story-pill--warning">${escapeHtml(label)}</span>`).join('')}
-      </div>
+      ${item.actions?.length ? `<div class="analysis-hub__chip-list">${item.actions.map((action) => `<span class="story-pill story-pill--info">${escapeHtml(action)}</span>`).join('')}</div>` : ''}
+      ${item.avoid?.length ? `<div class="analysis-hub__chip-list">${item.avoid.map((avoid) => `<span class="story-pill story-pill--warning">${escapeHtml(avoid)}</span>`).join('')}</div>` : ''}
     </article>
   `;
 }
@@ -305,22 +318,21 @@ function renderCriticalErrorRow(item) {
   `;
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
 function normalizeText(value = '') {
   return String(value)
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .trim();
+    .replace(/[^a-z0-9]+/g, '');
 }
 
 function containsAny(text, terms = []) {
   const normalized = normalizeText(text);
   return terms.some((term) => normalized.includes(normalizeText(term)));
-}
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
 }
 
 function toneByScore(score) {
