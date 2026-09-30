@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="./css/design-tokens.css" />
     <link rel="stylesheet" href="./css/components.css" />
     <link rel="stylesheet" href="./css/design-system.css" />
+    <link rel="stylesheet" href="./css/composition-report.css" />
     <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
   </head>
   <body>
@@ -32,9 +33,6 @@
 
       <main class="layout">
         <section class="panel panel--main">
-          <div id="productMap" class="product-map-shell" aria-live="polite"></div>
-          <div id="designSystem" class="design-system-shell" aria-live="polite"></div>
-
           <div class="panel-title-row">
             <h2>Tu composición</h2>
             <button id="clearBtn" class="ghost-btn" type="button">Limpiar</button>
@@ -43,7 +41,7 @@
           <div id="compositionGrid" class="composition-grid"></div>
 
           <div class="summary-card">
-            <div id="analysisSummary" class="analysis-summary" aria-live="polite"></div>
+            <div id="compositionReport" class="composition-report-shell" aria-live="polite"></div>
             <div id="recommendations" class="recommendation-list"></div>
             <div id="draftSimulator" class="draft-simulator-shell" aria-live="polite"></div>
           </div>
@@ -74,9 +72,7 @@
     <script type="module" src="./js/bootstrap.js"></script>
     <script type="module" src="./js/app-v2.js"></script>
     <script type="module" src="./js/v2_patch.js"></script>
-    <script type="module" src="./js/product-map-panel.js"></script>
-    <script type="module" src="./js/design-system-panel.js"></script>
-    <script type="module" src="./js/analysis-panel.js"></script>
+    <script type="module" src="./js/composition-report-panel.js"></script>
     <script type="module" src="./js/draft-simulator-panel.js"></script>
   </body>
 </html>
