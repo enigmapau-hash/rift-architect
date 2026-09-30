@@ -11,11 +11,12 @@
 - Composition Optimizer for ranked internal swaps and improvement suggestions.
 - Structured composition view with hero, plan, strengths, risks, explainability, metrics and a question area.
 - Clickable Rift questions with direct answers based on the motor and the Excel.
+- Game Plan Engine for clear early, mid, late and behind-the-game instructions.
 
 ### Changed
-- The main screen now centers on the structured visual composition view and the optimizer instead of auxiliary meta panels.
+- The main screen now centers on the structured visual composition view, the game plan and the optimizer instead of auxiliary meta panels.
 - The identity block is now the primary visual focus.
-- Service worker cache bumped to v58 for the new structured composition view assets.
+- Service worker cache bumped to v59 for the new game plan assets.
 - README and roadmap were aligned with the product scope: analyze one composition, not compare against a rival team.
 - The app now presents a clearer visual summary of your own composition and a ranked list of internal swaps.
 - The view now stays visual-first; document-style export actions were removed.
