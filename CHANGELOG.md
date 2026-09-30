@@ -13,11 +13,12 @@
 - Clickable Rift questions with direct answers based on the motor and the Excel.
 - Game Plan Engine for clear early, mid, late and behind-the-game instructions.
 - Decision Engine for priorities, avoidance, key piece and action-first guidance.
+- Integrated state rendering for the visual panels so they follow the real selected composition.
 
 ### Changed
 - The main screen now centers on the structured visual composition view, the game plan and the optimizer instead of auxiliary meta panels.
 - The identity block is now the primary visual focus.
-- Service worker cache bumped to v60 for the new decision engine assets.
+- Service worker cache bumped to v62 for the integrated panel assets.
 - README and roadmap were aligned with the product scope: analyze one composition, not compare against a rival team.
 - The app now presents a clearer visual summary of your own composition and a ranked list of internal swaps.
 - The view now stays visual-first; document-style export actions were removed.
