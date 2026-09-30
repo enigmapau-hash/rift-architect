@@ -83,7 +83,7 @@
 - Reforzar la jerarquía visual de identidad, plan y riesgos.
 - Reducir el ruido y priorizar lectura en segundos.
 
-### Sprint 8.2 — Composition Optimizer 🟡
+### Sprint 8.2 — Composition Optimizer ✅
 - Recomendar swaps internos que mejoren la composición.
 - Detectar huecos de la composición actual.
 - Priorizar cambios de campeones por impacto estratégico.
