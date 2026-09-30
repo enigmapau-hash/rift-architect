@@ -93,12 +93,14 @@ function scorePriority(label, analysis, index) {
 }
 
 function buildPriorities(analysis) {
-  const raw = uniqueOrdered([
-    ...(analysis?.winCondition?.priorities || []),
-    ...(analysis?.strengths || []).slice(0, 2),
-    ...(analysis?.dependencies?.items || []).slice(0, 2).map((item) => item?.label),
-    ...(analysis?.synergies || []).slice(0, 1).map((item) => item?.label),
-  ]).filter(Boolean);
+  const raw = uniqueOrdered(
+    toLabels([
+      ...(analysis?.winCondition?.priorities || []),
+      ...(analysis?.strengths || []).slice(0, 2),
+      ...(analysis?.dependencies?.items || []).slice(0, 2).map((item) => item?.label),
+      ...(analysis?.synergies || []).slice(0, 1).map((item) => item?.label),
+    ])
+  ).filter(Boolean);
 
   const ordered = raw
     .slice(0, 4)
@@ -107,7 +109,7 @@ function buildPriorities(analysis) {
       score: scorePriority(label, analysis, index),
       detail: buildPriorityDetail(label, analysis),
     }))
-    .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'es'));
+    .sort((a, b) => b.score - a.score || String(a.label || '').localeCompare(String(b.label || ''), 'es'));
 
   if (ordered.length) return ordered;
 
