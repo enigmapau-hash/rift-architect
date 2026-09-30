@@ -165,8 +165,8 @@ function renderCoachPhase(phase) {
   `;
 }
 
-function renderSummaryBlock(assistant = {}, analysis = {}) {
-  const summary = assistant.summary || {};
+function renderSummaryBlock(advisor = {}, analysis = {}) {
+  const summary = advisor.summary || {};
   const chips = uniqueValues([
     summary.identity ? `Identidad: ${summary.identity}` : null,
     summary.priority ? `Prioridad: ${summary.priority}` : null,
@@ -188,6 +188,32 @@ function renderSummaryBlock(assistant = {}, analysis = {}) {
   `;
 }
 
+function renderWindows(windows = {}) {
+  const entries = ['early', 'mid', 'late']
+    .map((key) => windows[key])
+    .filter(Boolean)
+    .map((window) => `${window.label}: ${stars(window.score)}`);
+
+  return entries.length ? `<div class="analysis-chip-list">${entries.map((item) => `<span class="analysis-chip">${escapeHtml(item)}</span>`).join('')}</div>` : '<p class="analysis-empty">Sin ventanas claras.</p>';
+}
+
+function renderAdvisorBlock(advisor = {}) {
+  const objectivePriority = Array.isArray(advisor.objectivePriority) ? advisor.objectivePriority.slice(0, 3) : [];
+  const loseConditions = Array.isArray(advisor.loseConditions) ? advisor.loseConditions.slice(0, 3) : [];
+  const summary = advisor.summary || {};
+
+  return `
+    <section class="analysis-block analysis-block--hero">
+      <p class="eyebrow">Strategic Advisor</p>
+      <h3>${escapeHtml(advisor.primaryObjective || summary.priority || 'Jugar alrededor de la identidad')}</h3>
+      <p class="analysis-note">${escapeHtml(summary.reason || 'Prioridad estratégica derivada del análisis.')}</p>
+      ${objectivePriority.length ? renderPriorityList(objectivePriority) : '<p class="analysis-empty">Sin prioridades claras.</p>'}
+      <div style="margin-top: 10px;">${renderWindows(advisor.gameWindows)}</div>
+      ${loseConditions.length ? `<p class="eyebrow" style="margin-top: 12px;">Pierdes si...</p>${renderList(loseConditions, 'analysis-list--bad')}` : ''}
+    </section>
+  `;
+}
+
 function renderAnalysisSummary() {
   const summary = document.getElementById('analysisSummary');
   if (!summary) return;
@@ -199,10 +225,10 @@ function renderAnalysisSummary() {
   }
 
   const analysis = analyzeComposition(selectedChampions);
-  const assistant = analysis.assistant || analysis.coach || {};
+  const advisor = analysis.advisor || analysis.assistant || analysis.coach || {};
   const explanationSummary = Array.isArray(analysis.explanation?.summary) ? analysis.explanation.summary.slice(0, 3) : [];
-  const insights = Array.isArray(assistant.insights) ? assistant.insights.slice(0, 3) : [];
-  const alerts = Array.isArray(assistant.alerts) ? assistant.alerts.slice(0, 3) : [];
+  const insights = Array.isArray(analysis.assistant?.insights) ? analysis.assistant.insights.slice(0, 3) : [];
+  const alerts = Array.isArray(analysis.assistant?.alerts) ? analysis.assistant.alerts.slice(0, 3) : [];
   const primaryIdentity = analysis.primaryIdentity || 'Sin definir';
   const secondaryIdentities = (analysis.secondaryIdentities || []).slice(0, 2);
   const strengths = (analysis.strengths || []).slice(0, 4);
@@ -228,7 +254,8 @@ function renderAnalysisSummary() {
         </div>
       </section>
 
-      ${renderSummaryBlock(assistant, analysis)}
+      ${renderSummaryBlock(advisor, analysis)}
+      ${renderAdvisorBlock(advisor)}
 
       <div class="analysis-grid">
         <section class="analysis-block">
@@ -248,23 +275,23 @@ function renderAnalysisSummary() {
 
         <section class="analysis-block analysis-block--hero">
           <p class="eyebrow">Plan</p>
-          <h3>${escapeHtml(assistant.headline || analysis.winCondition?.label || 'Jugar alrededor de la identidad')}</h3>
+          <h3>${escapeHtml(analysis.assistant?.headline || analysis.winCondition?.label || 'Jugar alrededor de la identidad')}</h3>
           <div class="analysis-grid" style="grid-template-columns: 1fr; gap: 12px;">
             <article class="analysis-block" style="padding: 12px 14px;">
               <p class="eyebrow">Prioridades</p>
-              ${renderPriorityList(assistant.priorities || [])}
+              ${renderPriorityList(analysis.assistant?.objectivePriority || [])}
             </article>
             <article class="analysis-block" style="padding: 12px 14px;">
               <p class="eyebrow">Power spikes</p>
               <div class="analysis-chip-list">
-                ${(assistant.powerSpikes || []).length
-                  ? assistant.powerSpikes.map((spike) => `<span class="analysis-chip">${escapeHtml(spike.label)}</span>`).join('')
+                ${(analysis.advisor?.gameWindows ? Object.values(analysis.advisor.gameWindows) : []).length
+                  ? Object.values(analysis.advisor.gameWindows).map((spike) => `<span class="analysis-chip">${escapeHtml(`${spike.label}: ${stars(spike.score)}`)}</span>`).join('')
                   : '<span class="analysis-empty">Sin picos claros.</span>'}
               </div>
             </article>
-            ${renderCoachPhase((assistant.phases || [])[0])}
-            ${renderCoachPhase((assistant.phases || [])[1])}
-            ${renderCoachPhase((assistant.phases || [])[2])}
+            ${renderCoachPhase((analysis.assistant?.phases || [])[0])}
+            ${renderCoachPhase((analysis.assistant?.phases || [])[1])}
+            ${renderCoachPhase((analysis.assistant?.phases || [])[2])}
           </div>
         </section>
 
