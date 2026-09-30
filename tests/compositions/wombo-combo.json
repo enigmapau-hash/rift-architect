@@ -1,0 +1,54 @@
+{
+  "slug": "wombo-combo",
+  "description": "Composición de iniciación en área con pelea cerrada.",
+  "selectedChampions": [
+    {
+      "champion": "Orianna",
+      "role": "mid",
+      "identity": "Control",
+      "function": "Mage",
+      "tempo": "Mid/Late",
+      "strengths": ["Control", "Teamfight", "Objective Control"],
+      "weaknesses": ["Lane phase"]
+    },
+    {
+      "champion": "Wukong",
+      "role": "jungle",
+      "identity": "Engage",
+      "function": "Fighter",
+      "tempo": "Mid",
+      "strengths": ["Engage", "Teamfight", "Control"],
+      "weaknesses": ["Splitpush"]
+    },
+    {
+      "champion": "Malphite",
+      "role": "top",
+      "identity": "Frontline",
+      "function": "Tank",
+      "tempo": "Mid",
+      "strengths": ["Frontline", "Engage", "Teamfight"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Jinx",
+      "role": "botline",
+      "identity": "Protect",
+      "function": "ADC Hypercarry",
+      "tempo": "Late",
+      "strengths": ["Scaling", "DPS", "Front to Back"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Taric",
+      "role": "support",
+      "identity": "Protect",
+      "function": "Enchanter Tank",
+      "tempo": "Late",
+      "strengths": ["Protect Carry", "Teamfight", "Frontline"],
+      "weaknesses": ["Mobility"]
+    }
+  ],
+  "expectations": {
+    "patternsInclude": ["Wombo Combo", "Double Frontline", "Protect Hypercarry"]
+  }
+}
