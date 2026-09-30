@@ -47,10 +47,21 @@ function buildNeedLine(needs = []) {
   return `Ahora mismo necesita reforzar ${topNeeds}.`;
 }
 
-function buildSolutionLine(topProfile, topPick) {
+function buildBecauseLine(primaryNeed, strategicPlan, analysis) {
+  if (!primaryNeed) {
+    return analysis?.explanation?.summary?.[0]?.detail || 'La historia se apoya en el análisis central del motor.';
+  }
+
+  const plan = String(strategicPlan?.fightStyle || strategicPlan?.mode || 'el plan actual').toLowerCase();
+  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composición todavía tiene un hueco importante').trim();
+  return `Necesita ${primaryNeed.label.toLowerCase()} porque ${reason.toLowerCase()} y eso afecta a ${plan}.`;
+}
+
+function buildSolutionLine(topProfile, topPick, strategicPlan) {
   const profile = topProfile?.label || 'un perfil estable';
   const pick = topPick?.profileLabel || topPick?.label || 'una opción compatible';
-  return `La mejor forma de resolverlo es buscar ${profile.toLowerCase()} y, si hace falta, traducirlo a ${pick.toLowerCase()}.`;
+  const focus = String(strategicPlan?.fightStyle || strategicPlan?.mapFocus || 'el plan').toLowerCase();
+  return `La mejor forma de resolverlo es buscar ${profile.toLowerCase()} y, si hace falta, traducirlo a ${pick.toLowerCase()} para sostener ${focus}.`;
 }
 
 function buildWarningLine(topBan) {
@@ -73,7 +84,8 @@ export function buildNarrative(analysis = {}) {
 
   const winLine = buildWinLine(analysis, strategicPlan);
   const needLine = buildNeedLine(needs);
-  const solutionLine = buildSolutionLine(topProfile, topPick);
+  const becauseLine = buildBecauseLine(primaryNeed, strategicPlan, analysis);
+  const solutionLine = buildSolutionLine(topProfile, topPick, strategicPlan);
   const warningLine = buildWarningLine(topBan);
 
   return {
@@ -81,6 +93,7 @@ export function buildNarrative(analysis = {}) {
     summary: `${needLine} ${solutionLine}`,
     winLine,
     needLine,
+    becauseLine,
     solutionLine,
     warningLine,
     primaryNeed: primaryNeed ? {
@@ -103,7 +116,7 @@ export function buildNarrative(analysis = {}) {
       label: topBan.label,
       detail: topBan.detail,
     } : null,
-    detail: [winLine, needLine, solutionLine, warningLine].join(' '),
+    detail: [winLine, needLine, becauseLine, solutionLine, warningLine].join(' '),
     focus: words(textFromPlan(strategicPlan), 10),
   };
 }
