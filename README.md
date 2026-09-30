@@ -17,10 +17,10 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
-- El panel de análisis v2 se ha transformado en un Dashboard v3 más práctico y legible.
-- La identidad ahora se muestra como hero card con win condition, tempo, coherencia y confianza.
+- El Dashboard v3 resume la composición en bloques más claros y legibles.
+- La identidad se muestra como hero card con win condition, tempo, coherencia y confianza.
 - Fortalezas, riesgos, plan, coach, advisor y explicabilidad se muestran en bloques separados.
-- El Draft Simulator mantiene la comparación de swaps con veredicto y diff estratégico.
+- El Draft Simulator sirve para probar swaps dentro de tu propia composición.
 - La normalización segura de etiquetas evita errores al ordenar y renderizar listas.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
