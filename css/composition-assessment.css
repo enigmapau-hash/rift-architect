@@ -1,0 +1,263 @@
+/* Composition Assessment */
+
+.composition-assessment {
+  display: grid;
+  gap: 16px;
+}
+
+.composition-assessment__shell,
+.composition-assessment__empty {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(180deg, rgba(12, 18, 35, 0.98), rgba(13, 17, 31, 0.96));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+}
+
+.composition-assessment__header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(180px, 240px);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.composition-assessment__header-copy {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.composition-assessment__header-copy h4,
+.composition-assessment__card strong,
+.composition-assessment__empty h4 {
+  margin: 0;
+}
+
+.composition-assessment__header-copy p,
+.composition-assessment__card p,
+.composition-assessment__empty p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.composition-assessment__verdict {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 140, 255, 0.16);
+  background: rgba(124, 140, 255, 0.06);
+}
+
+.composition-assessment__verdict strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.composition-assessment__verdict p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.composition-assessment__score-card {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  justify-items: center;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(124, 140, 255, 0.2);
+  background: rgba(124, 140, 255, 0.08);
+  text-align: center;
+}
+
+.composition-assessment__score-card strong {
+  font-size: clamp(1.7rem, 4vw, 2.6rem);
+  line-height: 1;
+}
+
+.composition-assessment__score-kicker,
+.composition-assessment__card-kicker,
+.composition-assessment__row span,
+.composition-assessment__coverage-item span {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+}
+
+.composition-assessment__score-card.is-good {
+  border-color: rgba(70, 211, 161, 0.28);
+  background: rgba(70, 211, 161, 0.1);
+}
+
+.composition-assessment__score-card.is-mid {
+  border-color: rgba(255, 209, 138, 0.28);
+  background: rgba(255, 209, 138, 0.1);
+}
+
+.composition-assessment__score-card.is-low {
+  border-color: rgba(255, 122, 122, 0.28);
+  background: rgba(255, 122, 122, 0.1);
+}
+
+.composition-assessment__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.composition-assessment__card {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.composition-assessment__card--signals,
+.composition-assessment__card--diagnosis {
+  background: rgba(124, 140, 255, 0.06);
+  border-color: rgba(124, 140, 255, 0.18);
+}
+
+.composition-assessment__card--improve {
+  background: rgba(70, 211, 161, 0.06);
+  border-color: rgba(70, 211, 161, 0.18);
+}
+
+.composition-assessment__card--coverage {
+  background: rgba(255, 209, 138, 0.06);
+  border-color: rgba(255, 209, 138, 0.18);
+}
+
+.composition-assessment__chip-list,
+.composition-assessment__row-list,
+.composition-assessment__list,
+.composition-assessment__coverage-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.composition-assessment__row,
+.composition-assessment__item,
+.composition-assessment__coverage-item {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.composition-assessment__row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+}
+
+.composition-assessment__row-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.composition-assessment__row strong,
+.composition-assessment__item strong,
+.composition-assessment__coverage-item strong {
+  margin: 0;
+}
+
+.composition-assessment__row p,
+.composition-assessment__item p,
+.composition-assessment__coverage-item p,
+.composition-assessment__why p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.composition-assessment__row span,
+.composition-assessment__coverage-item span {
+  color: var(--text);
+  align-self: start;
+}
+
+.composition-assessment__why {
+  display: grid;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.composition-assessment__why summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.composition-assessment__why summary::-webkit-details-marker {
+  display: none;
+}
+
+.composition-assessment__coverage-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.composition-assessment__coverage-item.is-good,
+.composition-assessment__coverage-item.is-mid,
+.composition-assessment__coverage-item.is-low,
+.composition-assessment__row.is-good,
+.composition-assessment__row.is-mid,
+.composition-assessment__row.is-low,
+.composition-assessment__item.is-good,
+.composition-assessment__item.is-mid,
+.composition-assessment__item.is-low {
+  border-color: rgba(124, 140, 255, 0.18);
+}
+
+.composition-assessment__item.is-good,
+.composition-assessment__coverage-item.is-good,
+.composition-assessment__row.is-good {
+  background: rgba(70, 211, 161, 0.07);
+}
+
+.composition-assessment__item.is-mid,
+.composition-assessment__coverage-item.is-mid,
+.composition-assessment__row.is-mid {
+  background: rgba(255, 209, 138, 0.07);
+}
+
+.composition-assessment__item.is-low,
+.composition-assessment__coverage-item.is-low,
+.composition-assessment__row.is-low {
+  background: rgba(255, 122, 122, 0.07);
+}
+
+@media (max-width: 900px) {
+  .composition-assessment__header,
+  .composition-assessment__grid,
+  .composition-assessment__coverage-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .composition-assessment__score-card {
+    min-height: 120px;
+  }
+}
+
+@media (max-width: 620px) {
+  .composition-assessment__shell,
+  .composition-assessment__empty {
+    padding: 14px;
+  }
+
+  .composition-assessment__card,
+  .composition-assessment__row,
+  .composition-assessment__item,
+  .composition-assessment__coverage-item {
+    padding: 12px;
+  }
+}
