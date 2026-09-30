@@ -113,6 +113,13 @@
 - Conservar toda la profundidad estratégica detrás de una interfaz más compacta.
 - Priorizar comprensión rápida sin devaluar el trabajo del análisis.
 
+## Fase 18 — Narrative Engine 🔄
+- Convertir el análisis ejecutivo en una historia corta y legible.
+- Unificar cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
+- Mostrar la narrativa antes del detalle técnico.
+- Reutilizar el motor existente sin añadir nuevos datos al Excel.
+- Mantener la IA como capa de explicación y no de decisión.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
