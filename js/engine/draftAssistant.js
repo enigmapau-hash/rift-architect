@@ -1,4 +1,5 @@
 import { clampNumber, compareLabels, normalizeText } from './utils.js';
+import { buildStrategicProfiles } from './strategicProfiles.js';
 
 const NEED_ORDER = [
   'frontline',
@@ -68,6 +69,27 @@ function textFromPlan(plan = {}) {
   );
 }
 
+function buildNeedImpact(need = {}, strategicPlan = {}) {
+  const style = String(strategicPlan?.fightStyle || 'tu plan').toLowerCase();
+  const focus = String(strategicPlan?.mapFocus || 'los objetivos').toLowerCase();
+
+  const impacts = {
+    frontline: `Sin frontline, ${style} pierde espacio para ejecutarse.`,
+    engage: 'Te costará iniciar peleas y asegurar objetivos.',
+    damage: 'No tendrás cierre claro en peleas largas o Barón.',
+    scaling: 'El plan se queda corto en late game.',
+    objective: `Convertir ventaja en ${focus} será más difícil.`,
+    control: 'Perderás espacio y visión en los puntos clave.',
+    teamfight: 'El 5v5 se volverá más caótico y menos fiable.',
+    poke: 'No podrás desgastar al rival antes del engage.',
+    mobility: 'Rotar y reposicionarte costará más.',
+    pick: 'No castigarás errores cortos ni niebla.',
+    splitpush: 'No abrirás mapa ni forzarás respuestas laterales.',
+  };
+
+  return impacts[need.key] || 'El plan detectado quedará más débil.';
+}
+
 function scoreNeed(key, analysis, strategicPlan) {
   const context = textFromPlan(strategicPlan);
   const summary = normalizeText(
@@ -103,6 +125,7 @@ function buildNeeds(analysis, strategicPlan) {
       key,
       label: NEED_LABELS[key],
       detail: NEED_DETAILS[key],
+      impact: buildNeedImpact({ key }, strategicPlan),
       score,
       priority: score >= 4 ? 'critical' : score >= 2 ? 'important' : 'minor',
       rank: index + 1,
@@ -119,15 +142,34 @@ function summarizeNeeds(needs) {
   return `Necesita reforzar ${top.join(', ')} para ejecutar mejor su plan.`;
 }
 
-function buildPickRecommendations(needs, strategicPlan) {
+function summarizeProfiles(profiles) {
+  if (!profiles.length) return 'No hay un perfil dominante todavía.';
+  return `Perfiles detectados: ${profiles.slice(0, 3).map((item) => item.label.toLowerCase()).join(' · ')}.`;
+}
+
+function findProfileForNeed(need, strategicProfiles = []) {
+  return strategicProfiles.find((profile) => {
+    if (profile.primaryNeedKey === need.key) return true;
+    return Array.isArray(profile.relatedNeeds) && profile.relatedNeeds.some((relatedNeed) => normalizeText(relatedNeed) === normalizeText(need.label));
+  });
+}
+
+function buildPickRecommendations(needs, strategicPlan, strategicProfiles = []) {
   const mode = normalizeText(strategicPlan?.mode || 'hybrid');
 
-  const buckets = needs.slice(0, 4).map((need) => ({
-    key: need.key,
-    label: need.label,
-    detail: `Busca un pick que cubra ${need.label.toLowerCase()} y se adapte a ${strategicPlan?.fightStyle || 'tu plan'}.`,
-    priority: need.priority,
-  }));
+  const buckets = needs.slice(0, 4).map((need) => {
+    const profile = findProfileForNeed(need, strategicProfiles);
+    return {
+      key: need.key,
+      label: need.label,
+      detail: `Busca un perfil que cubra ${need.label.toLowerCase()} y se adapte a ${profile?.label || strategicPlan?.fightStyle || 'tu plan'}.`,
+      priority: need.priority,
+      profileLabel: profile?.label || need.label,
+      classTags: Array.isArray(profile?.classes) ? profile.classes.slice(0, 3) : [],
+      confidence: profile?.confidence || Math.min(95, 50 + need.score * 10),
+      confidenceLabel: profile?.confidenceLabel || (need.priority === 'critical' ? 'Alta' : need.priority === 'important' ? 'Media' : 'Baja'),
+    };
+  });
 
   if (!buckets.length) {
     return [
@@ -136,6 +178,10 @@ function buildPickRecommendations(needs, strategicPlan) {
         label: 'Pick flexible',
         detail: 'La composición no muestra una carencia evidente y puede priorizar flexibilidad.',
         priority: 'minor',
+        profileLabel: 'Flexible',
+        classTags: ['Flexible', 'Adaptive', 'Utility'],
+        confidence: 45,
+        confidenceLabel: 'Media',
       },
     ];
   }
@@ -147,7 +193,7 @@ function buildPickRecommendations(needs, strategicPlan) {
   }));
 }
 
-function buildBanRecommendations(needs, strategicPlan) {
+function buildBanRecommendations(needs, strategicPlan, strategicProfiles = []) {
   const focus = normalizeText([strategicPlan?.fightStyle, strategicPlan?.mapFocus, strategicPlan?.carryPlan].filter(Boolean).join(' '));
 
   const banMap = {
@@ -164,12 +210,18 @@ function buildBanRecommendations(needs, strategicPlan) {
     splitpush: 'Opciones que te obligan a defender laterales sin poder responder.',
   };
 
-  const recommendations = needs.slice(0, 4).map((need) => ({
-    key: need.key,
-    label: need.label,
-    detail: banMap[need.key] || 'Amenazas que castiguen el plan principal de la composición.',
-    priority: need.priority,
-  }));
+  const recommendations = needs.slice(0, 4).map((need) => {
+    const profile = findProfileForNeed(need, strategicProfiles);
+    return {
+      key: need.key,
+      label: need.label,
+      detail: banMap[need.key] || 'Amenazas que castiguen el plan principal de la composición.',
+      priority: need.priority,
+      profileLabel: profile?.label || need.label,
+      classTags: Array.isArray(profile?.classes) ? profile.classes.slice(0, 3) : [],
+      focus: focus || 'plan general',
+    };
+  });
 
   if (!recommendations.length) {
     recommendations.push({
@@ -177,29 +229,33 @@ function buildBanRecommendations(needs, strategicPlan) {
       label: 'Ban flexible',
       detail: 'No hay una amenaza dominante clara; prioriza el counter más incómodo para tu plan.',
       priority: 'minor',
+      profileLabel: 'Flexible',
+      classTags: ['Utility', 'Adaptive', 'Reactive'],
+      focus: focus || 'plan general',
     });
   }
 
-  return recommendations.map((item) => ({
-    ...item,
-    focus: focus || 'plan general',
-  }));
+  return recommendations;
 }
 
 export function buildDraftAssistant(analysis = {}) {
   const strategicPlan = analysis?.strategicPlan || analysis?.plan || {};
   const compositionNeeds = buildNeeds(analysis, strategicPlan);
+  const strategicProfiles = buildStrategicProfiles(compositionNeeds, strategicPlan);
 
   return {
     summary: summarizeNeeds(compositionNeeds),
+    profileSummary: summarizeProfiles(strategicProfiles),
     compositionNeeds,
+    strategicProfiles,
     priorities: compositionNeeds.slice(0, 4).map((item) => ({
       key: item.key,
       label: item.label,
       detail: item.detail,
+      impact: item.impact,
       priority: item.priority,
     })),
-    pickRecommendations: buildPickRecommendations(compositionNeeds, strategicPlan),
-    banRecommendations: buildBanRecommendations(compositionNeeds, strategicPlan),
+    pickRecommendations: buildPickRecommendations(compositionNeeds, strategicPlan, strategicProfiles),
+    banRecommendations: buildBanRecommendations(compositionNeeds, strategicPlan, strategicProfiles),
   };
 }
