@@ -37,11 +37,12 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
 - Genera resumen ejecutivo, perfil de ejecución, plan por fases, checklist y errores críticos.
 - Deriva un bloque de necesidades desde un **Need Engine** propio.
 - Traduce esas necesidades a perfiles estratégicos y recomendaciones de picks/bans.
-- Muestra un panel de Draft Assistant con:
-  - necesidades detectadas,
-  - impacto sobre el plan,
-  - prioridades,
-  - picks y bans en formato razonado.
+- Muestra el Draft Assistant en una vista ejecutiva primero:
+  - veredicto rápido,
+  - necesidades principales,
+  - perfiles y rutas,
+  - evitables,
+  - detalle completo solo si se despliega.
 
 ## Arquitectura mental actual
 
@@ -53,7 +54,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ### Próximo bloque lógico
 1. Consolidar el **Need Engine** como capa estable y reutilizable.
-2. Traducir necesidades a perfiles de campeón.
+2. Mantener el Draft Assistant en formato ejecutivo primero, con detalle plegado.
 3. Revisar qué parte del Excel ya cubre esas necesidades sin añadir campos nuevos.
 4. Mejorar la explicación de por qué un pick o un ban encaja con el plan.
 5. Mantener la interfaz compacta y fácil de leer.
@@ -79,6 +80,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Need Engine / Draft Assistant
+**Fase actual:** Need Engine / Executive UX Pass
 
-**Meta inmediata:** consolidar las necesidades y convertirlas en perfiles y recomendaciones simples.
+**Meta inmediata:** consolidar las necesidades y mostrar primero el veredicto, dejando el detalle como ampliación opcional.
