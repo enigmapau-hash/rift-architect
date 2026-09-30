@@ -43,6 +43,25 @@
   line-height: 1.55;
 }
 
+.composition-health__verdict {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(124, 140, 255, 0.16);
+  background: rgba(124, 140, 255, 0.06);
+}
+
+.composition-health__verdict strong {
+  color: var(--text);
+  font-size: 1rem;
+}
+
+.composition-health__verdict p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
 .composition-health__score-card {
   display: grid;
   gap: 6px;
@@ -101,9 +120,14 @@
 }
 
 .composition-health__card--index,
-.composition-health__card--profile {
+.composition-health__card--profile,
+.composition-health__card--priorities {
   background: rgba(124, 140, 255, 0.06);
   border-color: rgba(124, 140, 255, 0.18);
+}
+
+.composition-health__card--priorities {
+  grid-column: 1 / -1;
 }
 
 .composition-health__card--win {
@@ -118,13 +142,15 @@
 
 .composition-health__health-list,
 .composition-health__metric-list,
-.composition-health__chip-list {
+.composition-health__chip-list,
+.composition-health__priority-list {
   display: grid;
   gap: 10px;
 }
 
 .composition-health__row,
-.composition-health__metric {
+.composition-health__metric,
+.composition-health__priority-item {
   display: grid;
   gap: 8px;
   padding: 12px;
@@ -138,15 +164,23 @@
   align-items: start;
 }
 
+.composition-health__row-copy {
+  display: grid;
+  gap: 6px;
+}
+
 .composition-health__row strong,
 .composition-health__metric strong,
-.composition-health__card strong {
+.composition-health__card strong,
+.composition-health__priority-item strong {
   margin: 0;
 }
 
 .composition-health__row p,
-.composition-health__metric p {
-  margin: 4px 0 0;
+.composition-health__metric p,
+.composition-health__priority-item p,
+.composition-health__why p {
+  margin: 0;
   color: var(--muted);
   line-height: 1.45;
 }
@@ -157,11 +191,27 @@
   align-self: start;
 }
 
-.composition-health__metric-head {
+.composition-health__metric-head,
+.composition-health__priority-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.composition-health__priority-rank,
+.composition-health__priority-weight {
+  flex: 0 0 auto;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  color: var(--accent-2);
+}
+
+.composition-health__priority-copy {
+  display: grid;
+  gap: 4px;
+  flex: 1;
 }
 
 .composition-health__bar {
@@ -176,6 +226,41 @@
   height: 100%;
   border-radius: inherit;
   background: linear-gradient(90deg, rgba(124, 140, 255, 0.85), rgba(70, 211, 161, 0.9));
+}
+
+.composition-health__why {
+  display: grid;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.composition-health__why summary {
+  cursor: pointer;
+  list-style: none;
+  color: var(--text);
+  font-size: 0.85rem;
+}
+
+.composition-health__why summary::-webkit-details-marker {
+  display: none;
+}
+
+.composition-health__risk-impact {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 122, 122, 0.18);
+  background: rgba(255, 122, 122, 0.08);
+}
+
+.composition-health__risk-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  color: var(--accent-2);
 }
 
 .composition-health__row.is-good,
@@ -206,6 +291,10 @@
     grid-template-columns: 1fr;
   }
 
+  .composition-health__card--priorities {
+    grid-column: auto;
+  }
+
   .composition-health__score-card {
     min-height: 120px;
   }
@@ -219,7 +308,8 @@
 
   .composition-health__card,
   .composition-health__row,
-  .composition-health__metric {
+  .composition-health__metric,
+  .composition-health__priority-item {
     padding: 12px;
   }
 }
