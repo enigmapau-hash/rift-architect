@@ -67,16 +67,17 @@
 - Destacar mejoras prioritarias para cada composición.
 - Validar composiciones de referencia y ajustar pesos del Draft Pool.
 
-## Fase 12.5 — Product Audit ⏳
+## Fase 12.5 — Product Audit ✅
 - Fusionar la salud y la calidad en un único bloque de assessment.
 - Reducir redundancias entre hero, assessment, plan y perfil táctico.
 - Revisar orden de lectura, espaciado y lenguaje visual.
 - Mantener una sola narrativa clara desde el hero hasta el cierre.
 
-## Fase 13 — Rift Advisor ⏳
-- Conversación guiada sobre ejecución, errores y win condition.
-- Respuestas apoyadas en el motor determinista y el knowledge layer.
-- Explicaciones contextuales apoyadas en el assessment unificado.
+## Fase 13 — Rift Advisor ✅
+- Respuestas directas sobre cómo ganar, qué castiga y quién inicia.
+- Acciones rápidas en lugar de un chat abierto.
+- Prioridades por fase y explicaciones contextuales enlazadas.
+- Consejo apoyado en el motor determinista y el knowledge layer.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
