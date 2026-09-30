@@ -3,19 +3,19 @@
 ## Unreleased
 
 ### Added
-- Composition Report v1 as the main visible analysis surface.
+- Composition View as the main visible analysis surface.
 - Composition Score with grade and executive summary.
-- Hero report layout for identity, win condition, tempo and coherence.
+- Hero layout for identity, win condition, tempo and coherence.
 - Card-based rendering for strengths, risks, metrics, plan, coach, advisor and explainability.
-- Composition report stylesheet for the executive layout.
-- Shared display helpers to keep the report readable and avoid raw object dumps.
+- Composition visual stylesheet for the simplified visual layout.
+- Shared display helpers to keep the view readable and avoid raw object dumps.
 - Composition Optimizer for ranked internal swaps and improvement suggestions.
 - Composition Visual stylesheet for the simplified visual layout.
-- Composition View with AI summary, champion lineup, metrics, timeline and visual explainability.
+- Visual composition view with AI summary, champion lineup, metrics, timeline and explainability tree.
 - AI brief cards that explain the composition in simple language based on the Excel data.
 
 ### Changed
-- The main screen now centers on the composition view and the optimizer instead of auxiliary meta panels.
+- The main screen now centers on the visual composition view and the optimizer instead of auxiliary meta panels.
 - The identity block is now the primary visual focus.
 - Service worker cache bumped to v56 for the new visual composition view assets.
 - README and roadmap were aligned with the product scope: analyze one composition, not compare against a rival team.
