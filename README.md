@@ -17,14 +17,11 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
-- El panel de análisis v2 ya es el único panel visible del resumen.
-- El Core Engine v3.1 añade sinergias, dependencias, coherencia, condición de victoria y plan priorizado.
-- La Explainability Engine añade evidencias compactas y un bloque de "por qué" para cada análisis.
-- La Coach Engine añade prioridades, power spikes y guía de fases para el draft.
-- El Strategic Advisor añade objetivo principal, prioridades, ventanas de juego y condiciones de derrota.
-- El banco de pruebas del motor valida también la cobertura estratégica del coach y del advisor.
-- El Draft Simulator ya muestra comparación visual de swaps con veredicto, cambios clave y diff estratégico.
-- La normalización segura de etiquetas evita que coach y advisor se rompan al ordenar prioridades.
+- El panel de análisis v2 se ha transformado en un Dashboard v3 más práctico y legible.
+- La identidad ahora se muestra como hero card con win condition, tempo, coherencia y confianza.
+- Fortalezas, riesgos, plan, coach, advisor y explicabilidad se muestran en bloques separados.
+- El Draft Simulator mantiene la comparación de swaps con veredicto y diff estratégico.
+- La normalización segura de etiquetas evita errores al ordenar y renderizar listas.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
@@ -119,8 +116,4 @@ npm run generate:data
 
 ## Roadmap
 
-- Fase 1: base técnica y publicación.
-- Fase 2: selección y composición.
-- Fase 3: motor de análisis.
-- Fase 4: asistente IA.
-- Fase 5: coach conversacional.
+Ver [`ROADMAP.md`](./ROADMAP.md) para la hoja de ruta completa.
