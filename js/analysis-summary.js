@@ -68,6 +68,9 @@ function renderSummary() {
   state.root.hidden = false;
   const analysis = analyzeComposition(selectedChampions);
   const summary = analysis.executiveSummary || buildExecutiveSummary(analysis);
+  const executionProfile = Array.isArray(summary.executionProfile) ? summary.executionProfile : [];
+  const checklist = Array.isArray(summary.checklist) ? summary.checklist : [];
+  const criticalErrors = Array.isArray(summary.criticalErrors) ? summary.criticalErrors : [];
 
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
@@ -95,6 +98,36 @@ function renderSummary() {
         </div>
         <div class="analysis-hub__profile-grid">
           ${summary.profile.map(renderProfileRow).join('')}
+        </div>
+      </section>
+
+      <section class="analysis-hub__summary-panel">
+        <div class="analysis-hub__summary-panel-head">
+          <span class="analysis-hub__card-kicker">Perfil de ejecución</span>
+          <span class="analysis-hub__summary-panel-note">Coaching práctico</span>
+        </div>
+        <div class="analysis-hub__execution-grid">
+          ${executionProfile.map(renderExecutionRow).join('')}
+        </div>
+      </section>
+
+      <section class="analysis-hub__summary-panel">
+        <div class="analysis-hub__summary-panel-head">
+          <span class="analysis-hub__card-kicker">Checklist de partida</span>
+          <span class="analysis-hub__summary-panel-note">Lo que debes hacer</span>
+        </div>
+        <div class="analysis-hub__list">
+          ${checklist.map(renderChecklistRow).join('')}
+        </div>
+      </section>
+
+      <section class="analysis-hub__summary-panel">
+        <div class="analysis-hub__summary-panel-head">
+          <span class="analysis-hub__card-kicker">Errores críticos</span>
+          <span class="analysis-hub__summary-panel-note">Lo que debes evitar</span>
+        </div>
+        <div class="analysis-hub__list">
+          ${criticalErrors.map(renderCriticalErrorRow).join('')}
         </div>
         <div class="analysis-hub__priority-strip">
           ${summary.priorities.map((item) => `<span class="analysis-hub__priority-pill">${escapeHtml(item)}</span>`).join('')}
@@ -129,6 +162,43 @@ function renderProfileRow(item) {
         <div class="analysis-hub__profile-fill" style="--meter:${clamp(item.score, 0, 100)}%"></div>
       </div>
       <p>${escapeHtml(item.text)}</p>
+    </article>
+  `;
+}
+
+function renderExecutionRow(item) {
+  return `
+    <article class="analysis-hub__profile-row">
+      <div class="analysis-hub__profile-head">
+        <strong>${escapeHtml(item.label)}</strong>
+        <span>${item.score}/5 · ${escapeHtml(item.badge)}</span>
+      </div>
+      <div class="analysis-hub__profile-bar" aria-hidden="true">
+        <div class="analysis-hub__profile-fill" style="--meter:${clamp(item.score * 20, 0, 100)}%"></div>
+      </div>
+      <p>${escapeHtml(item.detail)}</p>
+    </article>
+  `;
+}
+
+function renderChecklistRow(item) {
+  return `
+    <article class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
+        <strong>✓ ${escapeHtml(item.label)}</strong>
+        <p>${escapeHtml(item.detail)}</p>
+      </div>
+    </article>
+  `;
+}
+
+function renderCriticalErrorRow(item) {
+  return `
+    <article class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
+        <strong>⚠ ${escapeHtml(item.label)}</strong>
+        <p>${escapeHtml(item.detail)}</p>
+      </div>
     </article>
   `;
 }
