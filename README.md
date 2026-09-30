@@ -34,11 +34,10 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
-- El **Draft Assistant** ahora empieza por un **Need Engine** que detecta necesidades reales de la composición y luego las traduce a perfiles y clases compatibles.
-- El **Draft Assistant** ya se muestra en una vista ejecutiva: primero el veredicto, luego las necesidades y solo después el detalle completo si se expande.
+- El **Draft Assistant** ahora se muestra como una beta de una sola conversación: primero la historia, luego el veredicto y el detalle completo detrás de un único desplegable.
 - El **Narrative Engine** convierte el análisis ejecutivo en una historia corta: cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - La línea de razón del Narrative Engine muestra el “por qué” detrás de la necesidad principal.
-- En la cabecera hay un badge visible de build para comprobar de un vistazo la versión cargada.
+- Hay un badge visible de build en la cabecera para comprobar de un vistazo qué versión está cargada.
 - El documento `docs/architecture.md` describe el modelo de tres capas: Knowledge, Inference y Communication.
 - El documento `docs/narrative-engine.md` define la narrativa ejecutiva como capa de comunicación.
 - El documento `docs/strategic-profiles.md` define el Need Engine y la traducción de necesidades a perfiles estratégicos.
