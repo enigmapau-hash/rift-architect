@@ -1,5 +1,5 @@
 import { analyzeComposition } from '../js/analyzer.js';
-import { formatKnowledgeReport, PATTERN_RULES, validateKnowledgeLayer } from '../knowledge/index.js';
+import { formatKnowledgeReport, PATTERN_RULES, DEPENDENCY_RULES, validateKnowledgeLayer } from '../knowledge/index.js';
 
 const FIXTURE_FILES = [
   'front-to-back.json',
@@ -38,42 +38,6 @@ function includesAnyLabel(items = [], expected = []) {
   return expected.every((term) => labels.some((label) => label.includes(normalizeText(term)) || normalizeText(term).includes(label)));
 }
 
-function matchPattern(pattern, selectedChampions = []) {
-  const matchedChampions = selectedChampions.filter((champion) => {
-    const text = [
-      champion?.champion,
-      champion?.displayName,
-      champion?.identity,
-      champion?.function,
-      champion?.tempo,
-      ...(Array.isArray(champion?.strengths) ? champion.strengths : []),
-      ...(Array.isArray(champion?.weaknesses) ? champion.weaknesses : []),
-    ]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
-
-    return (pattern.categories || []).some((category) => {
-      const normalizedCategory = normalizeText(category);
-      return text.includes(normalizedCategory);
-    });
-  });
-
-  if (matchedChampions.length < Number(pattern.minHits || 1)) return null;
-
-  return {
-    key: pattern.key,
-    label: pattern.label,
-    detail: pattern.detail,
-    champions: matchedChampions.slice(0, 4).map((item) => item.champion || item.displayName || 'Sin definir'),
-    score: matchedChampions.length,
-  };
-}
-
-function detectPatterns(selectedChampions = []) {
-  return PATTERN_RULES.map((pattern) => matchPattern(pattern, selectedChampions)).filter(Boolean);
-}
-
 function loadFixture(name) {
   return fetch(`./compositions/${name}`, { cache: 'no-store' }).then((response) => {
     if (!response.ok) {
@@ -85,9 +49,9 @@ function loadFixture(name) {
 
 function compareFixture(fixture) {
   const analysis = analyzeComposition(fixture.selectedChampions || []);
-  const patterns = detectPatterns(fixture.selectedChampions || []);
   const expectations = fixture.expectations || {};
   const checks = [];
+  const dependencies = asArray(analysis.dependencies?.items);
 
   const pushCheck = (label, pass, expected, actual) => {
     checks.push({ label, pass, expected, actual });
@@ -150,9 +114,18 @@ function compareFixture(fixture) {
   if (asArray(expectations.patternsInclude).length) {
     pushCheck(
       'Patrones',
-      includesAnyLabel(patterns, expectations.patternsInclude),
+      includesAnyLabel(analysis.patterns || [], expectations.patternsInclude),
       expectations.patternsInclude.join(' · '),
-      patterns.map((item) => item.label).join(' · ') || 'Sin patrones'
+      asArray(analysis.patterns).map((item) => item?.label || item).join(' · ') || 'Sin patrones'
+    );
+  }
+
+  if (asArray(expectations.dependenciesInclude).length) {
+    pushCheck(
+      'Dependencias',
+      includesAnyLabel(dependencies, expectations.dependenciesInclude),
+      expectations.dependenciesInclude.join(' · '),
+      dependencies.map((item) => item?.label || item).join(' · ') || 'Sin dependencias'
     );
   }
 
@@ -171,7 +144,8 @@ function compareFixture(fixture) {
     description: fixture.description,
     checks,
     pass: checks.every((item) => item.pass),
-    patterns,
+    patterns: analysis.patterns || [],
+    dependencies,
     analysis,
   };
 }
@@ -202,6 +176,8 @@ function renderReport(report) {
   const failed = report.results.length - passed;
   const coveredPatterns = report.coverage?.coveredPatterns?.length || 0;
   const totalPatterns = report.coverage?.totalPatterns || 0;
+  const coveredDependencies = report.coverage?.coveredDependencies?.length || 0;
+  const totalDependencies = report.coverage?.totalDependencies || 0;
 
   root.innerHTML = `
     <style>
@@ -229,12 +205,13 @@ function renderReport(report) {
       <section class="hero">
         <span class="badge">Knowledge layer report</span>
         <h1>Core Engine test bank</h1>
-        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, patterns and win conditions.</p>
+        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns and win conditions.</p>
         <div class="stats">
           <div class="stat"><strong>${report.results.length}</strong><span>composiciones</span></div>
           <div class="stat"><strong>${passed}</strong><span>OK</span></div>
           <div class="stat"><strong>${failed}</strong><span>FAIL</span></div>
           <div class="stat"><strong>${coveredPatterns}/${totalPatterns}</strong><span>patrones</span></div>
+          <div class="stat"><strong>${coveredDependencies}/${totalDependencies}</strong><span>dependencias</span></div>
           <div class="stat"><strong>${report.knowledge.valid ? 'OK' : 'WARN'}</strong><span>knowledge</span></div>
         </div>
       </section>
@@ -243,6 +220,7 @@ function renderReport(report) {
         <h2>Knowledge layer</h2>
         <p>${formatKnowledgeReport(report.knowledge)}</p>
         <p>${report.coverage?.missingPatterns?.length ? `Patrones sin cobertura: ${report.coverage.missingPatterns.join(' · ')}` : 'Cobertura de patrones completa.'}</p>
+        <p>${report.coverage?.missingDependencies?.length ? `Dependencias sin cobertura: ${report.coverage.missingDependencies.join(' · ')}` : 'Cobertura de dependencias completa.'}</p>
       </section>
 
       <section class="report">
@@ -253,6 +231,7 @@ function renderReport(report) {
                 <h2>${item.pass ? '✓' : '✗'} ${item.slug}</h2>
                 <p>${item.description || ''}</p>
                 ${item.patterns?.length ? `<p><strong>Patrones:</strong> ${item.patterns.map((pattern) => pattern.label).join(' · ')}</p>` : ''}
+                ${item.dependencies?.length ? `<p><strong>Dependencias:</strong> ${item.dependencies.map((dependency) => dependency.label).join(' · ')}</p>` : ''}
                 ${renderChecks(item.checks)}
               </article>
             `
@@ -267,15 +246,18 @@ export async function runEngineValidation() {
   const knowledge = validateKnowledgeLayer();
   const fixtures = await Promise.all(FIXTURE_FILES.map(loadFixture));
   const results = fixtures.map(compareFixture);
-  const coveredPatterns = [...new Set(results.flatMap((item) => item.patterns.map((pattern) => pattern.label)))];
-  const missingPatterns = PATTERN_RULES.map((pattern) => pattern.label).filter((label) => !coveredPatterns.includes(label));
+  const coveredPatterns = [...new Set(results.flatMap((item) => item.patterns.map((pattern) => pattern.label)) )];
+  const coveredDependencies = [...new Set(results.flatMap((item) => item.dependencies.map((dependency) => dependency.label)) )];
   const report = {
     knowledge,
     results,
     coverage: {
       totalPatterns: PATTERN_RULES.length,
       coveredPatterns,
-      missingPatterns,
+      missingPatterns: PATTERN_RULES.map((rule) => rule.label).filter((label) => !coveredPatterns.includes(label)),
+      totalDependencies: DEPENDENCY_RULES.length,
+      coveredDependencies,
+      missingDependencies: DEPENDENCY_RULES.map((rule) => rule.label).filter((label) => !coveredDependencies.includes(label)),
     },
     summary: {
       total: results.length,
