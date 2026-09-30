@@ -1,4 +1,4 @@
-import { clampNumber, compareLabels, normalizeText, uniqueOrdered } from './utils.js';
+import { clampNumber, compareLabels, normalizeText } from './utils.js';
 
 const NEED_ORDER = [
   'frontline',
@@ -125,7 +125,7 @@ function buildPickRecommendations(needs, strategicPlan) {
   const buckets = needs.slice(0, 4).map((need) => ({
     key: need.key,
     label: need.label,
-    detail: `Busca un pick que cubra ${need.label.toLowerCase()} y se adapte a ${strategicPlan?.fightStyle || 'tu plan'}.\`,
+    detail: `Busca un pick que cubra ${need.label.toLowerCase()} y se adapte a ${strategicPlan?.fightStyle || 'tu plan'}.`,
     priority: need.priority,
   }));
 
