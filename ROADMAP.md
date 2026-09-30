@@ -103,6 +103,11 @@
 - Hacer más evidente la jerarquía visual del análisis.
 - Mostrar la composición como una herramienta de lectura rápida, no como un documento.
 
+### Sprint 8.6 — Game Plan Engine ✅
+- Convertir el análisis en un plan de partida claro por fases.
+- Mostrar qué hacer en early, mid, late y si vas por detrás.
+- Traducir el motor en acciones simples para jugar la partida.
+
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
 - Recomendar campeones por pool y rol.
