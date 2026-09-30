@@ -1,1 +1,1 @@
-import './analysis-hub-clean.js';
+import './analysis-hub-compact.js';
