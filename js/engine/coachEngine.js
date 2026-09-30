@@ -363,28 +363,104 @@ function buildBriefing(analysis, priorities, powerSpikes, risks, mode) {
 
   const templates = {
     frontToBack: `Protege al carry, fuerza 5v5 ordenado y no regales peleas largas antes de ${firstSpike.toLowerCase()}.`,
-    poke: `Desgasta desde rango, asegura visión y convierte el poke en objetivo antes de comprometer la pelea.`,
-    pick: `Juega en niebla, castiga ventanas cortas y transforma cada pick en un objetivo rápido.`,
-    splitpush: `Abre el mapa, fuerza respuestas laterales y evita 5v5 innecesarios.`,
-    scaling: `Gana tiempo, evita peleas largas y cierra cuando lleguen tus picos.`,
-    hybrid: `Juega tu identidad, prioriza visión y convierte la primera ventaja real en objetivo.`,
+    poke: 'Desgasta desde rango, asegura visión y convierte el poke en objetivo antes de comprometer la pelea.',
+    pick: 'Juega en niebla, castiga ventanas cortas y transforma cada pick en un objetivo rápido.',
+    splitpush: 'Abre el mapa, fuerza respuestas laterales y evita 5v5 innecesarios.',
+    scaling: 'Gana tiempo, evita peleas largas y cierra cuando lleguen tus picos.',
+    hybrid: 'Juega tu identidad, prioriza visión y convierte la primera ventaja real en objetivo.',
   };
 
   return clampWords(`${templates[mode] || templates.hybrid} Prioridad: ${firstPriority}. Riesgo a vigilar: ${firstRisk}.`, 26);
 }
 
-function buildSummary(analysis, priorities, powerSpikes, risks, mode, briefing) {
-  const priority = priorities[0]?.label || analysis?.winCondition?.label || 'Jugar alrededor de la identidad';
-  const risk = risks[0]?.label || 'Sin riesgo claro';
-  const powerSpike = powerSpikes[0]?.label || 'Sin pico claro';
+function buildStrategicPlan(analysis, mode, priorities, powerSpikes, phases, risks, briefing) {
+  const primaryObjective = priorities[0]?.label || analysis?.winCondition?.label || analysis?.primaryIdentity || 'Juega tu identidad';
+  const secondaryObjective = priorities[1]?.label || phases[1]?.title || 'Prepara el segundo pico';
+  const objectivePriority = priorities.slice(0, 3).map((item, index) => ({
+    label: item.label,
+    detail: item.detail,
+    rank: index + 1,
+  }));
+
+  const planMap = {
+    frontToBack: {
+      tempo: 'Mid Game',
+      mapFocus: 'Objetivos y 5v5',
+      fightStyle: 'Peleas ordenadas',
+      carryPlan: 'Protege al carry y juega en torno al backline.',
+      visionPlan: 'Visión de río y entrada limpia.',
+    },
+    poke: {
+      tempo: 'Mid Game',
+      mapFocus: 'Asedio y visión',
+      fightStyle: 'Desgaste',
+      carryPlan: 'Aprovecha rango y evita engages directos.',
+      visionPlan: 'Asegura visión para convertir poke en objetivo.',
+    },
+    pick: {
+      tempo: 'Early-Mid',
+      mapFocus: 'Niebla y cazadas',
+      fightStyle: 'Ventanas cortas',
+      carryPlan: 'Castiga errores y cierra rápido.',
+      visionPlan: 'Visión profunda y control de niebla.',
+    },
+    splitpush: {
+      tempo: 'Mid Game',
+      mapFocus: 'Laterales y rotaciones',
+      fightStyle: 'Presión lateral',
+      carryPlan: 'Abre mapa y fuerza respuestas.',
+      visionPlan: 'Controla visión lateral y flancos.',
+    },
+    scaling: {
+      tempo: 'Late Game',
+      mapFocus: 'Escalado y objetivos',
+      fightStyle: '5v5 limpio',
+      carryPlan: 'Llega a pico y cierra ordenado.',
+      visionPlan: 'Evita pérdidas y prepara visión.',
+    },
+    hybrid: {
+      tempo: 'Mid Game',
+      mapFocus: 'Identidad dominante',
+      fightStyle: 'Flexible',
+      carryPlan: 'Juega la condición más clara.',
+      visionPlan: 'Asegura visión en el lado fuerte.',
+    },
+  };
+
+  const base = planMap[mode] || planMap.hybrid;
+  const failConditions = uniqueByLabel(risks.map((risk) => ({ label: risk.label, detail: risk.detail }))).map((item, index) => ({
+    label: item.label,
+    detail: item.detail,
+    rank: index + 1,
+  }));
 
   return {
-    identity: analysis?.primaryIdentity || 'Sin definir',
-    priority,
-    risk,
-    powerSpike,
     mode,
     briefing,
+    primaryObjective,
+    secondaryObjective,
+    tempo: base.tempo,
+    mapFocus: base.mapFocus,
+    fightStyle: base.fightStyle,
+    carryPlan: base.carryPlan,
+    visionPlan: base.visionPlan,
+    objectivePriority,
+    failConditions,
+    powerSpike: powerSpikes[0]?.label || 'Sin pico claro',
+    risk: risks[0]?.label || 'Sin riesgo claro',
+    phaseGuide: phases,
+    keySignals: uniqueOrdered([base.mapFocus, base.fightStyle, base.carryPlan, base.visionPlan, powerSpikes[0]?.label]).filter(Boolean),
+  };
+}
+
+function buildSummary(analysis, strategicPlan) {
+  return {
+    identity: analysis?.primaryIdentity || 'Sin definir',
+    priority: strategicPlan.primaryObjective,
+    risk: strategicPlan.risk,
+    powerSpike: strategicPlan.powerSpike,
+    mode: strategicPlan.mode,
+    briefing: strategicPlan.briefing,
     reason: clampWords(analysis?.summaryText || analysis?.coherence?.detail || 'La composición sigue su identidad.', 12),
   };
 }
@@ -405,8 +481,9 @@ export function buildCoach(analysis = {}, selectedChampions = []) {
   const insights = buildInsights(analysis, priorities, powerSpikes, mode);
   const alerts = buildAlerts(risks);
   const briefing = buildBriefing(analysis, priorities, powerSpikes, risks, mode);
-  const summary = buildSummary(analysis, priorities, powerSpikes, risks, mode, briefing);
   const executionProfile = buildExecutionProfile(analysis, mode);
+  const strategicPlan = buildStrategicPlan(analysis, mode, priorities, powerSpikes, phases, risks, briefing);
+  const summary = buildSummary(analysis, strategicPlan);
 
   return {
     mode,
@@ -420,5 +497,6 @@ export function buildCoach(analysis = {}, selectedChampions = []) {
     phases,
     risks,
     executionProfile,
+    strategicPlan,
   };
 }
