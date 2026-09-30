@@ -15,6 +15,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - La pantalla principal se organiza alrededor de una sola **Composition Story**.
 - La Story ya usa una rejilla más equilibrada en escritorio y mantiene una lectura compacta en móvil.
+- El Hero y el bloque de decisión tienen ahora más peso visual para leer mejor identidad, plan y prioridad.
 - La Story resume identidad, cómo gana, qué hacer, qué evitar, pieza clave, timeline y preguntas rápidas.
 - El selector de campeones se ha ampliado para ser más cómodo en escritorio.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
