@@ -80,6 +80,13 @@
 - Reducir duplicidad entre bloques y simplificar la lectura principal.
 - Cerrar la dependencia del asistente obsoleto y trabajar con un único modelo interno.
 
+## Fase 14 — Draft Coach / Coach Intelligence 🔄
+- Consolidar el `StrategicPlan` como contrato único del coach.
+- Generar briefing, fases, riesgos, picos de poder y perfil de ejecución desde una sola fuente.
+- Reducir duplicidades entre resumen, plan, checklist y Advisor.
+- Afinar el lenguaje para que el briefing sea corto, claro y accionable.
+- Preparar el siguiente paso del Draft Assistant sin salir de la filosofía de analizar solo la propia composición.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
@@ -93,3 +100,4 @@
 ## Regla del proyecto
 - Cada entrega debe actualizar código, README, roadmap y Pages.
 - Cada entrega incluye revisión de regresiones visuales y de estado.
+- Ningún sprint se cierra sin auditoría técnica y funcional mínima.
