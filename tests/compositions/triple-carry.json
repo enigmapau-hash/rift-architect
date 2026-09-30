@@ -1,0 +1,54 @@
+{
+  "slug": "triple-carry",
+  "description": "Composición con tres fuentes de daño relevante y protección alrededor del carry.",
+  "selectedChampions": [
+    {
+      "champion": "Jinx",
+      "role": "botline",
+      "identity": "Protect",
+      "function": "ADC Hypercarry",
+      "tempo": "Late",
+      "strengths": ["Scaling", "DPS", "Front to Back"],
+      "weaknesses": ["Poke"]
+    },
+    {
+      "champion": "Kayle",
+      "role": "top",
+      "identity": "Scaling",
+      "function": "Carry AP",
+      "tempo": "Late",
+      "strengths": ["Scaling", "Damage", "Carry"],
+      "weaknesses": ["Lane phase"]
+    },
+    {
+      "champion": "Kog'Maw",
+      "role": "mid",
+      "identity": "Scaling",
+      "function": "Carry AP",
+      "tempo": "Late",
+      "strengths": ["Scaling", "Damage", "Hypercarry"],
+      "weaknesses": ["Mobility"]
+    },
+    {
+      "champion": "Taric",
+      "role": "support",
+      "identity": "Protect",
+      "function": "Enchanter Tank",
+      "tempo": "Late",
+      "strengths": ["Protect Carry", "Teamfight", "Frontline"],
+      "weaknesses": ["Mobility"]
+    },
+    {
+      "champion": "Shen",
+      "role": "jungle",
+      "identity": "Frontline",
+      "function": "Tank",
+      "tempo": "Late",
+      "strengths": ["Frontline", "Peel", "Teamfight"],
+      "weaknesses": ["Poke"]
+    }
+  ],
+  "expectations": {
+    "patternsInclude": ["Triple Carry", "Protect Hypercarry"]
+  }
+}
