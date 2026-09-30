@@ -25,6 +25,7 @@
 - Strategic advisor engine with objective priorities, game windows and lose conditions.
 - Strategic advisor coverage in the engine test bank.
 - Draft simulator engine groundwork for swaps and diffs.
+- Shared label normalization helpers for stable engine sorting.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -50,6 +51,7 @@
 - The analyzer now exports simulation helpers for draft swaps.
 - The bootstrap now exposes simulation helpers to the browser console.
 - Service worker cache bumped to v46 after the simulation groundwork update.
+- Coach and strategic advisor now sort with shared label text helpers to avoid runtime crashes.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
