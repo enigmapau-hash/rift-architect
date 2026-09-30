@@ -107,11 +107,17 @@
 - Detectar regresiones en identidad, sinergias, coherencia y win condition.
 - Mantener un reporte simple para desarrollo.
 
-### Sprint 5.3 — Knowledge Coverage 🚧
+### Sprint 5.3 — Knowledge Coverage ✅
 - Ampliar la base de patrones estratégicos.
 - Validar cobertura de patrones en el banco de pruebas.
 - Añadir composiciones de referencia para cubrir patrones faltantes.
 - Mantener reportes de cobertura simples y trazables.
+
+### Sprint 5.4 — Strategic Dependencies 🚧
+- Definir dependencias estratégicas por identidad y patrón.
+- Detectar composiciones incompletas o parciales.
+- Mostrar niveles de madurez y evidencias internas.
+- Validar cobertura de dependencias en el banco de pruebas.
 
 ## Fase 6 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.
