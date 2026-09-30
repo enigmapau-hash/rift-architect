@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v50';
+const CACHE_NAME = 'rift-architect-v51';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -8,11 +8,14 @@ const STATIC_ASSETS = [
   './css/fixes.css',
   './css/analysis.css',
   './css/analysis-v2.css',
-  './css/product-map.css',
+  './css/design-tokens.css',
+  './css/components.css',
+  './css/design-system.css',
   './js/bootstrap.js',
   './js/app-v2.js',
   './js/v2_patch.js',
   './js/product-map-panel.js',
+  './js/design-system-panel.js',
   './js/analysis-panel.js',
   './js/draft-simulator-panel.js',
   './js/analyzer.js',
@@ -59,6 +62,7 @@ const STATIC_ASSETS = [
   './manifest.webmanifest',
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
+  './DESIGN_SYSTEM.md',
 ];
 
 self.addEventListener('install', (event) => {
