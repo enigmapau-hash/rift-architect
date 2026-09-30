@@ -15,9 +15,9 @@
 - Derived tempo summaries with confidence.
 - Structured game-plan generation with compact priorities.
 - Synergy, coherence and win-condition engines for the Core Engine v3.1 pass.
-- Knowledge layer files for identities, synergies, conflicts and win conditions.
+- Knowledge layer files for identities, synergies, patterns, conflicts and win conditions.
 - Knowledge-layer validation with boot-time auditing and traceable reports.
-- Canonical engine test bank with reference compositions and browser report.
+- Canonical engine test bank with reference compositions, pattern coverage and browser report.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -30,7 +30,8 @@
 - The analysis panel now renders the weighted v3.1 output.
 - The analysis panel now surfaces knowledge-layer synergies, coherence and win condition outputs.
 - Knowledge-layer validation now runs at boot and exposes a report for debugging.
-- Service worker cache bumped to v38 after the test-bank update.
+- The engine test bank now tracks pattern coverage across fixtures.
+- Service worker cache bumped to v39 after the pattern coverage update.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
