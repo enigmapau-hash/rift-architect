@@ -1,3 +1,3 @@
 import './analysis-flow.js';
 import './analysis-summary.js';
-import './analysis-draft-assistant-panel-v2.js';
+import './analysis-draft-assistant-panel-v3.js';
