@@ -92,6 +92,7 @@
 - Recomendar el pick que mejor completa la composición.
 - Proponer bans que protejan el plan de juego.
 - Reusar `StrategicPlan` sin depender del rival.
+- Arrancar con una base de necesidades, prioridades y señales de pick/ban antes de mapear campeones concretos.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
