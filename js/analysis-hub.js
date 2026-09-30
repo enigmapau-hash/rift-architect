@@ -262,8 +262,6 @@ function buildAssessment(analysis, selectedChampions, priorities, risks, phases)
   const executionEase = computeExecutionEase(selectedChampions);
   const frontline = metricScore(metrics, 'Frontline');
   const scaling = metricScore(metrics, 'Escalado');
-  const control = metricScore(metrics, 'Control');
-  const engage = metricScore(metrics, 'Engage');
   const overall = clamp(Math.round((confidence + coherence + signalCoverage + executionEase * 10 + frontline * 10 + scaling * 10) / 6), 0, 100);
   const grade = gradeFromScore(overall);
 
@@ -364,10 +362,10 @@ function buildVerdictText(analysis, priorities, risks, phases) {
 function buildImprovements(analysis, risks) {
   const weaknesses = Array.isArray(analysis?.weaknesses) ? analysis.weaknesses : [];
   const top = uniqueValues([
-    weaknesses[0],
-    risks[0]?.label,
-    risks[1]?.label,
-    analysis?.winCondition?.avoid?.[0],
+    toLabel(weaknesses[0]),
+    toLabel(risks[0]),
+    toLabel(risks[1]),
+    toLabel(analysis?.winCondition?.avoid?.[0]),
   ]).slice(0, 3);
 
   if (!top.length) {
@@ -406,8 +404,8 @@ function buildRisks(analysis, coach, advisor) {
   const items = uniqueValues([
     ...(asArray(coach?.alerts) || []).map((item) => item?.label),
     ...(asArray(advisor?.loseConditions) || []).map((item) => item?.label),
-    ...(Array.isArray(analysis?.weaknesses) ? analysis.weaknesses : []),
-    ...(Array.isArray(analysis?.winCondition?.avoid) ? analysis.winCondition.avoid : []),
+    ...(Array.isArray(analysis?.weaknesses) ? analysis.weaknesses.map((item) => item?.label) : []),
+    ...(Array.isArray(analysis?.winCondition?.avoid) ? analysis.winCondition.avoid.map((item) => toLabel(item)) : []),
   ]).filter(Boolean);
 
   return (items.length ? items : ['Sin riesgo claro']).slice(0, 3).map((label) => ({
@@ -772,6 +770,12 @@ function uniqueValues(values = []) {
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
+}
+
+function toLabel(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return value.trim();
+  return String(value.label || value.name || value.title || value.detail || '').trim();
 }
 
 function containsAny(text, terms = []) {
