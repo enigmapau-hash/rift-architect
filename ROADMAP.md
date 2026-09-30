@@ -108,6 +108,11 @@
 - Mostrar qué hacer en early, mid, late y si vas por detrás.
 - Traducir el motor en acciones simples para jugar la partida.
 
+### Sprint 8.7 — Decision Engine ✅
+- Priorizar qué hacer, qué evitar y cuál es la pieza clave de la composición.
+- Convertir el análisis en acciones concretas.
+- Responder a las preguntas clave del jugador antes de entrar en partida.
+
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
 - Recomendar campeones por pool y rol.
