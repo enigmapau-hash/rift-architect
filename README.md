@@ -11,21 +11,17 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 
 ## Estado actual
 
-- Selector modal por rol.
-- Tarjetas de composición compactas.
-- Iconos oficiales de Riot con alias para variantes como Kayn, Shaco o Varus.
-- Identidad, función y tempo visibles en selector y tarjetas.
+- Selector modal por rol con iconos oficiales y alias para variantes como Kayn, Shaco o Varus.
 - La composición se reinicia al recargar; no hay persistencia automática.
-- Modal de selección estabilizado con controles nativos.
-- La pantalla principal se ha simplificado a una sola **Composition Story**.
+- La pantalla principal se organiza alrededor de una sola **Composition Story**.
+- La Story ya usa una rejilla más equilibrada en escritorio y mantiene una lectura compacta en móvil.
 - La Story resume identidad, cómo gana, qué hacer, qué evitar, pieza clave, timeline y preguntas rápidas.
-- La vista está pensada para leer la composición en segundos y no como un dashboard técnico.
+- El selector de campeones se ha ampliado para ser más cómodo en escritorio.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
-- Se añadió un `data/index.json` mínimo para evitar 404 en Pages y un icono SVG como favicon.
 - Responsive compartido para PC, tablet y móvil.
 
 ## GitHub Pages
