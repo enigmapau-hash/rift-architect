@@ -10,6 +10,7 @@ import { determineWinCondition } from './winConditionEngine.js';
 import { buildGamePlan } from './planEngine.js';
 import { buildExplainability } from './explainabilityEngine.js';
 import { buildCoach } from './coachEngine.js';
+import { buildStrategicAdvisor } from './strategicAdvisor.js';
 
 const METRIC_LABELS = {
   frontline: 'Frontline',
@@ -198,12 +199,17 @@ export function analyzeComposition(selectedChampions = []) {
 
   analysis.explanation = buildExplainability(analysis, safeChampions);
   analysis.coach = buildCoach(analysis, safeChampions);
+  analysis.advisor = buildStrategicAdvisor(analysis, safeChampions);
   analysis.assistant = {
-    summary: analysis.coach.summary,
+    summary: analysis.advisor.summary,
     insights: analysis.coach.insights,
     alerts: analysis.coach.alerts,
+    primaryObjective: analysis.advisor.primaryObjective,
+    objectivePriority: analysis.advisor.objectivePriority,
+    gameWindows: analysis.advisor.gameWindows,
+    loseConditions: analysis.advisor.loseConditions,
   };
-  analysis.summary = analysis.assistant.summary;
+  analysis.summary = analysis.advisor.summary;
 
   return analysis;
 }
