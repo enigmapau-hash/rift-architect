@@ -21,7 +21,8 @@
 - Empty and single-champion edge-case fixtures for the certification sprint.
 - Timing and certification metadata in the engine test bank.
 - Explainability engine with compact evidence blocks for the analysis panel.
-- Coach engine with priorities, power spikes and phase guidance.
+- Coach engine with priorities, power spikes, phase guidance and risks.
+- Strategic advisor engine with objective priorities, game windows and lose conditions.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -41,8 +42,10 @@
 - The analysis engine now exposes explainability evidence.
 - The analysis panel now shows a compact why-block.
 - The analysis engine now exposes coach guidance.
-- The analysis panel now shows coach priorities, power spikes and phase guidance.
-- Service worker cache bumped to v43 after the coach update.
+- The analysis panel now shows coach priorities and risks.
+- The analysis engine now exposes strategic advisor data.
+- The analysis panel now shows the strategic advisor block.
+- Service worker cache bumped to v44 after the strategic advisor update.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.

@@ -125,10 +125,11 @@
 - Medir tiempo de análisis y carga de conocimiento.
 - Congelar la arquitectura estable antes de la IA.
 
-## Fase 6 — Explainability + Coach 🚧
+## Fase 6 — Explainability + Coach + Advisor 🚧
 - Exponer evidencias compactas del motor.
 - Mostrar por qué cada conclusión existe.
 - Traducir el análisis en una guía práctica de draft.
+- Derivar objetivos, ventanas de juego y condiciones de derrota.
 
 ### Sprint 6.0 — Explainability Engine ✅
 - Añadir evidencias al análisis.
@@ -136,11 +137,22 @@
 - Mostrar por qué el motor decide.
 - Mantener la UI compacta.
 
-### Sprint 6.1 — Draft Coach v1 🚧
+### Sprint 6.1 — Draft Coach v1 ✅
 - Añadir prioridades visuales al análisis.
 - Exponer power spikes y riesgos del draft.
 - Resumir objetivos por fase (early, mid y late).
 - Mantener la guía práctica sin añadir ruido.
+
+### Sprint 6.2 — Draft Assistant ✅
+- Resumir el análisis en 15 segundos.
+- Mostrar insights y alertas compactas.
+- Mantener la información útil sin exceso de texto.
+
+### Sprint 6.3 — Strategic Advisor ✅
+- Definir un objetivo principal por composición.
+- Priorizar objetivos estratégicos.
+- Mostrar ventanas de juego claras.
+- Exponer condiciones de derrota relevantes.
 
 ## Fase 7 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.

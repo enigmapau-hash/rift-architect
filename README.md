@@ -21,6 +21,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - El Core Engine v3.1 añade sinergias, dependencias, coherencia, condición de victoria y plan priorizado.
 - La Explainability Engine añade evidencias compactas y un bloque de "por qué" para cada análisis.
 - La Coach Engine añade prioridades, power spikes y guía de fases para el draft.
+- El Strategic Advisor añade objetivo principal, prioridades, ventanas de juego y condiciones de derrota.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
@@ -59,6 +60,7 @@ Core engine en curso:
 - `js/engine/planEngine.js`
 - `js/engine/explainabilityEngine.js`
 - `js/engine/coachEngine.js`
+- `js/engine/strategicAdvisor.js`
 - `js/engine/analysisEngine.js`
 - `js/analysis-panel.js`
 
