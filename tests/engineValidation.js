@@ -91,6 +91,7 @@ function compareFixture(fixture) {
   const expectations = fixture.expectations || {};
   const checks = [];
   const dependencies = asArray(analysis.dependencies?.items);
+  const explanationSummary = asArray(analysis.explanation?.summary);
 
   const pushCheck = (label, pass, expected, actual) => {
     checks.push({ label, pass, expected, actual });
@@ -168,6 +169,13 @@ function compareFixture(fixture) {
     );
   }
 
+  pushCheck(
+    'Explicabilidad',
+    explanationSummary.length > 0,
+    'Explicación no vacía',
+    explanationSummary.map((item) => item?.label || item).join(' · ') || 'Sin explicación'
+  );
+
   if (Number.isFinite(Number(expectations.confidenceMin))) {
     const actualConfidence = Number(analysis.confidence) || 0;
     pushCheck(
@@ -185,6 +193,7 @@ function compareFixture(fixture) {
     pass: checks.every((item) => item.pass),
     patterns,
     dependencies,
+    explanationSummary,
     analysis,
   };
 }
@@ -219,6 +228,7 @@ function renderReport(report) {
   const totalDependencies = report.coverage?.totalDependencies || 0;
   const durationMs = Number(report.timing?.durationMs) || 0;
   const averageMs = Number(report.timing?.averageMs) || 0;
+  const explainable = report.summary?.explainable || 0;
 
   root.innerHTML = `
     <style>
@@ -255,6 +265,7 @@ function renderReport(report) {
           <div class="stat"><strong>${failed}</strong><span>FAIL</span></div>
           <div class="stat"><strong>${coveredPatterns}/${totalPatterns}</strong><span>patrones</span></div>
           <div class="stat"><strong>${coveredDependencies}/${totalDependencies}</strong><span>dependencias</span></div>
+          <div class="stat"><strong>${explainable}/${report.results.length}</strong><span>explicables</span></div>
           <div class="stat"><strong>${durationMs} ms</strong><span>total</span></div>
           <div class="stat"><strong>${averageMs.toFixed(1)} ms</strong><span>media</span></div>
           <div class="stat"><strong>${report.knowledge.valid ? 'OK' : 'WARN'}</strong><span>knowledge</span></div>
@@ -277,6 +288,7 @@ function renderReport(report) {
                 <p>${item.description || ''}</p>
                 ${item.patterns?.length ? `<p><strong>Patrones:</strong> ${item.patterns.map((pattern) => pattern.label).join(' · ')}</p>` : ''}
                 ${item.dependencies?.length ? `<p><strong>Dependencias:</strong> ${item.dependencies.map((dependency) => dependency.label).join(' · ')}</p>` : ''}
+                ${item.explanationSummary?.length ? `<p><strong>Explicación:</strong> ${item.explanationSummary.map((entry) => entry?.label || entry).join(' · ')}</p>` : ''}
                 ${renderChecks(item.checks)}
               </article>
             `
@@ -305,6 +317,7 @@ export async function runEngineValidation() {
   const coverageComplete =
     coveredPatterns.length === PATTERN_RULES.length && coveredDependencies.length === DEPENDENCY_RULES.length;
   const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete;
+  const explainable = results.filter((item) => item.explanationSummary.length > 0).length;
 
   const report = {
     knowledge,
@@ -326,6 +339,7 @@ export async function runEngineValidation() {
       passed: results.filter((item) => item.pass).length,
       failed: results.filter((item) => !item.pass).length,
       certified,
+      explainable,
     },
   };
 
