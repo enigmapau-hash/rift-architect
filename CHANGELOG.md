@@ -13,8 +13,9 @@
 - The analysis panel now prioritizes readability and faster decision-making.
 - The identity block is now the main visual focus instead of a dense text summary.
 - Service worker cache bumped to v49 for the new dashboard assets.
-- The roadmap was reorganized to place UX before the next comparison-related features.
-- README and roadmap were aligned with the new dashboard structure.
+- The roadmap was reorganized to prioritize user experience before the next composition-optimization features.
+- README and roadmap were aligned with the product scope: analyze one composition, not compare against a rival team.
 
 ### Notes
-- The dashboard is intended to answer the key draft questions in a few seconds.
+- The dashboard is intended to answer the key draft questions about your own composition in a few seconds.
+- The simulator is for internal swaps and composition improvement, not rival-vs-rival comparison.
