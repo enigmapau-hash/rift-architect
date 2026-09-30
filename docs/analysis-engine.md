@@ -1,8 +1,28 @@
-# Analysis Engine v3.4
+# Analysis Engine v3.5
 
 ## Objective
 
 Turn the selected composition into a short, weighted and readable analysis that can be understood in seconds.
+
+## Layer model
+
+### Knowledge
+- `Draft Pool.xlsx` remains the source of truth.
+- The knowledge layer provides normalized strategic rules.
+- The engine never invents data that does not exist in the workbook or its derived rules.
+
+### Inference
+- `analysisEngine` groups the selected composition.
+- `coachEngine` builds the `StrategicPlan`.
+- `needEngine` extracts the real needs of the composition.
+- `strategicProfiles` maps those needs to reusable profile families.
+- `explainabilityEngine` explains why each conclusion exists.
+- `narrativeEngine` turns the result into a short executive story.
+
+### Communication
+- The Draft Assistant shows the story first.
+- The detailed blocks stay available as supporting evidence.
+- The UI must stay compact and easy to read.
 
 ## Input
 
@@ -40,7 +60,9 @@ Analysis {
   confidence,
   dominance,
   summaryText,
-  explanation
+  explanation,
+  draftAssistant,
+  narrative
 }
 ```
 
@@ -61,6 +83,7 @@ The analysis shown in the main UI must stay within this budget:
 - 1 confidence indicator.
 - 1 compact explainability block.
 - 1 compact coach block.
+- 1 narrative block.
 
 ## Rules
 
@@ -82,54 +105,26 @@ The analysis shown in the main UI must stay within this budget:
 7. Build a short plan of action.
 8. Build a compact explainability block with the evidence behind the decision.
 9. Build a compact coach block with priorities, power spikes and phase guidance.
-10. Return tokens the UI can render directly.
-11. Leave the explanation layer for the future IA.
-
-## Knowledge layer
-
-Strategic rules are externalized in the `knowledge/` folder and validated at boot:
-
-- `knowledge/identity-relations.js`
-- `knowledge/synergies.js`
-- `knowledge/patterns.js`
-- `knowledge/dependencies.js`
-- `knowledge/conflicts.js`
-- `knowledge/win-conditions.js`
-- `knowledge/validator.js`
-- `knowledge/index.js`
-
-## Implementation structure
-
-The current core engine is split into small modules:
-
-- `js/engine/identityEngine.js`
-- `js/engine/strengthEngine.js`
-- `js/engine/weaknessEngine.js`
-- `js/engine/tempoEngine.js`
-- `js/engine/synergyEngine.js`
-- `js/engine/dependencyEngine.js`
-- `js/engine/coherenceEngine.js`
-- `js/engine/winConditionEngine.js`
-- `js/engine/planEngine.js`
-- `js/engine/explainabilityEngine.js`
-- `js/engine/coachEngine.js`
-- `js/engine/analysisEngine.js`
+10. Build a narrative block with the concise story of the composition.
+11. Return tokens the UI can render directly.
 
 ## Main UI output
 
 The screen should show only:
 
-- Identity
-- Secondary identities
-- Synergies
-- Dependencies
-- Coherence
-- Win condition
-- Plan
-- Why this result exists
-- Coach guidance
-- Makes well
-- Lacks
+- Identity.
+- Secondary identities.
+- Synergies.
+- Dependencies.
+- Coherence.
+- Win condition.
+- Plan.
+- Why this result exists.
+- Coach guidance.
+- Narrative.
+- Needs.
+- Picks.
+- Bans.
 
 ## Quality rule
 
