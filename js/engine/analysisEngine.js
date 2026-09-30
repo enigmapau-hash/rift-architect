@@ -12,6 +12,7 @@ import { buildExplainability } from './explainabilityEngine.js';
 import { buildCoach } from './coachEngine.js';
 import { buildStrategicAdvisor } from './strategicAdvisor.js';
 import { buildExecutiveSummary } from './executiveSummary.js';
+import { buildDecisionFlowBase } from './decisionFlow.js';
 
 const METRIC_LABELS = {
   frontline: 'Frontline',
@@ -212,6 +213,9 @@ export function analyzeComposition(selectedChampions = []) {
   };
   analysis.summary = analysis.advisor.summary;
   analysis.executiveSummary = buildExecutiveSummary(analysis);
+  analysis.draftProfile = analysis.executiveSummary.profile;
+  analysis.priorities = analysis.executiveSummary.priorities;
+  analysis.decisionFlowBase = buildDecisionFlowBase(analysis, safeChampions);
 
   return analysis;
 }
