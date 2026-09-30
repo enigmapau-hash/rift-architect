@@ -183,10 +183,11 @@ function collectSelectedChampions() {
   return [...document.querySelectorAll(SELECTOR)]
     .map((slot) => {
       const role = String(slot.dataset.role || 'top');
-      const name = slot.querySelector('.slot__name')?.textContent?.trim() || '';
+      const champion = slot.querySelector('.slot__name')?.textContent?.trim() || '';
       const identity = slot.querySelector('.slot__meta')?.textContent?.trim() || '';
       const functionText = slot.querySelector('.champion-item__sub')?.textContent?.trim() || '';
-      return { role, champion: name, identity, function: functionText, tempo: '', strengths: [], weaknesses: [] };
+      const tempo = slot.querySelector('.slot__tempo')?.textContent?.trim() || '';
+      return { role, champion, identity, function: functionText, tempo, strengths: [], weaknesses: [] };
     })
     .filter((champion) => champion.champion);
 }
@@ -195,10 +196,10 @@ function buildAdvisorModel(analysis, selectedChampions, activeAction) {
   const coach = analysis?.coach || {};
   const advisor = analysis?.advisor || {};
   const assistant = analysis?.assistant || {};
-  const phases = buildPhases(coach, advisor, analysis);
-  const priorities = buildPriorities(coach, advisor, analysis);
-  const risks = buildRisks(coach, advisor, analysis);
-  const insights = buildInsights(coach, advisor, analysis);
+  const priorities = buildPriorities(analysis, coach, advisor);
+  const risks = buildRisks(analysis, coach, advisor);
+  const phases = buildPhases(analysis, coach, advisor);
+  const insights = buildInsights(analysis, coach, advisor, priorities);
   const initiator = findInitiator(selectedChampions, analysis);
   const action = buildAction(activeAction, { analysis, coach, advisor, assistant, priorities, risks, initiator, phases });
   const signal = buildSignal(coach, advisor, analysis, action);
@@ -208,7 +209,8 @@ function buildAdvisorModel(analysis, selectedChampions, activeAction) {
   const heroBadge = advisor?.summary?.powerSpike || coach?.summary?.powerSpike || 'Consejo directo';
   const score = clamp(
     Math.round(
-      [analysis?.confidence, analysis?.coherence?.score, phases.length ? 25 : 0, priorities.length ? 25 : 0, risks.length ? 25 : 0].reduce((sum, value) => sum + Number(value || 0), 0) / 4
+      [analysis?.confidence, analysis?.coherence?.score, phases.length ? 25 : 0, priorities.length ? 25 : 0, risks.length ? 25 : 0]
+        .reduce((sum, value) => sum + Number(value || 0), 0) / 4
     ),
     0,
     100
@@ -238,11 +240,7 @@ function buildAction(actionKey, context) {
   const topRisk = risks[0] || null;
   const powerSpike = advisor?.summary?.powerSpike || coach?.summary?.powerSpike || 'tu ventana de poder';
   const primaryObjective = advisor?.primaryObjective || topPriority?.label || analysis?.winCondition?.label || 'Jugar alrededor de la identidad';
-  const reasons = [];
-
-  if (analysis?.coherence?.label) reasons.push(analysis.coherence.label);
-  if (analysis?.winCondition?.detail) reasons.push(analysis.winCondition.detail);
-  if (analysis?.summaryText) reasons.push(analysis.summaryText);
+  const reasons = [analysis?.coherence?.label, analysis?.winCondition?.detail, analysis?.summaryText].filter(Boolean);
 
   switch (actionKey) {
     case 'risk':
@@ -303,13 +301,7 @@ function buildAction(actionKey, context) {
 }
 
 function buildWinText(analysis, coach, advisor, assistant, powerSpike, topPriority) {
-  const texts = [
-    advisor?.summary?.reason,
-    assistant?.summary?.reason,
-    analysis?.winCondition?.detail,
-    topPriority?.detail,
-  ].filter(Boolean);
-
+  const texts = [advisor?.summary?.reason, assistant?.summary?.reason, analysis?.winCondition?.detail, topPriority?.detail].filter(Boolean);
   const sentence = texts[0] || 'Tu composición gana jugando a su identidad principal.';
   return `${sentence} Tu ventana más importante llega en ${powerSpike}.`;
 }
@@ -327,26 +319,12 @@ function buildWinWhy(analysis, coach, advisor, assistant, reasons) {
 }
 
 function buildRiskWhy(risk, analysis, coach) {
-  const parts = [
-    risk?.label,
-    risk?.detail,
-    coach?.summary?.risk,
-    analysis?.coherence?.label,
-    analysis?.winCondition?.avoid?.[0],
-  ].filter(Boolean);
-
+  const parts = [risk?.label, risk?.detail, coach?.summary?.risk, analysis?.coherence?.label, analysis?.winCondition?.avoid?.[0]].filter(Boolean);
   return uniqueValues(parts).join(' · ') || 'El riesgo principal se deduce del plan de victoria y de la coherencia del draft.';
 }
 
 function buildPriorityWhy(priority, analysis, coach, phases) {
-  const parts = [
-    priority?.label,
-    priority?.detail,
-    coach?.summary?.priority,
-    phases[0]?.detail,
-    analysis?.tempoDetail?.label,
-  ].filter(Boolean);
-
+  const parts = [priority?.label, priority?.detail, coach?.summary?.priority, phases[0]?.detail, analysis?.tempoDetail?.label].filter(Boolean);
   return uniqueValues(parts).join(' · ') || 'La prioridad se ordena por identidad, tempo y ventana de poder.';
 }
 
@@ -372,7 +350,7 @@ function buildActionHints(analysis, coach, advisor, assistant, priorities, risks
   };
 }
 
-function buildPriorities(coach, advisor, analysis) {
+function buildPriorities(analysis, coach, advisor) {
   const items = uniqueValues([
     ...(asArray(advisor?.objectivePriority) || []).map((item) => item?.label),
     ...(asArray(coach?.priorities) || []).map((item) => item?.label),
@@ -400,15 +378,15 @@ function buildPriorityDetail(label, analysis, index) {
   return 'Se apoya en la condición de victoria general del draft.';
 }
 
-function buildRisks(coach, advisor, analysis) {
-  const risks = uniqueValues([
+function buildRisks(analysis, coach, advisor) {
+  const items = uniqueValues([
     ...(asArray(coach?.alerts) || []).map((item) => item?.label),
     ...(asArray(advisor?.loseConditions) || []).map((item) => item?.label),
     ...(Array.isArray(analysis?.weaknesses) ? analysis.weaknesses : []),
     ...(Array.isArray(analysis?.winCondition?.avoid) ? analysis.winCondition.avoid : []),
   ]).slice(0, 3);
 
-  const labels = risks.length ? risks : ['Sin riesgo claro'];
+  const labels = items.length ? items : ['Sin riesgo claro'];
 
   return labels.map((label) => ({
     label,
@@ -436,11 +414,11 @@ function buildRiskDetail(label, analysis, coach) {
   return coach?.summary?.risk || analysis?.winCondition?.avoid?.[0] || 'Puede romper el plan principal.';
 }
 
-function buildPhases(coach, advisor, analysis) {
+function buildPhases(analysis, coach, advisor) {
   const phases = Array.isArray(coach?.phases) ? coach.phases : [];
   const labels = ['Early', 'Mid Game', 'Late Game'];
   const fallbackDetails = {
-    'Early': 'Gana tiempo y no regales peleas largas.',
+    Early: 'Gana tiempo y no regales peleas largas.',
     'Mid Game': 'Convierte la ventaja en objetivos y visión.',
     'Late Game': 'Cierra con carry protegido y pelea ordenada.',
   };
@@ -585,37 +563,20 @@ function buildInsightRowsFromAdvisor(advisor) {
     }));
 }
 
-function buildInsights(coach, advisor, analysis) {
+function buildInsights(analysis, coach, advisor, priorities) {
   const fromCoach = buildInsightRows(coach);
   const fromAdvisor = buildInsightRowsFromAdvisor(advisor);
   const fromAnalysis = uniqueValues([
     analysis?.primaryIdentity,
     analysis?.tempoDetail?.label,
     analysis?.coherence?.label,
+    priorities[0]?.label,
   ])
     .filter(Boolean)
     .slice(0, 1)
     .map((label) => ({
       label,
       detail: 'Encaja con la lectura general de la composición.',
-    }));
-
-  return uniqueByLabel([...fromCoach, ...fromAdvisor, ...fromAnalysis]).slice(0, 3);
-}
-
-function buildRisks(coach, advisor, analysis) {
-  const fromCoach = buildAlertRows(coach);
-  const fromAdvisor = buildAlertRowsFromAdvisor(advisor);
-  const fromAnalysis = uniqueValues([
-    analysis?.winCondition?.avoid?.[0],
-    analysis?.coherence?.conflicts?.[0]?.label,
-    analysis?.weaknesses?.[0],
-  ])
-    .filter(Boolean)
-    .slice(0, 1)
-    .map((label) => ({
-      label,
-      detail: 'Puede romper el plan principal.',
     }));
 
   return uniqueByLabel([...fromCoach, ...fromAdvisor, ...fromAnalysis]).slice(0, 3);
