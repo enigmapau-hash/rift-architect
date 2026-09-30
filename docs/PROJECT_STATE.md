@@ -44,6 +44,7 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué solución tiene,
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
+- Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
 - Muestra el Draft Assistant en una vista ejecutiva primero:
   - veredicto rápido,
   - narrativa,
