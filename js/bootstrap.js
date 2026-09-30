@@ -30,3 +30,29 @@ import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDra
     console.warn('[Rift Architect] Knowledge layer validation unavailable', error);
   }
 })();
+
+async function loadBuildInfo() {
+  const badge = document.getElementById('buildBadge');
+  if (!badge) return;
+
+  try {
+    const response = await fetch('./version.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error('version.json unavailable');
+
+    const build = await response.json();
+    const version = String(build?.version || 'Build').trim();
+    const stage = String(build?.stage || '').trim();
+    const date = String(build?.date || '').trim();
+
+    const parts = [version];
+    if (stage) parts.push(stage);
+    if (date) parts.push(date);
+
+    badge.textContent = parts.join(' · ');
+    badge.title = `Build metadata${build?.cache ? ` · ${build.cache}` : ''}`;
+  } catch {
+    badge.textContent = 'Build no disponible';
+  }
+}
+
+loadBuildInfo().catch(() => {});
