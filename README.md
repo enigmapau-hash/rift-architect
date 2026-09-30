@@ -21,7 +21,7 @@ PWA para construir y entender una composición de League of Legends a partir de 
 - La identidad se muestra como hero card con score, win condition, tempo, coherencia y confianza.
 - Fortalezas, riesgos, métricas, plan, coach, advisor y explicabilidad se muestran en bloques separados.
 - La lectura está pensada para entender tu composición en pocos segundos.
-- El Composition Optimizer sigue disponible para probar swaps internos y mejorar la composición.
+- El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
@@ -46,7 +46,7 @@ Documentación base del hito:
 
 - `js/analyzer.js`
 - `js/composition-report-panel.js`
-- `js/draft-simulator-panel.js`
+- `js/composition-optimizer-panel.js`
 - `js/engine/analysisEngine.js`
 - `js/engine/comparisonEngine.js`
 - `js/engine/simulationEngine.js`
