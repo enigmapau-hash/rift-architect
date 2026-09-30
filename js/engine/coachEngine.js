@@ -1,8 +1,8 @@
-import { clampNumber, normalizeText, uniqueOrdered } from './utils.js';
+import { clampNumber, compareLabels, getLabelText, normalizeText, uniqueOrdered } from './utils.js';
 
 function toLabels(values = []) {
   return values
-    .map((value) => (typeof value === 'string' ? value : value?.label))
+    .map((value) => getLabelText(value))
     .filter(Boolean);
 }
 
@@ -109,7 +109,7 @@ function buildPriorities(analysis) {
       score: scorePriority(label, analysis, index),
       detail: buildPriorityDetail(label, analysis),
     }))
-    .sort((a, b) => b.score - a.score || String(a.label || '').localeCompare(String(b.label || ''), 'es'));
+    .sort((a, b) => b.score - a.score || compareLabels(a.label, b.label));
 
   if (ordered.length) return ordered;
 
