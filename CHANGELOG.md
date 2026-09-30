@@ -7,8 +7,7 @@
 - Story-first layout with identity, win condition, priorities, key piece, timeline and quick questions.
 - A visual composition profile with bars for engage, peel, scaling, frontline, mobility and CC.
 - A checklist-style plan so the main actions and avoid list are easier to scan.
-- A unified Composition Assessment block that merges the executive verdict, health signals, quality coverage and prioritized improvements.
-- A Rift Advisor block with quick actions, phase priorities and contextual explanations.
+- A unified Analysis Hub that merges the executive verdict, diagnostics, quick actions, phase priorities and contextual explanations.
 - An executive analysis layer with verdict, dynamic priorities and contextual “¿Por qué?” explanations.
 - A more balanced Composition Story layout on desktop, with a two-column arrangement that reduces vertical scroll.
 - A stronger Hero and decision emphasis so the most important draft signals stand out faster.
@@ -24,7 +23,7 @@
 - The layout is now more balanced between desktop and mobile, with less vertical scroll and a larger selection modal.
 - The view stays visual-first and focused on the own composition, not rival comparison.
 - The AI continues to translate the motor output into simple language and quick answers.
-- The service worker cache was bumped to v74 for the Rift Advisor delivery.
+- The service worker cache was bumped to v76 for the Analysis Hub delivery.
 
 ### Notes
 - The dashboard is intended to answer the key draft questions about your own composition in a few seconds.
