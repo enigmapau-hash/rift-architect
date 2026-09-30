@@ -11,6 +11,7 @@ import { buildGamePlan } from './planEngine.js';
 import { buildExplainability } from './explainabilityEngine.js';
 import { buildCoach } from './coachEngine.js';
 import { buildStrategicAdvisor } from './strategicAdvisor.js';
+import { buildDraftAssistant } from './draftAssistant.js';
 import { buildExecutiveSummary } from './executiveSummary.js';
 import { buildDecisionFlowBase } from './decisionFlow.js';
 
@@ -208,6 +209,7 @@ export function analyzeComposition(selectedChampions = []) {
     detail: analysis.coach.briefing || analysis.winCondition.detail,
   };
   analysis.summaryText = analysis.coach.briefing || analysis.summaryText;
+  analysis.draftAssistant = buildDraftAssistant(analysis);
   analysis.advisor = buildStrategicAdvisor(analysis, safeChampions);
   analysis.assistant = {
     summary: analysis.advisor.summary,
@@ -217,6 +219,7 @@ export function analyzeComposition(selectedChampions = []) {
     objectivePriority: analysis.advisor.objectivePriority,
     gameWindows: analysis.advisor.gameWindows,
     loseConditions: analysis.advisor.loseConditions,
+    draftAssistant: analysis.draftAssistant,
   };
   analysis.summary = analysis.advisor.summary;
   analysis.executiveSummary = buildExecutiveSummary(analysis);
