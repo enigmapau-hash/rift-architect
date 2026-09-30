@@ -92,6 +92,7 @@ function compareFixture(fixture) {
   const checks = [];
   const dependencies = asArray(analysis.dependencies?.items);
   const explanationSummary = asArray(analysis.explanation?.summary);
+  const coach = analysis.coach || {};
 
   const pushCheck = (label, pass, expected, actual) => {
     checks.push({ label, pass, expected, actual });
@@ -176,6 +177,13 @@ function compareFixture(fixture) {
     explanationSummary.map((item) => item?.label || item).join(' · ') || 'Sin explicación'
   );
 
+  pushCheck(
+    'Coach',
+    Array.isArray(coach.priorities) && coach.priorities.length > 0 && Array.isArray(coach.powerSpikes) && coach.powerSpikes.length > 0,
+    'Prioridades y power spikes',
+    `${(coach.priorities || []).length} prioridades · ${(coach.powerSpikes || []).length} power spikes`
+  );
+
   if (Number.isFinite(Number(expectations.confidenceMin))) {
     const actualConfidence = Number(analysis.confidence) || 0;
     pushCheck(
@@ -194,6 +202,7 @@ function compareFixture(fixture) {
     patterns,
     dependencies,
     explanationSummary,
+    coach,
     analysis,
   };
 }
@@ -229,6 +238,7 @@ function renderReport(report) {
   const durationMs = Number(report.timing?.durationMs) || 0;
   const averageMs = Number(report.timing?.averageMs) || 0;
   const explainable = report.summary?.explainable || 0;
+  const coachable = report.summary?.coachable || 0;
 
   root.innerHTML = `
     <style>
@@ -258,7 +268,7 @@ function renderReport(report) {
       <section class="hero">
         <span class="badge ${report.summary.certified ? 'is-ok' : 'is-warn'}">${report.summary.certified ? 'CERTIFIED' : 'REVIEW'}</span>
         <h1>Core Engine test bank</h1>
-        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns and win conditions.</p>
+        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns, coach guidance and win conditions.</p>
         <div class="stats">
           <div class="stat"><strong>${report.results.length}</strong><span>composiciones</span></div>
           <div class="stat"><strong>${passed}</strong><span>OK</span></div>
@@ -266,6 +276,7 @@ function renderReport(report) {
           <div class="stat"><strong>${coveredPatterns}/${totalPatterns}</strong><span>patrones</span></div>
           <div class="stat"><strong>${coveredDependencies}/${totalDependencies}</strong><span>dependencias</span></div>
           <div class="stat"><strong>${explainable}/${report.results.length}</strong><span>explicables</span></div>
+          <div class="stat"><strong>${coachable}/${report.results.length}</strong><span>coach</span></div>
           <div class="stat"><strong>${durationMs} ms</strong><span>total</span></div>
           <div class="stat"><strong>${averageMs.toFixed(1)} ms</strong><span>media</span></div>
           <div class="stat"><strong>${report.knowledge.valid ? 'OK' : 'WARN'}</strong><span>knowledge</span></div>
@@ -288,6 +299,7 @@ function renderReport(report) {
                 <p>${item.description || ''}</p>
                 ${item.patterns?.length ? `<p><strong>Patrones:</strong> ${item.patterns.map((pattern) => pattern.label).join(' · ')}</p>` : ''}
                 ${item.dependencies?.length ? `<p><strong>Dependencias:</strong> ${item.dependencies.map((dependency) => dependency.label).join(' · ')}</p>` : ''}
+                ${item.coach?.priorities?.length ? `<p><strong>Coach:</strong> ${item.coach.priorities.map((priority) => priority.label).join(' · ')}</p>` : ''}
                 ${item.explanationSummary?.length ? `<p><strong>Explicación:</strong> ${item.explanationSummary.map((entry) => entry?.label || entry).join(' · ')}</p>` : ''}
                 ${renderChecks(item.checks)}
               </article>
@@ -318,6 +330,7 @@ export async function runEngineValidation() {
     coveredPatterns.length === PATTERN_RULES.length && coveredDependencies.length === DEPENDENCY_RULES.length;
   const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete;
   const explainable = results.filter((item) => item.explanationSummary.length > 0).length;
+  const coachable = results.filter((item) => Array.isArray(item.coach?.priorities) && item.coach.priorities.length > 0).length;
 
   const report = {
     knowledge,
@@ -340,6 +353,7 @@ export async function runEngineValidation() {
       failed: results.filter((item) => !item.pass).length,
       certified,
       explainable,
+      coachable,
     },
   };
 
