@@ -82,16 +82,16 @@ function renderPanel() {
   state.root.innerHTML = `
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
-        <span class="analysis-hub__card-kicker">Draft Assistant</span>
-        <span class="analysis-hub__summary-panel-note">Beta 0.1 · primero la historia, luego el detalle</span>
+        <span class="analysis-hub__card-kicker">Beta 0.2</span>
+        <span class="analysis-hub__summary-panel-note">Una sola conversación · respuesta arriba, detalle abajo</span>
       </div>
 
-      <div class="analysis-hub__assistant-narrative">
+      <div class="analysis-hub__assistant-story">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(narrative.title || 'Tu composición quiere ganar por un plan claro.')}</p>
         <p>${escapeHtml(narrative.summary || 'La composición se entiende mejor como una historia simple.')}</p>
-        ${narrative.becauseLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.becauseLine)}</p>` : ''}
-        ${narrative.solutionLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.solutionLine)}</p>` : ''}
-        ${narrative.warningLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.warningLine)}</p>` : ''}
+        <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
+          ${renderQuickRows({ narrative, primaryNeed, topProfile, topPick, topBan, strategicPlan })}
+        </div>
       </div>
 
       <div class="analysis-hub__assistant-chip-row">
@@ -100,30 +100,18 @@ function renderPanel() {
         `).join('')}
       </div>
 
-      <div class="analysis-hub__assistant-grid analysis-hub__assistant-grid--compact">
-        <article class="analysis-hub__assistant-card analysis-hub__assistant-card--summary">
-          <div class="analysis-hub__assistant-card-head">
-            <strong>Veredicto rápido</strong>
-            <span>Lo esencial</span>
-          </div>
-          <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
-            ${renderExecutiveRows({ narrative, primaryNeed, topProfile, topPick, topBan, strategicPlan })}
-          </div>
-        </article>
-
-        <details class="analysis-hub__assistant-card" open>
-          <summary>
-            <strong>Detalles</strong>
-            <span>${needs.length} necesidades</span>
-          </summary>
-          <div class="analysis-hub__assistant-list">
-            ${renderNeedRows(needs, strategicPlan)}
-            ${renderProfileRows(profiles.slice(0, 2))}
-            ${renderRecommendationRows(picks.slice(0, 2), 'PICK')}
-            ${renderRecommendationRows(bans.slice(0, 2), 'BAN')}
-          </div>
-        </details>
-      </div>
+      <details class="analysis-hub__assistant-card" open>
+        <summary>
+          <strong>Ver análisis completo</strong>
+          <span>${needs.length} señales</span>
+        </summary>
+        <div class="analysis-hub__assistant-list">
+          ${renderNeedRows(needs, strategicPlan)}
+          ${renderProfileRows(profiles.slice(0, 2))}
+          ${renderRecommendationRows(picks.slice(0, 2), 'PICK')}
+          ${renderRecommendationRows(bans.slice(0, 2), 'BAN')}
+        </div>
+      </details>
     </section>
   `;
 }
@@ -142,40 +130,36 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
-function renderExecutiveRows({ narrative, primaryNeed, topProfile, topPick, topBan, strategicPlan = {} }) {
+function renderQuickRows({ narrative, primaryNeed, topProfile, topPick, topBan, strategicPlan = {} }) {
   const rows = [];
 
   if (narrative?.winLine) {
-    rows.push({ title: 'Cómo gana', text: narrative.winLine, note: 'Narrativa base' });
+    rows.push({ title: 'Cómo gana', text: narrative.winLine, note: 'La historia principal' });
   }
 
   if (primaryNeed) {
     rows.push({
-      title: `Necesidad · ${primaryNeed.label}`,
+      title: `Qué necesita · ${primaryNeed.label}`,
       text: clampWords(primaryNeed.impact || buildNeedImpact(primaryNeed, strategicPlan), 16),
       note: `Peso ${String(primaryNeed.score ?? 0)}/5`,
     });
   }
 
-  if (topProfile) {
-    rows.push({
-      title: `Perfil · ${topProfile.label}`,
-      text: clampWords(topProfile.why || topProfile.detail || 'Encaja con el plan actual.', 16),
-      note: `Confianza ${String(topProfile.confidence ?? 0)}/100`,
-    });
-  }
+  if (topProfile || topPick) {
+    const solutionTitle = topProfile ? `Mejor solución · ${topProfile.label}` : `Mejor decisión · ${topPick.label}`;
+    const solutionText = topProfile
+      ? clampWords(topProfile.why || topProfile.detail || 'Encaja con el plan actual.', 16)
+      : clampWords(topPick.detail, 16);
+    const solutionNote = topProfile
+      ? `Confianza ${String(topProfile.confidence ?? 0)}/100`
+      : `Confianza ${String(topPick.confidence ?? 0)}/100`;
 
-  if (topPick) {
-    rows.push({
-      title: `Pick · ${topPick.profileLabel || topPick.label}`,
-      text: clampWords(topPick.detail, 16),
-      note: `Confianza ${String(topPick.confidence ?? 0)}/100`,
-    });
+    rows.push({ title: solutionTitle, text: solutionText, note: solutionNote });
   }
 
   if (topBan) {
     rows.push({
-      title: `Evita · ${topBan.label}`,
+      title: `Qué evitar · ${topBan.label}`,
       text: clampWords(topBan.detail, 16),
       note: topBan.profileLabel ? `Perfil ${topBan.profileLabel}` : 'Evitar',
     });
