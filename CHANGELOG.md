@@ -18,7 +18,9 @@
 ### Changed
 - The main screen now centers on the structured visual composition view, the game plan and the optimizer instead of auxiliary meta panels.
 - The identity block is now the primary visual focus.
-- Service worker cache bumped to v62 for the integrated panel assets.
+- The Decision Engine now sits above the Game Plan to reflect the player's actual decision flow.
+- The Game Plan was compacted so the layout feels less empty and more product-like.
+- Service worker cache bumped to v63 for the updated UX pass assets.
 - README and roadmap were aligned with the product scope: analyze one composition, not compare against a rival team.
 - The app now presents a clearer visual summary of your own composition and a ranked list of internal swaps.
 - The view now stays visual-first; document-style export actions were removed.
