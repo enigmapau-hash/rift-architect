@@ -24,6 +24,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - El Strategic Advisor añade objetivo principal, prioridades, ventanas de juego y condiciones de derrota.
 - El banco de pruebas del motor valida también la cobertura estratégica del coach y del advisor.
 - El Draft Simulator queda preparado como base para swaps y diffs de draft.
+- La normalización segura de etiquetas evita que coach y advisor se rompan al ordenar prioridades.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
