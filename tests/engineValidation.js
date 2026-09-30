@@ -33,6 +33,8 @@ const SIMULATION_CASE = {
 };
 
 const ADVISOR_WINDOW_KEYS = ['early', 'mid', 'late'];
+const FLOW_CARD_KEYS = ['verdict', 'plan', 'risks', 'timing', 'advisor'];
+const FLOW_ACTION_KEYS = ['win', 'risk', 'init', 'priority'];
 
 function normalizeText(value) {
   return String(value || '')
@@ -107,6 +109,8 @@ function compareFixture(fixture) {
   const assistant = analysis.assistant || analysis.coach || {};
   const advisor = analysis.advisor || assistant || {};
   const summary = advisor.summary || assistant.summary || {};
+  const executiveSummary = analysis.executiveSummary || {};
+  const decisionFlowBase = analysis.decisionFlowBase || {};
   const objectivePriority = asArray(advisor.objectivePriority);
   const gameWindows = advisor.gameWindows || {};
   const loseConditions = asArray(advisor.loseConditions);
@@ -205,6 +209,61 @@ function compareFixture(fixture) {
   );
 
   pushCheck(
+    'Resumen ejecutivo',
+    Boolean(
+      executiveSummary.title &&
+      executiveSummary.text &&
+      executiveSummary.grade &&
+      executiveSummary.badge &&
+      Array.isArray(executiveSummary.profile) &&
+      executiveSummary.profile.length >= 5 &&
+      Array.isArray(executiveSummary.priorities) &&
+      executiveSummary.priorities.length > 0
+    ),
+    'Título, texto, score, perfil y prioridades',
+    [
+      executiveSummary.title,
+      executiveSummary.text,
+      executiveSummary.grade,
+      executiveSummary.badge,
+      `profile:${Array.isArray(executiveSummary.profile) ? executiveSummary.profile.length : 0}`,
+      `priorities:${Array.isArray(executiveSummary.priorities) ? executiveSummary.priorities.length : 0}`,
+    ]
+      .filter(Boolean)
+      .join(' · ')
+  );
+
+  pushCheck(
+    'Decision Flow base',
+    Boolean(
+      decisionFlowBase.heroHeadline &&
+      decisionFlowBase.summary &&
+      decisionFlowBase.score &&
+      decisionFlowBase.verdict &&
+      decisionFlowBase.plan &&
+      decisionFlowBase.risks &&
+      decisionFlowBase.timing &&
+      decisionFlowBase.advisor
+    ),
+    'Bloques base completos',
+    [decisionFlowBase.heroHeadline, decisionFlowBase.summary, decisionFlowBase.score?.grade || 'Sin score'].filter(Boolean).join(' · ') || 'Sin decision flow'
+  );
+
+  pushCheck(
+    'Decision Flow cards',
+    FLOW_CARD_KEYS.every((key) => Boolean(decisionFlowBase[key])),
+    'verdict · plan · risks · timing · advisor',
+    FLOW_CARD_KEYS.map((key) => Boolean(decisionFlowBase[key]) ? key : `missing:${key}`).join(' · ')
+  );
+
+  pushCheck(
+    'Decision Flow actions',
+    FLOW_ACTION_KEYS.every((key) => Boolean(decisionFlowBase.advisor?.responses?.[key])),
+    'win · risk · init · priority',
+    FLOW_ACTION_KEYS.map((key) => Boolean(decisionFlowBase.advisor?.responses?.[key]) ? key : `missing:${key}`).join(' · ')
+  );
+
+  pushCheck(
     'Objetivo estratégico',
     Boolean(advisor.primaryObjective),
     'Objetivo principal definido',
@@ -287,6 +346,8 @@ function compareFixture(fixture) {
     advisor,
     simulation,
     analysis,
+    executiveSummary,
+    decisionFlowBase,
   };
 }
 
@@ -368,6 +429,7 @@ function renderReport(report) {
           <div class="stat"><strong>${simulationable}/${report.results.length}</strong><span>simulación</span></div>
           <div class="stat"><strong>${durationMs} ms</strong><span>total</span></div>
           <div class="stat"><strong>${averageMs.toFixed(1)} ms</strong><span>media</span></div>
+          <div class="stat"><strong>${report.summary.certified ? 'YES' : 'NO'}</strong><span>certified</span></div>
           <div class="stat"><strong>${report.knowledge.valid ? 'OK' : 'WARN'}</strong><span>knowledge</span></div>
         </div>
       </section>
@@ -387,6 +449,8 @@ function renderReport(report) {
                 <h2>${item.pass ? '✓' : '✗'} ${item.slug}</h2>
                 <p>${item.description || ''}</p>
                 ${item.summary?.identity ? `<p><strong>Resumen:</strong> ${item.summary.identity} · ${item.summary.priority} · ${item.summary.risk} · ${item.summary.powerSpike}</p>` : ''}
+                ${item.executiveSummary?.title ? `<p><strong>Executive:</strong> ${item.executiveSummary.title} · ${item.executiveSummary.grade} · ${item.executiveSummary.badge}</p>` : ''}
+                ${item.decisionFlowBase?.heroHeadline ? `<p><strong>Decision flow:</strong> ${item.decisionFlowBase.heroHeadline} · ${item.decisionFlowBase.score?.grade || ''} · ${item.decisionFlowBase.score?.badge || ''}</p>` : ''}
                 ${item.advisor?.primaryObjective ? `<p><strong>Advisor:</strong> ${item.advisor.primaryObjective} · ${item.advisor.summary?.priority || ''} · ${item.advisor.summary?.risk || ''}</p>` : ''}
                 ${item.simulation?.diff?.changedFields?.length ? `<p><strong>Simulación:</strong> ${item.simulation.diff.changedFields.join(' · ')}</p>` : ''}
                 ${item.insights?.length ? `<p><strong>Insights:</strong> ${item.insights.map((insight) => insight.label).join(' · ')}</p>` : ''}
@@ -425,7 +489,9 @@ export async function runEngineValidation() {
   const summarizable = results.filter((item) => Boolean(item.summary?.identity && item.summary?.priority && item.summary?.risk && item.summary?.powerSpike && item.summary?.reason)).length;
   const advisorable = results.filter((item) => Boolean(item.advisor?.primaryObjective && item.advisor?.objectivePriority?.length && item.advisor?.gameWindows?.early?.label && item.advisor?.gameWindows?.mid?.label && item.advisor?.gameWindows?.late?.label && item.advisor?.loseConditions?.length)).length;
   const simulationable = results.filter((item) => Boolean(item.simulation?.diff?.changedFields?.length)).length;
-  const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete && simulationable > 0;
+  const executiveSummarizable = results.filter((item) => Boolean(item.executiveSummary?.title && item.executiveSummary?.text && item.executiveSummary?.grade && item.executiveSummary?.badge && Array.isArray(item.executiveSummary?.profile) && item.executiveSummary.profile.length >= 5 && Array.isArray(item.executiveSummary?.priorities) && item.executiveSummary.priorities.length > 0)).length;
+  const flowRenderable = results.filter((item) => Boolean(item.decisionFlowBase?.heroHeadline && item.decisionFlowBase?.summary && item.decisionFlowBase?.score?.grade && item.decisionFlowBase?.verdict && item.decisionFlowBase?.plan && item.decisionFlowBase?.risks && item.decisionFlowBase?.timing && item.decisionFlowBase?.advisor && FLOW_ACTION_KEYS.every((key) => Boolean(item.decisionFlowBase?.advisor?.responses?.[key])))).length;
+  const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete && simulationable > 0 && executiveSummarizable === results.length && flowRenderable === results.length;
 
   const report = {
     knowledge,
@@ -452,6 +518,8 @@ export async function runEngineValidation() {
       summarizable,
       advisorable,
       simulationable,
+      executiveSummarizable,
+      flowRenderable,
     },
   };
 
