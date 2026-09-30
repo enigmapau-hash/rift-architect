@@ -2,6 +2,8 @@ import { analyzeComposition } from '../js/analyzer.js';
 import { formatKnowledgeReport, PATTERN_RULES, DEPENDENCY_RULES, validateKnowledgeLayer } from '../knowledge/index.js';
 
 const FIXTURE_FILES = [
+  'empty.json',
+  'single-shen.json',
   'front-to-back.json',
   'pick.json',
   'poke.json',
@@ -215,6 +217,8 @@ function renderReport(report) {
   const totalPatterns = report.coverage?.totalPatterns || 0;
   const coveredDependencies = report.coverage?.coveredDependencies?.length || 0;
   const totalDependencies = report.coverage?.totalDependencies || 0;
+  const durationMs = Number(report.timing?.durationMs) || 0;
+  const averageMs = Number(report.timing?.averageMs) || 0;
 
   root.innerHTML = `
     <style>
@@ -237,10 +241,12 @@ function renderReport(report) {
       .test-check span { color: #c7cedb; font-size: 0.95rem; }
       .knowledge { white-space: pre-wrap; }
       .badge { display: inline-flex; align-items: center; gap: 8px; border-radius: 999px; padding: 6px 10px; background: #202634; border: 1px solid #2a3240; }
+      .badge.is-ok { background: #18311f; border-color: #2f6f4e; }
+      .badge.is-warn { background: #332b16; border-color: #8b6a1f; }
     </style>
     <div class="wrap">
       <section class="hero">
-        <span class="badge">Knowledge layer report</span>
+        <span class="badge ${report.summary.certified ? 'is-ok' : 'is-warn'}">${report.summary.certified ? 'CERTIFIED' : 'REVIEW'}</span>
         <h1>Core Engine test bank</h1>
         <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns and win conditions.</p>
         <div class="stats">
@@ -249,6 +255,8 @@ function renderReport(report) {
           <div class="stat"><strong>${failed}</strong><span>FAIL</span></div>
           <div class="stat"><strong>${coveredPatterns}/${totalPatterns}</strong><span>patrones</span></div>
           <div class="stat"><strong>${coveredDependencies}/${totalDependencies}</strong><span>dependencias</span></div>
+          <div class="stat"><strong>${durationMs} ms</strong><span>total</span></div>
+          <div class="stat"><strong>${averageMs.toFixed(1)} ms</strong><span>media</span></div>
           <div class="stat"><strong>${report.knowledge.valid ? 'OK' : 'WARN'}</strong><span>knowledge</span></div>
         </div>
       </section>
@@ -279,12 +287,25 @@ function renderReport(report) {
   `;
 }
 
+function measureNow() {
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+    return performance.now();
+  }
+  return Date.now();
+}
+
 export async function runEngineValidation() {
+  const startedAt = measureNow();
   const knowledge = validateKnowledgeLayer();
   const fixtures = await Promise.all(FIXTURE_FILES.map(loadFixture));
   const results = fixtures.map(compareFixture);
   const coveredPatterns = [...new Set(results.flatMap((item) => item.patterns.map((pattern) => pattern.label)))];
   const coveredDependencies = [...new Set(results.flatMap((item) => item.dependencies.map((dependency) => dependency.label)))];
+  const durationMs = Math.max(0, measureNow() - startedAt);
+  const coverageComplete =
+    coveredPatterns.length === PATTERN_RULES.length && coveredDependencies.length === DEPENDENCY_RULES.length;
+  const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete;
+
   const report = {
     knowledge,
     results,
@@ -296,10 +317,15 @@ export async function runEngineValidation() {
       coveredDependencies,
       missingDependencies: DEPENDENCY_RULES.map((rule) => rule.label).filter((label) => !coveredDependencies.includes(label)),
     },
+    timing: {
+      durationMs: Math.round(durationMs),
+      averageMs: Number((durationMs / Math.max(1, results.length)).toFixed(1)),
+    },
     summary: {
       total: results.length,
       passed: results.filter((item) => item.pass).length,
       failed: results.filter((item) => !item.pass).length,
+      certified,
     },
   };
 
