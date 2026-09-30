@@ -75,67 +75,70 @@ function renderPanel() {
   const headline = buildHeadline(needs, strategicProfiles, draftAssistant);
   const planLine = buildPlanLine(strategicPlan);
   const profileLine = buildProfileLine(strategicProfiles);
-  const groupedNeeds = groupNeeds(needs);
+  const primaryNeed = needs[0] || null;
+  const secondaryNeed = needs[1] || null;
+  const topProfile = strategicProfiles[0] || null;
+  const topPick = pickRecommendations[0] || null;
+  const topBan = banRecommendations[0] || null;
 
   state.root.hidden = false;
   state.root.innerHTML = `
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
         <span class="analysis-hub__card-kicker">Draft Assistant</span>
-        <span class="analysis-hub__summary-panel-note">Necesidades, perfiles, clases y bans</span>
+        <span class="analysis-hub__summary-panel-note">Vista ejecutiva · necesidades, perfiles y decisiones</span>
       </div>
 
       <div class="analysis-hub__assistant-hero">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(headline)}</p>
         <p>${escapeHtml(summary)}</p>
         ${planLine ? `<p class="analysis-hub__assistant-hero-meta">Plan detectado: ${escapeHtml(planLine)}</p>` : ''}
-        ${profileLine ? `<p class="analysis-hub__assistant-hero-meta">Perfiles requeridos: ${escapeHtml(profileLine)}</p>` : ''}
+        ${profileLine ? `<p class="analysis-hub__assistant-hero-meta">Perfil detectado: ${escapeHtml(profileLine)}</p>` : ''}
       </div>
 
       <div class="analysis-hub__assistant-chip-row">
-        ${priorities.slice(0, 4).map((item) => `
+        ${priorities.slice(0, 3).map((item) => `
           <span class="analysis-hub__priority-pill analysis-hub__priority-pill--assistant">
             ${escapeHtml(item.label)}
           </span>
         `).join('')}
       </div>
 
-      <div class="analysis-hub__assistant-grid">
-        ${groupedNeeds.map((group, index) => `
-          <details class="analysis-hub__assistant-card" ${index === 0 ? 'open' : ''}>
-            <summary>
-              <strong>${escapeHtml(group.title)}</strong>
-              <span>${group.items.length} señales</span>
-            </summary>
-            <div class="analysis-hub__assistant-list">
-              ${renderNeedRows(group.items, strategicPlan)}
-            </div>
-          </details>
-        `).join('')}
+      <div class="analysis-hub__assistant-grid analysis-hub__assistant-grid--compact">
+        <article class="analysis-hub__assistant-card analysis-hub__assistant-card--summary">
+          <div class="analysis-hub__assistant-card-head">
+            <strong>Veredicto rápido</strong>
+            <span>Lo esencial</span>
+          </div>
+          <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
+            ${renderExecutiveRows(primaryNeed, secondaryNeed, topProfile, topPick, topBan, strategicPlan)}
+          </div>
+        </article>
 
-        <details class="analysis-hub__assistant-card" open>
+        <details class="analysis-hub__assistant-card">
           <summary>
-            <strong>Perfiles requeridos</strong>
+            <strong>Necesidades</strong>
+            <span>${needs.length} señales</span>
+          </summary>
+          <div class="analysis-hub__assistant-list">
+            ${renderNeedRows(needs, strategicPlan)}
+          </div>
+        </details>
+
+        <details class="analysis-hub__assistant-card">
+          <summary>
+            <strong>Perfiles y rutas</strong>
             <span>${strategicProfiles.length} perfiles</span>
           </summary>
           <div class="analysis-hub__assistant-list">
             ${renderProfileRows(strategicProfiles)}
+            ${renderRecommendationRows(pickRecommendations, 'PICK')}
           </div>
         </details>
 
         <details class="analysis-hub__assistant-card">
           <summary>
-            <strong>Clases compatibles</strong>
-            <span>${pickRecommendations.length} rutas</span>
-          </summary>
-          <div class="analysis-hub__assistant-list">
-            ${renderRecommendationRows(pickRecommendations, 'CLASE')}
-          </div>
-        </details>
-
-        <details class="analysis-hub__assistant-card">
-          <summary>
-            <strong>Amenazas a evitar</strong>
+            <strong>Evitar</strong>
             <span>${banRecommendations.length} rutas</span>
           </summary>
           <div class="analysis-hub__assistant-list">
@@ -143,6 +146,16 @@ function renderPanel() {
           </div>
         </details>
       </div>
+
+      <details class="analysis-hub__assistant-footer">
+        <summary>Ver análisis completo</summary>
+        <div class="analysis-hub__assistant-list">
+          ${renderNeedRows(needs, strategicPlan)}
+          ${renderProfileRows(strategicProfiles)}
+          ${renderRecommendationRows(pickRecommendations, 'CLASE')}
+          ${renderRecommendationRows(banRecommendations, 'BAN')}
+        </div>
+      </details>
     </section>
   `;
 }
@@ -159,6 +172,68 @@ function collectSelectedChampions() {
       weaknesses: [],
     }))
     .filter((champion) => champion.champion);
+}
+
+function renderExecutiveRows(primaryNeed, secondaryNeed, topProfile, topPick, topBan, strategicPlan = {}) {
+  const rows = [];
+
+  if (primaryNeed) {
+    rows.push({
+      title: `Prioridad · ${primaryNeed.label}`,
+      text: clampWords(primaryNeed.impact || buildNeedImpact(primaryNeed, strategicPlan), 18),
+      note: `Peso ${String(primaryNeed.score ?? 0)}/5 · ${priorityPrefix(primaryNeed.priority)}`,
+    });
+  }
+
+  if (secondaryNeed) {
+    rows.push({
+      title: `Siguiente · ${secondaryNeed.label}`,
+      text: clampWords(secondaryNeed.detail, 16),
+      note: `Peso ${String(secondaryNeed.score ?? 0)}/5`,
+    });
+  }
+
+  if (topProfile) {
+    rows.push({
+      title: `Perfil recomendado · ${topProfile.label}`,
+      text: clampWords(topProfile.why || topProfile.detail || 'Encaja con el plan actual.', 18),
+      note: `Confianza ${String(topProfile.confidence ?? 0)}/100`,
+    });
+  }
+
+  if (topPick) {
+    rows.push({
+      title: `Pick · ${topPick.profileLabel || topPick.label}`,
+      text: clampWords(topPick.detail, 18),
+      note: `Confianza ${String(topPick.confidence ?? 0)}/100`,
+    });
+  }
+
+  if (topBan) {
+    rows.push({
+      title: `Ban · ${topBan.label}`,
+      text: clampWords(topBan.detail, 18),
+      note: topBan.profileLabel ? `Perfil ${topBan.profileLabel}` : 'Evitar',
+    });
+  }
+
+  if (!rows.length) {
+    rows.push({
+      title: 'Sin carencias claras',
+      text: 'La composición está razonablemente alineada con su plan principal.',
+      note: 'Motor estable',
+    });
+  }
+
+  return rows.slice(0, 4).map((row) => `
+    <article class="analysis-hub__row analysis-hub__row--executive">
+      <div class="analysis-hub__row-copy">
+        <strong>${escapeHtml(row.title)}</strong>
+        <p>${escapeHtml(row.text)}</p>
+        <p class="analysis-hub__row-note">${escapeHtml(row.note)}</p>
+      </div>
+    </article>
+  `).join('');
 }
 
 function groupNeeds(needs = []) {
@@ -188,12 +263,12 @@ function renderNeedRows(needs = [], strategicPlan = {}) {
     `;
   }
 
-  return needs.slice(0, 6).map((need) => `
+  return needs.slice(0, 4).map((need) => `
     <article class="analysis-hub__row">
       <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(priorityPrefix(need.priority))} · ${escapeHtml(need.label)}</strong>
-        <p>${escapeHtml(clampWords(need.detail, 14))}</p>
-        <p class="analysis-hub__row-note">Impacto: ${escapeHtml(clampWords(need.impact || buildNeedImpact(need, strategicPlan), 16))}</p>
+        <p>${escapeHtml(clampWords(need.detail, 12))}</p>
+        <p class="analysis-hub__row-note">Impacto: ${escapeHtml(clampWords(need.impact || buildNeedImpact(need, strategicPlan), 14))}</p>
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(String(need.score ?? 0))}/5</span>
     </article>
@@ -212,14 +287,13 @@ function renderProfileRows(profiles = []) {
     `;
   }
 
-  return profiles.slice(0, 4).map((profile) => `
+  return profiles.slice(0, 3).map((profile) => `
     <article class="analysis-hub__row">
       <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(profile.label)}</strong>
-        <p>${escapeHtml(clampWords(profile.detail, 16))}</p>
-        <p class="analysis-hub__row-note">Por qué: ${escapeHtml(clampWords(profile.why || profile.impact || 'Encaja con el plan actual.', 16))}</p>
+        <p>${escapeHtml(clampWords(profile.detail, 14))}</p>
+        <p class="analysis-hub__row-note">Por qué: ${escapeHtml(clampWords(profile.why || profile.impact || 'Encaja con el plan actual.', 14))}</p>
         ${Array.isArray(profile.relatedNeeds) && profile.relatedNeeds.length ? `<p class="analysis-hub__row-note">Señales: ${escapeHtml(profile.relatedNeeds.slice(0, 3).join(' · '))}</p>` : ''}
-        ${Array.isArray(profile.classes) && profile.classes.length ? `<div class="analysis-hub__assistant-chip-row">${profile.classes.slice(0, 3).map((item) => `<span class="analysis-hub__priority-pill analysis-hub__priority-pill--assistant">${escapeHtml(item)}</span>`).join('')}</div>` : ''}
       </div>
       <span class="analysis-hub__assistant-score">${escapeHtml(confidencePrefix(profile.confidence))}<br>${escapeHtml(String(profile.confidence ?? 0))}/100</span>
     </article>
@@ -238,15 +312,14 @@ function renderRecommendationRows(items = [], kind = 'ITEM') {
     `;
   }
 
-  return items.slice(0, 5).map((item) => `
+  return items.slice(0, 3).map((item) => `
     <article class="analysis-hub__row">
       <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(kind)} · ${escapeHtml(item.label)}</strong>
-        <p>${escapeHtml(clampWords(item.detail, 16))}</p>
+        <p>${escapeHtml(clampWords(item.detail, 14))}</p>
         ${item.profileLabel ? `<p class="analysis-hub__row-note">Perfil: ${escapeHtml(item.profileLabel)}</p>` : ''}
-        ${Array.isArray(item.classTags) && item.classTags.length ? `<div class="analysis-hub__assistant-chip-row">${item.classTags.slice(0, 3).map((tag) => `<span class="analysis-hub__priority-pill analysis-hub__priority-pill--assistant">${escapeHtml(tag)}</span>`).join('')}</div>` : ''}
       </div>
-      <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority))}</span>
+      <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority || 'minor'))}</span>
     </article>
   `).join('');
 }
