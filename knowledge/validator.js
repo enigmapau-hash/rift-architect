@@ -1,6 +1,7 @@
 import { CATEGORY_TERMS, normalizeText } from '../js/engine/utils.js';
 import { IDENTITY_RELATIONS } from './identity-relations.js';
 import { DIRECT_SYNERGY_RULES, MACRO_SYNERGY_RULES } from './synergies.js';
+import { PATTERN_RULES } from './patterns.js';
 import { CONFLICT_RULES } from './conflicts.js';
 import { WIN_CONDITION_RULES } from './win-conditions.js';
 
@@ -110,6 +111,27 @@ function validateSynergyRules(issues) {
   });
 }
 
+function validatePatterns(issues) {
+  const keys = [];
+
+  PATTERN_RULES.forEach((rule, index) => {
+    const path = `PATTERN_RULES[${index}]`;
+    if (!rule?.key) pushIssue(issues, 'error', 'patterns', 'Falta la clave del patrón.', `${path}.key`);
+    if (!rule?.label) pushIssue(issues, 'error', 'patterns', 'Falta la etiqueta del patrón.', `${path}.label`);
+    if (!rule?.detail) pushIssue(issues, 'warning', 'patterns', 'El patrón no tiene detalle.', `${path}.detail`);
+
+    keys.push(rule?.key);
+
+    if (!Number.isInteger(rule?.minHits) || rule.minHits < 1) {
+      pushIssue(issues, 'error', 'patterns', 'minHits debe ser un entero positivo.', `${path}.minHits`);
+    }
+
+    validateCategories(issues, 'patterns', `${path}.categories`, rule?.categories);
+  });
+
+  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'patterns', 'Hay claves de patrón duplicadas.', 'PATTERN_RULES');
+}
+
 function validateConflicts(issues) {
   const keys = [];
 
@@ -181,6 +203,7 @@ export function validateKnowledgeLayer() {
 
   validateIdentityRelations(issues);
   validateSynergyRules(issues);
+  validatePatterns(issues);
   validateConflicts(issues);
   validateWinConditions(issues);
 
@@ -196,6 +219,7 @@ export function validateKnowledgeLayer() {
       identities: IDENTITY_RELATIONS.length,
       directSynergies: DIRECT_SYNERGY_RULES.length,
       macroSynergies: MACRO_SYNERGY_RULES.length,
+      patterns: PATTERN_RULES.length,
       conflicts: CONFLICT_RULES.length,
       winConditions: WIN_CONDITION_RULES.length,
     },
