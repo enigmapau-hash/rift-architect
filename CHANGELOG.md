@@ -3,29 +3,19 @@
 ## Unreleased
 
 ### Added
-- Composition View as the main visible analysis surface.
-- Composition Score with grade and executive summary.
-- Hero layout for identity, win condition, tempo and coherence.
-- Card-based rendering for strengths, risks, metrics, plan, coach, advisor and explainability.
-- Shared display helpers to keep the view readable and avoid raw object dumps.
+- Composition Story as the main visible analysis surface.
+- Story-first layout with identity, win condition, priorities, key piece, timeline and quick questions.
+- Simple language summaries built from the motor and the Excel.
 - Composition Optimizer for ranked internal swaps and improvement suggestions.
-- Structured composition view with hero, plan, strengths, risks, explainability, metrics and a question area.
-- Clickable Rift questions with direct answers based on the motor and the Excel.
-- Game Plan Engine for clear early, mid, late and behind-the-game instructions.
-- Decision Engine for priorities, avoidance, key piece and action-first guidance.
-- Integrated state rendering for the visual panels so they follow the real selected composition.
+- Integrated state rendering so the view follows the selected composition.
 
 ### Changed
-- The main screen now centers on the structured visual composition view, the game plan and the optimizer instead of auxiliary meta panels.
-- The identity block is now the primary visual focus.
-- The Decision Engine now sits above the Game Plan to reflect the player's actual decision flow.
-- The Game Plan was compacted so the layout feels less empty and more product-like.
-- Service worker cache bumped to v63 for the updated UX pass assets.
-- README and roadmap were aligned with the product scope: analyze one composition, not compare against a rival team.
-- The app now presents a clearer visual summary of your own composition and a ranked list of internal swaps.
-- The view now stays visual-first; document-style export actions were removed.
-- The AI now plays a visible role by turning motor output into simple language and clickable questions the user can ask.
+- The main screen now centers on one narrative view instead of several repeated panels.
+- The Decision / Game Plan / visual stack was simplified into a single story-first experience.
+- The composition is easier to read at a glance and the redundant blocks were removed from the main screen.
+- Service worker cache bumped to v65 for the story-first layout assets.
+- The view stays visual-first and focused on the own composition, not rival comparison.
+- The AI continues to translate the motor output into simple language and quick answers.
 
 ### Notes
 - The dashboard is intended to answer the key draft questions about your own composition in a few seconds.
-- The optimizer is for internal swaps and composition improvement, not rival-vs-rival comparison.
