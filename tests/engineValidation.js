@@ -1,4 +1,4 @@
-import { analyzeComposition } from '../js/analyzer.js';
+import { analyzeComposition, simulateChampionSwap } from '../js/analyzer.js';
 import { formatKnowledgeReport, PATTERN_RULES, DEPENDENCY_RULES, validateKnowledgeLayer } from '../knowledge/index.js';
 
 const FIXTURE_FILES = [
@@ -17,6 +17,20 @@ const FIXTURE_FILES = [
   'triple-carry.json',
   'global-pressure.json',
 ];
+
+const SIMULATION_CASE = {
+  slug: 'protect-carry',
+  role: 'top',
+  replacementChampion: {
+    champion: 'Darius',
+    role: 'top',
+    identity: 'Dive',
+    function: 'Juggernaut',
+    tempo: 'Early',
+    strengths: ['Dive', 'Skirmish', 'Pick'],
+    weaknesses: ['Kiting', 'Range'],
+  },
+};
 
 const ADVISOR_WINDOW_KEYS = ['early', 'mid', 'late'];
 
@@ -97,8 +111,8 @@ function compareFixture(fixture) {
   const gameWindows = advisor.gameWindows || {};
   const loseConditions = asArray(advisor.loseConditions);
   const insights = asArray(assistant.insights);
-  const alerts = asArray(assistant.alerts);
   const explanationSummary = asArray(analysis.explanation?.summary);
+  let simulation = null;
 
   const pushCheck = (label, pass, expected, actual) => {
     checks.push({ label, pass, expected, actual });
@@ -225,6 +239,31 @@ function compareFixture(fixture) {
     insights.map((item) => item?.label || item).join(' · ') || 'Sin insights'
   );
 
+  if (fixture.slug === SIMULATION_CASE.slug) {
+    simulation = simulateChampionSwap(fixture.selectedChampions || [], SIMULATION_CASE.role, SIMULATION_CASE.replacementChampion);
+
+    pushCheck(
+      'Simulación aplicada',
+      simulation.mutation.applied === true,
+      'Swap aplicado',
+      simulation.mutation.applied ? 'Sí' : 'No'
+    );
+
+    pushCheck(
+      'Draft original intacto',
+      JSON.stringify(fixture.selectedChampions || []) === JSON.stringify(simulation.beforeDraft),
+      'Sin mutación del original',
+      JSON.stringify(simulation.beforeDraft)
+    );
+
+    pushCheck(
+      'Diff estratégico',
+      asArray(simulation.diff?.changedFields).length > 0,
+      'Al menos un cambio',
+      asArray(simulation.diff?.changedFields).join(' · ') || 'Sin diff'
+    );
+  }
+
   if (Number.isFinite(Number(expectations.confidenceMin))) {
     const actualConfidence = Number(analysis.confidence) || 0;
     pushCheck(
@@ -245,8 +284,8 @@ function compareFixture(fixture) {
     explanationSummary,
     summary,
     insights,
-    alerts,
     advisor,
+    simulation,
     analysis,
   };
 }
@@ -285,6 +324,7 @@ function renderReport(report) {
   const coachable = report.summary?.coachable || 0;
   const summarizable = report.summary?.summarizable || 0;
   const advisorable = report.summary?.advisorable || 0;
+  const simulationable = report.summary?.simulationable || 0;
 
   root.innerHTML = `
     <style>
@@ -314,7 +354,7 @@ function renderReport(report) {
       <section class="hero">
         <span class="badge ${report.summary.certified ? 'is-ok' : 'is-warn'}">${report.summary.certified ? 'CERTIFIED' : 'REVIEW'}</span>
         <h1>Core Engine test bank</h1>
-        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns, explainability, coach guidance, strategic advisor and win conditions.</p>
+        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns, explainability, coach guidance, strategic advisor and simulation coverage.</p>
         <div class="stats">
           <div class="stat"><strong>${report.results.length}</strong><span>composiciones</span></div>
           <div class="stat"><strong>${passed}</strong><span>OK</span></div>
@@ -325,6 +365,7 @@ function renderReport(report) {
           <div class="stat"><strong>${explainable}/${report.results.length}</strong><span>explicables</span></div>
           <div class="stat"><strong>${coachable}/${report.results.length}</strong><span>coach</span></div>
           <div class="stat"><strong>${advisorable}/${report.results.length}</strong><span>advisor</span></div>
+          <div class="stat"><strong>${simulationable}/${report.results.length}</strong><span>simulación</span></div>
           <div class="stat"><strong>${durationMs} ms</strong><span>total</span></div>
           <div class="stat"><strong>${averageMs.toFixed(1)} ms</strong><span>media</span></div>
           <div class="stat"><strong>${report.knowledge.valid ? 'OK' : 'WARN'}</strong><span>knowledge</span></div>
@@ -347,9 +388,8 @@ function renderReport(report) {
                 <p>${item.description || ''}</p>
                 ${item.summary?.identity ? `<p><strong>Resumen:</strong> ${item.summary.identity} · ${item.summary.priority} · ${item.summary.risk} · ${item.summary.powerSpike}</p>` : ''}
                 ${item.advisor?.primaryObjective ? `<p><strong>Advisor:</strong> ${item.advisor.primaryObjective} · ${item.advisor.summary?.priority || ''} · ${item.advisor.summary?.risk || ''}</p>` : ''}
-                ${item.advisor?.gameWindows ? `<p><strong>Ventanas:</strong> ${ADVISOR_WINDOW_KEYS.map((key) => item.advisor.gameWindows[key]?.label || '').filter(Boolean).join(' · ')}</p>` : ''}
+                ${item.simulation?.diff?.changedFields?.length ? `<p><strong>Simulación:</strong> ${item.simulation.diff.changedFields.join(' · ')}</p>` : ''}
                 ${item.insights?.length ? `<p><strong>Insights:</strong> ${item.insights.map((insight) => insight.label).join(' · ')}</p>` : ''}
-                ${item.alerts?.length ? `<p><strong>Alertas:</strong> ${item.alerts.map((alert) => alert.label).join(' · ')}</p>` : ''}
                 ${item.patterns?.length ? `<p><strong>Patrones:</strong> ${item.patterns.map((pattern) => pattern.label).join(' · ')}</p>` : ''}
                 ${item.dependencies?.length ? `<p><strong>Dependencias:</strong> ${item.dependencies.map((dependency) => dependency.label).join(' · ')}</p>` : ''}
                 ${item.explanationSummary?.length ? `<p><strong>Explicación:</strong> ${item.explanationSummary.map((entry) => entry?.label || entry).join(' · ')}</p>` : ''}
@@ -380,11 +420,12 @@ export async function runEngineValidation() {
   const durationMs = Math.max(0, measureNow() - startedAt);
   const coverageComplete =
     coveredPatterns.length === PATTERN_RULES.length && coveredDependencies.length === DEPENDENCY_RULES.length;
-  const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete;
   const explainable = results.filter((item) => item.explanationSummary.length > 0).length;
   const coachable = results.filter((item) => Array.isArray(item.insights) && item.insights.length > 0).length;
   const summarizable = results.filter((item) => Boolean(item.summary?.identity && item.summary?.priority && item.summary?.risk && item.summary?.powerSpike && item.summary?.reason)).length;
   const advisorable = results.filter((item) => Boolean(item.advisor?.primaryObjective && item.advisor?.objectivePriority?.length && item.advisor?.gameWindows?.early?.label && item.advisor?.gameWindows?.mid?.label && item.advisor?.gameWindows?.late?.label && item.advisor?.loseConditions?.length)).length;
+  const simulationable = results.filter((item) => Boolean(item.simulation?.diff?.changedFields?.length)).length;
+  const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete && simulationable > 0;
 
   const report = {
     knowledge,
@@ -410,6 +451,7 @@ export async function runEngineValidation() {
       coachable,
       summarizable,
       advisorable,
+      simulationable,
     },
   };
 
