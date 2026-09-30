@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v39';
+const CACHE_NAME = 'rift-architect-v40';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -19,6 +19,7 @@ const STATIC_ASSETS = [
   './js/engine/weaknessEngine.js',
   './js/engine/tempoEngine.js',
   './js/engine/synergyEngine.js',
+  './js/engine/dependencyEngine.js',
   './js/engine/coherenceEngine.js',
   './js/engine/winConditionEngine.js',
   './js/engine/planEngine.js',
@@ -28,6 +29,7 @@ const STATIC_ASSETS = [
   './knowledge/identity-relations.js',
   './knowledge/synergies.js',
   './knowledge/patterns.js',
+  './knowledge/dependencies.js',
   './knowledge/conflicts.js',
   './knowledge/win-conditions.js',
   './tests/index.html',
