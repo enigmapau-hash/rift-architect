@@ -21,7 +21,7 @@ PWA para construir y entender una composición de League of Legends a partir de 
 - La identidad se muestra como hero card con score, win condition, tempo, coherencia y confianza.
 - Fortalezas, riesgos, métricas, plan, coach, advisor y explicabilidad se muestran en bloques separados.
 - La lectura está pensada para entender tu composición en pocos segundos.
-- El **Composition Report Pro** añade score desglosado, checklist y exportación a PDF.
+- El **Composition View Pro** añade una capa visual más rica con score, línea de campeones, métricas, timeline y explicación visual.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
