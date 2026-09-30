@@ -26,11 +26,21 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
+- El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
+- La disciplina de trabajo obliga a actualizar código, README, ROADMAP y auditoría funcional/técnica en cada entrega.
 - Responsive compartido para PC, tablet y móvil.
 
 ## GitHub Pages
 
 - `https://enigmapau-hash.github.io/rift-architect/`
+
+## Flujo de trabajo de cada entrega
+
+1. Implementar la funcionalidad.
+2. Ejecutar auditoría técnica y funcional.
+3. Corregir regresiones antes de cerrar el sprint.
+4. Actualizar README y ROADMAP.
+5. Publicar en Pages si hay cambios de versión.
 
 ## Roadmap
 
