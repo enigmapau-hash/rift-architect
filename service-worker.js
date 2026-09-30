@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v71';
+const CACHE_NAME = 'rift-architect-v72';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -13,6 +13,7 @@ const STATIC_ASSETS = [
   './css/design-system.css',
   './css/composition-story.css',
   './css/composition-health.css',
+  './css/composition-quality.css',
   './css/composition-report.css',
   './css/composition-visual.css',
   './css/composition-visual-ai.css',
@@ -25,6 +26,8 @@ const STATIC_ASSETS = [
   './js/v2_patch.js',
   './js/composition-story-panel.js',
   './js/composition-health-panel-v2.js',
+  './js/composition-health-panel-v3.js',
+  './js/composition-quality-panel.js',
   './js/composition-report-panel.js',
   './js/composition-visual-panel.js',
   './js/game-plan-panel.js',
