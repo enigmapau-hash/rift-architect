@@ -17,8 +17,8 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La Story usa una rejilla más equilibrada en escritorio y mantiene una lectura compacta en móvil.
 - La Story resume identidad, perfil táctico, cómo gana, qué hacer, qué evitar, pieza clave, timeline y preguntas rápidas.
 - El plan principal se muestra como checklist visual para que sea más rápido de leer.
-- El bloque de **Composition Assessment** unifica veredicto ejecutivo, salud, calidad del análisis y cobertura del motor.
-- El bloque de **Rift Advisor** añade acciones rápidas, prioridades por fase y respuestas contextuales.
+- El **Analysis Hub** unifica assessment y Rift Advisor en una sola superficie de lectura y acción.
+- El hub concentra veredicto, diagnósticos, cobertura, prioridades, fases y respuestas contextuales.
 - El selector de campeones se ha ampliado para ser más cómodo en escritorio.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
