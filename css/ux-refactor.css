@@ -1,0 +1,45 @@
+/* UX Refactor overrides */
+
+#app {
+  max-width: 1240px;
+}
+
+body {
+  padding: 12px;
+}
+
+.summary-card {
+  padding: 14px;
+  gap: 14px;
+}
+
+.composition-story-shell {
+  display: grid;
+  gap: 16px;
+}
+
+.picker-modal {
+  width: min(980px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px);
+}
+
+@media (min-width: 921px) {
+  .picker-modal {
+    width: min(1040px, calc(100vw - 32px));
+  }
+}
+
+@media (max-width: 620px) {
+  body {
+    padding: 8px;
+  }
+
+  .summary-card {
+    padding: 12px;
+  }
+
+  .picker-modal {
+    width: calc(100vw - 16px);
+    max-height: calc(100dvh - 16px);
+  }
+}
