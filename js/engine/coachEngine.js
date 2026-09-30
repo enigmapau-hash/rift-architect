@@ -35,6 +35,14 @@ function uniqueByLabel(items = []) {
   return result.slice(0, 3);
 }
 
+function scoreBand(score) {
+  const value = Number(score) || 0;
+  if (value >= 4) return 'Muy alta';
+  if (value === 3) return 'Alta';
+  if (value === 2) return 'Media';
+  return 'Baja';
+}
+
 function buildContextText(analysis = {}) {
   return normalizeText(
     [
