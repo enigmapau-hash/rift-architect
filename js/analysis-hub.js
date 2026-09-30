@@ -1,1 +1,1 @@
-import './analysis-hub-v2.js';
+import './analysis-hub-clean.js';
