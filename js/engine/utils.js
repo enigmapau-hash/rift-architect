@@ -55,6 +55,22 @@ export function cleanLabel(value) {
   return stripped || raw;
 }
 
+export function getLabelText(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return cleanLabel(value);
+  if (Array.isArray(value)) {
+    return value.map((item) => getLabelText(item)).filter(Boolean).join(' ').trim();
+  }
+  if (typeof value === 'object') {
+    return getLabelText(value.label ?? value.text ?? value.name ?? value.value ?? '');
+  }
+  return cleanLabel(value);
+}
+
+export function compareLabels(a, b, locale = 'es') {
+  return getLabelText(a).localeCompare(getLabelText(b), locale);
+}
+
 export function normalizeTags(values) {
   if (!Array.isArray(values)) return [];
   return values.map((value) => cleanLabel(value)).filter(Boolean);
@@ -106,7 +122,7 @@ export function uniqueOrdered(values) {
 }
 
 export function sortByFrequency(entries) {
-  return [...entries].sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex || a.label.localeCompare(b.label, 'es'));
+  return [...entries].sort((a, b) => b.count - a.count || a.firstIndex - b.firstIndex || compareLabels(a.label, b.label));
 }
 
 export function clampNumber(value, min, max) {
