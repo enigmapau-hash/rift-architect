@@ -1,5 +1,5 @@
 import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js';
-import { simulateChampionSwap, simulateDraftChange } from './analyzer.js';
+import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDraftChange } from './analyzer.js';
 
 (() => {
   const keysToClear = ['rift-architect:draft-v2', 'rift-architect:draft'];
@@ -16,6 +16,8 @@ import { simulateChampionSwap, simulateDraftChange } from './analyzer.js';
     window.__RIFT_ARCHITECT_SIMULATION__ = {
       simulateChampionSwap,
       simulateDraftChange,
+      compareAnalyses,
+      compareCompositions,
     };
 
     if (!report.valid) {
