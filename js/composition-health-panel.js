@@ -1,5 +1,15 @@
 import { analyzeComposition } from './analyzer.js';
 
+const WORKBOOK_URL = './Draft%20Pool.xlsx';
+const DATA_MANIFEST_URL = './data/index.json';
+const ROLE_FILES = [
+  { key: 'top', file: './data/top.json', sheet: 'Tabla Top' },
+  { key: 'jungle', file: './data/jungle.json', sheet: 'Tabla Jungla' },
+  { key: 'mid', file: './data/mid.json', sheet: 'Tabla Mid' },
+  { key: 'botline', file: './data/bot.json', sheet: 'Tabla Botline' },
+  { key: 'support', file: './data/support.json', sheet: 'Tabla Support' },
+];
+
 const ROOT_ID = 'healthView';
 const SELECTOR = '#compositionGrid .slot.is-filled';
 
@@ -7,6 +17,8 @@ const state = {
   root: null,
   scheduled: false,
   observer: null,
+  loaded: false,
+  data: new Map(),
 };
 
 init().catch((error) => console.error(error));
@@ -17,6 +29,7 @@ async function init() {
   if (!storyView || !compositionGrid) return;
 
   mountRoot(storyView);
+  await loadRoleData();
   observeComposition(compositionGrid);
   renderHealth();
 }
@@ -34,6 +47,81 @@ function mountRoot(storyView) {
   root.setAttribute('aria-live', 'polite');
   storyView.insertAdjacentElement('afterend', root);
   state.root = root;
+}
+
+async function loadRoleData() {
+  if (state.loaded) return;
+  state.loaded = true;
+
+  const loaded = (await loadJsonDataset()) || (await loadWorkbookDataset());
+  if (loaded) {
+    Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
+    return;
+  }
+
+  ROLE_FILES.forEach(({ key }) => state.data.set(key, []));
+}
+
+async function loadJsonDataset() {
+  try {
+    const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: 'reload' });
+    if (!manifestResponse.ok) return null;
+
+    const manifest = await manifestResponse.json();
+    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
+
+    const loaded = await Promise.all(
+      ROLE_FILES.map(async ({ key, file }) => {
+        const response = await fetch(file, { cache: 'reload' });
+        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
+        return [key, await response.json()];
+      })
+    );
+
+    return Object.fromEntries(loaded);
+  } catch {
+    return null;
+  }
+}
+
+async function loadWorkbookDataset() {
+  if (!window.XLSX) return null;
+
+  try {
+    const response = await fetch(WORKBOOK_URL, { cache: 'reload' });
+    if (!response.ok) return null;
+
+    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    const dataset = {};
+    ROLE_FILES.forEach(({ key, sheet }) => {
+      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
+    });
+    return dataset;
+  } catch {
+    return null;
+  }
+}
+
+function worksheetToRows(worksheet) {
+  if (!worksheet) return [];
+
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+  return rows
+    .slice(1)
+    .filter((row) => row[0])
+    .map((row) => ({
+      champion: String(row[0]).trim(),
+      identity: String(row[1] || '').trim(),
+      function: String(row[2] || '').trim(),
+      tempo: String(row[3] || '').trim(),
+      strengths: splitTags(row[4]),
+      weaknesses: splitTags(row[5]),
+    }));
+}
+
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function observeComposition(node) {
@@ -128,11 +216,16 @@ function collectSelectedChampions() {
     .map((slot) => {
       const role = String(slot.dataset.role || 'top');
       const name = slot.querySelector('.slot__name')?.textContent?.trim() || '';
-      const identity = slot.querySelector('.slot__meta')?.textContent?.trim() || '';
-      const functionText = slot.querySelector('.champion-item__sub')?.textContent?.trim() || '';
-      return { role, champion: name, identity, function: functionText, tempo: '', strengths: [], weaknesses: [] };
+      const champion = findChampion(role, name);
+      return champion ? { role, ...champion } : null;
     })
-    .filter((champion) => champion.champion);
+    .filter(Boolean);
+}
+
+function findChampion(roleKey, championName) {
+  const normalizedName = String(championName || '').trim().toLowerCase();
+  const rows = state.data.get(roleKey) || [];
+  return rows.find((item) => String(item?.champion || '').trim().toLowerCase() === normalizedName) || null;
 }
 
 function buildHealthModel(analysis, selectedChampions) {
@@ -151,36 +244,16 @@ function buildHealthModel(analysis, selectedChampions) {
     || 'El índice resume si la composición tiene identidad clara, sinergia suficiente y una condición de victoria entendible.';
 
   const healthRows = [
-    {
-      label: 'Identidad',
-      score: identityScore,
-      detail: analysis?.primaryIdentity || 'Sin identidad clara',
-    },
-    {
-      label: 'Sinergia',
-      score: synergyScore,
-      detail: (analysis?.synergies?.[0]?.label) || 'Sin sinergias destacadas',
-    },
+    { label: 'Identidad', score: identityScore, detail: analysis?.primaryIdentity || 'Sin identidad clara' },
+    { label: 'Sinergia', score: synergyScore, detail: analysis?.synergies?.[0]?.label || 'Sin sinergias destacadas' },
     {
       label: 'Balance de daño',
       score: damageBalance,
       detail: damageBalance >= 8 ? 'Buena mezcla de daño' : damageBalance >= 5 ? 'Requiere compensar el perfil de daño' : 'Muy cargada a un único tipo de daño',
     },
-    {
-      label: 'Frontline',
-      score: frontlineScore,
-      detail: frontlineScore >= 8 ? 'Tienes espacio para pelear' : frontlineScore >= 5 ? 'Frontline aceptable' : 'Falta línea frontal',
-    },
-    {
-      label: 'Escalado',
-      score: scalingScore,
-      detail: scalingScore >= 8 ? 'Escala muy bien' : scalingScore >= 5 ? 'Escalado correcto' : 'Pico de poder más corto',
-    },
-    {
-      label: 'Ejecución',
-      score: executionEase,
-      detail: executionEase >= 8 ? 'Más sencilla de ejecutar' : executionEase >= 5 ? 'Exige coordinación' : 'Muy exigente de ejecutar',
-    },
+    { label: 'Frontline', score: frontlineScore, detail: frontlineScore >= 8 ? 'Tienes espacio para pelear' : frontlineScore >= 5 ? 'Frontline aceptable' : 'Falta línea frontal' },
+    { label: 'Escalado', score: scalingScore, detail: scalingScore >= 8 ? 'Escala muy bien' : scalingScore >= 5 ? 'Escalado correcto' : 'Pico de poder más corto' },
+    { label: 'Ejecución', score: executionEase, detail: executionEase >= 8 ? 'Más sencilla de ejecutar' : executionEase >= 5 ? 'Exige coordinación' : 'Muy exigente de ejecutar' },
   ];
 
   const profileBars = [
@@ -206,11 +279,7 @@ function buildHealthModel(analysis, selectedChampions) {
   const error = analysis?.advisor?.loseConditions?.[0] || analysis?.winCondition?.avoid?.[0] || null;
   const errorTitle = error?.label || 'Forzar el timing equivocado';
   const errorText = error?.detail || 'Si fuerzas peleas antes del pico de poder, pierdes gran parte del valor del draft.';
-  const errorChips = uniqueValues([
-    analysis?.advisor?.summary?.risk,
-    analysis?.coherence?.label,
-    analysis?.weaknesses?.[0]?.label,
-  ]);
+  const errorChips = uniqueValues([analysis?.advisor?.summary?.risk, analysis?.coherence?.label, analysis?.weaknesses?.[0]?.label]);
 
   return {
     overall: clamp(overall, 0, 100),
@@ -256,12 +325,6 @@ function renderProfileBar(item) {
   `;
 }
 
-function scoreTone(score) {
-  if (score >= 8) return 'is-good';
-  if (score >= 5) return 'is-mid';
-  return 'is-low';
-}
-
 function computeSynergyScore(synergies) {
   const values = Array.isArray(synergies) ? synergies.map((item) => Number(item?.score) || 0).filter(Boolean) : [];
   if (!values.length) return 5;
@@ -282,10 +345,7 @@ function computeDamageBalance(damageSplit) {
 function computeExecutionEase(selectedChampions) {
   const complexTerms = ['exigente', 'técnico', 'tecnico', 'difícil', 'dificil', 'caótico', 'caotico', 'mecánico', 'mecanico', 'preciso'];
   const complexityHits = selectedChampions.reduce((total, champion) => {
-    const text = [champion.champion, champion.identity, champion.function, champion.tempo, ...(champion.strengths || []), ...(champion.weaknesses || [])]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
+    const text = [champion.champion, champion.identity, champion.function, champion.tempo, ...(champion.strengths || []), ...(champion.weaknesses || [])].filter(Boolean).join(' ').toLowerCase();
     return total + (complexTerms.some((term) => text.includes(term)) ? 1 : 0);
   }, 0);
 
@@ -296,6 +356,12 @@ function metricScore(metrics, label) {
   const key = normalizeText(label);
   const found = metrics.find((metric) => normalizeText(metric?.label || metric?.key || '') === key);
   return clamp(Math.round(Number(found?.score) || 0), 0, 10) || 5;
+}
+
+function scoreTone(score) {
+  if (score >= 8) return 'is-good';
+  if (score >= 5) return 'is-mid';
+  return 'is-low';
 }
 
 function uniqueValues(values = []) {
