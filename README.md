@@ -1,6 +1,6 @@
 # Rift Architect
 
-PWA para construir y entender composiciones de League of Legends a partir de `Draft Pool.xlsx`.
+PWA para construir y entender una composición de League of Legends a partir de `Draft Pool.xlsx`.
 
 ## Fuente de verdad
 
@@ -17,13 +17,11 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
-- El Dashboard v3 resume la composición en bloques más claros y legibles.
-- La identidad se muestra como hero card con win condition, tempo, coherencia y confianza.
-- Fortalezas, riesgos, plan, coach, advisor y explicabilidad se muestran en bloques separados.
-- El mapa visual del producto muestra cómo se conectan los módulos de la app.
-- El Design System v1 define tokens, tarjetas, badges, timeline y reglas de uso comunes.
-- El Draft Simulator sirve para probar swaps dentro de tu propia composición.
-- La normalización segura de etiquetas evita errores al ordenar y renderizar listas.
+- El **Composition Report v1** es la vista principal del análisis.
+- La identidad se muestra como hero card con score, win condition, tempo, coherencia y confianza.
+- Fortalezas, riesgos, métricas, plan, coach, advisor y explicabilidad se muestran en bloques separados.
+- La lectura está pensada para entender tu composición en pocos segundos.
+- El Composition Optimizer sigue disponible para probar swaps internos y mejorar la composición.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
@@ -44,14 +42,18 @@ Documentación base del hito:
 - [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
 - [`CHANGELOG.md`](./CHANGELOG.md)
 
-Objetivo del hito:
+## Motor y UI principales
 
-- Un motor de análisis compacto, basado solo en el Excel.
-- Una pantalla principal que se entienda en segundos.
-- Un contrato estable para la futura IA.
-
-Core engine en curso:
-
+- `js/analyzer.js`
+- `js/composition-report-panel.js`
+- `js/draft-simulator-panel.js`
+- `js/engine/analysisEngine.js`
+- `js/engine/comparisonEngine.js`
+- `js/engine/simulationEngine.js`
+- `js/engine/explainabilityEngine.js`
+- `js/engine/coachEngine.js`
+- `js/engine/strategicAdvisor.js`
+- `js/engine/planEngine.js`
 - `js/engine/identityEngine.js`
 - `js/engine/strengthEngine.js`
 - `js/engine/weaknessEngine.js`
@@ -60,19 +62,8 @@ Core engine en curso:
 - `js/engine/dependencyEngine.js`
 - `js/engine/coherenceEngine.js`
 - `js/engine/winConditionEngine.js`
-- `js/engine/planEngine.js`
-- `js/engine/explainabilityEngine.js`
-- `js/engine/coachEngine.js`
-- `js/engine/strategicAdvisor.js`
-- `js/engine/simulationEngine.js`
-- `js/engine/comparisonEngine.js`
-- `js/engine/analysisEngine.js`
-- `js/analysis-panel.js`
-- `js/draft-simulator-panel.js`
-- `js/design-system-panel.js`
-- `js/product-map-panel.js`
 
-Knowledge layer:
+## Knowledge layer
 
 - `knowledge/identity-relations.js`
 - `knowledge/synergies.js`
@@ -83,7 +74,7 @@ Knowledge layer:
 - `knowledge/validator.js`
 - `knowledge/index.js`
 
-Testing:
+## Testing
 
 - `tests/index.html`
 - `tests/engineValidation.js`
