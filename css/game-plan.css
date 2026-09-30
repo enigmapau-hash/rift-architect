@@ -2,13 +2,13 @@
 
 #gamePlanView {
   display: grid;
-  gap: 16px;
+  gap: 12px;
 }
 
 .game-plan {
   display: grid;
-  gap: 16px;
-  padding: 16px;
+  gap: 14px;
+  padding: 14px;
   border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background:
@@ -18,7 +18,7 @@
 }
 
 .game-plan--empty {
-  padding: 20px;
+  padding: 18px;
 }
 
 .game-plan__header {
@@ -54,13 +54,13 @@
 }
 
 .game-plan__badge strong {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
 }
 
 .game-plan__mission {
   display: grid;
   gap: 8px;
-  padding: 14px;
+  padding: 12px 14px;
   border-radius: 18px;
   border: 1px solid rgba(70, 211, 161, 0.18);
   background: rgba(70, 211, 161, 0.08);
@@ -78,13 +78,13 @@
 .game-plan__grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .game-plan__phase {
   display: grid;
   gap: 8px;
-  padding: 14px;
+  padding: 12px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
@@ -126,8 +126,8 @@
 .game-plan__panel,
 .game-plan__question-panel {
   display: grid;
-  gap: 12px;
-  padding: 16px;
+  gap: 10px;
+  padding: 14px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
@@ -203,7 +203,7 @@
 .game-plan__answer-card {
   display: grid;
   gap: 10px;
-  padding: 14px;
+  padding: 12px;
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
