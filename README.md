@@ -23,7 +23,7 @@ PWA para construir y entender composiciones de League of Legends a partir de `Dr
 - La Coach Engine añade prioridades, power spikes y guía de fases para el draft.
 - El Strategic Advisor añade objetivo principal, prioridades, ventanas de juego y condiciones de derrota.
 - El banco de pruebas del motor valida también la cobertura estratégica del coach y del advisor.
-- El Draft Simulator queda preparado como base para swaps y diffs de draft.
+- El Draft Simulator ya muestra comparación visual de swaps con veredicto, cambios clave y diff estratégico.
 - La normalización segura de etiquetas evita que coach y advisor se rompan al ordenar prioridades.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
@@ -65,8 +65,10 @@ Core engine en curso:
 - `js/engine/coachEngine.js`
 - `js/engine/strategicAdvisor.js`
 - `js/engine/simulationEngine.js`
+- `js/engine/comparisonEngine.js`
 - `js/engine/analysisEngine.js`
 - `js/analysis-panel.js`
+- `js/draft-simulator-panel.js`
 
 Knowledge layer:
 
@@ -110,6 +112,10 @@ Plantilla exacta:
 npm install
 npm run generate:data
 ```
+
+## GitHub Pages
+
+- `https://enigmapau-hash.github.io/rift-architect/`
 
 ## Roadmap
 
