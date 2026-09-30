@@ -32,6 +32,7 @@ Analysis {
   tempo,
   tempoDetail?,
   synergies[],
+  dependencies,
   coherence,
   winCondition,
   gamePlan[],
@@ -52,6 +53,7 @@ The analysis shown in the main UI must stay within this budget:
 - 1 tempo statement.
 - Up to 3 short plan actions.
 - Up to 3 synergies.
+- Up to 4 dependencies.
 - 1 coherence statement.
 - 1 win condition.
 - 1 confidence indicator.
@@ -72,9 +74,10 @@ The analysis shown in the main UI must stay within this budget:
 3. Resolve dominant or hybrid compositions.
 4. Detect useful synergies between champions and the composition as a whole.
 5. Evaluate whether the composition is coherent or internally conflicted.
-6. Derive a single win condition and a short plan of action.
-7. Return tokens the UI can render directly.
-8. Leave the explanation layer for the future IA.
+6. Derive strategic dependencies and a single win condition.
+7. Build a short plan of action.
+8. Return tokens the UI can render directly.
+9. Leave the explanation layer for the future IA.
 
 ## Knowledge layer
 
@@ -82,6 +85,8 @@ Strategic rules are externalized in the `knowledge/` folder and validated at boo
 
 - `knowledge/identity-relations.js`
 - `knowledge/synergies.js`
+- `knowledge/patterns.js`
+- `knowledge/dependencies.js`
 - `knowledge/conflicts.js`
 - `knowledge/win-conditions.js`
 - `knowledge/validator.js`
@@ -96,6 +101,7 @@ The current core engine is split into small modules:
 - `js/engine/weaknessEngine.js`
 - `js/engine/tempoEngine.js`
 - `js/engine/synergyEngine.js`
+- `js/engine/dependencyEngine.js`
 - `js/engine/coherenceEngine.js`
 - `js/engine/winConditionEngine.js`
 - `js/engine/planEngine.js`
@@ -108,6 +114,7 @@ The screen should show only:
 - Identity
 - Secondary identities
 - Synergies
+- Dependencies
 - Coherence
 - Win condition
 - Plan
