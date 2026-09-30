@@ -54,6 +54,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 2. Traducir necesidades a perfiles de campeón.
 3. Mapear perfiles a campeones concretos.
 4. Mejorar la explicación de por qué un pick o un ban encaja con el plan.
+5. Usar `docs/strategic-profiles.md` como especificación base de esa capa.
 
 ### Mejoras pendientes
 - Afinar la UX del Draft Assistant para que sea más ejecutiva.
