@@ -1,60 +1,61 @@
 import { compareCompositions } from '../js/analyzer.js';
 
 const COMPARISON_CASES = [
-  {
-    label: 'Front to Back vs Dive',
-    before: 'front-to-back.json',
-    after: 'dive.json',
-  },
-  {
-    label: 'Poke vs Siege',
-    before: 'poke.json',
-    after: 'siege.json',
-  },
-  {
-    label: 'Protect Carry vs Global Pressure',
-    before: 'protect-carry.json',
-    after: 'global-pressure.json',
-  },
-  {
-    label: 'Split Push vs Wombo Combo',
-    before: 'splitpush.json',
-    after: 'wombo-combo.json',
-  },
-  {
-    label: 'Early Snowball vs Front to Back',
-    before: 'triple-carry.json',
-    after: 'front-to-back.json',
-  },
+  { label: 'Front to Back vs Dive', before: 'front-to-back', after: 'dive' },
+  { label: 'Poke vs Siege', before: 'poke', after: 'siege' },
+  { label: 'Protect Carry vs Global Pressure', before: 'protect-carry', after: 'global-pressure' },
+  { label: 'Split Push vs Wombo Combo', before: 'splitpush', after: 'wombo-combo' },
+  { label: 'Triple Carry vs Front to Back', before: 'triple-carry', after: 'front-to-back' },
 ];
-
-function normalizeText(value) {
-  return String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
-}
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
-async function loadFixture(name) {
-  const response = await fetch(`./compositions/${name}`, { cache: 'no-store' });
-  if (!response.ok) {
-    throw new Error(`No se pudo cargar ${name}`);
-  }
-  return response.json();
+function loadFixture(slug) {
+  return fetch(`./compositions/${slug}.json`, { cache: 'no-store' }).then((response) => {
+    if (!response.ok) throw new Error(`No se pudo cargar ${slug}.json`);
+    return response.json();
+  });
 }
 
 function buildCaseReport(definition, beforeFixture, afterFixture) {
   const comparison = compareCompositions(beforeFixture.selectedChampions || [], afterFixture.selectedChampions || []);
   const reverse = compareCompositions(afterFixture.selectedChampions || [], beforeFixture.selectedChampions || []);
-  const confidenceSymmetry = (Number(comparison.confidenceDelta || comparison.summary?.confidenceDelta || comparison.confidence?.delta || 0) + Number(reverse.confidenceDelta || reverse.summary?.confidenceDelta || reverse.confidence?.delta || 0)) === 0;
-  const changedFields = asArray(comparison.changedFields);
   const summary = comparison.summary || {};
   const impact = comparison.impact || {};
+  const confidenceDelta = Number(summary.confidenceDelta ?? comparison.confidence?.delta ?? 0);
+  const reverseConfidenceDelta = Number(reverse.summary?.confidenceDelta ?? reverse.confidence?.delta ?? 0);
+  const symmetric = confidenceDelta + reverseConfidenceDelta === 0;
+  const changedFields = asArray(comparison.changedFields);
+  const highlights = asArray(comparison.highlights);
+
+  const checks = [
+    {
+      label: 'Cambios detectados',
+      pass: changedFields.length > 0,
+      expected: 'Al menos un campo diferente',
+      actual: changedFields.join(' · ') || 'Sin cambios',
+    },
+    {
+      label: 'Resumen completo',
+      pass: Boolean(summary.verdict && summary.reason && summary.keyGain && summary.keyLoss),
+      expected: 'verdict · reason · gain · loss',
+      actual: [summary.verdict, summary.reason, summary.keyGain, summary.keyLoss].filter(Boolean).join(' · ') || 'Sin resumen',
+    },
+    {
+      label: 'Simetría de confianza',
+      pass: symmetric,
+      expected: 'Delta inverso al comparar en sentido contrario',
+      actual: `${confidenceDelta} / ${reverseConfidenceDelta}`,
+    },
+    {
+      label: 'Highlights',
+      pass: highlights.length > 0,
+      expected: 'Al menos un highlight',
+      actual: highlights.join(' · ') || 'Sin highlights',
+    },
+  ];
 
   return {
     label: definition.label,
@@ -62,33 +63,9 @@ function buildCaseReport(definition, beforeFixture, afterFixture) {
     after: afterFixture.description || definition.after,
     comparison,
     reverse,
-    pass: Boolean(changedFields.length && summary.verdict && summary.reason && impact.gain && impact.loss && confidenceSymmetry),
-    checks: [
-      {
-        label: 'Cambios detectados',
-        pass: changedFields.length > 0,
-        expected: 'Al menos un campo diferente',
-        actual: changedFields.join(' · ') || 'Sin cambios',
-      },
-      {
-        label: 'Resumen completo',
-        pass: Boolean(summary.verdict && summary.reason && summary.keyGain && summary.keyLoss),
-        expected: 'verdict · reason · gain · loss',
-        actual: [summary.verdict, summary.reason, summary.keyGain, summary.keyLoss].filter(Boolean).join(' · ') || 'Sin resumen',
-      },
-      {
-        label: 'Simetría de confianza',
-        pass: confidenceSymmetry,
-        expected: 'Delta inverso al comparar en sentido contrario',
-        actual: `${Number(comparison.summary?.confidenceDelta ?? comparison.confidence?.delta ?? 0)} / ${Number(reverse.summary?.confidenceDelta ?? reverse.confidence?.delta ?? 0)}`,
-      },
-      {
-        label: 'Highlights',
-        pass: asArray(comparison.highlights).length > 0,
-        expected: 'Al menos un highlight',
-        actual: asArray(comparison.highlights).join(' · ') || 'Sin highlights',
-      },
-    ],
+    confidenceDelta,
+    pass: checks.every((item) => item.pass) && Boolean(impact.verdict),
+    checks,
   };
 }
 
@@ -115,7 +92,6 @@ function renderChecks(checks) {
 }
 
 function renderCase(item) {
-  const delta = Number(item.comparison.summary?.confidenceDelta ?? item.comparison.confidence?.delta ?? 0);
   const verdict = item.comparison.summary?.verdict || item.comparison.impact?.verdict || 'Neutro';
   const reason = item.comparison.summary?.reason || item.comparison.impact?.reason || 'Sin motivo';
   const gain = item.comparison.summary?.keyGain || item.comparison.impact?.gain || 'Sin ganancia clara';
@@ -134,7 +110,7 @@ function renderCase(item) {
       </div>
       <div class="meta">
         <span><strong>Veredicto:</strong> ${verdict}</span>
-        <span><strong>Δ Confianza:</strong> ${delta >= 0 ? '+' : ''}${delta}</span>
+        <span><strong>Δ Confianza:</strong> ${item.confidenceDelta >= 0 ? '+' : ''}${item.confidenceDelta}</span>
       </div>
       <p><strong>Ganancia:</strong> ${gain}</p>
       <p><strong>Pérdida:</strong> ${loss}</p>
@@ -153,7 +129,7 @@ function renderReport(report) {
   const passed = report.results.filter((item) => item.pass).length;
   const failed = report.results.length - passed;
   const averageDelta = report.results.length
-    ? report.results.reduce((sum, item) => sum + Number(item.comparison.summary?.confidenceDelta ?? item.comparison.confidence?.delta ?? 0), 0) / report.results.length
+    ? report.results.reduce((sum, item) => sum + Number(item.confidenceDelta || 0), 0) / report.results.length
     : 0;
 
   root.innerHTML = `
@@ -205,12 +181,13 @@ function renderReport(report) {
 }
 
 async function loadAll() {
-  const fixtures = await Promise.all(COMPARISON_CASES.flatMap((item) => [item.before, item.after]).map((name) => loadFixture(name)));
-  const byName = new Map(fixtures.map((fixture) => [fixture.slug ? `${fixture.slug}.json` : '', fixture]));
+  const uniqueSlugs = [...new Set(COMPARISON_CASES.flatMap((item) => [item.before, item.after]))];
+  const fixtures = await Promise.all(uniqueSlugs.map(async (slug) => [slug, await loadFixture(slug)]));
+  const fixtureMap = new Map(fixtures);
 
   const results = COMPARISON_CASES.map((item) => {
-    const before = fixtures.find((fixture) => normalizeText(fixture.description || '') && `${fixture.slug}.json` === item.before) || fixtures.find((fixture) => fixture.slug && `${fixture.slug}.json` === item.before);
-    const after = fixtures.find((fixture) => fixture.slug && `${fixture.slug}.json` === item.after);
+    const before = fixtureMap.get(item.before);
+    const after = fixtureMap.get(item.after);
 
     if (!before || !after) {
       return {
@@ -218,7 +195,7 @@ async function loadAll() {
         before: item.before,
         after: item.after,
         comparison: { summary: {}, impact: {}, changedFields: [], highlights: [] },
-        reverse: { summary: {}, impact: {}, changedFields: [], highlights: [] },
+        confidenceDelta: 0,
         pass: false,
         checks: [
           {
@@ -234,14 +211,10 @@ async function loadAll() {
     return buildCaseReport(item, before, after);
   });
 
-  const certified = results.every((item) => item.pass);
-
   return {
     results,
     summary: {
-      certified,
-      passed: results.filter((item) => item.pass).length,
-      failed: results.length - results.filter((item) => item.pass).length,
+      certified: results.every((item) => item.pass),
     },
   };
 }
