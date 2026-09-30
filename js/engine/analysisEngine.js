@@ -9,6 +9,7 @@ import { evaluateCoherence } from './coherenceEngine.js';
 import { determineWinCondition } from './winConditionEngine.js';
 import { buildGamePlan } from './planEngine.js';
 import { buildExplainability } from './explainabilityEngine.js';
+import { buildCoach } from './coachEngine.js';
 
 const METRIC_LABELS = {
   frontline: 'Frontline',
@@ -196,6 +197,7 @@ export function analyzeComposition(selectedChampions = []) {
   };
 
   analysis.explanation = buildExplainability(analysis, safeChampions);
+  analysis.coach = buildCoach(analysis, safeChampions);
 
   return analysis;
 }
