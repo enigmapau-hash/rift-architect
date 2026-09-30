@@ -159,6 +159,7 @@
 - Revisar el rendimiento del motor y del Knowledge Layer.
 - Limpiar código duplicado o muerto.
 - Verificar documentación y Pages.
+- Normalizar etiquetas compartidas para evitar errores de sorting en coach y advisor.
 
 ## Fase 7 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.
