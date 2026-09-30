@@ -55,10 +55,7 @@ function matchPattern(pattern, selectedChampions = []) {
       .join(' ')
       .toLowerCase();
 
-    return (pattern.categories || []).some((category) => {
-      const normalizedCategory = normalizeText(category);
-      return text.includes(normalizedCategory);
-    });
+    return (pattern.categories || []).some((category) => text.includes(normalizeText(category)));
   });
 
   if (matchedChampions.length < Number(pattern.minHits || 1)) return null;
@@ -78,9 +75,7 @@ function detectPatterns(selectedChampions = []) {
 
 function loadFixture(name) {
   return fetch(`./compositions/${name}`, { cache: 'no-store' }).then((response) => {
-    if (!response.ok) {
-      throw new Error(`No se pudo cargar ${name}`);
-    }
+    if (!response.ok) throw new Error(`No se pudo cargar ${name}`);
     return response.json();
   });
 }
@@ -91,8 +86,11 @@ function compareFixture(fixture) {
   const expectations = fixture.expectations || {};
   const checks = [];
   const dependencies = asArray(analysis.dependencies?.items);
+  const assistant = analysis.assistant || analysis.coach || {};
+  const summary = assistant.summary || {};
+  const insights = asArray(assistant.insights);
+  const alerts = asArray(assistant.alerts);
   const explanationSummary = asArray(analysis.explanation?.summary);
-  const coach = analysis.coach || {};
 
   const pushCheck = (label, pass, expected, actual) => {
     checks.push({ label, pass, expected, actual });
@@ -178,10 +176,17 @@ function compareFixture(fixture) {
   );
 
   pushCheck(
-    'Coach',
-    Array.isArray(coach.priorities) && coach.priorities.length > 0 && Array.isArray(coach.powerSpikes) && coach.powerSpikes.length > 0,
-    'Prioridades y power spikes',
-    `${(coach.priorities || []).length} prioridades · ${(coach.powerSpikes || []).length} power spikes`
+    'Resumen asistido',
+    Boolean(summary.identity && summary.priority && summary.risk && summary.powerSpike && summary.reason),
+    'Resumen compacto completo',
+    [summary.identity, summary.priority, summary.risk, summary.powerSpike, summary.reason].filter(Boolean).join(' · ') || 'Sin resumen'
+  );
+
+  pushCheck(
+    'Insights',
+    insights.length > 0,
+    'Al menos un insight',
+    insights.map((item) => item?.label || item).join(' · ') || 'Sin insights'
   );
 
   if (Number.isFinite(Number(expectations.confidenceMin))) {
@@ -202,7 +207,9 @@ function compareFixture(fixture) {
     patterns,
     dependencies,
     explanationSummary,
-    coach,
+    summary,
+    insights,
+    alerts,
     analysis,
   };
 }
@@ -239,6 +246,7 @@ function renderReport(report) {
   const averageMs = Number(report.timing?.averageMs) || 0;
   const explainable = report.summary?.explainable || 0;
   const coachable = report.summary?.coachable || 0;
+  const summarizable = report.summary?.summarizable || 0;
 
   root.innerHTML = `
     <style>
@@ -268,13 +276,14 @@ function renderReport(report) {
       <section class="hero">
         <span class="badge ${report.summary.certified ? 'is-ok' : 'is-warn'}">${report.summary.certified ? 'CERTIFIED' : 'REVIEW'}</span>
         <h1>Core Engine test bank</h1>
-        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns, coach guidance and win conditions.</p>
+        <p>Reference compositions used to detect regressions in identity, tempo, coherence, synergies, dependencies, patterns, explainability, coach guidance and win conditions.</p>
         <div class="stats">
           <div class="stat"><strong>${report.results.length}</strong><span>composiciones</span></div>
           <div class="stat"><strong>${passed}</strong><span>OK</span></div>
           <div class="stat"><strong>${failed}</strong><span>FAIL</span></div>
           <div class="stat"><strong>${coveredPatterns}/${totalPatterns}</strong><span>patrones</span></div>
           <div class="stat"><strong>${coveredDependencies}/${totalDependencies}</strong><span>dependencias</span></div>
+          <div class="stat"><strong>${summarizable}/${report.results.length}</strong><span>resúmenes</span></div>
           <div class="stat"><strong>${explainable}/${report.results.length}</strong><span>explicables</span></div>
           <div class="stat"><strong>${coachable}/${report.results.length}</strong><span>coach</span></div>
           <div class="stat"><strong>${durationMs} ms</strong><span>total</span></div>
@@ -297,9 +306,11 @@ function renderReport(report) {
               <article class="card">
                 <h2>${item.pass ? '✓' : '✗'} ${item.slug}</h2>
                 <p>${item.description || ''}</p>
+                ${item.summary?.identity ? `<p><strong>Resumen:</strong> ${item.summary.identity} · ${item.summary.priority} · ${item.summary.risk} · ${item.summary.powerSpike}</p>` : ''}
+                ${item.insights?.length ? `<p><strong>Insights:</strong> ${item.insights.map((insight) => insight.label).join(' · ')}</p>` : ''}
+                ${item.alerts?.length ? `<p><strong>Alertas:</strong> ${item.alerts.map((alert) => alert.label).join(' · ')}</p>` : ''}
                 ${item.patterns?.length ? `<p><strong>Patrones:</strong> ${item.patterns.map((pattern) => pattern.label).join(' · ')}</p>` : ''}
                 ${item.dependencies?.length ? `<p><strong>Dependencias:</strong> ${item.dependencies.map((dependency) => dependency.label).join(' · ')}</p>` : ''}
-                ${item.coach?.priorities?.length ? `<p><strong>Coach:</strong> ${item.coach.priorities.map((priority) => priority.label).join(' · ')}</p>` : ''}
                 ${item.explanationSummary?.length ? `<p><strong>Explicación:</strong> ${item.explanationSummary.map((entry) => entry?.label || entry).join(' · ')}</p>` : ''}
                 ${renderChecks(item.checks)}
               </article>
@@ -330,7 +341,8 @@ export async function runEngineValidation() {
     coveredPatterns.length === PATTERN_RULES.length && coveredDependencies.length === DEPENDENCY_RULES.length;
   const certified = knowledge.valid && results.every((item) => item.pass) && coverageComplete;
   const explainable = results.filter((item) => item.explanationSummary.length > 0).length;
-  const coachable = results.filter((item) => Array.isArray(item.coach?.priorities) && item.coach.priorities.length > 0).length;
+  const coachable = results.filter((item) => Array.isArray(item.insights) && item.insights.length > 0).length;
+  const summarizable = results.filter((item) => Boolean(item.summary?.identity && item.summary?.priority && item.summary?.risk && item.summary?.powerSpike && item.summary?.reason)).length;
 
   const report = {
     knowledge,
@@ -354,6 +366,7 @@ export async function runEngineValidation() {
       certified,
       explainable,
       coachable,
+      summarizable,
     },
   };
 
