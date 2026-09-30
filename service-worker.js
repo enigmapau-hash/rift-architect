@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v40';
+const CACHE_NAME = 'rift-architect-v41';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -34,6 +34,8 @@ const STATIC_ASSETS = [
   './knowledge/win-conditions.js',
   './tests/index.html',
   './tests/engineValidation.js',
+  './tests/compositions/empty.json',
+  './tests/compositions/single-shen.json',
   './tests/compositions/front-to-back.json',
   './tests/compositions/pick.json',
   './tests/compositions/poke.json',
