@@ -29,6 +29,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
 - El **Draft Assistant UI** ya puede mostrar necesidades, picks y bans en un panel propio dentro del Analysis Hub.
+- La capa visual del Draft Assistant se está ajustando para que el panel sea más ejecutivo, más compacto y más coherente con el resto del hub.
 - El Executive Summary volvió a renderizar correctamente tras restaurar los helpers de confidencia.
 - La disciplina de trabajo obliga a actualizar código, README, ROADMAP y auditoría funcional/técnica en cada entrega.
 - Responsive compartido para PC, tablet y móvil.
