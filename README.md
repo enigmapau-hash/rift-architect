@@ -19,6 +19,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El plan principal se muestra como checklist visual para que sea más rápido de leer.
 - El **Analysis Hub** unifica assessment y Rift Advisor en una sola superficie de lectura y acción.
 - El hub concentra veredicto, diagnósticos, cobertura, prioridades, fases y respuestas contextuales.
+- El hub usa ahora un único modelo interno de análisis tras retirar la referencia obsoleta del asistente.
 - El selector de campeones se ha ampliado para ser más cómodo en escritorio.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
