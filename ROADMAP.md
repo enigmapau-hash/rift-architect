@@ -40,6 +40,12 @@
 - Dar más protagonismo a la historia de la composición.
 - Eliminar bloques repetidos de la experiencia principal.
 
+## Fase 10 — UX Refactor ⏳
+- Reorganizar la Composition Story en una rejilla de dos columnas en escritorio.
+- Mantener la lectura compacta en móvil para reducir scroll.
+- Dar más ancho al selector de campeones.
+- Afinar espaciados, jerarquía y consistencia visual antes de la beta.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
@@ -50,7 +56,7 @@
 - Recomendar campeones por pool y rol.
 - Detectar huecos del pool y prioridades de práctica.
 
-## Fase 10 — AI Coach ⏳
+## Fase 11 — AI Coach ⏳
 - Conversación guiada sobre ejecución, errores y win condition.
 - Respuestas apoyadas en el motor determinista y el knowledge layer.
 
