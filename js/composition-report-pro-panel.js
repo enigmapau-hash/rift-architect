@@ -2,14 +2,23 @@ import { analyzeComposition } from './analyzer.js';
 
 const DATA_MANIFEST_URL = './data/index.json';
 const ROLE_FILES = [
-  { key: 'top', file: './data/top.json' },
-  { key: 'jungle', file: './data/jungle.json' },
-  { key: 'mid', file: './data/mid.json' },
-  { key: 'botline', file: './data/bot.json' },
-  { key: 'support', file: './data/support.json' },
+  { key: 'top', label: 'Top', file: './data/top.json' },
+  { key: 'jungle', label: 'Jungla', file: './data/jungle.json' },
+  { key: 'mid', label: 'Mid', file: './data/mid.json' },
+  { key: 'botline', label: 'Botline', file: './data/bot.json' },
+  { key: 'support', label: 'Support', file: './data/support.json' },
 ];
 
 const ROLE_ORDER = ROLE_FILES.map(({ key }) => key);
+const ROLE_LABELS = Object.fromEntries(ROLE_FILES.map(({ key, label }) => [key, label]));
+const METRIC_BLUEPRINTS = [
+  { label: 'Engage', icon: '⚔', detail: 'Iniciación y fijar peleas.', aliases: ['engage', 'initiation', 'start'] },
+  { label: 'Frontline', icon: '🛡', detail: 'Espacio y absorción de daño.', aliases: ['frontline', 'front line', 'front'] },
+  { label: 'Peel', icon: '🧲', detail: 'Protección del carry.', aliases: ['peel', 'protect', 'shield'] },
+  { label: 'Escalado', icon: '🐢', detail: 'Valor con el tiempo.', aliases: ['escalado', 'scale', 'scaling'] },
+  { label: 'Poke', icon: '🏹', detail: 'Daño previo al all-in.', aliases: ['poke', 'siege', 'harass'] },
+  { label: 'Movilidad', icon: '⚡', detail: 'Reposicionamiento y rotaciones.', aliases: ['movilidad', 'mobility', 'rotation'] },
+];
 
 const state = {
   data: new Map(),
@@ -56,9 +65,12 @@ function uniqueValues(values = []) {
   return [...new Set(values.filter(Boolean))];
 }
 
-function stars(score = 0) {
-  const numeric = Math.max(0, Math.min(5, Number(score) || 0));
-  return '★★★★★'.slice(0, numeric) + '☆☆☆☆☆'.slice(0, 5 - numeric);
+function normalizeText(value = '') {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
 }
 
 function percent(score, max = 100) {
@@ -140,176 +152,344 @@ function collectSelectedChampions() {
     .filter(Boolean);
 }
 
+function getMetricScore(analysis, blueprint) {
+  const metrics = asArray(analysis?.metrics);
+  const found = metrics.find((metric) => {
+    const label = normalizeText(asText(metric?.label ?? metric?.name ?? metric?.key));
+    return label.includes(normalizeText(blueprint.label)) || blueprint.aliases.some((alias) => label.includes(normalizeText(alias)));
+  });
+  return Number.isFinite(Number(found?.score)) ? Math.round(Number(found.score)) : 0;
+}
+
 function compositionScore(analysis, selectedChampions) {
   const confidence = Number.isFinite(Number(analysis?.confidence)) ? Number(analysis.confidence) : 0;
   const coherence = Number.isFinite(Number(analysis?.coherence?.score)) ? Number(analysis.coherence.score) : confidence;
-  const metrics = asArray(analysis?.metrics);
-  const metricAverage = metrics.length
-    ? metrics.reduce((sum, metric) => sum + (Number.isFinite(Number(metric?.score)) ? Number(metric.score) : 0), 0) / metrics.length
-    : 0;
+  const metrics = METRIC_BLUEPRINTS.map((blueprint) => getMetricScore(analysis, blueprint));
+  const metricAverage = metrics.length ? metrics.reduce((sum, score) => sum + score, 0) / metrics.length : 0;
   const uniqueRoles = new Set(asArray(selectedChampions).map((champion) => champion.role).filter(Boolean));
   const roleCoverage = Math.round((uniqueRoles.size / ROLE_ORDER.length) * 100);
-  const planClarity = asArray(analysis?.gamePlan).length >= 3 ? 92 : asArray(analysis?.gamePlan).length === 2 ? 84 : 70;
-  const raw = confidence * 0.34 + coherence * 0.28 + metricAverage * 10 * 0.18 + roleCoverage * 0.12 + planClarity * 0.08;
-  const score = Math.max(0, Math.min(100, Math.round(raw)));
+  const planClarity = asArray(analysis?.gamePlan).length >= 3 ? 92 : asArray(analysis?.gamePlan).length === 2 ? 84 : 68;
+  const strengthsCount = asArray(analysis?.strengths).length;
+  const weaknessesCount = asArray(analysis?.weaknesses).length;
+  const stability = Math.max(40, 100 - (weaknessesCount * 12));
+  const synergyHint = Math.min(100, Math.max(45, 58 + strengthsCount * 6 - weaknessesCount * 4));
+  const parts = [
+    { label: 'Coherencia', score: Math.round(coherence), detail: 'Alineación entre identidad y plan.' },
+    { label: 'Sinergia', score: Math.round(synergyHint), detail: 'Interacción entre campeones.' },
+    { label: 'Cobertura', score: roleCoverage, detail: 'Roles y herramientas presentes.' },
+    { label: 'Plan', score: planClarity, detail: 'Claridad de ejecución.' },
+    { label: 'Estabilidad', score: stability, detail: 'Cuánto penalizan los riesgos.' },
+  ];
+  const raw = (parts[0].score * 0.3) + (parts[1].score * 0.25) + (parts[2].score * 0.2) + (parts[3].score * 0.15) + (parts[4].score * 0.1);
+  const score = Math.max(0, Math.min(100, Math.round((raw + metricAverage) / 2)));
   return {
     score,
     grade: gradeFromScore(score),
     label: score >= 88 ? 'Excelente' : score >= 72 ? 'Sólida' : score >= 60 ? 'Funcional' : 'Frágil',
-    parts: [
-      { label: 'Coherencia', score: Math.round(coherence), detail: 'Alineación entre identidad y plan.' },
-      { label: 'Confianza', score: Math.round(confidence), detail: 'Solidez del análisis.' },
-      { label: 'Métricas', score: Math.round(metricAverage * 10), detail: 'Promedio funcional del perfil.' },
-      { label: 'Cobertura', score: roleCoverage, detail: 'Roles cubiertos en la composición.' },
-      { label: 'Plan', score: planClarity, detail: 'Claridad de la ruta de juego.' },
-    ],
+    parts,
+    dominantMetric: METRIC_BLUEPRINTS.map((blueprint) => ({ blueprint, score: getMetricScore(analysis, blueprint) }))
+      .sort((a, b) => b.score - a.score || normalizeText(a.blueprint.label).localeCompare(normalizeText(b.blueprint.label)))[0] || null,
   };
 }
 
-function renderActionButtons() {
+function renderLineup(selectedChampions) {
+  const lineup = ROLE_ORDER.map((role) => {
+    const champion = selectedChampions.find((item) => item.role === role) || null;
+    return `
+      <article class="composition-report-pro__lineup-card ${champion ? 'is-filled' : 'is-empty'}">
+        <span class="composition-report-pro__lineup-role">${escapeHtml(ROLE_LABELS[role] || role)}</span>
+        ${champion ? `<strong>${escapeHtml(champion.champion)}</strong>` : '<strong>Vacío</strong>'}
+        <span>${escapeHtml(champion?.function || champion?.identity || 'Selecciona un campeón')}</span>
+        <div class="composition-report-pro__lineup-tags">
+          ${champion?.tempo ? `<span class="analysis-chip">${escapeHtml(asText(champion.tempo))}</span>` : ''}
+          ${champion?.identity ? `<span class="analysis-chip">${escapeHtml(asText(champion.identity))}</span>` : ''}
+        </div>
+      </article>
+    `;
+  }).join('');
+
   return `
-    <div class="composition-report-pro__actions">
-      <button class="report-button" type="button" data-report-action="print">Exportar PDF</button>
-      <button class="report-button report-button--ghost" type="button" data-report-action="copy">Copiar resumen</button>
+    <section class="composition-report-pro__lineup-panel">
+      <div class="composition-report-pro__section-head">
+        <p class="eyebrow">Línea de campeones</p>
+        <h4>Tu composición actual</h4>
+      </div>
+      <div class="composition-report-pro__lineup">${lineup}</div>
+    </section>
+  `;
+}
+
+function renderScoreRing(score) {
+  return `
+    <div class="composition-report-pro__score-card">
+      <div class="composition-report-pro__score-ring" style="--score-angle: ${score.score * 3.6}deg;">
+        <div class="composition-report-pro__score-ring-inner">
+          <span class="composition-report-pro__score-grade">${escapeHtml(score.grade)}</span>
+          <strong>${score.score}</strong>
+          <span>Composition Score</span>
+        </div>
+      </div>
+      <span class="composition-report-pro__score-label">${escapeHtml(score.label)}</span>
     </div>
   `;
 }
 
-function renderScoreBar(part) {
+function renderMetricCard(blueprint, analysis) {
+  const value = getMetricScore(analysis, blueprint);
+  const tone = value >= 80 ? 'good' : value >= 60 ? 'warn' : 'danger';
   return `
-    <article class="composition-report-pro__score-part">
-      <div class="composition-report-pro__score-part-head">
-        <strong>${escapeHtml(part.label)}</strong>
-        <span>${escapeHtml(String(part.score))}/100</span>
+    <article class="composition-report-pro__metric-card composition-report-pro__metric-card--${tone}">
+      <div class="composition-report-pro__metric-head">
+        <span class="composition-report-pro__metric-icon">${escapeHtml(blueprint.icon)}</span>
+        <strong>${escapeHtml(blueprint.label)}</strong>
+        <span>${value}/10</span>
       </div>
       <div class="composition-report-pro__meter" aria-hidden="true">
-        <span class="composition-report-pro__meter-fill" style="width:${percent(part.score)}%"></span>
+        <span class="composition-report-pro__meter-fill" style="width:${percent(value, 10)}%"></span>
       </div>
-      <p class="composition-report-pro__score-note">${escapeHtml(part.detail)}</p>
+      <p class="composition-report-pro__metric-detail">${escapeHtml(blueprint.detail)}</p>
     </article>
   `;
 }
 
-function renderChecklistItem(label, value, variant = 'neutral') {
+function renderMetricsPanel(analysis, score) {
   return `
-    <article class="composition-report-pro__check-item composition-report-pro__check-item--${variant}">
-      <span class="composition-report-pro__check-label">${escapeHtml(label)}</span>
-      <strong>${escapeHtml(value)}</strong>
-    </article>
-  `;
-}
-
-function renderChecklist(analysis) {
-  const plan = asArray(analysis?.gamePlan).slice(0, 3).map((item) => asText(item));
-  const risks = asArray(analysis?.weaknesses).slice(0, 3).map((item) => normalizeEntry(item));
-  const coach = analysis?.coach || analysis?.assistant || {};
-
-  return `
-    <section class="composition-report-pro__checklist-card">
+    <article class="composition-report-pro__panel composition-report-pro__panel--wide">
       <div class="composition-report-pro__section-head">
-        <p class="eyebrow">Checklist</p>
-        <h4>Cómo leer y jugar la composición</h4>
+        <p class="eyebrow">Perfil visual</p>
+        <h4>${escapeHtml(score.dominantMetric ? `Dominante: ${score.dominantMetric.blueprint.label}` : 'Métricas funcionales')}</h4>
+      </div>
+      <div class="composition-report-pro__metrics-grid">
+        ${METRIC_BLUEPRINTS.map((blueprint) => renderMetricCard(blueprint, analysis)).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderStrengthsRisksPanel(analysis) {
+  const strengths = asArray(analysis?.strengths).slice(0, 4).map(normalizeEntry);
+  const risks = asArray(analysis?.weaknesses).slice(0, 4).map(normalizeEntry);
+  return `
+    <div class="composition-report-pro__dual-grid">
+      <article class="composition-report-pro__panel">
+        <div class="composition-report-pro__section-head">
+          <p class="eyebrow">Fortalezas</p>
+          <h4>Lo que mejor hace tu equipo</h4>
+        </div>
+        ${strengths.length ? `<div class="composition-report-pro__stack-list">${strengths.map((item) => `
+          <div class="composition-report-pro__stack-item composition-report-pro__stack-item--good">
+            <div class="composition-report-pro__stack-head">
+              <strong>${escapeHtml(item.label)}</strong>
+              ${item.score !== null ? `<span>${'★★★★★'.slice(0, item.score)}${'☆☆☆☆☆'.slice(0, 5 - item.score)}</span>` : ''}
+            </div>
+            ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
+            ${item.champions.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${item.champions.map((champion) => `<span class="analysis-chip">${escapeHtml(champion)}</span>`).join('')}</div>` : ''}
+          </div>
+        `).join('')}</div>` : '<p class="analysis-empty">Sin fortalezas claras.</p>'}
+      </article>
+
+      <article class="composition-report-pro__panel">
+        <div class="composition-report-pro__section-head">
+          <p class="eyebrow">Riesgos</p>
+          <h4>Qué debes compensar</h4>
+        </div>
+        ${risks.length ? `<div class="composition-report-pro__stack-list">${risks.map((item) => `
+          <div class="composition-report-pro__stack-item composition-report-pro__stack-item--danger">
+            <div class="composition-report-pro__stack-head">
+              <strong>${escapeHtml(item.label)}</strong>
+              ${item.score !== null ? `<span>${'★★★★★'.slice(0, item.score)}${'☆☆☆☆☆'.slice(0, 5 - item.score)}</span>` : ''}
+            </div>
+            ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
+            ${item.missing.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${item.missing.map((missing) => `<span class="analysis-chip analysis-chip--danger">Falta: ${escapeHtml(missing)}</span>`).join('')}</div>` : ''}
+          </div>
+        `).join('')}</div>` : '<p class="analysis-empty">Sin riesgos claros.</p>'}
+      </article>
+    </div>
+  `;
+}
+
+function renderTimelinePanel(analysis) {
+  const phases = asArray(analysis?.tempoDetail?.phases);
+  const plan = asArray(analysis?.gamePlan);
+  const steps = [
+    {
+      label: 'Early',
+      title: asText(phases[0] || plan[0] || 'Farm y visión'),
+      detail: 'Evita peleas largas y prepara el mapa.',
+    },
+    {
+      label: 'Mid',
+      title: asText(phases[1] || plan[1] || 'Objetivos y rotaciones'),
+      detail: 'Convierte prioridad en dragones o control de mapa.',
+    },
+    {
+      label: 'Late',
+      title: asText(phases[2] || plan[2] || '5v5 y cierre'),
+      detail: 'Protege al carry y resuelve la partida.',
+    },
+  ];
+
+  return `
+    <article class="composition-report-pro__panel composition-report-pro__panel--wide">
+      <div class="composition-report-pro__section-head">
+        <p class="eyebrow">Plan de partida</p>
+        <h4>Secuencia visual de la partida</h4>
+      </div>
+      <div class="composition-report-pro__timeline">
+        ${steps.map((step, index) => `
+          <div class="composition-report-pro__timeline-step">
+            <span class="composition-report-pro__timeline-dot">${index + 1}</span>
+            <div>
+              <span class="composition-report-pro__timeline-label">${escapeHtml(step.label)}</span>
+              <strong>${escapeHtml(step.title)}</strong>
+              <p>${escapeHtml(step.detail)}</p>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderExplainabilityPanel(analysis, selectedChampions) {
+  const primaryIdentity = analysis?.primaryIdentity || 'Sin definir';
+  const summary = asArray(analysis?.explanation?.summary).slice(0, 3).map(normalizeEntry);
+  const branches = selectedChampions.map((champion) => ({
+    role: champion.role,
+    champion: champion.champion,
+    contribution: champion.function || champion.identity || 'Aporta a la identidad',
+    tempo: champion.tempo,
+  }));
+
+  return `
+    <article class="composition-report-pro__panel composition-report-pro__panel--wide">
+      <div class="composition-report-pro__section-head">
+        <p class="eyebrow">Explainability</p>
+        <h4>Por qué la composición recibe esa lectura</h4>
+      </div>
+      <div class="composition-report-pro__tree">
+        <div class="composition-report-pro__tree-root">
+          <span>${escapeHtml(primaryIdentity)}</span>
+          <strong>Identidad dominante</strong>
+          <p>${escapeHtml(asText(analysis?.summaryText || 'La composición se analiza como una unidad visual y funcional.'))}</p>
+        </div>
+
+        <div class="composition-report-pro__tree-branches">
+          ${branches.map((branch) => `
+            <article class="composition-report-pro__tree-node">
+              <span class="composition-report-pro__tree-role">${escapeHtml(ROLE_LABELS[branch.role] || branch.role)}</span>
+              <strong>${escapeHtml(branch.champion)}</strong>
+              <p>${escapeHtml(branch.contribution)}</p>
+              ${branch.tempo ? `<span class="analysis-chip">${escapeHtml(asText(branch.tempo))}</span>` : ''}
+            </article>
+          `).join('')}
+        </div>
       </div>
 
-      <div class="composition-report-pro__checklist-grid">
-        ${renderChecklistItem('1. Identidad', analysis?.primaryIdentity || 'Sin definir', 'info')}
-        ${renderChecklistItem('2. Victoria', analysis?.winCondition?.label || 'Sin definir', 'success')}
-        ${renderChecklistItem('3. Power spike', analysis?.tempoDetail?.label || analysis?.tempo || 'Sin definir', 'coach')}
-        ${renderChecklistItem('4. Score', `${compositionScore(analysis, collectSelectedChampions()).score}/100`, 'info')}
+      ${summary.length ? `<div class="composition-report-pro__summary-list">${summary.map((item) => `
+        <div class="composition-report-pro__summary-item">
+          <strong>${escapeHtml(item.label)}</strong>
+          ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
+        </div>
+      `).join('')}</div>` : ''}
+    </article>
+  `;
+}
+
+function renderCoachAdvisorPanels(analysis) {
+  const coach = analysis?.coach || analysis?.assistant || {};
+  const advisor = analysis?.advisor || analysis?.assistant || {};
+  const coachNotes = [
+    ...asArray(coach.priorities).slice(0, 2),
+    ...asArray(coach.insights).slice(0, 1),
+  ].map(normalizeEntry);
+  const advisorNotes = [
+    ...asArray(advisor.objectivePriority).slice(0, 2),
+    ...asArray(advisor.loseConditions).slice(0, 1),
+  ].map(normalizeEntry);
+
+  return `
+    <div class="composition-report-pro__dual-grid">
+      <article class="composition-report-pro__panel">
+        <div class="composition-report-pro__section-head">
+          <p class="eyebrow">Coach</p>
+          <h4>${escapeHtml(coach.headline || 'Juega alrededor de tu identidad')}</h4>
+        </div>
+        <div class="composition-report-pro__stack-list">
+          ${coachNotes.length ? coachNotes.map((item) => `
+            <div class="composition-report-pro__stack-item composition-report-pro__stack-item--coach">
+              <strong>${escapeHtml(item.label)}</strong>
+              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
+            </div>
+          `).join('') : '<p class="analysis-empty">Sin consejos claros.</p>'}
+        </div>
+      </article>
+
+      <article class="composition-report-pro__panel">
+        <div class="composition-report-pro__section-head">
+          <p class="eyebrow">Strategic Advisor</p>
+          <h4>${escapeHtml(advisor.primaryObjective || advisor.summary?.priority || 'Objetivo estratégico')}</h4>
+        </div>
+        <div class="composition-report-pro__stack-list">
+          ${advisorNotes.length ? advisorNotes.map((item) => `
+            <div class="composition-report-pro__stack-item composition-report-pro__stack-item--advisor">
+              <strong>${escapeHtml(item.label)}</strong>
+              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
+            </div>
+          `).join('') : '<p class="analysis-empty">Sin prioridades claras.</p>'}
+        </div>
+      </article>
+    </div>
+  `;
+}
+
+function renderVisualSummary(analysis) {
+  const selectedChampions = collectSelectedChampions();
+  const score = compositionScore(analysis, selectedChampions);
+  const dominant = score.dominantMetric?.blueprint?.label || 'Sin definir';
+
+  return `
+    <section class="composition-report-pro composition-report-pro--visual">
+      <div class="composition-report-pro__hero">
+        ${renderScoreRing(score)}
+        <div class="composition-report-pro__hero-copy">
+          <p class="eyebrow">Composition View</p>
+          <h3>${escapeHtml(analysis?.primaryIdentity || 'Sin identidad clara')}</h3>
+          <p class="analysis-note">${escapeHtml(analysis?.summaryText || 'La composición se entiende como una pieza visual: identidad, ritmo, fortalezas, riesgos y plan.')}</p>
+          <div class="analysis-chip-list analysis-chip-list--compact">
+            <span class="analysis-chip">${escapeHtml(analysis?.winCondition?.label || 'Sin win condition')}</span>
+            <span class="analysis-chip">${escapeHtml(analysis?.tempoDetail?.label || analysis?.tempo || 'Sin tempo')}</span>
+            <span class="analysis-chip">${escapeHtml(analysis?.coherence?.label || 'Sin coherencia')}</span>
+            <span class="analysis-chip">Dominante: ${escapeHtml(dominant)}</span>
+          </div>
+        </div>
       </div>
 
-      <div class="composition-report-pro__checklist-block">
-        <strong>Plan de partida</strong>
-        ${plan.length ? `<ul class="composition-report-pro__bullets">${plan.map((step, index) => `<li><span>${index + 1}</span>${escapeHtml(step)}</li>`).join('')}</ul>` : '<p class="analysis-empty">Sin plan claro.</p>'}
-      </div>
+      ${renderLineup(selectedChampions)}
 
-      <div class="composition-report-pro__checklist-block">
-        <strong>Riesgos a compensar</strong>
-        ${risks.length ? `<ul class="composition-report-pro__bullets">${risks.map((risk) => `<li><span>!</span>${escapeHtml(risk.label)}${risk.detail ? ` · ${escapeHtml(risk.detail)}` : ''}</li>`).join('')}</ul>` : '<p class="analysis-empty">Sin riesgos claros.</p>'}
-      </div>
-
-      <div class="composition-report-pro__checklist-block">
-        <strong>Coach</strong>
-        <p class="analysis-note">${escapeHtml(coach.headline || 'Juega alrededor de tu identidad.')}</p>
+      <div class="composition-report-pro__grid">
+        ${renderMetricsPanel(analysis, score)}
+        ${renderStrengthsRisksPanel(analysis)}
+        ${renderTimelinePanel(analysis)}
+        ${renderExplainabilityPanel(analysis, selectedChampions)}
+        ${renderCoachAdvisorPanels(analysis)}
       </div>
     </section>
   `;
 }
 
-function buildPlainSummary(analysis, score, selectedChampions) {
-  const roles = selectedChampions.map((champion) => `${champion.role.toUpperCase()}: ${champion.champion}`).join(' | ');
-  const strengths = asArray(analysis?.strengths).slice(0, 3).map((item) => asText(item)).join(' · ');
-  const risks = asArray(analysis?.weaknesses).slice(0, 3).map((item) => asText(item)).join(' · ');
-  const plan = asArray(analysis?.gamePlan).slice(0, 3).map((item) => asText(item)).join(' → ');
-
-  return [
-    'Rift Architect · Composition Report',
-    `Score: ${score.grade} (${score.score}/100)`,
-    `Identidad: ${analysis?.primaryIdentity || 'Sin definir'}`,
-    `Win condition: ${analysis?.winCondition?.label || 'Sin definir'}`,
-    `Tempo: ${analysis?.tempoDetail?.label || analysis?.tempo || 'Sin definir'}`,
-    `Coherencia: ${analysis?.coherence?.label || 'Sin definir'}`,
-    roles ? `Campeones: ${roles}` : 'Campeones: Sin definir',
-    strengths ? `Fortalezas: ${strengths}` : 'Fortalezas: Sin definir',
-    risks ? `Riesgos: ${risks}` : 'Riesgos: Sin definir',
-    plan ? `Plan: ${plan}` : 'Plan: Sin definir',
-  ].join('\n');
-}
-
-function renderReportPro(analysis) {
-  const selectedChampions = collectSelectedChampions();
-  const score = compositionScore(analysis, selectedChampions);
-
+function renderEmptyState() {
   return `
-    <section class="composition-report-pro">
-      <div class="composition-report-pro__header">
-        <div>
-          <p class="eyebrow">Composition Report Pro</p>
-          <h3>Resumen ejecutivo y exportable</h3>
-          <p class="analysis-note">La ficha resume en una sola vista el estado real de tu composición y cómo jugarla.</p>
-        </div>
-        ${renderActionButtons()}
+    <section class="composition-report-pro composition-report-pro--empty">
+      <p class="eyebrow">Composition View</p>
+      <h3>Selecciona cinco campeones para ver el análisis visual</h3>
+      <p class="analysis-note">La vista mostrará identidad, línea de campeones, métricas, plan, fortalezas, riesgos, coach y explicación.</p>
+      <div class="composition-report-pro__empty-poster">
+        <div class="composition-report-pro__empty-chip">Score</div>
+        <div class="composition-report-pro__empty-chip">Línea</div>
+        <div class="composition-report-pro__empty-chip">Métricas</div>
+        <div class="composition-report-pro__empty-chip">Plan</div>
       </div>
-
-      <div class="composition-report-pro__hero">
-        <div class="composition-report-pro__scorebox">
-          <span class="composition-report-pro__score-grade">${escapeHtml(score.grade)}</span>
-          <strong class="composition-report-pro__score-value">${score.score}</strong>
-          <span class="composition-report-pro__score-label">${escapeHtml(score.label)}</span>
-        </div>
-
-        <div class="composition-report-pro__summary">
-          <h4>${escapeHtml(analysis?.primaryIdentity || 'Sin identidad clara')}</h4>
-          <p class="analysis-note">${escapeHtml(analysis?.summaryText || 'La composición se analiza como una unidad: identidad, plan, riesgos y poder de ejecución.')}</p>
-          <div class="analysis-chip-list analysis-chip-list--compact">
-            <span class="analysis-chip">${escapeHtml(analysis?.winCondition?.label || 'Sin win condition')}</span>
-            <span class="analysis-chip">${escapeHtml(analysis?.tempoDetail?.label || analysis?.tempo || 'Sin tempo')}</span>
-            <span class="analysis-chip">${escapeHtml(analysis?.coherence?.label || 'Sin coherencia')}</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="composition-report-pro__grid">
-        <article class="composition-report-pro__card">
-          <div class="composition-report-pro__section-head">
-            <p class="eyebrow">Composition Score</p>
-            <h4>De dónde sale la nota</h4>
-          </div>
-          <div class="composition-report-pro__score-parts">
-            ${score.parts.map(renderScoreBar).join('')}
-          </div>
-        </article>
-
-        ${renderChecklist(analysis)}
-      </div>
-
-      <article class="composition-report-pro__card composition-report-pro__export-note">
-        <div class="composition-report-pro__section-head">
-          <p class="eyebrow">Export</p>
-          <h4>Resumen listo para guardar como PDF</h4>
-        </div>
-        <p class="analysis-note">Pulsa Exportar PDF para abrir la ventana de impresión del navegador y guardar esta ficha ejecutiva.</p>
-      </article>
     </section>
   `;
 }
@@ -320,47 +500,12 @@ function renderSummary() {
 
   const selectedChampions = collectSelectedChampions();
   if (!selectedChampions.length) {
-    root.innerHTML = `
-      <section class="composition-report-pro composition-report-pro--empty">
-        <p class="eyebrow">Composition Report Pro</p>
-        <h3>Selecciona cinco campeones para ver el informe ejecutivo</h3>
-        <p class="analysis-note">Aquí aparecerán el score desglosado, la checklist de juego y la opción de exportar el reporte como PDF.</p>
-      </section>
-    `;
+    root.innerHTML = renderEmptyState();
     return;
   }
 
   const analysis = analyzeComposition(selectedChampions);
-  root.innerHTML = renderReportPro(analysis);
-}
-
-function handleActionClick(event) {
-  const button = event.target instanceof Element ? event.target.closest('[data-report-action]') : null;
-  if (!button) return;
-
-  const action = button.getAttribute('data-report-action');
-  const selectedChampions = collectSelectedChampions();
-  if (!selectedChampions.length) return;
-
-  const analysis = analyzeComposition(selectedChampions);
-  const score = compositionScore(analysis, selectedChampions);
-
-  if (action === 'print') {
-    window.print();
-    return;
-  }
-
-  if (action === 'copy') {
-    const text = buildPlainSummary(analysis, score, selectedChampions);
-    const copyPromise = navigator.clipboard?.writeText(text);
-    if (copyPromise && typeof copyPromise.then === 'function') {
-      copyPromise.catch(() => {
-        window.prompt('Copia el resumen', text);
-      });
-      return;
-    }
-    window.prompt('Copia el resumen', text);
-  }
+  root.innerHTML = renderVisualSummary(analysis);
 }
 
 function observeComposition() {
@@ -387,6 +532,7 @@ async function init() {
   await loadRoleData();
   observeComposition();
   renderSummary();
-  document.addEventListener('click', handleActionClick);
   window.setInterval(renderSummary, 1500);
 }
+
+init().catch((error) => console.error(error));
