@@ -17,7 +17,6 @@ PWA para construir y entender una composición de League of Legends a partir de 
 - Identidad, función y tempo visibles en selector y tarjetas.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - Modal de selección estabilizado con controles nativos.
-- El **Composition Report v1** sigue siendo la base del análisis estructurado.
 - La vista principal es ahora **Composition View**, con una lectura más visual y simple.
 - La IA resume la composición en lenguaje natural: qué es, cómo gana, qué debe evitar y qué te recomienda hacer.
 - Fortalezas, riesgos, métricas, plan, coach, advisor y explicabilidad se muestran en bloques separados.
@@ -46,7 +45,6 @@ Documentación base del hito:
 ## Motor y UI principales
 
 - `js/analyzer.js`
-- `js/composition-report-panel.js`
 - `js/composition-visual-panel.js`
 - `js/engine/analysisEngine.js`
 - `js/engine/comparisonEngine.js`
