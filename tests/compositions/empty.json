@@ -1,0 +1,12 @@
+{
+  "slug": "empty",
+  "description": "Composición vacía para validar el caso base.",
+  "selectedChampions": [],
+  "expectations": {
+    "primaryIdentity": "Sin definir",
+    "dominance": "flexible",
+    "coherence": "Mixta",
+    "winCondition": "Jugar alrededor de la identidad",
+    "confidenceMin": 0
+  }
+}
