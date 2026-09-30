@@ -18,7 +18,6 @@ const STATIC_ASSETS = [
   './js/app-v2.js',
   './js/v2_patch.js',
   './js/composition-visual-panel.js',
-  './js/composition-visual-ai.js',
   './js/game-plan-panel.js',
   './js/analyzer.js',
   './js/engine/utils.js',
