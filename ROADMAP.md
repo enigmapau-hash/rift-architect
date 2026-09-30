@@ -125,7 +125,18 @@
 - Medir tiempo de análisis y carga de conocimiento.
 - Congelar la arquitectura estable antes de la IA.
 
-## Fase 6 — Coach conversacional ⏳
+## Fase 6 — Explainability Engine 🚧
+- Exponer evidencias compactas del motor.
+- Mostrar por qué cada conclusión existe.
+- Preparar la capa de IA explicativa.
+
+### Sprint 6.0 — Explainability Engine 🚧
+- Añadir evidencias al análisis.
+- Construir bloques de explicación cortos.
+- Mostrar por qué el motor decide.
+- Mantener la UI compacta.
+
+## Fase 7 — Coach conversacional ⏳
 - Preguntas sobre ejecución, errores y win condition.
 - Respuestas guiadas por la información del Excel.
 
