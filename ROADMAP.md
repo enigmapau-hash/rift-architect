@@ -55,6 +55,12 @@
 - Destacar el mayor error castigado por el draft.
 - Contextualizar fortalezas y riesgos con frases accionables.
 
+## Fase 11B — Executive Analysis ⏳
+- Mostrar un veredicto ejecutivo en el hero de análisis.
+- Ordenar prioridades dinámicas según identidad, tempo y win condition.
+- Explicar cada indicador con el botón “¿Por qué?”.
+- Reducir texto suelto y dar más peso a indicadores visuales.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
@@ -65,7 +71,7 @@
 - Recomendar campeones por pool y rol.
 - Detectar huecos del pool y prioridades de práctica.
 
-## Fase 11B — AI Coach ⏳
+## Fase 12 — AI Coach ⏳
 - Conversación guiada sobre ejecución, errores y win condition.
 - Respuestas apoyadas en el motor determinista y el knowledge layer.
 
