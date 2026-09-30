@@ -1,4 +1,4 @@
-# Analysis Engine v3.3
+# Analysis Engine v3.4
 
 ## Objective
 
@@ -36,6 +36,7 @@ Analysis {
   coherence,
   winCondition,
   gamePlan[],
+  coach,
   confidence,
   dominance,
   summaryText,
@@ -59,6 +60,7 @@ The analysis shown in the main UI must stay within this budget:
 - 1 win condition.
 - 1 confidence indicator.
 - 1 compact explainability block.
+- 1 compact coach block.
 
 ## Rules
 
@@ -79,8 +81,9 @@ The analysis shown in the main UI must stay within this budget:
 6. Derive strategic dependencies and a single win condition.
 7. Build a short plan of action.
 8. Build a compact explainability block with the evidence behind the decision.
-9. Return tokens the UI can render directly.
-10. Leave the explanation layer for the future IA.
+9. Build a compact coach block with priorities, power spikes and phase guidance.
+10. Return tokens the UI can render directly.
+11. Leave the explanation layer for the future IA.
 
 ## Knowledge layer
 
@@ -109,6 +112,7 @@ The current core engine is split into small modules:
 - `js/engine/winConditionEngine.js`
 - `js/engine/planEngine.js`
 - `js/engine/explainabilityEngine.js`
+- `js/engine/coachEngine.js`
 - `js/engine/analysisEngine.js`
 
 ## Main UI output
@@ -123,6 +127,7 @@ The screen should show only:
 - Win condition
 - Plan
 - Why this result exists
+- Coach guidance
 - Makes well
 - Lacks
 
