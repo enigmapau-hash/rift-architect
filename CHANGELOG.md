@@ -7,7 +7,6 @@
 - Composition Score with grade and executive summary.
 - Hero layout for identity, win condition, tempo and coherence.
 - Card-based rendering for strengths, risks, metrics, plan, coach, advisor and explainability.
-- Composition visual stylesheet for the simplified visual layout.
 - Shared display helpers to keep the view readable and avoid raw object dumps.
 - Composition Optimizer for ranked internal swaps and improvement suggestions.
 - Composition Visual stylesheet for the simplified visual layout.
