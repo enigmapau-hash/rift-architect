@@ -50,11 +50,12 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 ## Lo siguiente por hacer
 
 ### Próximo bloque lógico
-1. Introducir **Strategic Profiles** como capa intermedia entre necesidad y campeón.
+1. Implementar **Strategic Profiles** como capa intermedia entre necesidad y campeón.
 2. Traducir necesidades a perfiles de campeón.
 3. Mapear perfiles a campeones concretos.
 4. Mejorar la explicación de por qué un pick o un ban encaja con el plan.
 5. Usar `docs/strategic-profiles.md` como especificación base de esa capa.
+6. Mantener el motor simple: derivar perfiles desde los atributos existentes antes de añadir nuevos campos al Excel.
 
 ### Mejoras pendientes
 - Afinar la UX del Draft Assistant para que sea más ejecutiva.
