@@ -1,33 +1,43 @@
 import { analyzeComposition } from './analyzer.js';
 
+const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
 const ROLE_FILES = [
-  { key: 'top', label: 'Top', file: './data/top.json' },
-  { key: 'jungle', label: 'Jungla', file: './data/jungle.json' },
-  { key: 'mid', label: 'Mid', file: './data/mid.json' },
-  { key: 'botline', label: 'Botline', file: './data/bot.json' },
-  { key: 'support', label: 'Support', file: './data/support.json' },
+  { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
+  { key: 'jungle', label: 'Jungla', file: './data/jungle.json', sheet: 'Tabla Jungla' },
+  { key: 'mid', label: 'Mid', file: './data/mid.json', sheet: 'Tabla Mid' },
+  { key: 'botline', label: 'Botline', file: './data/bot.json', sheet: 'Tabla Botline' },
+  { key: 'support', label: 'Support', file: './data/support.json', sheet: 'Tabla Support' },
 ];
 
 const ROLE_ORDER = ROLE_FILES.map(({ key }) => key);
 const ROLE_LABELS = Object.fromEntries(ROLE_FILES.map(({ key, label }) => [key, label]));
 const QUESTION_BLUEPRINTS = [
-  { key: 'howWin', label: 'Cómo gano' },
-  { key: 'whoStarts', label: 'Quién inicia' },
-  { key: 'whatAvoid', label: 'Qué evitar' },
+  { key: 'early', label: 'Early' },
+  { key: 'mid', label: 'Mid' },
+  { key: 'late', label: 'Late' },
   { key: 'behind', label: 'Si voy por detrás' },
-  { key: 'powerSpike', label: 'Mi pico' },
+  { key: 'coach', label: 'Consejo IA' },
 ];
 
 const state = {
   data: new Map(),
   dataLoaded: false,
   patchScheduled: false,
-  interactionBound: false,
-  activeQuestion: 'howWin',
+  activeQuestion: 'early',
 };
 
+const els = {};
+
 init().catch((error) => console.error(error));
+
+async function init() {
+  els.root = document.getElementById('gamePlanView');
+  await loadRoleData();
+  observeComposition();
+  renderSummary();
+  window.setInterval(renderSummary, 1400);
+}
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -50,10 +60,7 @@ function asText(value, fallback = 'Sin definir') {
     return joined || fallback;
   }
   if (typeof value === 'object') {
-    return asText(
-      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
-      fallback
-    );
+    return asText(value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '', fallback);
   }
   return String(value) || fallback;
 }
@@ -96,21 +103,35 @@ function normalizeSelectedChampion(champion) {
   };
 }
 
-function stars(score = 0) {
-  const numeric = Math.max(0, Math.min(5, Number(score) || 0));
-  return '★★★★★'.slice(0, numeric) + '☆☆☆☆☆'.slice(0, 5 - numeric);
+function toChips(values = [], limit = 4) {
+  return uniqueValues(values.map((value) => asText(value)).filter((value) => value && value !== 'Sin definir')).slice(0, limit);
+}
+
+function matchesAny(value, keywords = []) {
+  const normalizedValue = normalizeText(asText(value));
+  return keywords.some((keyword) => normalizedValue.includes(normalizeText(keyword)));
 }
 
 async function loadRoleData() {
   if (state.dataLoaded) return;
   state.dataLoaded = true;
 
+  const loaded = await loadJsonDataset() || await loadWorkbookDataset();
+  if (loaded) {
+    Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
+    return;
+  }
+
+  ROLE_FILES.forEach(({ key }) => state.data.set(key, []));
+}
+
+async function loadJsonDataset() {
   try {
     const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: 'reload' });
-    if (!manifestResponse.ok) return;
+    if (!manifestResponse.ok) return null;
 
     const manifest = await manifestResponse.json();
-    if (!Array.isArray(manifest?.files) || !manifest.files.length) return;
+    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
 
     const loaded = await Promise.all(
       ROLE_FILES.map(async ({ key, file }) => {
@@ -120,10 +141,57 @@ async function loadRoleData() {
       })
     );
 
-    loaded.forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
+    return Object.fromEntries(loaded);
   } catch {
-    ROLE_FILES.forEach(({ key }) => state.data.set(key, []));
+    return null;
   }
+}
+
+async function loadWorkbookDataset() {
+  if (!window.XLSX) return null;
+
+  try {
+    const response = await fetch(WORKBOOK_URL, { cache: 'reload' });
+    if (!response.ok) return null;
+
+    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    const dataset = {};
+
+    ROLE_FILES.forEach(({ key, sheet }) => {
+      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
+    });
+
+    return dataset;
+  } catch {
+    return null;
+  }
+}
+
+function worksheetToRows(worksheet) {
+  if (!worksheet) return [];
+
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+    blankrows: false,
+    defval: '',
+  });
+
+  return rows
+    .slice(1)
+    .filter((row) => row[0])
+    .map((row) => ({
+      champion: String(row[0]).trim(),
+      identity: String(row[1] || '').trim(),
+      function: String(row[2] || '').trim(),
+      tempo: String(row[3] || '').trim(),
+      strengths: splitTags(row[4]),
+      weaknesses: splitTags(row[5]),
+    }));
+}
+
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function findChampion(roleKey, championName) {
@@ -145,25 +213,9 @@ function collectSelectedChampions() {
 
 function findChampionByTags(selectedChampions, tags = []) {
   return selectedChampions.find((champion) => {
-    const values = [
-      champion.champion,
-      champion.identity,
-      champion.function,
-      champion.tempo,
-      ...asArray(champion.strengths),
-      ...asArray(champion.weaknesses),
-    ];
-    return values.some((value) => tags.some((tag) => normalizeText(asText(value)).includes(normalizeText(tag))));
+    const values = [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)];
+    return values.some((value) => matchesAny(value, tags));
   });
-}
-
-function getMetricScore(analysis, label, aliases = []) {
-  const metrics = asArray(analysis?.metrics);
-  const found = metrics.find((metric) => {
-    const metricLabel = normalizeText(asText(metric?.label ?? metric?.name ?? metric?.key));
-    return metricLabel.includes(normalizeText(label)) || aliases.some((alias) => metricLabel.includes(normalizeText(alias)));
-  });
-  return Number.isFinite(Number(found?.score)) ? Math.round(Number(found.score)) : 0;
 }
 
 function buildPlan(analysis, selectedChampions) {
@@ -177,12 +229,11 @@ function buildPlan(analysis, selectedChampions) {
   const carry = findChampionByTags(selectedChampions, ['carry', 'adc', 'hypercarry', 'escalado']);
   const frontline = findChampionByTags(selectedChampions, ['frontline', 'tanque', 'peel', 'protect']);
   const risk = weaknesses[0];
-  const score = getMetricScore(analysis, 'Escalado', ['scale', 'scaling']) || getMetricScore(analysis, 'Engage') || 0;
 
   return {
     identity: analysis?.primaryIdentity || 'Sin definir',
-    grade: score >= 80 ? 'A' : score >= 65 ? 'B' : 'C',
-    score: Number.isFinite(Number(analysis?.coherence?.score)) ? Math.round(Number(analysis.coherence.score)) : Math.round(score),
+    grade: (analysis?.coherence?.score || 0) >= 80 ? 'A' : (analysis?.coherence?.score || 0) >= 65 ? 'B' : 'C',
+    score: Number.isFinite(Number(analysis?.coherence?.score)) ? Math.round(Number(analysis.coherence.score)) : 0,
     mission: analysis?.winCondition?.detail || analysis?.winCondition?.label || 'Juega alrededor de tu identidad y prepara la pelea correcta.',
     early: gamePlan[0] || phases[0] || 'Prioriza farm seguro y visión.',
     mid: gamePlan[1] || phases[1] || 'Busca dragones, herald y prioridad de mapa.',
@@ -198,156 +249,105 @@ function buildPlan(analysis, selectedChampions) {
   };
 }
 
-function buildQuestionAnswers(analysis, selectedChampions) {
-  const winCondition = analysis?.winCondition?.detail || analysis?.winCondition?.label || 'Juega alrededor de tu identidad.';
-  const tempo = analysis?.tempoDetail?.label || analysis?.tempo || 'tu ventana natural de poder';
-  const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase));
-  const gamePlan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step));
-  const risks = asArray(analysis?.weaknesses).slice(0, 2).map(normalizeEntry);
-  const coach = analysis?.coach || analysis?.assistant || {};
-  const advisor = analysis?.advisor || analysis?.assistant || {};
-  const engager = findChampionByTags(selectedChampions, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start']);
-  const firstRisk = risks[0];
-  const loseConditions = asArray(advisor.loseConditions).slice(0, 2).map((item) => asText(item));
-
-  return {
-    howWin: {
-      title: 'Cómo gano',
-      text: `Tu plan principal es ${winCondition}. La IA te resume la partida para que sepas qué hacer sin leer datos técnicos.`,
-      chips: uniqueValues([analysis?.winCondition?.label, analysis?.tempoDetail?.label || analysis?.tempo, analysis?.coherence?.label, ...gamePlan].filter(Boolean)).slice(0, 4),
-    },
-    whoStarts: {
-      title: 'Quién inicia',
-      text: engager ? `${engager.champion} debería marcar el arranque de la pelea.` : 'No hay un iniciador clarísimo. La IA te recomienda jugar a contraengage y no forzar la entrada.',
-      chips: uniqueValues([engager?.identity, engager?.function, 'contraengage'].filter(Boolean)).slice(0, 3),
-    },
-    whatAvoid: {
-      title: 'Qué debes evitar',
-      text: firstRisk ? `${firstRisk.label}${firstRisk.detail ? `: ${firstRisk.detail}` : ''}` : 'Evita forzar peleas sin visión ni prioridad.',
-      chips: uniqueValues([firstRisk?.label, ...loseConditions].filter(Boolean)).slice(0, 3),
-    },
-    behind: {
-      title: 'Si vas por detrás',
-      text: 'Baja el ritmo: visión, oleadas seguras y peleas cortas. No fuerces objetivos sin prioridad.',
-      chips: ['visión', 'oleadas seguras', 'peleas cortas'],
-    },
-    powerSpike: {
-      title: 'Tu pico de poder',
-      text: `Tu composición se siente mejor en ${tempo}. Ahí es donde tu plan empieza a funcionar de verdad.`,
-      chips: uniqueValues([...phases, analysis?.tempoDetail?.label || analysis?.tempo].filter(Boolean)).slice(0, 4),
-    },
-    coach: {
-      title: 'Consejo IA',
-      text: coach.headline || 'Juega alrededor de tu identidad y evita peleas sin ventaja.',
-      chips: uniqueValues([
-        ...asArray(coach.priorities).slice(0, 2).map(asText),
-        ...asArray(advisor.objectivePriority).slice(0, 1).map(asText),
-      ].filter(Boolean)).slice(0, 3),
-    },
-  };
-}
-
-function renderQuestionButtons(activeQuestion) {
-  return QUESTION_BLUEPRINTS.map((question) => `
-    <button class="game-plan__question ${question.key === activeQuestion ? 'is-active' : ''}" type="button" data-question="${escapeHtml(question.key)}">
-      ${escapeHtml(question.label)}
-    </button>
-  `).join('');
-}
-
-function renderPlanCard(label, title, detail, chips = [], tone = 'neutral') {
-  return `
-    <article class="game-plan__phase game-plan__phase--${tone}">
-      <span class="game-plan__phase-label">${escapeHtml(label)}</span>
-      <strong>${escapeHtml(title)}</strong>
-      <p>${escapeHtml(detail)}</p>
-      ${chips.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')}</div>` : ''}
-    </article>
-  `;
-}
-
 function renderGamePlan(analysis, selectedChampions) {
   const plan = buildPlan(analysis, selectedChampions);
-  const answers = buildQuestionAnswers(analysis, selectedChampions);
-  const active = answers[state.activeQuestion] || answers.howWin;
+  const answers = {
+    early: { title: 'Early', text: plan.early, chips: toChips([plan.identity, plan.engager, plan.frontline]) },
+    mid: { title: 'Mid', text: plan.mid, chips: toChips([plan.mission, plan.carry, plan.coach]) },
+    late: { title: 'Late', text: plan.late, chips: toChips([plan.carry, plan.frontline, plan.identity]) },
+    behind: { title: 'Si vas por detrás', text: plan.behind.length ? plan.behind.join(' · ') : 'No fuerces objetivos. Busca picks y controla visión.', chips: ['visión', 'picks', 'no forzar'] },
+    coach: { title: 'Consejo IA', text: plan.coach, chips: toChips(plan.strengths.map((item) => item.label), 3) },
+  };
+  const active = answers[state.activeQuestion] || answers.early;
 
   return `
-    <section class="game-plan">
+    <section class="game-plan ${selectedChampions.length ? '' : 'game-plan--empty'}">
       <div class="game-plan__header">
-        <div>
+        <div class="game-plan__title">
           <p class="eyebrow">Game Plan Engine</p>
-          <h3>Qué hacer con tu composición</h3>
-          <p class="analysis-note">La IA resume el análisis en acciones simples para jugar la partida sin leer jerga técnica.</p>
+          <h3>${selectedChampions.length ? 'Tu plan de partida' : 'Selecciona cinco campeones para ver el plan de partida'}</h3>
+          <p class="game-plan__detail">${selectedChampions.length ? plan.mission : 'Aquí aparecerá qué hacer en early, mid y late, más una respuesta simple a tus preguntas rápidas.'}</p>
         </div>
-        <div class="game-plan__badge">
-          <span>Score</span>
-          <strong>${escapeHtml(plan.grade)}</strong>
-          <em>${plan.score}</em>
+        ${selectedChampions.length ? `
+          <div class="game-plan__badge">
+            <strong>${escapeHtml(plan.grade)}</strong>
+            <span>${plan.score}/100</span>
+            <em>Plan</em>
+          </div>
+        ` : ''}
+      </div>
+
+      ${selectedChampions.length ? `
+        <div class="game-plan__grid">
+          <article class="game-plan__phase game-plan__phase--info">
+            <span class="game-plan__phase-label">Early</span>
+            <strong>${escapeHtml(plan.early)}</strong>
+            <p>Prioriza farm, visión y no regalar peleas largas.</p>
+          </article>
+          <article class="game-plan__phase game-plan__phase--success">
+            <span class="game-plan__phase-label">Mid</span>
+            <strong>${escapeHtml(plan.mid)}</strong>
+            <p>Convierte prioridad en dragones, herald y control del mapa.</p>
+          </article>
+          <article class="game-plan__phase game-plan__phase--coach">
+            <span class="game-plan__phase-label">Late</span>
+            <strong>${escapeHtml(plan.late)}</strong>
+            <p>Juega alrededor del carry y ciérralo en peleas agrupadas.</p>
+          </article>
         </div>
-      </div>
 
-      <div class="game-plan__mission">
-        <span>Tu misión</span>
-        <strong>${escapeHtml(plan.mission)}</strong>
-      </div>
-
-      <div class="game-plan__grid">
-        ${renderPlanCard('EARLY', plan.early, 'Farm seguro, visión y no regalar peleas largas.', ['Farm', 'Visión', 'No pelear por pelear'], 'info')}
-        ${renderPlanCard('MID', plan.mid, 'Convierte prioridad en dragones, herald y mapa.', ['Dragón', 'Herald', 'Prioridad'], 'success')}
-        ${renderPlanCard('LATE', plan.late, 'Agrúpate, protege al carry y resuelve en 5v5.', ['Protege', 'Agrúpate', '5v5'], 'coach')}
-      </div>
-
-      <div class="game-plan__secondary">
-        <article class="game-plan__panel game-plan__panel--danger">
-          <p class="eyebrow">Si vas por detrás</p>
-          <h4>No fuerces la partida</h4>
-          <ul class="game-plan__list">
-            ${(plan.behind.length ? plan.behind : ['Busca picks', 'Juega a visión', 'Evita teamfights abiertas']).slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
-          </ul>
-        </article>
-
-        <article class="game-plan__panel game-plan__panel--coach">
-          <p class="eyebrow">Rift opina</p>
-          <h4>${escapeHtml(plan.coach)}</h4>
-          <div class="game-plan__coach-grid">
-            <div>
-              <span>Iniciador</span>
-              <strong>${escapeHtml(plan.engager)}</strong>
+        <div class="game-plan__secondary">
+          <article class="game-plan__panel game-plan__panel--danger">
+            <div class="game-plan__section-head">
+              <p class="eyebrow">Si vas por detrás</p>
+              <h4>No fuerces tu plan principal</h4>
             </div>
-            <div>
-              <span>Carry</span>
-              <strong>${escapeHtml(plan.carry)}</strong>
+            <ul class="game-plan__list">
+              ${(plan.behind.length ? plan.behind : ['Mantén el oro', 'Evita 5v5 abiertos', 'Busca picks']).slice(0, 3).map((item) => `<li>${escapeHtml(item)}</li>`).join('')}
+            </ul>
+          </article>
+          <article class="game-plan__panel game-plan__panel--coach">
+            <div class="game-plan__section-head">
+              <p class="eyebrow">Consejo IA</p>
+              <h4>${escapeHtml(plan.coach)}</h4>
             </div>
-            <div>
-              <span>Frontline</span>
-              <strong>${escapeHtml(plan.frontline)}</strong>
+            <div class="game-plan__coach-grid">
+              <div><span>Pieza clave</span><strong>${escapeHtml(plan.carry)}</strong></div>
+              <div><span>Inicia</span><strong>${escapeHtml(plan.engager)}</strong></div>
+              <div><span>Frontline</span><strong>${escapeHtml(plan.frontline)}</strong></div>
+              <div><span>Riesgo</span><strong>${escapeHtml(plan.risk)}</strong></div>
             </div>
+            <p class="game-plan__coach-note">${escapeHtml(plan.riskDetail)}</p>
+          </article>
+        </div>
+
+        <div class="game-plan__question-panel">
+          <div class="game-plan__question-head">
             <div>
-              <span>Riesgo</span>
-              <strong>${escapeHtml(plan.risk)}</strong>
+              <p class="eyebrow">Preguntas rápidas</p>
+              <h4>Qué hacer ahora</h4>
+            </div>
+            <div class="game-plan__question-buttons">
+              ${QUESTION_BLUEPRINTS.map((q) => `<button type="button" class="game-plan__question ${state.activeQuestion === q.key ? 'is-active' : ''}" data-question="${q.key}">${escapeHtml(q.label)}</button>`).join('')}
             </div>
           </div>
-          <p class="game-plan__coach-note">${escapeHtml(plan.riskDetail)}</p>
-        </article>
-      </div>
-
-      <article class="game-plan__question-panel">
-        <div class="game-plan__question-head">
-          <div>
-            <p class="eyebrow">Preguntar a Rift</p>
-            <h4>Respuestas cortas y útiles</h4>
-          </div>
-          <div class="game-plan__question-buttons">
-            ${renderQuestionButtons(state.activeQuestion)}
+          <div class="game-plan__answer-card">
+            <span class="game-plan__answer-kicker">${escapeHtml(active.title)}</span>
+            <strong>${escapeHtml(active.text)}</strong>
+            <div class="analysis-chip-list analysis-chip-list--compact">
+              ${active.chips.map((chip) => `<span class="analysis-chip">${escapeHtml(chip)}</span>`).join('')}
+            </div>
           </div>
         </div>
-
-        <div class="game-plan__answer-card">
-          <span class="game-plan__answer-kicker">${escapeHtml(active.title)}</span>
-          <strong>${escapeHtml(active.text)}</strong>
-          ${active.chips.length ? `<div class="analysis-chip-list analysis-chip-list--compact">${active.chips.map((chip) => `<span class="analysis-chip analysis-chip--question">${escapeHtml(chip)}</span>`).join('')}</div>` : ''}
+      ` : `
+        <p class="game-plan__note">Aquí aparecerá qué hacer en early, mid y late, más una respuesta simple a tus preguntas rápidas.</p>
+        <div class="game-plan__empty-grid">
+          <div class="game-plan__empty-chip">Early</div>
+          <div class="game-plan__empty-chip">Mid</div>
+          <div class="game-plan__empty-chip">Late</div>
+          <div class="game-plan__empty-chip">IA</div>
         </div>
-      </article>
+      `}
     </section>
   `;
 }
@@ -355,9 +355,13 @@ function renderGamePlan(analysis, selectedChampions) {
 function renderEmptyState() {
   return `
     <section class="game-plan game-plan--empty">
-      <p class="eyebrow">Game Plan Engine</p>
-      <h3>Selecciona cinco campeones para ver el plan de partida</h3>
-      <p class="analysis-note">Aquí aparecerá qué hacer en early, mid y late, más una respuesta simple a tus preguntas rápidas.</p>
+      <div class="game-plan__header">
+        <div>
+          <p class="eyebrow">Game Plan Engine</p>
+          <h3>Selecciona cinco campeones para ver el plan de partida</h3>
+          <p class="game-plan__detail">Aquí aparecerá qué hacer en early, mid y late, más una respuesta simple a tus preguntas rápidas.</p>
+        </div>
+      </div>
       <div class="game-plan__empty-grid">
         <div class="game-plan__empty-chip">Early</div>
         <div class="game-plan__empty-chip">Mid</div>
@@ -369,35 +373,26 @@ function renderEmptyState() {
 }
 
 function renderSummary() {
-  const root = document.getElementById('gamePlanView');
-  if (!root) return;
-
+  if (!els.root) return;
   const selectedChampions = collectSelectedChampions();
   if (!selectedChampions.length) {
-    root.innerHTML = renderEmptyState();
+    els.root.innerHTML = renderEmptyState();
     return;
   }
 
   const analysis = analyzeComposition(selectedChampions);
-  root.innerHTML = renderGamePlan(analysis, selectedChampions);
-  bindInteractions();
+  els.root.innerHTML = renderGamePlan(analysis, selectedChampions);
+  bindQuestionActions();
 }
 
-function bindInteractions() {
-  if (state.interactionBound) return;
-  const root = document.getElementById('gamePlanView');
-  if (!root) return;
-
-  root.addEventListener('click', (event) => {
-    const button = event.target instanceof Element ? event.target.closest('[data-question]') : null;
-    if (!button) return;
-    const question = button.getAttribute('data-question');
-    if (!question || question === state.activeQuestion) return;
-    state.activeQuestion = question;
-    renderSummary();
+function bindQuestionActions() {
+  if (!els.root) return;
+  els.root.querySelectorAll('[data-question]').forEach((button) => {
+    button.addEventListener('click', () => {
+      state.activeQuestion = button.dataset.question || 'early';
+      renderSummary();
+    });
   });
-
-  state.interactionBound = true;
 }
 
 function observeComposition() {
@@ -418,11 +413,4 @@ function schedulePatch() {
     state.patchScheduled = false;
     renderSummary();
   });
-}
-
-async function init() {
-  await loadRoleData();
-  observeComposition();
-  renderSummary();
-  window.setInterval(renderSummary, 1500);
 }
