@@ -10,7 +10,7 @@ This folder contains canonical composition fixtures used to validate the Core En
 
 ## Coverage
 
-The report now checks pattern coverage, dependency coverage, explainability coverage, and basic timing in addition to the core analysis checks.
+The report now checks pattern coverage, dependency coverage, coach coverage, explainability coverage, and basic timing in addition to the core analysis checks.
 
 ## Goal
 
