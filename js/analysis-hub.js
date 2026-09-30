@@ -67,8 +67,8 @@ function renderHub() {
   const selectedChampions = collectSelectedChampions();
   if (selectedChampions.length < 5) {
     state.root.innerHTML = `
-      <article class="analysis-hub__empty">
-        <p class="eyebrow">Sprint 13 · Analysis Hub</p>
+      <article class='analysis-hub__empty'>
+        <p class='eyebrow'>Sprint 13 · Analysis Hub</p>
         <h4>Completa los cinco campeones para ver el análisis unificado</h4>
         <p>El hub reúne assessment y advisor en una sola lectura, para entender la composición sin saltar entre paneles.</p>
       </article>
@@ -80,44 +80,44 @@ function renderHub() {
   const model = buildHubModel(analysis, selectedChampions, state.activeAction);
 
   state.root.innerHTML = `
-    <section class="analysis-hub__shell">
-      <div class="analysis-hub__header">
-        <div class="analysis-hub__header-copy">
-          <p class="eyebrow">Sprint 13 · Analysis Hub</p>
+    <section class='analysis-hub__shell'>
+      <div class='analysis-hub__header'>
+        <div class='analysis-hub__header-copy'>
+          <p class='eyebrow'>Sprint 13 · Analysis Hub</p>
           <h4>${escapeHtml(model.heroHeadline)}</h4>
           <p>${escapeHtml(model.summary)}</p>
-          <div class="analysis-hub__verdict">
-            <span class="story-pill story-pill--${toneByGrade(model.grade)}">${escapeHtml(model.verdictBadge)}</span>
+          <div class='analysis-hub__verdict'>
+            <span class='story-pill story-pill--${toneByGrade(model.grade)}'>${escapeHtml(model.verdictBadge)}</span>
             <strong>${escapeHtml(model.verdictHeadline)}</strong>
             <p>${escapeHtml(model.verdictText)}</p>
           </div>
         </div>
 
-        <div class="analysis-hub__score-card ${scoreTone(model.overall)}">
-          <span class="analysis-hub__score-kicker">Hub score</span>
+        <div class='analysis-hub__score-card ${scoreTone(model.overall)}'>
+          <span class='analysis-hub__score-kicker'>Hub score</span>
           <strong>${model.grade} · ${model.overall}</strong>
           <span>${escapeHtml(model.scoreBadge)}</span>
         </div>
       </div>
 
-      <div class="analysis-hub__grid">
-        <article class="analysis-hub__card analysis-hub__card--assessment">
-          <span class="analysis-hub__card-kicker">Assessment unificado</span>
-          <div class="analysis-hub__chip-list">
-            ${model.signals.map((signal) => `<span class="story-pill story-pill--info">${escapeHtml(signal)}</span>`).join('')}
+      <div class='analysis-hub__grid'>
+        <article class='analysis-hub__card analysis-hub__card--assessment'>
+          <span class='analysis-hub__card-kicker'>Assessment unificado</span>
+          <div class='analysis-hub__chip-list'>
+            ${model.signals.map((signal) => `<span class='story-pill story-pill--info'>${escapeHtml(signal)}</span>`).join('')}
           </div>
 
-          <div class="analysis-hub__row-list">
+          <div class='analysis-hub__row-list'>
             ${model.diagnostics.map(renderDiagnosticRow).join('')}
           </div>
 
-          <div class="analysis-hub__coverage-grid">
+          <div class='analysis-hub__coverage-grid'>
             ${model.coverage.map(renderCoverageItem).join('')}
           </div>
 
-          <div class="analysis-hub__improve-list">
+          <div class='analysis-hub__improve-list'>
             ${model.improvements.map((item) => `
-              <div class="analysis-hub__item ${item.tone}">
+              <div class='analysis-hub__item ${item.tone}'>
                 <strong>${escapeHtml(item.label)}</strong>
                 <p>${escapeHtml(item.detail)}</p>
               </div>
@@ -125,19 +125,19 @@ function renderHub() {
           </div>
         </article>
 
-        <article class="analysis-hub__card analysis-hub__card--advisor">
-          <span class="analysis-hub__card-kicker">Rift Advisor</span>
-          <div class="analysis-hub__actions" role="tablist" aria-label="Acciones del asesor">
+        <article class='analysis-hub__card analysis-hub__card--advisor'>
+          <span class='analysis-hub__card-kicker'>Rift Advisor</span>
+          <div class='analysis-hub__actions' role='tablist' aria-label='Acciones del asesor'>
             ${ACTIONS.map((action) => `
               <button
-                class="analysis-hub__action ${action.key === model.activeAction ? 'is-active' : ''}"
-                type="button"
-                role="tab"
-                aria-selected="${action.key === model.activeAction ? 'true' : 'false'}"
-                data-hub-action="${action.key}"
+                class='analysis-hub__action ${action.key === model.activeAction ? 'is-active' : ''}'
+                type='button'
+                role='tab'
+                aria-selected='${action.key === model.activeAction ? 'true' : 'false'}'
+                data-hub-action='${action.key}'
               >
-                <span class="analysis-hub__action-icon">${action.icon}</span>
-                <span class="analysis-hub__action-copy">
+                <span class='analysis-hub__action-icon'>${action.icon}</span>
+                <span class='analysis-hub__action-copy'>
                   <strong>${escapeHtml(action.label)}</strong>
                   <small>${escapeHtml(model.actionHints[action.key] || '')}</small>
                 </span>
@@ -145,45 +145,45 @@ function renderHub() {
             `).join('')}
           </div>
 
-          <div class="analysis-hub__response-grid">
-            <article class="analysis-hub__response-card">
-              <span class="analysis-hub__card-kicker">Respuesta contextual</span>
+          <div class='analysis-hub__response-grid'>
+            <article class='analysis-hub__response-card'>
+              <span class='analysis-hub__card-kicker'>Respuesta contextual</span>
               <strong>${escapeHtml(model.response.title)}</strong>
               <p>${escapeHtml(model.response.text)}</p>
-              <details class="analysis-hub__why">
+              <details class='analysis-hub__why'>
                 <summary>¿Por qué?</summary>
                 <p>${escapeHtml(model.response.why)}</p>
               </details>
-              <div class="analysis-hub__chip-list">
-                ${model.response.chips.map((chip) => `<span class="story-pill story-pill--${chip.tone}">${escapeHtml(chip.label)}</span>`).join('')}
+              <div class='analysis-hub__chip-list'>
+                ${model.response.chips.map((chip) => `<span class='story-pill story-pill--${chip.tone}'>${escapeHtml(chip.label)}</span>`).join('')}
               </div>
             </article>
 
-            <article class="analysis-hub__response-card analysis-hub__response-card--compact">
-              <span class="analysis-hub__card-kicker">Señal principal</span>
+            <article class='analysis-hub__response-card analysis-hub__response-card--compact'>
+              <span class='analysis-hub__card-kicker'>Señal principal</span>
               <strong>${escapeHtml(model.signal.title)}</strong>
               <p>${escapeHtml(model.signal.text)}</p>
-              <div class="analysis-hub__chip-list">
-                ${model.signal.chips.map((chip) => `<span class="story-pill story-pill--info">${escapeHtml(chip)}</span>`).join('')}
+              <div class='analysis-hub__chip-list'>
+                ${model.signal.chips.map((chip) => `<span class='story-pill story-pill--info'>${escapeHtml(chip)}</span>`).join('')}
               </div>
             </article>
           </div>
 
-          <div class="analysis-hub__phase-grid">
+          <div class='analysis-hub__phase-grid'>
             ${model.phases.map(renderPhaseCard).join('')}
           </div>
 
-          <div class="analysis-hub__evidence-grid">
-            <article class="analysis-hub__evidence-card">
-              <span class="analysis-hub__card-kicker">Señales que sostienen el consejo</span>
-              <div class="analysis-hub__list">
+          <div class='analysis-hub__evidence-grid'>
+            <article class='analysis-hub__evidence-card'>
+              <span class='analysis-hub__card-kicker'>Señales que sostienen el consejo</span>
+              <div class='analysis-hub__list'>
                 ${model.insights.map(renderInsightRow).join('')}
               </div>
             </article>
 
-            <article class="analysis-hub__evidence-card analysis-hub__evidence-card--danger">
-              <span class="analysis-hub__card-kicker">Alertas a vigilar</span>
-              <div class="analysis-hub__list">
+            <article class='analysis-hub__evidence-card analysis-hub__evidence-card--danger'>
+              <span class='analysis-hub__card-kicker'>Alertas a vigilar</span>
+              <div class='analysis-hub__list'>
                 ${model.alerts.map(renderAlertRow).join('')}
               </div>
             </article>
@@ -217,18 +217,16 @@ function collectSelectedChampions() {
 function buildHubModel(analysis, selectedChampions, activeAction) {
   const coach = analysis?.coach || {};
   const advisor = analysis?.advisor || {};
-  const assistant = analysis?.assistant || {};
   const priorities = buildPriorities(analysis, coach, advisor);
   const risks = buildRisks(analysis, coach, advisor);
   const phases = buildPhases(analysis, coach, advisor);
-  const initiator = findInitiator(selectedChampions, analysis);
+  const initiator = findInitiator(selectedChampions);
   const assessment = buildAssessment(analysis, selectedChampions, priorities, risks, phases);
-  const response = buildAction(activeAction, { analysis, coach, advisor, assistant, priorities, risks, initiator, phases });
+  const response = buildAction(activeAction, { analysis, coach, advisor, priorities, risks, initiator, phases });
   const signal = buildSignal(analysis, coach, advisor, priorities, risks);
-  const summary = analysis?.summaryText || assistant?.summary?.reason || 'Una sola lectura reúne salud, calidad y decisiones accionables para entender la composición de un vistazo.';
 
   return {
-    summary,
+    summary: analysis?.summaryText || 'Una sola lectura reúne salud, calidad y decisiones accionables para entender la composición de un vistazo.',
     heroHeadline: analysis?.primaryIdentity || 'Tu composición',
     verdictHeadline: assessment.verdictHeadline,
     verdictText: assessment.verdictText,
@@ -240,7 +238,7 @@ function buildHubModel(analysis, selectedChampions, activeAction) {
     coverage: assessment.coverage,
     improvements: assessment.improvements,
     signals: assessment.signals,
-    actionHints: buildActionHints(analysis, coach, advisor, assistant, priorities, risks, initiator),
+    actionHints: buildActionHints(analysis, coach, advisor, priorities, risks, initiator),
     response,
     signal,
     phases,
@@ -332,7 +330,6 @@ function buildAssessment(analysis, selectedChampions, priorities, risks, phases)
       analysis?.winCondition?.label,
       priorities[0]?.label,
       phases[1]?.label,
-      assistant?.summary?.priority,
     ]).slice(0, 4),
   };
 }
@@ -438,7 +435,7 @@ function buildPhases(analysis, coach, advisor) {
   });
 }
 
-function findInitiator(selectedChampions, analysis) {
+function findInitiator(selectedChampions) {
   const candidates = selectedChampions.map((champion) => {
     const text = [
       champion.champion,
@@ -480,7 +477,7 @@ function findInitiator(selectedChampions, analysis) {
       role: champion.role,
       score,
       reason: reasons.join(' y ') || 'encaja con el plan de pelea',
-      why: `Busco la pieza con más engage, CC y capacidad de entrar sin desordenar la composición. ${analysis?.coherence?.label || ''}`.trim(),
+      why: 'Busco la pieza con más engage, CC y capacidad de entrar sin desordenar la composición.',
     };
   });
 
@@ -489,20 +486,19 @@ function findInitiator(selectedChampions, analysis) {
   return best;
 }
 
-function buildAction(actionKey, context) {
-  const { analysis, coach, advisor, assistant, priorities, risks, initiator, phases } = context;
+function buildAction(activeAction, context) {
+  const { analysis, coach, advisor, priorities, risks, initiator, phases } = context;
   const topPriority = priorities[0] || null;
   const topRisk = risks[0] || null;
   const powerSpike = advisor?.summary?.powerSpike || coach?.summary?.powerSpike || 'tu ventana de poder';
   const primaryObjective = advisor?.primaryObjective || topPriority?.label || analysis?.winCondition?.label || 'Jugar alrededor de la identidad';
-  const reasons = [analysis?.coherence?.label, analysis?.winCondition?.detail, analysis?.summaryText].filter(Boolean);
 
-  switch (actionKey) {
+  switch (activeAction) {
     case 'risk':
       return {
         title: topRisk?.label || 'Mayor error castigado',
         text: topRisk?.detail || 'Forzar la pelea equivocada te hace perder la ventaja del draft.',
-        why: buildWhySource(topRisk, analysis, coach, advisor, assistant),
+        why: buildRiskWhy(topRisk, analysis, coach),
         chips: uniqueValues([
           topRisk?.label,
           advisor?.summary?.risk,
@@ -543,8 +539,8 @@ function buildAction(actionKey, context) {
     default:
       return {
         title: primaryObjective,
-        text: buildWinText(analysis, advisor, assistant, powerSpike, topPriority),
-        why: buildWinWhy(analysis, coach, advisor, assistant, reasons),
+        text: buildWinText(analysis, powerSpike, topPriority),
+        why: buildWinWhy(analysis, coach, advisor),
         chips: uniqueValues([
           primaryObjective,
           powerSpike,
@@ -555,41 +551,156 @@ function buildAction(actionKey, context) {
   }
 }
 
-function buildWinText(analysis, advisor, assistant, powerSpike, topPriority) {
-  const sentence =
-    advisor?.summary?.reason ||
-    assistant?.summary?.reason ||
-    analysis?.winCondition?.detail ||
-    topPriority?.detail ||
-    'Tu composición gana jugando a su identidad principal.';
+function buildWinText(analysis, powerSpike, topPriority) {
+  const texts = [
+    analysis?.winCondition?.detail,
+    analysis?.summaryText,
+    topPriority?.detail,
+  ].filter(Boolean);
 
+  const sentence = texts[0] || 'Tu composición gana jugando a su identidad principal.';
   return `${sentence} Tu ventana más importante llega en ${powerSpike}.`;
 }
 
-function buildWinWhy(analysis, coach, advisor, assistant, reasons) {
+function buildWinWhy(analysis, coach, advisor) {
   const pieces = [
     advisor?.summary?.identity,
     advisor?.summary?.powerSpike,
-    coach?.summary?.priority,
     analysis?.tempoDetail?.label,
     analysis?.winCondition?.label,
-    ...reasons.slice(0, 2),
-    assistant?.summary?.reason,
+    coach?.summary?.priority,
+    coach?.summary?.reason,
   ].filter(Boolean);
 
   return uniqueValues(pieces).join(' · ') || 'La respuesta sale del análisis del motor y del conocimiento del draft.';
 }
 
-function buildWhySource(action, analysis, coach, advisor, assistant) {
+function buildRiskWhy(risk, analysis, coach) {
   const parts = [
-    action?.why,
-    coach?.summary?.reason,
-    advisor?.summary?.reason,
-    assistant?.summary?.reason,
-    analysis?.summaryText,
+    risk?.label,
+    risk?.detail,
+    coach?.summary?.risk,
+    analysis?.coherence?.label,
+    analysis?.winCondition?.avoid?.[0],
   ].filter(Boolean);
 
-  return uniqueValues(parts).join(' · ') || 'La respuesta sale del análisis determinista y del knowledge layer.';
+  return uniqueValues(parts).join(' · ') || 'El riesgo principal se deduce del plan de victoria y de la coherencia del draft.';
+}
+
+function buildPriorityWhy(priority, analysis, coach, phases) {
+  const parts = [
+    priority?.label,
+    priority?.detail,
+    coach?.summary?.priority,
+    phases[0]?.detail,
+    analysis?.tempoDetail?.label,
+  ].filter(Boolean);
+
+  return uniqueValues(parts).join(' · ') || 'La prioridad se ordena por identidad, tempo y ventana de poder.';
+}
+
+function buildSignal(analysis, coach, advisor, priorities, risks) {
+  const title = advisor?.primaryObjective || coach?.headline || analysis?.primaryIdentity || 'Señal principal';
+  const text = advisor?.summary?.reason || coach?.summary?.reason || analysis?.summaryText || 'La aplicación condensa el análisis en una sola idea fácil de seguir.';
+  const chips = uniqueValues([
+    coach?.summary?.powerSpike,
+    coach?.summary?.priority,
+    coach?.summary?.risk,
+    priorities[0]?.label,
+    risks[0]?.label,
+  ]).map((label) => ({ label, tone: 'info' }));
+
+  return { title, text, chips };
+}
+
+function buildActionHints(analysis, coach, advisor, priorities, risks, initiator) {
+  return {
+    win: advisor?.summary?.reason || coach?.summary?.reason || 'Cómo convertir el plan en victoria',
+    risk: risks[0]?.detail || 'Qué castiga más a esta composición',
+    init: initiator?.champion ? `${initiator.champion} encaja con la iniciación` : 'Quién abre mejor la pelea',
+    priority: priorities[0]?.detail || coach?.summary?.priority || 'Qué priorizar ahora mismo',
+  };
+}
+
+function buildInsights(analysis, coach, advisor, priorities) {
+  const fromCoach = buildInsightRows(coach);
+  const fromAdvisor = buildInsightRowsFromAdvisor(advisor);
+  const fromAnalysis = uniqueValues([
+    analysis?.primaryIdentity,
+    analysis?.tempoDetail?.label,
+    analysis?.coherence?.label,
+    priorities[0]?.label,
+  ])
+    .filter(Boolean)
+    .slice(0, 1)
+    .map((label) => ({
+      label,
+      detail: 'Encaja con la lectura general de la composición.',
+    }));
+
+  return uniqueByLabel([...fromCoach, ...fromAdvisor, ...fromAnalysis]).slice(0, 3);
+}
+
+function buildInsightRows(coach) {
+  return uniqueValues([
+    ...(Array.isArray(coach?.insights) ? coach.insights : []).map((item) => item?.label),
+    coach?.summary?.priority,
+    coach?.summary?.powerSpike,
+  ])
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((label) => ({
+      label,
+      detail: coach?.insights?.find?.((item) => item?.label === label)?.detail || 'Señal que refuerza la lectura del motor.',
+    }));
+}
+
+function buildInsightRowsFromAdvisor(advisor) {
+  return uniqueValues((Array.isArray(advisor?.objectivePriority) ? advisor.objectivePriority : []).map((item) => item?.label))
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((label) => ({
+      label,
+      detail: advisor?.objectivePriority?.find?.((item) => item?.label === label)?.detail || 'Prioridad del plan.',
+    }));
+}
+
+function buildAlertRows(coach) {
+  return uniqueValues((Array.isArray(coach?.alerts) ? coach.alerts : []).map((item) => item?.label))
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((label) => ({
+      label,
+      detail: coach?.alerts?.find?.((item) => item?.label === label)?.detail || 'Alerta que puede romper el plan.',
+    }));
+}
+
+function buildAlertRowsFromAdvisor(advisor) {
+  return uniqueValues((Array.isArray(advisor?.loseConditions) ? advisor.loseConditions : []).map((item) => item?.label))
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((label) => ({
+      label,
+      detail: advisor?.loseConditions?.find?.((item) => item?.label === label)?.detail || 'Riesgo principal del draft.',
+    }));
+}
+
+function buildRisks(analysis, coach, advisor) {
+  const fromCoach = buildAlertRows(coach);
+  const fromAdvisor = buildAlertRowsFromAdvisor(advisor);
+  const fromAnalysis = uniqueValues([
+    analysis?.winCondition?.avoid?.[0],
+    analysis?.coherence?.conflicts?.[0]?.label,
+    analysis?.weaknesses?.[0],
+  ])
+    .filter(Boolean)
+    .slice(0, 1)
+    .map((label) => ({
+      label,
+      detail: 'Puede romper el plan principal.',
+    }));
+
+  return uniqueByLabel([...fromCoach, ...fromAdvisor, ...fromAnalysis]).slice(0, 3);
 }
 
 function buildRiskDetail(label, analysis, coach) {
@@ -623,63 +734,116 @@ function buildPriorityDetail(label, analysis, index) {
   return 'Se apoya en la condición de victoria general del draft.';
 }
 
-function buildInsights(analysis, coach, advisor, priorities) {
-  const fromCoach = uniqueValues((Array.isArray(coach?.insights) ? coach.insights : []).map((item) => item?.label)).slice(0, 2).map((label) => ({
-    label,
-    detail: coach?.insights?.find?.((item) => item?.label === label)?.detail || 'Señal que refuerza la lectura del motor.',
-  }));
-
-  const fromAdvisor = uniqueValues((Array.isArray(advisor?.objectivePriority) ? advisor.objectivePriority : []).map((item) => item?.label)).slice(0, 1).map((label) => ({
-    label,
-    detail: advisor?.objectivePriority?.find?.((item) => item?.label === label)?.detail || 'Prioridad del plan.',
-  }));
-
-  const fromAnalysis = uniqueValues([
-    analysis?.primaryIdentity,
-    analysis?.tempoDetail?.label,
-    analysis?.coherence?.label,
-    priorities[0]?.label,
-  ])
-    .filter(Boolean)
-    .slice(0, 1)
-    .map((label) => ({
-      label,
-      detail: 'Encaja con la lectura general de la composición.',
-    }));
-
-  return uniqueByLabel([...fromCoach, ...fromAdvisor, ...fromAnalysis]).slice(0, 3);
-}
-
-function buildSignal(analysis, coach, advisor, priorities, risks) {
-  const title = coach?.headline || advisor?.primaryObjective || analysis?.primaryIdentity || 'Señal principal';
-  const text = coach?.summary?.reason || advisor?.summary?.reason || analysis?.summaryText || 'La aplicación condensa el análisis en una sola idea fácil de seguir.';
-  const chips = uniqueValues([
-    coach?.summary?.powerSpike,
-    coach?.summary?.priority,
-    coach?.summary?.risk,
-    priorities[0]?.label,
-    risks[0]?.label,
-  ]).map((label) => ({ label, tone: 'info' }));
-
-  return { title, text, chips };
-}
-
-function buildActionHints(analysis, coach, advisor, assistant, priorities, risks, initiator) {
-  return {
-    win: advisor?.summary?.reason || assistant?.summary?.reason || 'Cómo convertir el plan en victoria',
-    risk: risks[0]?.detail || 'Qué castiga más a esta composición',
-    init: initiator?.champion ? `${initiator.champion} encaja con la iniciación` : 'Quién abre mejor la pelea',
-    priority: priorities[0]?.detail || coach?.summary?.priority || 'Qué priorizar ahora mismo',
+function buildPhases(analysis, coach, advisor) {
+  const phases = Array.isArray(coach?.phases) ? coach.phases : [];
+  const labels = ['Early', 'Mid Game', 'Late Game'];
+  const fallbackDetails = {
+    Early: 'Gana tiempo y no regales peleas largas.',
+    'Mid Game': 'Convierte la ventaja en objetivos y visión.',
+    'Late Game': 'Cierra con carry protegido y pelea ordenada.',
   };
+
+  return labels.map((label, index) => {
+    const phase = phases[index] || {};
+    return {
+      label,
+      detail: phase.detail || fallbackDetails[label],
+      actions: uniqueValues([
+        ...(Array.isArray(phase.actions) ? phase.actions : []),
+        advisor?.summary?.priority,
+        advisor?.summary?.powerSpike,
+        index === 0 ? analysis?.winCondition?.avoid?.[0] : null,
+      ]).slice(0, 3),
+    };
+  });
+}
+
+function findInitiator(selectedChampions) {
+  const candidates = selectedChampions.map((champion) => {
+    const text = [
+      champion.champion,
+      champion.identity,
+      champion.function,
+      champion.tempo,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    let score = 0;
+    const reasons = [];
+
+    if (containsAny(text, ['engage', 'inici', 'start', 'entry', 'hook', 'pick'])) {
+      score += 4;
+      reasons.push('tiene herramientas para empezar');
+    }
+
+    if (containsAny(text, ['cc', 'stun', 'knock', 'root', 'pull', 'immobil', 'silence'])) {
+      score += 3;
+      reasons.push('aporta control fiable');
+    }
+
+    if (containsAny(text, ['frontline', 'tank', 'bruiser', 'support', 'engage'])) {
+      score += 2;
+      reasons.push('aguanta la primera línea');
+    }
+
+    if (String(champion.role || '').toLowerCase() === 'support' || String(champion.role || '').toLowerCase() === 'jungle') {
+      score += 1;
+      reasons.push('suele marcar el ritmo');
+    }
+
+    return {
+      champion: champion.champion,
+      role: champion.role,
+      score,
+      reason: reasons.join(' y ') || 'encaja con el plan de pelea',
+      why: 'Busco la pieza con más engage, CC y capacidad de entrar sin desordenar la composición.',
+    };
+  });
+
+  const best = candidates.sort((a, b) => b.score - a.score || a.champion.localeCompare(b.champion, 'es'))[0];
+  if (!best || best.score < 3) return null;
+  return best;
+}
+
+function renderPhaseCard(phase) {
+  return `
+    <article class='analysis-hub__phase-card'>
+      <span class='analysis-hub__card-kicker'>${escapeHtml(phase.label)}</span>
+      <strong>${escapeHtml(phase.detail)}</strong>
+      <div class='analysis-hub__chip-list'>
+        ${phase.actions.map((action) => `<span class='story-pill story-pill--info'>${escapeHtml(action)}</span>`).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderInsightRow(item) {
+  return `
+    <div class='analysis-hub__row'>
+      <strong>${escapeHtml(item.label)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+    </div>
+  `;
+}
+
+function renderAlertRow(item) {
+  return `
+    <div class='analysis-hub__row analysis-hub__row--danger'>
+      <strong>${escapeHtml(item.label)}</strong>
+      <p>${escapeHtml(item.detail)}</p>
+    </div>
+  `;
 }
 
 function renderDiagnosticRow(item) {
   return `
-    <div class="analysis-hub__row ${scoreTone(item.score)}">
-      <div class="analysis-hub__row-copy">
+    <div class='analysis-hub__diagnostic ${scoreTone(item.score * 10)}'>
+      <div class='analysis-hub__diagnostic-copy'>
         <strong>${escapeHtml(item.label)}</strong>
         <p>${escapeHtml(item.detail)}</p>
-        <details class="analysis-hub__why">
+        <details class='analysis-hub__why'>
           <summary>¿Por qué?</summary>
           <p>${escapeHtml(item.why)}</p>
         </details>
@@ -691,61 +855,12 @@ function renderDiagnosticRow(item) {
 
 function renderCoverageItem(item) {
   return `
-    <div class="analysis-hub__coverage ${scoreTone(item.score)}">
+    <div class='analysis-hub__coverage ${scoreTone(item.score * 10)}'>
       <strong>${escapeHtml(item.label)}</strong>
       <span>${item.score}/10</span>
       <p>${escapeHtml(item.detail)}</p>
     </div>
   `;
-}
-
-function renderPhaseCard(phase) {
-  return `
-    <article class="analysis-hub__phase-card">
-      <span class="analysis-hub__card-kicker">${escapeHtml(phase.label)}</span>
-      <strong>${escapeHtml(phase.detail)}</strong>
-      <div class="analysis-hub__chip-list">
-        ${phase.actions.map((action) => `<span class="story-pill story-pill--info">${escapeHtml(action)}</span>`).join('')}
-      </div>
-    </article>
-  `;
-}
-
-function renderInsightRow(item) {
-  return `
-    <div class="analysis-hub__row">
-      <strong>${escapeHtml(item.label)}</strong>
-      <p>${escapeHtml(item.detail)}</p>
-    </div>
-  `;
-}
-
-function renderAlertRow(item) {
-  return `
-    <div class="analysis-hub__row analysis-hub__row--danger">
-      <strong>${escapeHtml(item.label)}</strong>
-      <p>${escapeHtml(item.detail)}</p>
-    </div>
-  `;
-}
-
-function computeExecutionEase(selectedChampions) {
-  const complexTerms = ['exigente', 'técnico', 'tecnico', 'difícil', 'dificil', 'caótico', 'caotico', 'mecánico', 'mecanico', 'preciso'];
-  const complexityHits = selectedChampions.reduce((total, champion) => {
-    const text = [champion.champion, champion.identity, champion.function, champion.tempo, ...(champion.strengths || []), ...(champion.weaknesses || [])]
-      .filter(Boolean)
-      .join(' ')
-      .toLowerCase();
-    return total + (complexTerms.some((term) => text.includes(term)) ? 1 : 0);
-  }, 0);
-
-  return clamp(10 - complexityHits * 2, 1, 10);
-}
-
-function metricScore(metrics, label) {
-  const key = normalizeText(label);
-  const found = metrics.find((metric) => normalizeText(metric?.label || metric?.key || '') === key);
-  return clamp(Math.round(Number(found?.score) || 0), 0, 10) || 5;
 }
 
 function uniqueByLabel(items = []) {
@@ -764,23 +879,31 @@ function uniqueByLabel(items = []) {
   return result;
 }
 
-function uniqueValues(values = []) {
-  return [...new Set(values.filter(Boolean))];
+function containsAny(text, terms = []) {
+  const normalized = normalizeText(text);
+  return terms.some((term) => normalized.includes(normalizeText(term)));
 }
 
 function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
-function toLabel(value) {
-  if (value == null) return '';
-  if (typeof value === 'string') return value.trim();
-  return String(value.label || value.name || value.title || value.detail || '').trim();
+function uniqueValues(values = []) {
+  return [...new Set(values.filter(Boolean))];
 }
 
-function containsAny(text, terms = []) {
-  const normalized = normalizeText(text);
-  return terms.some((term) => normalized.includes(normalizeText(term)));
+function toLabel(value, fallback = '') {
+  if (value == null) return fallback;
+  if (typeof value === 'string') return value.trim() || fallback;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map((item) => toLabel(item, '')).filter(Boolean).join(' · ') || fallback;
+  if (typeof value === 'object') {
+    return toLabel(
+      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.item ?? '',
+      fallback
+    );
+  }
+  return String(value) || fallback;
 }
 
 function normalizeText(value = '') {
@@ -804,16 +927,22 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
-function scoreTone(score) {
-  if (score >= 8) return 'is-good';
-  if (score >= 5) return 'is-mid';
+function toneByScore(score) {
+  if (score >= 85) return 'is-good';
+  if (score >= 70) return 'is-mid';
   return 'is-low';
 }
 
 function toneByGrade(grade) {
-  if (grade === 'A+' || grade === 'A') return 'success';
-  if (grade === 'B+' || grade === 'B') return 'info';
-  return 'danger';
+  if (String(grade).startsWith('A')) return 'success';
+  if (String(grade).startsWith('B')) return 'info';
+  return 'warning';
+}
+
+function scoreTone(score) {
+  if (score >= 85) return 'is-good';
+  if (score >= 70) return 'is-mid';
+  return 'is-low';
 }
 
 function gradeFromScore(score) {
@@ -824,4 +953,26 @@ function gradeFromScore(score) {
   if (score >= 64) return 'C+';
   if (score >= 56) return 'C';
   return 'D';
+}
+
+function metricScore(metrics, label) {
+  const target = normalizeText(label);
+  const match = (Array.isArray(metrics) ? metrics : []).find((metric) => normalizeText(metric?.label || metric?.key || '') === target);
+  if (match) return clamp(Math.round(Number(match.score) || 0), 1, 10);
+
+  const fuzzy = (Array.isArray(metrics) ? metrics : []).find((metric) => normalizeText(metric?.label || metric?.key || '').includes(target) || target.includes(normalizeText(metric?.label || metric?.key || '')));
+  if (fuzzy) return clamp(Math.round(Number(fuzzy.score) || 0), 1, 10);
+
+  return 5;
+}
+
+function computeExecutionEase(selectedChampions) {
+  const complexTerms = ['exigente', 'técnico', 'tecnico', 'difícil', 'dificil', 'caótico', 'caotico', 'mecánico', 'mecanico', 'preciso'];
+  const complexityHits = selectedChampions.reduce((total, champion) => {
+    const text = [champion.champion, champion.identity, champion.function, champion.tempo].filter(Boolean).join(' ').toLowerCase();
+    return total + (complexTerms.some((term) => text.includes(term)) ? 1 : 0);
+  }, 0);
+
+  const ease = 10 - complexityHits * 2;
+  return clamp(ease, 1, 10);
 }
