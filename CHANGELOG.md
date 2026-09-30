@@ -21,6 +21,7 @@
 - Empty and single-champion edge-case fixtures for the certification sprint.
 - Timing and certification metadata in the engine test bank.
 - Explainability engine with compact evidence blocks for the analysis panel.
+- Coach engine with priorities, power spikes and phase guidance.
 
 ### Changed
 - Documentation aligned with the compact analysis budget.
@@ -39,7 +40,9 @@
 - The analysis panel now shows strategic dependencies.
 - The analysis engine now exposes explainability evidence.
 - The analysis panel now shows a compact why-block.
-- Service worker cache bumped to v42 after the explainability update.
+- The analysis engine now exposes coach guidance.
+- The analysis panel now shows coach priorities, power spikes and phase guidance.
+- Service worker cache bumped to v43 after the coach update.
 
 ### Notes
 - The main screen must stay compact and understandable in seconds.
