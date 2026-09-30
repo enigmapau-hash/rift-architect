@@ -48,6 +48,25 @@ function scoreBand(score) {
   return 'Baja';
 }
 
+function gradeFromScore(score) {
+  const value = clamp(Number(score) || 0, 0, 100);
+  if (value >= 90) return 'S';
+  if (value >= 80) return 'A+';
+  if (value >= 70) return 'A';
+  if (value >= 60) return 'B';
+  if (value >= 45) return 'C';
+  return 'D';
+}
+
+function labelFromScore(score) {
+  const value = clamp(Number(score) || 0, 0, 100);
+  if (value >= 90) return 'Excelente';
+  if (value >= 80) return 'Muy alta';
+  if (value >= 70) return 'Alta';
+  if (value >= 55) return 'Media';
+  return 'Baja';
+}
+
 function buildDraftProfile(analysis = {}) {
   const metrics = Array.isArray(analysis.metrics) ? analysis.metrics : [];
   const score = (key) => scoreMetric(metrics, key);
