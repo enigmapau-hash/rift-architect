@@ -71,17 +71,16 @@
 - Documentar reglas visuales para futuros módulos.
 - Preparar una guía visual reutilizable en toda la app.
 
-## Fase 8 — Composition Report v1 ✅
-- Convertir el análisis en una ficha ejecutiva clara.
-- Mostrar hero card, score, fortalezas, riesgos, métricas, timeline, coach, advisor y explicabilidad.
-- Mantener una lectura rápida y centrada solo en la propia composición.
+## Fase 8 — Composition View AI ✅
+- Convertir el análisis en una vista visual y fácil de leer.
+- Mostrar una explicación simple en lenguaje natural apoyada en el Excel.
+- Mantener hero card, línea de campeones, métricas, timeline, coach, advisor y explicabilidad.
 - Servir como pantalla principal definitiva de Composition Architect.
 
-### Sprint 8.1 — Composition Report v1 ✅
-- Unificar la salida del motor en una página ejecutiva.
-- Añadir Composition Score y semáforo de calidad.
-- Reforzar la jerarquía visual de identidad, plan y riesgos.
-- Reducir el ruido y priorizar lectura en segundos.
+### Sprint 8.1 — Composition View v1 ✅
+- Unificar la salida del motor en una vista principal clara.
+- Añadir composición visual, score y jerarquía rápida de lectura.
+- Reforzar la lectura de qué composición tengo y cómo se juega.
 
 ### Sprint 8.2 — Composition Optimizer ✅
 - Recomendar swaps internos que mejoren la composición.
@@ -89,11 +88,10 @@
 - Priorizar cambios de campeones por impacto estratégico.
 - Convertir el simulador en una herramienta de mejora guiada.
 
-### Sprint 8.3 — Composition View Pro ✅
-- Convertir el análisis en una vista más visual y rápida de leer.
-- Mostrar score, línea de campeones, métricas, timeline y explicación visual.
-- Mantener el foco en la composición propia, sin exportación de documentos.
-- Reforzar la identidad visual del producto.
+### Sprint 8.3 — Visual AI Brief ✅
+- Resumir la composición en lenguaje simple.
+- Mostrar preguntas útiles para profundizar con la IA.
+- Reforzar la lectura visual frente al texto técnico.
 
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
