@@ -4,6 +4,7 @@ import { summarizeStrengths } from './strengthEngine.js';
 import { summarizeWeaknesses } from './weaknessEngine.js';
 import { summarizeTempo } from './tempoEngine.js';
 import { summarizeSynergies } from './synergyEngine.js';
+import { summarizeDependencies } from './dependencyEngine.js';
 import { evaluateCoherence } from './coherenceEngine.js';
 import { determineWinCondition } from './winConditionEngine.js';
 import { buildGamePlan } from './planEngine.js';
@@ -26,7 +27,7 @@ const METRIC_KEYS = Object.keys(METRIC_LABELS);
 const DAMAGE_AP_TERMS = ['mage', 'battlemage', 'artillery', 'enchanter', 'burst', 'magic', 'ap'];
 const DAMAGE_AD_TERMS = ['marksman', 'fighter', 'bruiser', 'assassin', 'duelist', 'ad', 'adc'];
 
-function buildSummaryText(identitySummary, tempoSummary, coherence, winCondition, synergies) {
+function buildSummaryText(identitySummary, tempoSummary, coherence, winCondition, synergies, dependencies) {
   const parts = [identitySummary.primary?.label || 'Sin definir'];
 
   if (identitySummary.secondary.length) {
@@ -47,6 +48,10 @@ function buildSummaryText(identitySummary, tempoSummary, coherence, winCondition
 
   if (synergies?.length) {
     parts.push(`Sinergia: ${synergies[0].label}`);
+  }
+
+  if (dependencies?.items?.length) {
+    parts.push(`Dependencia: ${dependencies.items[0].label}`);
   }
 
   if (identitySummary.dominance === 'hybrid') {
@@ -138,13 +143,14 @@ function buildAggregateMetrics(profiles) {
   });
 }
 
-function computeConfidence(identitySummary, tempoSummary, coherence, synergies, winCondition) {
+function computeConfidence(identitySummary, tempoSummary, coherence, synergies, winCondition, dependencies) {
   const identityScore = Number(identitySummary?.confidence) || 0;
   const tempoScore = Number(tempoSummary?.confidence) || 0;
   const coherenceScore = Number(coherence?.score) || 0;
   const synergyBonus = Math.min(16, (Array.isArray(synergies) ? synergies.length : 0) * 5);
+  const dependencyBonus = Math.min(14, (Array.isArray(dependencies?.items) ? dependencies.items.length : 0) * 4);
   const winBonus = Math.min(10, (Array.isArray(winCondition?.priorities) ? winCondition.priorities.length : 0) * 3);
-  const raw = identityScore * 0.3 + tempoScore * 0.2 + coherenceScore * 0.3 + synergyBonus + winBonus;
+  const raw = identityScore * 0.3 + tempoScore * 0.2 + coherenceScore * 0.3 + synergyBonus + dependencyBonus + winBonus;
   return clampNumber(Math.round(raw), 0, 100);
 }
 
@@ -155,6 +161,7 @@ export function analyzeComposition(selectedChampions = []) {
   const weaknesses = summarizeWeaknesses(safeChampions, 3);
   const tempoSummary = summarizeTempo(safeChampions);
   const synergies = summarizeSynergies(safeChampions, identitySummary, strengths);
+  const dependencies = summarizeDependencies(safeChampions, 4);
   const coherence = evaluateCoherence({ identitySummary, synergies, selectedChampions: safeChampions });
   const winCondition = determineWinCondition({ identitySummary, tempoSummary, synergies, coherence });
   const gamePlan = buildGamePlan(winCondition, strengths, weaknesses, tempoSummary, synergies, coherence);
@@ -162,7 +169,7 @@ export function analyzeComposition(selectedChampions = []) {
   const profiles = safeChampions.map(buildChampionProfile);
   const metrics = buildAggregateMetrics(profiles);
   const damageSplit = buildDamageSplit(safeChampions);
-  const confidence = computeConfidence(identitySummary, tempoSummary, coherence, synergies, winCondition);
+  const confidence = computeConfidence(identitySummary, tempoSummary, coherence, synergies, winCondition, dependencies);
 
   return {
     engineVersion: ENGINE_VERSION,
@@ -175,10 +182,11 @@ export function analyzeComposition(selectedChampions = []) {
     gamePlan,
     confidence,
     dominance: identitySummary.dominance,
-    summaryText: buildSummaryText(identitySummary, tempoSummary, coherence, winCondition, synergies),
+    summaryText: buildSummaryText(identitySummary, tempoSummary, coherence, winCondition, synergies, dependencies),
     identityBreakdown: identitySummary.ranked,
     tempoBreakdown: tempoSummary.ranked,
     synergies,
+    dependencies,
     coherence,
     winCondition,
     metrics,
