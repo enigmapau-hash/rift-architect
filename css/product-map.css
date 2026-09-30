@@ -1,0 +1,136 @@
+/* Product map / visual structure */
+
+.product-map-shell {
+  margin-bottom: 10px;
+}
+
+.product-map {
+  display: grid;
+  gap: 12px;
+}
+
+.product-map__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.product-map__header h3 {
+  margin: 0 0 4px;
+  font-size: 1.08rem;
+}
+
+.product-map__badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 140, 255, 0.24);
+  background: rgba(124, 140, 255, 0.12);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.product-map__flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+.product-map__node {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.product-map__node--core {
+  border-color: rgba(70, 211, 161, 0.18);
+  background: rgba(70, 211, 161, 0.08);
+}
+
+.product-map__node-head {
+  display: grid;
+  gap: 6px;
+}
+
+.product-map__node-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+}
+
+.product-map__node h4 {
+  margin: 0;
+  font-size: 0.98rem;
+}
+
+.product-map__detail {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.product-map__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.product-map__chip {
+  padding: 5px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text);
+  font-size: 0.74rem;
+}
+
+.product-map__arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-2);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.product-map__future {
+  display: grid;
+  gap: 8px;
+  padding-top: 2px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.product-map__future-chip {
+  border-color: rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.08);
+}
+
+@media (max-width: 920px) {
+  .product-map__header {
+    flex-direction: column;
+  }
+
+  .product-map__flow {
+    grid-template-columns: 1fr;
+  }
+
+  .product-map__arrow {
+    transform: rotate(90deg);
+  }
+}
