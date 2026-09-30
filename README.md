@@ -14,9 +14,9 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Selector modal por rol con iconos oficiales y alias para variantes como Kayn, Shaco o Varus.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - La pantalla principal se organiza alrededor de una sola **Composition Story**.
-- La Story ya usa una rejilla más equilibrada en escritorio y mantiene una lectura compacta en móvil.
-- El Hero y el bloque de decisión tienen ahora más peso visual para leer mejor identidad, plan y prioridad.
-- La Story resume identidad, cómo gana, qué hacer, qué evitar, pieza clave, timeline y preguntas rápidas.
+- La Story usa una rejilla más equilibrada en escritorio y mantiene una lectura compacta en móvil.
+- La Story resume identidad, perfil táctico, cómo gana, qué hacer, qué evitar, pieza clave, timeline y preguntas rápidas.
+- El plan principal se muestra como checklist visual para que sea más rápido de leer.
 - El selector de campeones se ha ampliado para ser más cómodo en escritorio.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
