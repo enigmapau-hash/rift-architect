@@ -89,6 +89,12 @@
 - Priorizar cambios de campeones por impacto estratégico.
 - Convertir el simulador en una herramienta de mejora guiada.
 
+### Sprint 8.3 — Composition Report Pro ✅
+- Desglosar la puntuación en coherencia, confianza, métricas, cobertura y claridad de plan.
+- Añadir una checklist ejecutiva para jugar la composición.
+- Ofrecer exportación directa a PDF desde la vista del informe.
+- Reforzar la experiencia de informe tipo scouting.
+
 ## Fase 9 — Champion Pool Architect ⏳
 - Analizar el estilo del jugador.
 - Recomendar campeones por pool y rol.
