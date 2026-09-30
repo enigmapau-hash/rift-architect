@@ -5,7 +5,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 ## Fuente de verdad
 
 - `Draft Pool.xlsx` es la única fuente editable.
-- Un GitHub Action convierte el Excel a JSON en cada push a `main`. 
+- Un GitHub Action convierte el Excel a JSON en cada push a `main`.
 - La PWA consume `data/index.json` y los ficheros generados en `data/`.
 - GitHub Pages publica la versión visible del proyecto.
 
@@ -27,7 +27,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La Knowledge Layer se valida al arrancar para detectar incoherencias antes de usar la IA.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
-- Se han restaurado los helpers de confidencia del Executive Summary para estabilizar el render del hub.
+- El Executive Summary volvió a renderizar correctamente tras restaurar los helpers de confidencia.
 - La disciplina de trabajo obliga a actualizar código, README, ROADMAP y auditoría funcional/técnica en cada entrega.
 - Responsive compartido para PC, tablet y móvil.
 
