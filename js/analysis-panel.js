@@ -156,6 +156,7 @@ function renderAnalysisSummary() {
   const gamePlan = (analysis.gamePlan || []).slice(0, 3);
   const synergies = (analysis.synergies || []).slice(0, 3);
   const dependencies = (analysis.dependencies?.items || []).slice(0, 3);
+  const explanationSummary = (Array.isArray(analysis.explanation?.summary) ? analysis.explanation.summary : []).slice(0, 3);
   const coherence = analysis.coherence || {};
   const winCondition = analysis.winCondition || {};
   const tempo = analysis.tempoDetail || analysis.tempo || 'Sin definir';
@@ -178,6 +179,16 @@ function renderAnalysisSummary() {
           ${winCondition.label ? `<span class="analysis-chip">Victoria: ${escapeHtml(winCondition.label)}</span>` : ''}
         </div>
       </section>
+
+      ${explanationSummary.length ? `
+        <section class="analysis-block">
+          <p class="eyebrow">Por qué</p>
+          <details>
+            <summary>Ver evidencias del motor</summary>
+            ${renderList(explanationSummary, 'analysis-list--neutral')}
+          </details>
+        </section>
+      ` : ''}
 
       <div class="analysis-grid">
         <section class="analysis-block">
