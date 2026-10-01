@@ -194,11 +194,17 @@
 - Eliminar repeticiones entre tarjetas y dar a cada dato un único propietario.
 - Convertir la tarjeta superior en una narrativa de seis bloques.
 
-## Fase 31 — Legacy Migration 🔄
+## Fase 31 — Legacy Migration ✅
 - Retirar el Analysis Hub antiguo de la interfaz principal.
 - Evitar que la versión nueva conviva con paneles heredados.
 - Consolidar la lectura en el flujo acordeón de la home.
 - Limpiar estilos y scripts ya sin uso visible.
+
+## Fase 32 — Motor Trace ✅
+- Añadir una capa visible que muestre las fuentes del motor detrás de cada tarjeta.
+- Explicar de dónde salen el resumen, las prioridades, los riesgos, los picks y los bans.
+- Mantener la interfaz limpia mientras se incrementa la trazabilidad de la IA.
+- Conectar Executive Summary, Coach, Advisor, Draft Assistant y Execution Profile dentro del flujo acordeón.
 
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
