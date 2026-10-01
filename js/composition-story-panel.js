@@ -46,7 +46,7 @@ function asText(value, fallback = 'Sin definir') {
   if (typeof value === 'object') {
     return asText(
       value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
-      fallback
+      fallback,
     );
   }
   return String(value) || fallback;
@@ -200,8 +200,8 @@ function findChampionByTags(selectedChampions, tags = []) {
 }
 
 function buildStoryModel(analysis, selectedChampions) {
-  const strengths = asArray(analysis?.strengths).slice(0, 2).map(normalizeEntry);
-  const weaknesses = asArray(analysis?.weaknesses).slice(0, 2).map(normalizeEntry);
+  const strengths = asArray(analysis?.strengths).map(normalizeEntry);
+  const weaknesses = asArray(analysis?.weaknesses).map(normalizeEntry);
   const plan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step));
   const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase));
   const tempo = analysis?.tempoDetail?.label || analysis?.tempo || 'tu ventana natural de poder';
@@ -255,8 +255,8 @@ function buildStoryModel(analysis, selectedChampions) {
     priorities,
     avoid,
     keyPiece,
-    strengths,
-    weaknesses,
+    strengths: strengths.slice(0, 3),
+    weaknesses: weaknesses.slice(0, 3),
     whyItems,
     quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
   };
@@ -276,32 +276,31 @@ function renderHero(model) {
     <article class="design-system-card design-system-card--hero">
       <div class="design-system-card__header">
         <span class="design-system-badge">Tu composición</span>
-        <span class="design-system-badge design-system-badge--muted">Home wireframe</span>
+        <span class="design-system-badge design-system-badge--muted">Resumen ejecutivo</span>
       </div>
 
       <h3 class="design-system-card__title">${escapeHtml(model.identity)}</h3>
       <p class="design-system-card__copy">${escapeHtml(model.summaryText)}</p>
-      <p class="design-system-card__reason">${escapeHtml(model.quickCoach)}</p>
 
       <div class="design-system-chip-row">
-        ${renderChip('Cómo ganas', model.win, 'is-primary')}
-        ${renderChip('Prioridad', model.priorities[0] || 'Ganar tempo y visión')}
-        ${renderChip('Evita', model.avoid[0] || 'Forzar peleas malas', 'is-warning')}
+        ${renderChip(`${model.grade} · ${model.score}/100`, model.quickCoach, 'is-primary')}
+        ${renderChip('Pico', model.tempo)}
+        ${renderChip('Pieza clave', model.keyPiece ? model.keyPiece.champion : 'Sin definir', 'is-warning')}
       </div>
     </article>
   `;
 }
 
-function renderLabelList(items = [], fallback = 'Sin datos claros.') {
+function renderCompactList(items = [], fallback = 'Sin datos claros.') {
   if (!items.length) {
-    return `<div class="composition-story__stack-list"><p class="composition-story__lead">${escapeHtml(fallback)}</p></div>`;
+    return `<p class="design-system-expandable__muted">${escapeHtml(fallback)}</p>`;
   }
 
   return `
-    <div class="composition-story__stack-list">
+    <div class="design-system-expandable__list">
       ${items.map((item) => `
-        <article class="composition-story__stack-item composition-story__stack-item--good">
-          <div class="composition-story__stack-head">
+        <article class="design-system-expandable__item">
+          <div class="design-system-expandable__item-head">
             <strong>${escapeHtml(item.label)}</strong>
             ${item.score !== null ? `<span>${item.score}/10</span>` : ''}
           </div>
@@ -312,46 +311,38 @@ function renderLabelList(items = [], fallback = 'Sin datos claros.') {
   `;
 }
 
-function renderDetail(model) {
+function renderDetailRow(title, text, note = '') {
   return `
-    <details class="design-system-card design-system-card--detail">
-      <summary class="design-system-card__summary">
-        <strong>Ver análisis completo</strong>
-        <span>${model.score}/100 · ${model.grade}</span>
+    <article class="design-system-expandable__item">
+      <div class="design-system-expandable__item-head">
+        <strong>${escapeHtml(title)}</strong>
+      </div>
+      <p>${escapeHtml(text || 'Sin detalle')}</p>
+      ${note ? `<p class="design-system-expandable__muted">${escapeHtml(note)}</p>` : ''}
+    </article>
+  `;
+}
+
+function renderExpandableCard({ label, summary, meta = [], tone = '', details = '', open = false }) {
+  const metaMarkup = meta.filter(Boolean).map((item) => `<span class="design-system-expandable__pill">${escapeHtml(item)}</span>`).join('');
+
+  return `
+    <details class="design-system-card design-system-expandable ${tone ? `design-system-expandable--${tone}` : ''}" data-expandable-card${open ? ' open' : ''}>
+      <summary class="design-system-expandable__summary">
+        <div class="design-system-expandable__copy">
+          <span class="design-system-badge">${escapeHtml(label)}</span>
+          <p class="design-system-expandable__summary-text">${escapeHtml(summary)}</p>
+        </div>
+
+        <div class="design-system-expandable__aside">
+          ${metaMarkup ? `<div class="design-system-expandable__meta">${metaMarkup}</div>` : ''}
+          <span class="design-system-expandable__toggle design-system-expandable__toggle--closed">▼ Ver más</span>
+          <span class="design-system-expandable__toggle design-system-expandable__toggle--open">▲ Ocultar</span>
+        </div>
       </summary>
 
-      <div class="composition-story__card-grid composition-story__card-grid--two">
-        <article class="composition-story__panel composition-story__panel--coach composition-story__panel--wide">
-          <div class="composition-story__section-head">
-            <p class="eyebrow">Lectura táctica</p>
-            <h4>Pieza clave y tempo</h4>
-          </div>
-          <p class="composition-story__lead">${escapeHtml(model.keyPiece ? `${model.keyPiece.champion} es la pieza que más condiciona el resultado.` : 'Todavía no hay una pieza clave clara.')}</p>
-          <div class="composition-story__chip-list">
-            <span class="story-pill">${escapeHtml(model.tempo)}</span>
-            ${model.phases.map((phase) => `<span class="story-pill story-pill--neutral">${escapeHtml(phase)}</span>`).join('')}
-          </div>
-          <p class="composition-story__lead">${escapeHtml(model.quickCoach)}</p>
-          <div class="composition-story__chip-list">
-            ${model.whyItems.map((item) => `<span class="story-pill">${escapeHtml(item)}</span>`).join('')}
-          </div>
-        </article>
-
-        <article class="composition-story__panel composition-story__panel--good">
-          <div class="composition-story__section-head">
-            <p class="eyebrow">Fortalezas</p>
-            <h4>Lo que mejor sostiene el plan</h4>
-          </div>
-          ${renderLabelList(model.strengths, 'Sin fortalezas claras.')}
-        </article>
-
-        <article class="composition-story__panel composition-story__panel--danger">
-          <div class="composition-story__section-head">
-            <p class="eyebrow">Riesgos</p>
-            <h4>Lo que debes compensar</h4>
-          </div>
-          ${renderLabelList(model.weaknesses, 'Sin riesgos claros.')}
-        </article>
+      <div class="design-system-expandable__body">
+        ${details}
       </div>
     </details>
   `;
@@ -365,8 +356,8 @@ function renderStory() {
     els.root.innerHTML = `
       <section class="composition-story composition-story--empty">
         <p class="eyebrow">Composition Story</p>
-        <h3>Selecciona cinco campeones para ver la home wireframe</h3>
-        <p>La pantalla principal mostrará una sola decisión clara, con el detalle organizado debajo.</p>
+        <h3>Selecciona cinco campeones para ver el resumen compacto</h3>
+        <p>La pantalla principal mostrará solo una decisión clara por bloque y el detalle quedará oculto hasta que lo abras.</p>
       </section>
     `;
     return;
@@ -375,12 +366,95 @@ function renderStory() {
   const analysis = analyzeComposition(selectedChampions);
   const model = buildStoryModel(analysis, selectedChampions);
 
+  const cards = [
+    renderExpandableCard({
+      label: 'Lectura táctica',
+      summary: model.quickCoach,
+      meta: [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`],
+      tone: 'hero',
+      details: `
+        ${renderDetailRow('Identidad', model.identity, model.summaryText)}
+        ${renderDetailRow('Pieza clave', model.keyPiece ? `${model.keyPiece.champion} es la pieza que más condiciona el resultado.` : 'No hay una pieza clave clara todavía.', model.keyPiece ? [model.keyPiece.function, model.keyPiece.identity, model.keyPiece.tempo].filter(Boolean).join(' · ') : '')}
+        ${renderDetailRow('Razonamiento', model.quickCoach, model.whyItems.join(' · '))}
+      `,
+    }),
+    renderExpandableCard({
+      label: 'Cómo ganas',
+      summary: model.win,
+      meta: [model.tempo, model.phases[0] || 'Primer pico'],
+      tone: 'primary',
+      details: `
+        ${renderDetailRow('Condición de victoria', model.win, 'La composición gana cuando juega alrededor de su mejor ventana.')}
+        ${renderDetailRow('Ventanas de poder', model.phases.join(' · ') || model.tempo, 'Early · Mid · Late')}
+        ${renderDetailRow('Señales del plan', model.priorities[0] || 'Ganar tempo y visión', model.priorities.slice(1, 3).join(' · '))}
+      `,
+    }),
+    renderExpandableCard({
+      label: 'Tu prioridad',
+      summary: model.priorities[0] || 'Ganar tempo y visión',
+      meta: [model.priorities[1] || 'Agruparte bien', model.keyPiece ? model.keyPiece.champion : 'Sin pieza clave'],
+      tone: 'success',
+      details: `
+        ${renderCompactList(
+          model.priorities.map((priority, index) => ({ label: `Prioridad ${index + 1}`, detail: priority, score: null })),
+          'No hay prioridades claras.',
+        )}
+        ${renderDetailRow('Pieza clave', model.keyPiece ? `${model.keyPiece.champion} debe estar protegida o habilitada.` : 'No hay una pieza clave clara todavía.')}
+      `,
+    }),
+    renderExpandableCard({
+      label: 'Qué evitar',
+      summary: model.avoid.join(' · ') || 'Evita pelear sin visión',
+      meta: ['Errores críticos', 'Control del ritmo'],
+      tone: 'warning',
+      details: `
+        ${renderCompactList(
+          model.avoid.map((item) => ({ label: item, detail: 'Evita este error porque castiga directamente tu plan.', score: null })),
+          'No hay riesgos claros.',
+        )}
+        ${renderDetailRow('Riesgo mayor', model.weaknesses.map((item) => item.label).join(' · ') || 'Sin riesgos claros.', 'Lo que más necesitas compensar.')}
+      `,
+    }),
+    renderExpandableCard({
+      label: 'Fortalezas',
+      summary: model.strengths.map((item) => item.label).join(' · ') || 'Sin fortalezas claras',
+      meta: ['Sostén del plan'],
+      details: `
+        ${renderCompactList(model.strengths, 'Sin fortalezas claras.')}
+      `,
+    }),
+    renderExpandableCard({
+      label: 'Debilidades',
+      summary: model.weaknesses.map((item) => item.label).join(' · ') || 'Sin riesgos claros',
+      meta: ['Necesidades', 'Compensación'],
+      details: `
+        ${renderCompactList(model.weaknesses, 'Sin riesgos claros.')}
+      `,
+    }),
+  ];
+
   els.root.innerHTML = `
-    <section class="composition-story composition-story--wireframe" style="grid-template-columns:minmax(0,1fr);gap:14px;">
+    <section class="composition-story composition-story--wireframe">
       ${renderHero(model)}
-      ${renderDetail(model)}
+      <div class="composition-story__accordion">
+        ${cards.join('')}
+      </div>
     </section>
   `;
+
+  bindAccordion();
+}
+
+function bindAccordion() {
+  const cards = [...els.root.querySelectorAll('[data-expandable-card]')];
+  cards.forEach((card) => {
+    card.addEventListener('toggle', () => {
+      if (!card.open) return;
+      cards.forEach((other) => {
+        if (other !== card) other.open = false;
+      });
+    });
+  });
 }
 
 function observeComposition() {
