@@ -16,6 +16,7 @@
 - Debilidades.
 - Plan de partida.
 - Sinergias y Riesgos.
+- **Cerrado**.
 
 ### Hito 3: IA refinada
 - Mejorar lo que ya existe.
@@ -49,7 +50,8 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 ## Estado actual
 
 - El Hito 1 queda cerrado.
-- La app sigue centrada en la propia composición.
-- La Story usa tarjetas fijas, compactas y visuales.
-- El resumen ejecutivo se mantiene simple y tangible.
-- El siguiente trabajo debe atacar solo el Hito 2.
+- El Hito 2 queda cerrado.
+- La pantalla principal ya está terminada.
+- La lectura sigue centrada en la composición propia.
+- La app mantiene una jerarquía visual simple y funcional.
+- El siguiente trabajo debe atacar solo el Hito 3.
