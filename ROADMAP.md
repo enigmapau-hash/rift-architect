@@ -15,10 +15,10 @@
 
 - Home con seis tarjetas fijas de resumen.
 - Cada tarjeta muestra líneas cortas, chips, barras textuales e iconos.
-- La experiencia mantiene la misma estructura en móvil, tablet y escritorio.
-- No hay modales ni acordeones en la Story principal.
+- La experiencia mantiene la misma estructura en móvil, tablet y escritorio con una rejilla 3/2/1.
+- La beta se está validando como web app normal para evitar cachés PWA durante el desarrollo.
 - El botón **Actualizar** sigue oculto.
-- Cache de GitHub Pages y service worker alineados con la versión visible.
+- Cache de GitHub Pages y artefactos de publicación alineados con la versión visible.
 
 ## Siguiente trabajo
 
