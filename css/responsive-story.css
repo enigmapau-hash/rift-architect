@@ -1,8 +1,13 @@
 /* Responsive overrides for the fixed Story cards */
 
-.composition-story--cards {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+#storyView {
+  display: grid;
   gap: 14px;
+}
+
+.composition-story--cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
   align-items: stretch;
 }
 
@@ -17,6 +22,7 @@
     linear-gradient(180deg, rgba(14, 20, 36, 0.96), rgba(18, 24, 41, 0.98));
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
   align-content: start;
+  min-width: 0;
 }
 
 .composition-story__summary-card--info {
@@ -53,11 +59,20 @@
   line-height: 1.15;
 }
 
-.composition-story__summary-copy {
+.composition-story__summary-copy,
+.design-system-flow__value,
+.design-system-flow__meta {
   margin: 0;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.composition-story__summary-copy {
   color: var(--muted);
   line-height: 1.5;
   font-size: 0.94rem;
+  -webkit-line-clamp: 2;
 }
 
 .composition-story__summary-meta {
@@ -105,6 +120,7 @@
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
+  min-width: 0;
 }
 
 .design-system-flow__label {
@@ -115,26 +131,33 @@
 }
 
 .design-system-flow__value {
-  margin: 0;
   color: var(--text);
   line-height: 1.35;
   font-size: 0.94rem;
+  -webkit-line-clamp: 2;
 }
 
 .design-system-flow__meta {
-  margin: 0;
   color: var(--muted);
   line-height: 1.35;
   font-size: 0.8rem;
+  -webkit-line-clamp: 2;
 }
 
-@media (max-width: 980px) {
+@media (max-width: 1200px) {
+  .composition-story--cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
   .composition-story--cards {
     grid-template-columns: 1fr;
+    gap: 10px;
   }
 
   .composition-story__summary-card {
-    padding: 14px;
+    padding: 12px;
     border-radius: 16px;
   }
 
@@ -144,16 +167,6 @@
 
   .composition-story__summary-copy {
     font-size: 0.92rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .composition-story--cards {
-    gap: 12px;
-  }
-
-  .composition-story__summary-card {
-    padding: 12px;
   }
 
   .composition-story__summary-head {
