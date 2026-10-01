@@ -6,7 +6,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 
 - **Knowledge Layer**: Excel + reglas estratégicas normalizadas.
 - **Inference Layer**: análisis, coach, necesidades, perfiles y narrativa.
-- **Communication Layer**: tarjetas fijas de resumen con lectura compacta por línea.
+- **Communication Layer**: tarjetas fijas de resumen con lectura compacta por línea y responsive compartido para móvil, tablet y escritorio.
 
 ## Fuente de verdad
 
@@ -23,6 +23,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La Story muestra seis tarjetas fijas, compactas y jerarquizadas.
 - Cada tarjeta resume el análisis con líneas cortas, barras textuales, iconos y chips para evitar scroll largo.
 - La Story se sincroniza con la composición mediante el borrador guardado en localStorage.
+- La Story se adapta a móvil, tablet y escritorio con la misma jerarquía visual.
 - El antiguo flujo de modal/accordion quedó descartado para simplificar la lectura principal.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
