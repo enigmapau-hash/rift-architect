@@ -16,48 +16,25 @@ function init() {
   if (initialized) return;
   initialized = true;
 
-  storyView.addEventListener('click', handleClick, true);
-  storyView.addEventListener('keydown', handleKeydown, true);
+  storyView.addEventListener('toggle', handleToggle, true);
   normalizeCards(storyView);
 
   mutationObserver = new MutationObserver(() => normalizeCards(storyView));
   mutationObserver.observe(storyView, { childList: true, subtree: true });
 }
 
-function handleClick(event) {
-  const summary = event.target.closest(`${CARD_SELECTOR} > summary`);
-  if (!summary) return;
+function handleToggle(event) {
+  const card = event.target;
+  if (!(card instanceof HTMLDetailsElement) || !card.matches(CARD_SELECTOR)) return;
 
-  const card = summary.parentElement;
-  if (!(card instanceof HTMLDetailsElement)) return;
-
-  event.preventDefault();
-  toggleCard(card);
-}
-
-function handleKeydown(event) {
-  if (event.key !== 'Enter' && event.key !== ' ') return;
-
-  const summary = event.target.closest(`${CARD_SELECTOR} > summary`);
-  if (!summary) return;
-
-  const card = summary.parentElement;
-  if (!(card instanceof HTMLDetailsElement)) return;
-
-  event.preventDefault();
-  toggleCard(card);
-}
-
-function toggleCard(card) {
   const storyView = card.closest(STORY_VIEW_SELECTOR);
   if (!storyView) return;
 
-  const cards = [...storyView.querySelectorAll(CARD_SELECTOR)];
-  const shouldOpen = !card.open;
-
-  cards.forEach((other) => {
-    other.open = other === card && shouldOpen;
-  });
+  if (card.open) {
+    [...storyView.querySelectorAll(CARD_SELECTOR)].forEach((other) => {
+      if (other !== card) other.open = false;
+    });
+  }
 
   normalizeCards(storyView);
 }
@@ -68,11 +45,9 @@ function normalizeCards(storyView) {
 
   cards.forEach((card) => {
     const summary = card.querySelector(':scope > summary');
-    if (!summary) return;
-
-    summary.setAttribute('role', 'button');
-    summary.setAttribute('tabindex', '0');
-    summary.setAttribute('aria-expanded', String(card.open));
+    if (summary) {
+      summary.setAttribute('aria-expanded', String(card.open));
+    }
 
     if (!card.open) return;
 
@@ -82,6 +57,6 @@ function normalizeCards(storyView) {
     }
 
     card.open = false;
-    summary.setAttribute('aria-expanded', 'false');
+    if (summary) summary.setAttribute('aria-expanded', 'false');
   });
 }
