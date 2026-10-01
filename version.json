@@ -1,6 +1,6 @@
 {
-  "version": "v65",
-  "stage": "Patch 0.45.1 / Analysis Render Bridge",
+  "version": "v66",
+  "stage": "Patch 0.45.2 / Analysis Failsafe Renderer",
   "date": "2026-10-01",
-  "cache": "rift-architect-v141"
+  "cache": "rift-architect-v142"
 }
