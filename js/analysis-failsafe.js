@@ -23,6 +23,7 @@ async function init() {
 
   window.addEventListener('storage', scheduleRender);
   window.addEventListener('resize', scheduleRender, { passive: true });
+  window.addEventListener('rift-architect:composition-changed', scheduleRender);
   window.setInterval(scheduleRender, 350);
 
   renderStory();
