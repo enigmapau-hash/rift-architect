@@ -45,10 +45,11 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.14 de IA Flow:
+- Muestra el Draft Assistant como una beta 0.15 de Legacy Migration:
   - resumen corto primero,
   - detalle bajo demanda,
   - flujo acordeón con una sola tarjeta abierta a la vez.
+- El antiguo Analysis Hub ya no forma parte de la interfaz principal.
 - La interfaz usa un sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips, badges y flow cards.
 - La pantalla principal sigue la arquitectura de información definitiva:
   - Tu composición,
@@ -94,6 +95,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.14 / IA Flow
+**Fase actual:** Beta 0.15 / Legacy Migration
 
-**Meta inmediata:** afinar los resúmenes de cada tarjeta, reducir repeticiones entre bloques y mantener la experiencia compacta con un solo acordeón abierto a la vez.
+**Meta inmediata:** retirar por completo los paneles heredados de la interfaz visible y dejar solo el flujo acordeón de la home.
