@@ -1,36 +1,53 @@
 # Rift Architect Roadmap
 
-## Fases completadas
+## Hoja de ruta oficial
 
-- **Fase 1** — Base técnica: Excel como fuente de verdad, exportación a JSON y GitHub Pages.
-- **Fase 2** — Selección y composición: selector modal por rol, tarjetas homogéneas y responsive.
-- **Fases 3-5** — Motor de análisis, asistente IA y Knowledge + IA.
-- **Fases 6-19** — Composition Story, UX passes, Analysis Hub, Draft Assistant, Narrative Engine y mejoras de motor.
-- **Fases 20-32** — Evolución hacia una home limpia, tarjetas-resumen, Motor Trace y limpieza del Analysis Hub.
-- **Fase 33** — Story Sync: la Story se actualiza desde el borrador guardado en localStorage para reflejar la composición real.
-- **Fase 34** — Fixed Cards: la Story vuelve a una rejilla de tarjetas fijas, compactas y jerarquizadas.
-- **Fase 35** — Responsive Fixed Cards: las tarjetas fijas se ajustan a móvil, tablet y escritorio con la misma jerarquía.
-- **Fase 36** — Compact Story Signals: la Story reduce texto redundante y prioriza señales compactas por tarjeta.
-- **Fase 37** — Signal Cards: la comunicación visual gana peso frente al texto largo y la información repetida.
-- **Fase 38** — Visual Signal Cards: las señales pasan a usar chips y barras más gráficas para leer de un vistazo.
-- **Fase 39** — Desktop Signal Balance: el banco de señales gana más aire en escritorio para evitar columnas estrechas y texto comprimido.
-- **Fase 40** — Executive Summary 2.0: la primera lectura vuelve a centrarse en identidad, fortalezas, debilidades y plan con un formato más compacto.
+### Hito 1: Base estable
+- Una sola ruta de render.
+- Consola limpia.
+- Sin paneles experimentales visibles.
+- Responsive estable.
 
-## Estado actual
+### Hito 2: Pantalla principal terminada
+- Executive Summary.
+- Identidad.
+- Fortalezas.
+- Debilidades.
+- Plan de partida.
+- Sinergias y Riesgos.
 
-- Home centrada en la composición propia.
-- Tarjetas fijas, compactas y visuales.
-- Lectura rápida con identidad, fortalezas, debilidades, plan y riesgos.
-- Mismo comportamiento en móvil, tablet y escritorio.
-- El botón **Actualizar** sigue oculto.
+### Hito 3: IA refinada
+- Mejorar lo que ya existe.
+- Más claridad en las salidas del motor.
+- Sin crear nuevas pantallas.
 
-## Siguiente trabajo
+### Hito 4: Base de conocimiento madura
+- Excel más completo.
+- Normalización y validación más estrictas.
+- Más señales útiles por composición.
 
-- Reforzar la lectura principal para que sea clara en 10-20 segundos.
-- Unificar indicadores visuales.
-- Reducir cualquier redundancia residual.
-- Validar composiciones reales y corregir regresiones.
+### Hito 5: Beta 1.0
+- Experiencia estable.
+- Lectura clara en móvil, tablet y escritorio.
+- Sin regresiones conocidas.
+
+### Hito 6: Release Candidate
+- Congelar funciones.
+- Corregir bugs.
+- Pulir rendimiento y accesibilidad.
+
+### Hito 7: Versión 1.0
+- Revisión final.
+- Documentación cerrada.
+- Entrega estable del producto.
 
 ## Regla del proyecto
 
-Cada entrega debe actualizar código, README, ROADMAP y `docs/PROJECT_STATE.md`.
+No se abre un nuevo bloque hasta cerrar el anterior.
+
+## Estado actual
+
+- La app vuelve a estar centrada en la propia composición.
+- La Story usa tarjetas fijas, compactas y visuales.
+- El resumen ejecutivo se reduce a lo esencial.
+- El siguiente trabajo debe atacar solo el hito activo.
