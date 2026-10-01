@@ -214,7 +214,18 @@ function buildTacticalLayer(analysis, coach) {
   const risks = toArray(coach?.risks || []);
   const powerSpikes = toArray(coach?.powerSpikes || []);
   const mode = String(coach?.mode || 'hybrid');
-  const modeLabel = mode === 'frontToBack' ? 'Front to back' : mode === 'poke' ? 'Poke' : mode === 'pick' ? 'Pick' : mode === 'splitpush' ? 'Splitpush' : mode === 'scaling' ? 'Escalado' : 'Flexible';
+  const modeLabel =
+    mode === 'frontToBack'
+      ? 'Front to back'
+      : mode === 'poke'
+        ? 'Poke'
+        : mode === 'pick'
+          ? 'Pick'
+          : mode === 'splitpush'
+            ? 'Splitpush'
+            : mode === 'scaling'
+              ? 'Escalado'
+              : 'Flexible';
 
   const primaryAction = toText(priorities[0]?.label || analysis?.winCondition?.label || analysis?.primaryIdentity || 'Jugar la identidad');
   const secondaryAction = toText(priorities[1]?.label || phases[1]?.title || 'Preparar la siguiente ventana');
@@ -235,7 +246,7 @@ function buildTacticalLayer(analysis, coach) {
     {
       action: `Convertir ${spike}`,
       phase: phases[1]?.phase || 'Mid',
-      reason: toText(phases[1]?.detail || coach?.summary?.powerSpike || 'La ventana de poder debe transformarse en objetivo o mapa.');
+      reason: toText(phases[1]?.detail || coach?.summary?.powerSpike || 'La ventana de poder debe transformarse en objetivo o mapa.'),
       confidence: scoreFromText([spike, phases[1]?.detail, coach?.summary?.powerSpike]),
       confidenceLabel: labelFromConfidence(scoreFromText([spike, phases[1]?.detail, coach?.summary?.powerSpike])),
       blockedBy: `Si el rival te niega ${spike.toLowerCase()}, juega corto y devuelve la presión a objetivos secundarios.`,
@@ -248,7 +259,7 @@ function buildTacticalLayer(analysis, coach) {
       reason: toText(risks[0]?.detail || coach?.summary?.risk || 'La victoria depende de no regalar el punto débil más castigable.'),
       confidence: scoreFromText([riskAction, risks[0]?.detail, coach?.summary?.risk]),
       confidenceLabel: labelFromConfidence(scoreFromText([riskAction, risks[0]?.detail, coach?.summary?.risk])),
-      blockedBy: `Si el riesgo aparece, reduce la pelea a una sola ventana y vuelve a la condición de victoria principal.`,
+      blockedBy: 'Si el riesgo aparece, reduce la pelea a una sola ventana y vuelve a la condición de victoria principal.',
       evidence: makeEvidence(risks[0], coach?.summary?.risk, analysis?.coherence?.detail),
       affectedChampions: uniqueValues([analysis?.coherence?.label, riskAction, coach?.summary?.risk]).slice(0, 4),
     },
@@ -291,7 +302,7 @@ function buildTacticalLayer(analysis, coach) {
     coach?.summary?.risk,
   ]);
 
-  const confidence = clamp(Math.round((decisions.reduce((sum, item) => sum + item.confidence, 0) / decisions.length) || analysis?.confidence || 0), 0, 100);
+  const confidence = clamp(Math.round(decisions.reduce((sum, item) => sum + item.confidence, 0) / decisions.length || analysis?.confidence || 0), 0, 100);
 
   return {
     mode,
