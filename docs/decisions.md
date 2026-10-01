@@ -49,3 +49,11 @@ Why:
 - faster scanning,
 - better hierarchy,
 - less vertical noise on every screen.
+
+## D-009 — Desktop breathing room
+On desktop, signal cards should relax their compacting a bit so text is not forced into narrow columns.
+
+Why:
+- improve readability on larger screens,
+- keep the same analysis meaning,
+- use the available width instead of fighting it.
