@@ -75,55 +75,45 @@ function renderPanel() {
 
   const primaryDecision = narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan);
   const primaryRisk = narrative.warningLine || fallbackWarningLine(bans[0] || null);
-  const heroLine = narrative.summary || 'La composición se entiende mejor como una sola historia.';
+  const heroLine = narrative.summary || 'La composicion se entiende mejor como una sola historia.';
 
   state.root.hidden = false;
   state.root.innerHTML = `
-    <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
-      <div class="analysis-hub__summary-panel-head">
-        <span class="analysis-hub__card-kicker">Tu composición</span>
-        <span class="analysis-hub__summary-panel-note">Una tarjeta · respuesta primero</span>
-      </div>
+    <section class='analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant'>
+      <article class='design-system-card design-system-card--hero'>
+        <div class='design-system-card__header'>
+          <span class='design-system-badge'>Tu composicion</span>
+          <span class='design-system-badge design-system-badge--muted'>Una sola decision</span>
+        </div>
 
-      <div class="analysis-hub__assistant-story">
-        <p class="analysis-hub__assistant-hero-title">${escapeHtml(narrative.title || 'Tu composición quiere ganar por un plan claro.')}</p>
-        <p>${escapeHtml(heroLine)}</p>
-        ${narrative.becauseLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.becauseLine)}</p>` : ''}
-      </div>
+        <h3 class='design-system-card__title'>${escapeHtml(narrative.title || 'Tu composicion quiere ganar por un plan claro.')}</h3>
+        <p class='design-system-card__copy'>${escapeHtml(heroLine)}</p>
+        ${narrative.becauseLine ? `<p class='design-system-card__reason'>${escapeHtml(narrative.becauseLine)}</p>` : ''}
 
-      <article class="analysis-hub__assistant-card analysis-hub__assistant-card--summary">
-        <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
-          <article class="analysis-hub__row analysis-hub__row--executive">
-            <div class="analysis-hub__row-copy">
-              <strong>Siguiente decisión</strong>
-              <p>${escapeHtml(primaryDecision)}</p>
-            </div>
-          </article>
-          <article class="analysis-hub__row analysis-hub__row--executive">
-            <div class="analysis-hub__row-copy">
-              <strong>Riesgo principal</strong>
-              <p>${escapeHtml(primaryRisk)}</p>
-            </div>
-          </article>
+        <div class='design-system-chip-row'>
+          ${renderDecisionChip('Siguiente decision', primaryDecision, 'is-primary')}
+          ${renderDecisionChip('Riesgo principal', primaryRisk, 'is-warning')}
         </div>
       </article>
 
-      <details class="analysis-hub__assistant-card">
-        <summary>
-          <strong>Ver análisis completo</strong>
+      <details class='design-system-card design-system-card--detail'>
+        <summary class='design-system-card__summary'>
+          <strong>Ver analisis completo</strong>
           <span>${needs.length} señales</span>
         </summary>
-        <div class="analysis-hub__assistant-list">
-          <article class="analysis-hub__row analysis-hub__row--executive">
-            <div class="analysis-hub__row-copy">
+
+        <div class='analysis-hub__assistant-list'>
+          <article class='analysis-hub__row analysis-hub__row--executive'>
+            <div class='analysis-hub__row-copy'>
               <strong>Por qué</strong>
               <p>${escapeHtml(narrative.becauseLine || fallbackBecauseLine(needs[0] || null, strategicPlan))}</p>
             </div>
           </article>
+
           ${renderNeedRows(needs, strategicPlan)}
           ${renderProfileRows(profiles)}
-          ${renderRecommendationRows(picks, 'Mejor decisión')}
-          ${renderRecommendationRows(bans, 'Qué evitar')}
+          ${renderRecommendationRows(picks, 'Mejor decision')}
+          ${renderRecommendationRows(bans, 'Que evitar')}
         </div>
       </details>
     </section>
@@ -144,17 +134,26 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
+function renderDecisionChip(label = '', value = '', tone = '') {
+  return `
+    <article class='design-system-chip ${tone}'>
+      <span class='design-system-chip__label'>${escapeHtml(label)}</span>
+      <strong class='design-system-chip__value'>${escapeHtml(value)}</strong>
+    </article>
+  `;
+}
+
 function renderNeedRows(needs = [], strategicPlan = {}) {
   if (!needs.length) return '';
 
   return needs.slice(0, 3).map((need) => `
-    <article class="analysis-hub__row">
-      <div class="analysis-hub__row-copy">
+    <article class='analysis-hub__row'>
+      <div class='analysis-hub__row-copy'>
         <strong>${escapeHtml(priorityPrefix(need.priority))} · ${escapeHtml(need.label)}</strong>
         <p>${escapeHtml(clampWords(need.detail, 11))}</p>
-        <p class="analysis-hub__row-note">Impacto: ${escapeHtml(clampWords(need.impact || buildNeedImpact(need, strategicPlan), 13))}</p>
+        <p class='analysis-hub__row-note'>Impacto: ${escapeHtml(clampWords(need.impact || buildNeedImpact(need, strategicPlan), 13))}</p>
       </div>
-      <span class="analysis-hub__assistant-score">${escapeHtml(String(need.score ?? 0))}/5</span>
+      <span class='analysis-hub__assistant-score'>${escapeHtml(String(need.score ?? 0))}/5</span>
     </article>
   `).join('');
 }
@@ -163,13 +162,13 @@ function renderProfileRows(profiles = []) {
   if (!profiles.length) return '';
 
   return profiles.slice(0, 2).map((profile) => `
-    <article class="analysis-hub__row">
-      <div class="analysis-hub__row-copy">
+    <article class='analysis-hub__row'>
+      <div class='analysis-hub__row-copy'>
         <strong>${escapeHtml(profile.label)}</strong>
         <p>${escapeHtml(clampWords(profile.detail, 12))}</p>
-        <p class="analysis-hub__row-note">Por qué: ${escapeHtml(clampWords(profile.why || profile.impact || 'Encaja con el plan actual.', 12))}</p>
+        <p class='analysis-hub__row-note'>Por qué: ${escapeHtml(clampWords(profile.why || profile.impact || 'Encaja con el plan actual.', 12))}</p>
       </div>
-      <span class="analysis-hub__assistant-score">${escapeHtml(confidencePrefix(profile.confidence))}<br>${escapeHtml(String(profile.confidence ?? 0))}/100</span>
+      <span class='analysis-hub__assistant-score'>${escapeHtml(confidencePrefix(profile.confidence))}<br>${escapeHtml(String(profile.confidence ?? 0))}/100</span>
     </article>
   `).join('');
 }
@@ -178,20 +177,20 @@ function renderRecommendationRows(items = [], title = 'ITEM') {
   if (!items.length) return '';
 
   return items.slice(0, 2).map((item) => `
-    <article class="analysis-hub__row">
-      <div class="analysis-hub__row-copy">
+    <article class='analysis-hub__row'>
+      <div class='analysis-hub__row-copy'>
         <strong>${escapeHtml(title)} · ${escapeHtml(item.label)}</strong>
         <p>${escapeHtml(clampWords(item.detail, 12))}</p>
-        ${item.profileLabel ? `<p class="analysis-hub__row-note">Perfil: ${escapeHtml(item.profileLabel)}</p>` : ''}
+        ${item.profileLabel ? `<p class='analysis-hub__row-note'>Perfil: ${escapeHtml(item.profileLabel)}</p>` : ''}
       </div>
-      <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority || 'minor'))}</span>
+      <span class='analysis-hub__assistant-score'>${escapeHtml(priorityPrefix(item.priority || 'minor'))}</span>
     </article>
   `).join('');
 }
 
 function fallbackSolutionLine(topProfile = null, topPick = null, strategicPlan = {}) {
   const profile = topProfile?.label || 'un perfil estable';
-  const pick = topPick?.profileLabel || topPick?.label || 'una opción compatible';
+  const pick = topPick?.profileLabel || topPick?.label || 'una opcion compatible';
   const focus = String(strategicPlan?.fightStyle || strategicPlan?.mapFocus || 'el plan').toLowerCase();
   return `La mejor forma de resolverlo es buscar ${profile.toLowerCase()} y, si hace falta, traducirlo a ${pick.toLowerCase()} para sostener ${focus}.`;
 }
@@ -204,7 +203,7 @@ function fallbackWarningLine(topBan = null) {
 function fallbackBecauseLine(primaryNeed = null, strategicPlan = {}) {
   if (!primaryNeed) return 'La necesidad principal sale del plan de juego actual.';
   const plan = String(strategicPlan?.fightStyle || strategicPlan?.mode || 'el plan actual').toLowerCase();
-  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composición todavía tiene un hueco importante').toLowerCase();
+  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composicion todavia tiene un hueco importante').toLowerCase();
   return `Necesita ${primaryNeed.label.toLowerCase()} porque ${reason} y eso afecta a ${plan}.`;
 }
 
@@ -214,19 +213,19 @@ function buildNeedImpact(need = {}, strategicPlan = {}) {
 
   const impacts = {
     frontline: `Sin frontline, ${style} pierde espacio para ejecutarse.`,
-    engage: 'Te costará iniciar peleas y asegurar objetivos.',
-    damage: 'No tendrás cierre claro en peleas largas o Barón.',
+    engage: 'Te costara iniciar peleas y asegurar objetivos.',
+    damage: 'No tendras cierre claro en peleas largas o Baron.',
     scaling: 'El plan se queda corto en late game.',
-    objective: `Convertir ventaja en ${focus} será más difícil.`,
-    control: 'Perderás espacio y visión en los puntos clave.',
-    teamfight: 'El 5v5 se volverá más caótico y menos fiable.',
-    poke: 'No podrás desgastar al rival antes del engage.',
-    mobility: 'Rotar y reposicionarte costará más.',
-    pick: 'No castigarás errores cortos ni niebla.',
-    splitpush: 'No abrirás mapa ni forzarás respuestas laterales.',
+    objective: `Convertir ventaja en ${focus} sera mas dificil.`,
+    control: 'Perderas espacio y vision en los puntos clave.',
+    teamfight: 'El 5v5 se volvera mas caotico y menos fiable.',
+    poke: 'No podras desgastar al rival antes del engage.',
+    mobility: 'Rotar y reposicionarte costara mas.',
+    pick: 'No castigaras errores cortos ni niebla.',
+    splitpush: 'No abriras mapa ni forzaras respuestas laterales.',
   };
 
-  return impacts[need.key] || 'El plan detectado quedará más débil.';
+  return impacts[need.key] || 'El plan detectado quedara mas debil.';
 }
 
 function clampWords(text, maxWords = 12) {
@@ -258,6 +257,6 @@ function escapeHtml(value) {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+    .replaceAll(String.fromCharCode(34), '&quot;')
+    .replaceAll(String.fromCharCode(39), '&#39;');
 }
