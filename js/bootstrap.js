@@ -2,14 +2,6 @@ import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/inde
 import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDraftChange } from './analyzer.js';
 
 (() => {
-  const keysToClear = ['rift-architect:draft-v2', 'rift-architect:draft'];
-
-  try {
-    keysToClear.forEach((key) => localStorage.removeItem(key));
-  } catch {
-    // ignore storage errors
-  }
-
   try {
     const report = validateKnowledgeLayer();
     window.__RIFT_ARCHITECT_KNOWLEDGE__ = report;
