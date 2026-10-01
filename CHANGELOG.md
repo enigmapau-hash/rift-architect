@@ -1,5 +1,16 @@
 # Changelog
 
+## v63 · Beta 0.44 / Base Stable
+### Changed
+- The app returns to a single visible render path.
+- The experimental executive summary module was removed.
+- The visible flow stays focused on the core Story.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; the visible surface is simpler and more stable.
+
 ## v62 · Beta 0.43 / Executive Summary 2.0
 ### Added
 - A compact executive summary view with four fixed signals: identity, strengths, weaknesses and plan.
@@ -22,17 +33,3 @@
 
 ### Notes
 - The analysis still comes from the same motor; the visible surface is simpler again.
-
-## v60 · Beta 0.41 / Tactical Intelligence
-### Added
-- A tactical intelligence view that turns the plan into concrete decisions and alternatives.
-- Decision trees that explain the main route, fallback and recovery path.
-- Tactical confidence, signals and evidence cards.
-
-### Changed
-- The explainability surface now exposes a more action-oriented layer on top of strategy.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the tactical layer became more explicit.
