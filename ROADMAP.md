@@ -15,6 +15,7 @@
 - **Fase 38** — Visual Signal Cards: las señales pasan a usar chips y barras más gráficas para leer de un vistazo.
 - **Fase 39** — Desktop Signal Balance: el banco de señales gana más aire en escritorio para evitar columnas estrechas y texto comprimido.
 - **Fase 40** — Explainability Panel: el motor se expone como evidencias, pesos y confianza dentro de un panel contextual.
+- **Fase 41** — Unified Analysis Model: todas las vistas consumen el mismo objeto de análisis normalizado.
 
 ## Estado actual
 
@@ -28,7 +29,7 @@
 ## Siguiente trabajo
 
 - Unificar todavía más los indicadores visuales.
-- Reducir la redundancia entre las tarjetas, el panel de señales y el nuevo panel explicativo.
+- Reducir la redundancia entre las tarjetas, el panel explicativo y el modelo unificado.
 - Validar más composiciones reales en varios tamaños de pantalla.
 - Seguir limpiando código legado si reaparece alguna regresión.
 
