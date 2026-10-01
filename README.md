@@ -22,6 +22,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 
 - La pantalla principal vuelve a estar centrada en la composición y su lectura rápida.
 - La Story muestra tarjetas fijas, compactas y visuales.
+- El resumen ejecutivo principal vuelve a ser una pieza concreta: identidad, fortalezas, debilidades y plan.
 - El motor interno sigue alimentando la lectura con identidad, plan, fortalezas, debilidades y riesgos.
 - La interfaz prioriza claridad por encima de paneles experimentales.
 
