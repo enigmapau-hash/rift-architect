@@ -71,7 +71,7 @@ function renderPanel() {
 
   const analysis = analyzeComposition(selectedChampions);
   const unified = analysis?.model || analysis?.unified || analysis?.analysisModel || {};
-  const coach = unified?.coach || analysis?.coach || {};
+  const coach = { ...(analysis?.coach || {}), ...(unified?.coach || {}) };
   const tactical = buildTacticalLayer(analysis, coach);
 
   state.root.innerHTML = `
@@ -302,7 +302,7 @@ function buildTacticalLayer(analysis, coach) {
     coach?.summary?.risk,
   ]);
 
-  const confidence = clamp(Math.round(decisions.reduce((sum, item) => sum + item.confidence, 0) / decisions.length || analysis?.confidence || 0), 0, 100);
+  const confidence = clamp(Math.round((decisions.reduce((sum, item) => sum + item.confidence, 0) / decisions.length) || analysis?.confidence || 0), 0, 100);
 
   return {
     mode,
