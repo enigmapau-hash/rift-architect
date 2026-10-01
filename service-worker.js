@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v134';
+const CACHE_NAME = 'rift-architect-v135';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -19,6 +19,7 @@ const STATIC_ASSETS = [
   './css/composition-story.css',
   './css/responsive-story.css',
   './css/explainability-panel.css',
+  './css/explainability-panel-coach.css',
   './css/accordion.css',
   './js/bootstrap.js',
   './js/block-legacy-data-fetches.js',
@@ -32,7 +33,7 @@ const STATIC_ASSETS = [
   './js/story-compact.js',
   './js/story-signals.js',
   './js/explainability-panel.js',
-  './js/explainability-panel-fixed.js',
+  './js/explainability-panel-coach.js',
   './js/composition-ia.js',
   './js/composition-modal-final.js',
   './js/analyzer.js',
