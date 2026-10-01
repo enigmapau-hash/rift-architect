@@ -157,11 +157,17 @@
 - Seguir simplificando la lectura inicial.
 - Acercar la experiencia a una pantalla única de decisión.
 
-## Fase 25 — Beta 0.8 / Design System 🔄
+## Fase 25 — Beta 0.8 / Design System ✅
 - Unificar las piezas visuales compartidas en Hero Card, Decision Card, Insight Card, Detail Card, chips y badges.
 - Reducir variantes visuales para que la experiencia sea más consistente.
 - Mantener una sola identidad de diseño en toda la app.
 - Hacer que nuevas pantallas reutilicen componentes comunes en vez de inventar versiones nuevas.
+
+## Fase 26 — Beta 0.9 / Home Wireframe 🔄
+- Replantear la home como una única tarjeta principal con hero, cómo gana, prioridad y evita.
+- Separar el detalle en un bloque plegado secundario.
+- Quitar ruido visual y dejar la decisión arriba.
+- Sentar el contrato visual de la Beta 1.0 antes de seguir puliendo.
 
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
