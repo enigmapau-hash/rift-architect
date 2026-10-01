@@ -6,7 +6,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 
 - **Knowledge Layer**: Excel + reglas estratégicas normalizadas.
 - **Inference Layer**: análisis, coach, necesidades, perfiles y narrativa.
-- **Communication Layer**: tarjetas fijas de resumen con lectura compacta por línea y responsive compartido para móvil, tablet y escritorio.
+- **Communication Layer**: tarjetas fijas de resumen, compactas y responsive para móvil, tablet y escritorio.
 
 ## Fuente de verdad
 
@@ -20,11 +20,10 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Selector modal por rol con iconos oficiales y alias para variantes como Kayn, Shaco o Varus.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - La pantalla principal sigue una arquitectura fija: Tu composición, Plan de victoria, Prioridades, Riesgos, Draft y Análisis avanzado.
-- La Story muestra seis tarjetas fijas, compactas y jerarquizadas.
-- Cada tarjeta resume el análisis con líneas cortas, barras textuales, iconos y chips para evitar scroll largo.
+- La Story muestra seis tarjetas fijas con señales compactas, barras y chips.
 - La Story se sincroniza con la composición mediante el borrador guardado en localStorage.
-- La Story se adapta a móvil, tablet y escritorio con la misma jerarquía visual y una rejilla 3/2/1.
-- Durante la beta la app corre como web app normal, sin depender de un Service Worker activo.
+- La Story se adapta a móvil, tablet y escritorio con la misma jerarquía visual.
+- Durante la Beta la app se comporta como una web normal, sin Service Worker activo.
 - El antiguo flujo de modal/accordion quedó descartado para simplificar la lectura principal.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
@@ -41,9 +40,8 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 1. Implementar la funcionalidad.
 2. Ejecutar auditoría técnica y funcional.
 3. Corregir regresiones antes de cerrar el sprint.
-4. Validar en móvil, tablet y escritorio.
-5. Actualizar README, ROADMAP y `docs/PROJECT_STATE.md`.
-6. Publicar en Pages si hay cambios de versión.
+4. Actualizar README, ROADMAP y `docs/PROJECT_STATE.md`.
+5. Publicar en Pages si hay cambios de versión.
 
 ## Roadmap
 
