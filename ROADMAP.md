@@ -163,11 +163,17 @@
 - Mantener una sola identidad de diseño en toda la app.
 - Hacer que nuevas pantallas reutilicen componentes comunes en vez de inventar versiones nuevas.
 
-## Fase 26 — Beta 0.9 / Home Wireframe 🔄
+## Fase 26 — Beta 0.9 / Home Wireframe ✅
 - Replantear la home como una única tarjeta principal con hero, cómo gana, prioridad y evita.
 - Separar el detalle en un bloque plegado secundario.
 - Quitar ruido visual y dejar la decisión arriba.
 - Sentar el contrato visual de la Beta 1.0 antes de seguir puliendo.
+
+## Fase 27 — Beta 0.10 / Layout Pass 1 ✅
+- Reordenar la home wireframe para que la jerarquía empiece por el hero y siga con el detalle plegado.
+- Reducir tarjetas visibles y agrupar la información en menos bloques.
+- Dar más protagonismo a la decisión principal y menos al soporte.
+- Preparar el terreno para el último pulido antes de la beta estable.
 
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
