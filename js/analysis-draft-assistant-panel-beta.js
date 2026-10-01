@@ -74,19 +74,15 @@ function renderPanel() {
   const bans = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
 
   const primaryDecision = narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan);
+  const primaryRisk = narrative.warningLine || fallbackWarningLine(bans[0] || null);
   const heroLine = narrative.summary || 'La composición se entiende mejor como una sola historia.';
-  const story = [
-    { label: 'Cómo gana', text: narrative.winLine || fallbackWinLine(analysis, strategicPlan) },
-    { label: 'Prioridad ahora', text: primaryDecision },
-    { label: 'Qué evitar', text: narrative.warningLine || fallbackWarningLine(bans[0] || null) },
-  ];
 
   state.root.hidden = false;
   state.root.innerHTML = `
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
         <span class="analysis-hub__card-kicker">Tu composición</span>
-        <span class="analysis-hub__summary-panel-note">Respuesta primero · detalle opcional</span>
+        <span class="analysis-hub__summary-panel-note">Una tarjeta · respuesta primero</span>
       </div>
 
       <div class="analysis-hub__assistant-story">
@@ -97,7 +93,18 @@ function renderPanel() {
 
       <article class="analysis-hub__assistant-card analysis-hub__assistant-card--summary">
         <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
-          ${story.map(renderStoryLine).join('')}
+          <article class="analysis-hub__row analysis-hub__row--executive">
+            <div class="analysis-hub__row-copy">
+              <strong>Siguiente decisión</strong>
+              <p>${escapeHtml(primaryDecision)}</p>
+            </div>
+          </article>
+          <article class="analysis-hub__row analysis-hub__row--executive">
+            <div class="analysis-hub__row-copy">
+              <strong>Riesgo principal</strong>
+              <p>${escapeHtml(primaryRisk)}</p>
+            </div>
+          </article>
         </div>
       </article>
 
@@ -135,17 +142,6 @@ function collectSelectedChampions() {
       weaknesses: [],
     }))
     .filter((champion) => champion.champion);
-}
-
-function renderStoryLine(item = {}) {
-  return `
-    <article class="analysis-hub__row analysis-hub__row--executive">
-      <div class="analysis-hub__row-copy">
-        <strong>${escapeHtml(item.label || 'Historia')}</strong>
-        <p>${escapeHtml(item.text || 'Sin detalle disponible.')}</p>
-      </div>
-    </article>
-  `;
 }
 
 function renderNeedRows(needs = [], strategicPlan = {}) {
@@ -193,25 +189,6 @@ function renderRecommendationRows(items = [], title = 'ITEM') {
   `).join('');
 }
 
-function fallbackWinLine(analysis = {}, strategicPlan = {}) {
-  const identity = analysis?.primaryIdentity || strategicPlan?.fightStyle || 'Tu composición';
-  const objective = strategicPlan?.primaryObjective || analysis?.winCondition?.label || 'su plan principal';
-  return `${identity} quiere ganar por ${String(objective).toLowerCase()}.`;
-}
-
-function fallbackNeedLine(needs = []) {
-  if (!needs.length) return 'La composición no muestra una carencia dominante.';
-  const topNeeds = needs.slice(0, 3).map((item) => item.label.toLowerCase()).join(', ');
-  return `Ahora mismo necesita reforzar ${topNeeds}.`;
-}
-
-function fallbackBecauseLine(primaryNeed = null, strategicPlan = {}) {
-  if (!primaryNeed) return 'La necesidad principal sale del plan de juego actual.';
-  const plan = String(strategicPlan?.fightStyle || strategicPlan?.mode || 'el plan actual').toLowerCase();
-  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composición todavía tiene un hueco importante').toLowerCase();
-  return `Necesita ${primaryNeed.label.toLowerCase()} porque ${reason} y eso afecta a ${plan}.`;
-}
-
 function fallbackSolutionLine(topProfile = null, topPick = null, strategicPlan = {}) {
   const profile = topProfile?.label || 'un perfil estable';
   const pick = topPick?.profileLabel || topPick?.label || 'una opción compatible';
@@ -222,6 +199,13 @@ function fallbackSolutionLine(topProfile = null, topPick = null, strategicPlan =
 function fallbackWarningLine(topBan = null) {
   if (!topBan) return 'Evita añadir ruido: prioriza decisiones que encajen con el plan.';
   return `Ten cuidado con ${topBan.label.toLowerCase()}: ${clampWords(topBan.detail, 16)}.`;
+}
+
+function fallbackBecauseLine(primaryNeed = null, strategicPlan = {}) {
+  if (!primaryNeed) return 'La necesidad principal sale del plan de juego actual.';
+  const plan = String(strategicPlan?.fightStyle || strategicPlan?.mode || 'el plan actual').toLowerCase();
+  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composición todavía tiene un hueco importante').toLowerCase();
+  return `Necesita ${primaryNeed.label.toLowerCase()} porque ${reason} y eso afecta a ${plan}.`;
 }
 
 function buildNeedImpact(need = {}, strategicPlan = {}) {
