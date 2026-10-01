@@ -36,6 +36,7 @@ La pregunta central sigue siendo:
 - El botón **Actualizar** quedó oculto para no ensuciar la UI.
 - La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
+- La beta funciona como web app normal mientras la UI se estabiliza.
 - La pantalla principal sigue la arquitectura de información fija:
   - Tu composición,
   - Plan de victoria,
@@ -52,8 +53,8 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Lo siguiente por hacer
 
-1. Pulir el contenido de las tarjetas fijas.
-2. Reducir texto redundante en algunas tarjetas.
+1. Unificar todavía más los indicadores visuales.
+2. Reducir la redundancia entre las tarjetas y el banco de señales.
 3. Validar más composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
 
@@ -66,6 +67,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.30 / Signal Cards
+**Fase actual:** Beta 0.31 / Visual Signal Cards
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, asegurando que el análisis aparece al completar los 5 campeones en móvil, tablet y escritorio.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar las señales gráficas de cada tarjeta sin perder claridad en móvil, tablet y escritorio.
