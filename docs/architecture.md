@@ -27,6 +27,7 @@ The surface the user reads.
 
 - The main Story now uses six fixed summary cards instead of modals or accordions.
 - Each card compresses the analysis into short lines, icons, chips and text bars.
+- The layout is responsive across mobile, tablet and desktop without changing the hierarchy.
 - The view stays short, compact, and easy to scan.
 - The communication layer should not replace the motor; it only translate it.
 
