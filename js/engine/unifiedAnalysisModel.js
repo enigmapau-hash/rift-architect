@@ -1,49 +1,102 @@
-function uniqueValues(values = []) {
-  return [...new Set(values.filter(Boolean))];
+import { normalizeText } from './utils.js';
+import { buildRecommendationEngine } from './recommendationEngine.js';
+import { buildNeeds, summarizeNeeds } from './needEngine.js';
+import { buildStrategicProfiles } from './strategicProfiles.js';
+
+function summarizeProfiles(profiles) {
+  if (!profiles.length) return 'No hay un perfil dominante todavía.';
+  return `Perfiles detectados: ${profiles.slice(0, 3).map((item) => item.label.toLowerCase()).join(' · ')}.`;
 }
 
-function toArray(value) {
-  return Array.isArray(value) ? value : [];
+function findProfileForNeed(need, strategicProfiles = []) {
+  return strategicProfiles.find((profile) => {
+    if (profile.primaryNeedKey === need.key) return true;
+    return Array.isArray(profile.relatedNeeds) && profile.relatedNeeds.some((relatedNeed) => normalizeText(relatedNeed) === normalizeText(need.label));
+  });
 }
 
-function toText(value, fallback = 'Sin definir') {
-  if (value == null) return fallback;
-  if (typeof value === 'string') return value.trim() || fallback;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-  if (Array.isArray(value)) return value.map((item) => toText(item, '')).filter(Boolean).join(' · ') || fallback;
-  if (typeof value === 'object') {
-    return toText(
-      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
-      fallback
-    );
+function buildPickRecommendations(needs, strategicPlan, strategicProfiles = []) {
+  const mode = normalizeText(strategicPlan?.mode || 'hybrid');
+
+  const buckets = needs.slice(0, 4).map((need) => {
+    const profile = findProfileForNeed(need, strategicProfiles);
+    return {
+      key: need.key,
+      label: need.label,
+      detail: `Busca un perfil que cubra ${need.label.toLowerCase()} y se adapte a ${profile?.label || strategicPlan?.fightStyle || 'tu plan'}.`,
+      priority: need.priority,
+      profileLabel: profile?.label || need.label,
+      classTags: Array.isArray(profile?.classes) ? profile.classes.slice(0, 3) : [],
+      confidence: profile?.confidence || Math.min(95, 50 + need.score * 10),
+      confidenceLabel: profile?.confidenceLabel || (need.priority === 'critical' ? 'Alta' : need.priority === 'important' ? 'Media' : 'Baja'),
+    };
+  });
+
+  if (!buckets.length) {
+    return [
+      {
+        key: 'flex',
+        label: 'Pick flexible',
+        detail: 'La composición no muestra una carencia evidente y puede priorizar flexibilidad.',
+        priority: 'minor',
+        profileLabel: 'Flexible',
+        classTags: ['Flexible', 'Adaptive', 'Utility'],
+        confidence: 45,
+        confidenceLabel: 'Media',
+      },
+    ];
   }
-  return String(value) || fallback;
+
+  return buckets.map((item) => ({
+    ...item,
+    mode,
+    action: `Completar ${item.label.toLowerCase()}`,
+  }));
 }
 
-function normalizeEvidence(items = []) {
-  return toArray(items)
-    .map((item) => ({
-      label: toText(item?.label || item?.name || item?.source || item),
-      detail: toText(item?.detail || item?.description || item?.text || ''),
-      weight: Number(item?.weight) || 0,
-      champions: uniqueValues(toArray(item?.champions).map((champion) => toText(champion))).slice(0, 4),
-      source: toText(item?.source || item?.label || item?.name || item),
-    }))
-    .filter((item) => item.label || item.detail || item.source);
-}
+function buildBanRecommendations(needs, strategicPlan, strategicProfiles = []) {
+  const focus = normalizeText([strategicPlan?.fightStyle, strategicPlan?.mapFocus, strategicPlan?.carryPlan].filter(Boolean).join(' '));
 
-function normalizeSections(items = []) {
-  return toArray(items)
-    .map((item) => ({
-      label: toText(item?.label || item?.title || item?.name || item),
-      detail: toText(item?.detail || item?.text || item?.summary || ''),
-      confidence: Number(item?.confidence) || 0,
-      confidenceLabel: toText(item?.confidenceLabel || ''),
-      reason: toText(item?.reason || ''),
-      champions: uniqueValues(toArray(item?.champions).map((champion) => toText(champion))).slice(0, 4),
-      evidence: normalizeEvidence(item?.evidence || []),
-    }))
-    .filter((item) => item.label || item.detail || item.evidence.length);
+  const banMap = {
+    frontline: 'Campeones que rompen la frontline o eliminan tanques demasiado rápido.',
+    engage: 'Campeones que niegan la entrada o castigan engages predecibles.',
+    damage: 'Composiciones que aguantan demasiado y te dejan sin cierre.',
+    scaling: 'Rivales que escalan mejor y te obligan a cerrar tarde.',
+    objective: 'Campeones que pelean muy bien en objetivos y niegan el tempo.',
+    control: 'Composiciones con demasiado control de zona o visión.',
+    teamfight: 'Campeones que desordenan el 5v5 o te ganan el front-to-back.',
+    poke: 'Rivales que desgastan más y te sacan de la zona de confort.',
+    mobility: 'Campeones muy móviles que evitan tu presión o rompen rotaciones.',
+    pick: 'Amenazas de niebla que castigan cada error corto.',
+    splitpush: 'Opciones que te obligan a defender laterales sin poder responder.',
+  };
+
+  const recommendations = needs.slice(0, 4).map((need) => {
+    const profile = findProfileForNeed(need, strategicProfiles);
+    return {
+      key: need.key,
+      label: need.label,
+      detail: banMap[need.key] || 'Amenazas que castiguen el plan principal de la composición.',
+      priority: need.priority,
+      profileLabel: profile?.label || need.label,
+      classTags: Array.isArray(profile?.classes) ? profile.classes.slice(0, 3) : [],
+      focus: focus || 'plan general',
+    };
+  });
+
+  if (!recommendations.length) {
+    recommendations.push({
+      key: 'generic',
+      label: 'Ban flexible',
+      detail: 'No hay una amenaza dominante clara; prioriza el counter más incómodo para tu plan.',
+      priority: 'minor',
+      profileLabel: 'Flexible',
+      classTags: ['Utility', 'Adaptive', 'Reactive'],
+      focus: focus || 'plan general',
+    });
+  }
+
+  return recommendations;
 }
 
 export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = []) {
@@ -58,6 +111,12 @@ export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = [])
   const risks = Array.isArray(analysis?.criticalErrors) ? analysis.criticalErrors : [];
   const checklist = Array.isArray(analysis?.checklist) ? analysis.checklist : [];
   const metrics = Array.isArray(analysis?.metrics) ? analysis.metrics : [];
+  const recommendationEngine = draftAssistant?.recommendations?.length
+    ? {
+        summary: draftAssistant.recommendationSummary || draftAssistant.recommendations[0]?.action || '',
+        items: draftAssistant.recommendations,
+      }
+    : buildRecommendationEngine(analysis);
   const signals = uniqueValues([
     analysis?.primaryIdentity,
     analysis?.tempoDetail?.label,
@@ -117,6 +176,8 @@ export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = [])
       profiles: toArray(draftAssistant?.strategicProfiles),
       picks: toArray(draftAssistant?.pickRecommendations),
       bans: toArray(draftAssistant?.banRecommendations),
+      recommendations: toArray(recommendationEngine?.items),
+      recommendationSummary: toText(recommendationEngine?.summary || ''),
     },
     explainability: {
       confidence: Number(explanation.confidence) || Number(analysis?.confidence) || 0,
@@ -157,9 +218,33 @@ export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = [])
     gamePlan,
     summaryText: toText(analysis?.summaryText || ''),
     signals,
+    recommendations: toArray(recommendationEngine?.items),
+    recommendationSummary: toText(recommendationEngine?.summary || ''),
     selectedChampions: toArray(selectedChampions),
     engineVersion: analysis?.engineVersion || null,
     confidence: Number(analysis?.confidence) || 0,
     raw: analysis,
   };
+}
+
+function uniqueValues(values = []) {
+  return [...new Set(values.filter(Boolean).map((value) => String(value).trim()).filter(Boolean))];
+}
+
+function toArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function toText(value, fallback = 'Sin definir') {
+  if (value == null) return fallback;
+  if (typeof value === 'string') return value.trim() || fallback;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map((item) => toText(item, '')).filter(Boolean).join(' · ') || fallback;
+  if (typeof value === 'object') {
+    return toText(
+      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
+      fallback
+    );
+  }
+  return String(value) || fallback;
 }
