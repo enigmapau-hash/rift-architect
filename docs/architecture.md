@@ -28,6 +28,7 @@ The surface the user reads.
 - The main Story uses six fixed summary cards instead of modals or accordions.
 - `js/story-compact.js` trims labels, metadata and bars after render so the cards stay compact.
 - `js/story-signals.js` adds compact signal blocks after render to make the most important metrics visible at a glance.
+- The compacting logic is viewport-aware, so desktop keeps a little more breathing room than mobile.
 - Each card compresses the analysis into short lines, icons, chips, text bars and signal cards.
 - The layout is responsive across mobile, tablet and desktop without changing the hierarchy.
 - The view stays short, compact, and easy to scan.
