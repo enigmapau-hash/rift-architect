@@ -73,11 +73,11 @@ function renderPanel() {
   const picks = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
   const bans = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
 
+  const primaryDecision = narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan);
   const heroLine = narrative.summary || 'La composición se entiende mejor como una sola historia.';
   const story = [
     { label: 'Cómo gana', text: narrative.winLine || fallbackWinLine(analysis, strategicPlan) },
-    { label: 'Qué necesita', text: narrative.needLine || fallbackNeedLine(needs) },
-    { label: 'Mejor opción', text: narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan) },
+    { label: 'Prioridad ahora', text: primaryDecision },
     { label: 'Qué evitar', text: narrative.warningLine || fallbackWarningLine(bans[0] || null) },
   ];
 
@@ -86,7 +86,7 @@ function renderPanel() {
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
         <span class="analysis-hub__card-kicker">Tu composición</span>
-        <span class="analysis-hub__summary-panel-note">Una sola decisión · respuesta primero</span>
+        <span class="analysis-hub__summary-panel-note">Respuesta primero · detalle opcional</span>
       </div>
 
       <div class="analysis-hub__assistant-story">
