@@ -16,6 +16,8 @@
 - **Fase 39** — Desktop Signal Balance: el banco de señales gana más aire en escritorio para evitar columnas estrechas y texto comprimido.
 - **Fase 40** — Explainability Panel: el motor se expone como evidencias, pesos y confianza dentro de un panel contextual.
 - **Fase 41** — Unified Analysis Model: todas las vistas consumen el mismo objeto de análisis normalizado.
+- **Fase 42** — Recommendation Engine 2.0: las acciones pasan a objetos estructurados con prioridad, confianza, evidencias y métricas.
+- **Fase 43** — Recommendation Hub: el panel contextual organiza las recomendaciones por impacto, confianza y evidencia.
 
 ## Estado actual
 
@@ -29,7 +31,7 @@
 ## Siguiente trabajo
 
 - Unificar todavía más los indicadores visuales.
-- Reducir la redundancia entre las tarjetas, el panel explicativo y el modelo unificado.
+- Reducir la redundancia entre las tarjetas, el panel de señales y el panel de recomendaciones.
 - Validar más composiciones reales en varios tamaños de pantalla.
 - Seguir limpiando código legado si reaparece alguna regresión.
 
