@@ -30,8 +30,8 @@ La pregunta central sigue siendo:
 - Traduce esas necesidades a perfiles estratégicos y recomendaciones de picks/bans.
 - Convierte el análisis en una **Narrative Engine** corta y ejecutiva.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
-- Re-renderiza la Story cuando cambia el borrador guardado de la composición, así que el análisis aparece al completar los 5 campeones.
-- Abre el análisis completo de cada tarjeta en una **ventana modal dedicada**.
+- Re-renderiza la Story cuando cambia el borrador guardado de la composición.
+- Muestra seis tarjetas fijas, cada una con un resumen corto y líneas compactas.
 - Mantiene la cabecera limpia: solo build visible.
 - El botón **Actualizar** quedó oculto para no ensuciar la UI.
 - La pantalla principal sigue la arquitectura de información fija:
@@ -50,7 +50,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Lo siguiente por hacer
 
-1. Pulir el contenido del modal.
+1. Pulir el contenido de las tarjetas fijas.
 2. Reducir texto redundante en algunas tarjetas.
 3. Validar más composiciones reales.
 4. Reforzar auditoría técnica después de cada cambio.
@@ -64,6 +64,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.25 / Story Sync
+**Fase actual:** Beta 0.26 / Fixed Cards
 
-**Meta inmediata:** que la Story se actualice con la composición guardada y mantenga el modal de análisis completo por tarjeta.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y asegurar que el análisis aparece al completar los 5 campeones.
