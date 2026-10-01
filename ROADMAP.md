@@ -12,6 +12,7 @@
 - **Fase 35** — Responsive Fixed Cards: las tarjetas fijas se ajustan a móvil, tablet y escritorio con la misma jerarquía.
 - **Fase 36** — Compact Story Signals: la Story reduce texto redundante y prioriza señales compactas por tarjeta.
 - **Fase 37** — Signal Cards: la comunicación visual gana peso frente al texto largo y la información repetida.
+- **Fase 38** — Visual Signal Cards: las señales pasan a usar chips y barras más gráficas para leer de un vistazo.
 
 ## Estado actual
 
@@ -24,8 +25,8 @@
 
 ## Siguiente trabajo
 
-- Reducir todavía más el texto duplicado entre tarjetas.
-- Subir más métricas a formato visual.
+- Unificar todavía más los indicadores visuales.
+- Reducir la redundancia entre las tarjetas y el banco de señales.
 - Validar más composiciones reales en varios tamaños de pantalla.
 - Seguir limpiando código legado si reaparece alguna regresión.
 
