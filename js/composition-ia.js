@@ -4,3 +4,4 @@ import './composition-modal-final.js';
 import './story-sync.js';
 import './story-compact.js';
 import './story-signals.js';
+import './executive-summary-lite.js';
