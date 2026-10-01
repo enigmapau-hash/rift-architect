@@ -174,9 +174,9 @@ function renderSynergyRiskCard(model) {
   return `
     <article class="analysis-hub__card analysis-hub__card--assessment">
       <span class="analysis-hub__card-kicker">Sinergias y riesgos</span>
-      <div class="analysis-hub__coverage-grid">
-        <article class="analysis-hub__mini-panel">
-          <strong>Sinergias</strong>
+      <div class="analysis-hub__evidence-grid">
+        <article class="analysis-hub__evidence-card">
+          <span class="analysis-hub__card-kicker">Sinergias</span>
           <div class="analysis-hub__chip-list">
             ${model.synergies.length
               ? model.synergies.map((item) => `<span class="story-pill story-pill--good">${escapeHtml(item)}</span>`).join('')
@@ -184,8 +184,8 @@ function renderSynergyRiskCard(model) {
           </div>
         </article>
 
-        <article class="analysis-hub__mini-panel analysis-hub__mini-panel--danger">
-          <strong>Riesgos</strong>
+        <article class="analysis-hub__evidence-card analysis-hub__evidence-card--danger">
+          <span class="analysis-hub__card-kicker">Riesgos</span>
           <div class="analysis-hub__chip-list">
             ${model.risks.length
               ? model.risks.map((item) => `<span class="story-pill story-pill--warning">${escapeHtml(item)}</span>`).join('')
