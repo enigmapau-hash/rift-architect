@@ -22,6 +22,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La pantalla principal ahora sigue una arquitectura de información fija: Tu composición, Plan de victoria, Prioridades, Riesgos, Draft y Análisis avanzado.
 - La composición Story usa un flujo acordeón con una sola tarjeta abierta a la vez.
 - La Story muestra un resumen corto primero y despliega el razonamiento completo solo al abrir cada apartado.
+- La capa `Motor Trace` añade una lectura compacta de dónde sale cada conclusión: Executive Summary, Coach, Advisor, Draft Assistant y Execution Profile.
 - El bloque Draft completa el recorrido con necesidades, picks y bans antes del análisis avanzado.
 - El antiguo **Analysis Hub** quedó fuera de la interfaz principal para evitar una segunda lectura paralela.
 - El análisis ejecutivo se concentra ahora en el flujo acordeón de la home.
@@ -33,7 +34,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
-- El **Draft Assistant** ahora se muestra como una beta 0.15 de Legacy Migration: resumen corto primero, detalle bajo demanda y flujo acordeón.
+- El **Draft Assistant** ahora se muestra como una beta 0.16 de Motor Trace: resumen corto primero, detalle bajo demanda y una capa visible que muestra las fuentes del motor.
 - La capa visual usa un sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips, badges y flow cards.
 - El **Narrative Engine** convierte el análisis ejecutivo en una historia corta: cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - La línea de razón del Narrative Engine muestra el “por qué” detrás de la necesidad principal.
