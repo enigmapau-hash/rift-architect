@@ -16,6 +16,7 @@ The source material and strategic rules.
 The reasoning core.
 
 - `js/engine/analysisEngine.js` turns the selected composition into an analysis object.
+- `js/engine/unifiedAnalysisModel.js` normalizes that analysis into one shared object.
 - `js/engine/coachEngine.js` builds the `StrategicPlan`.
 - `js/engine/needEngine.js` turns the plan into clear needs.
 - `js/engine/strategicProfiles.js` maps those needs to profile families.
@@ -61,6 +62,7 @@ The current analysis should remain compact and centered on:
 - Bans.
 - Signal cards.
 - Evidence and confidence.
+- Unified Analysis Model.
 
 ## Next milestone
 
