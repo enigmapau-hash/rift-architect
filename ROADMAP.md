@@ -7,6 +7,7 @@
 - Consola limpia.
 - Sin paneles experimentales visibles.
 - Responsive estable.
+- **Cerrado**.
 
 ### Hito 2: Pantalla principal terminada
 - Executive Summary.
@@ -47,7 +48,8 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 
 ## Estado actual
 
-- La app vuelve a estar centrada en la propia composición.
+- El Hito 1 queda cerrado.
+- La app sigue centrada en la propia composición.
 - La Story usa tarjetas fijas, compactas y visuales.
-- El resumen ejecutivo se reduce a lo esencial.
-- El siguiente trabajo debe atacar solo el hito activo.
+- El resumen ejecutivo se mantiene simple y tangible.
+- El siguiente trabajo debe atacar solo el Hito 2.
