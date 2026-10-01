@@ -7,6 +7,7 @@ const LIMITS = {
   pill: 18,
   signalLabel: 18,
   signalValue: 24,
+  signalChip: 10,
   signalBar: 16,
 };
 
@@ -39,6 +40,10 @@ function compactStory() {
 
   root.querySelectorAll('.composition-story__signal-label').forEach((element) => {
     compactNodeText(element, LIMITS.signalLabel);
+  });
+
+  root.querySelectorAll('.composition-story__signal-chip').forEach((element) => {
+    compactNodeText(element, LIMITS.signalChip);
   });
 
   root.querySelectorAll('.composition-story__signal-value').forEach((element) => {
