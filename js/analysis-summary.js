@@ -1,11 +1,17 @@
 import { analyzeComposition } from './analyzer.js';
-import { buildExecutiveSummary } from './engine/executiveSummary.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
 const SELECTOR = '#compositionGrid .slot.is-filled';
-const state = { root: null, observer: null, scheduled: false };
 
-init().catch(console.error);
+const state = {
+  root: null,
+  observer: null,
+  scheduled: false,
+};
+
+globalThis.renderAnalysisStory = renderStory;
+
+init().catch((error) => console.error(error));
 
 async function init() {
   const storyView = document.getElementById('storyView');
@@ -14,7 +20,7 @@ async function init() {
 
   mountRoot(storyView);
   observeComposition(compositionGrid);
-  renderSummary();
+  renderStory();
 }
 
 function mountRoot(storyView) {
@@ -26,16 +32,9 @@ function mountRoot(storyView) {
 
   const root = document.createElement('section');
   root.id = ROOT_ID;
-  root.className = 'analysis-hub analysis-hub--cards';
+  root.className = 'analysis-hub analysis-hub--cards analysis-hub--main-story';
   root.setAttribute('aria-live', 'polite');
-
-  const hubRoot = document.getElementById('analysisHubView');
-  if (hubRoot?.parentElement) {
-    hubRoot.parentElement.insertBefore(root, hubRoot);
-  } else {
-    storyView.insertAdjacentElement('afterend', root);
-  }
-
+  storyView.replaceChildren(root);
   state.root = root;
 }
 
@@ -51,101 +50,281 @@ function scheduleRender() {
   state.scheduled = true;
   window.requestAnimationFrame(() => {
     state.scheduled = false;
-    renderSummary();
+    renderStory();
   });
 }
 
-function renderSummary() {
+function renderStory() {
   if (!state.root) return;
 
   const selectedChampions = collectSelectedChampions();
   if (selectedChampions.length < 5) {
-    state.root.hidden = true;
-    state.root.innerHTML = '';
+    state.root.hidden = false;
+    state.root.innerHTML = `
+      <article class="analysis-hub__empty">
+        <p class="eyebrow">Bloque 2 · Pantalla principal</p>
+        <h4>Completa los cinco campeones para ver el resumen principal</h4>
+        <p>La pantalla se centra en tu composición: resumen ejecutivo, identidad, fortalezas, debilidades, plan, sinergias y riesgos.</p>
+      </article>
+    `;
     return;
   }
 
-  state.root.hidden = false;
   const analysis = analyzeComposition(selectedChampions);
-  const summary = analysis.executiveSummary || buildExecutiveSummary(analysis);
-  const executionProfile = Array.isArray(summary.executionProfile) ? summary.executionProfile : [];
-  const checklist = Array.isArray(summary.checklist) ? summary.checklist : [];
-  const criticalErrors = Array.isArray(summary.criticalErrors) ? summary.criticalErrors : [];
-  const gamePlanTimeline = buildGamePlanTimeline(analysis, summary, analysis.coach || {});
-
+  const model = buildMainModel(analysis);
+  state.root.hidden = false;
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
       <header class="analysis-hub__hero">
         <div class="analysis-hub__hero-copy">
-          <p class="eyebrow">Sprint 14.4 · Executive Summary</p>
-          <h4>${escapeHtml(summary.title)}</h4>
-          <p>${escapeHtml(summary.text)}</p>
+          <p class="eyebrow">Bloque 2 · Pantalla principal</p>
+          <h4>${escapeHtml(model.title)}</h4>
+          <p>${escapeHtml(model.summaryText)}</p>
           <div class="analysis-hub__flow-mini">
-            ${summary.tags.map((tag, index) => `<span class="analysis-hub__flow-mini-item ${index === 0 ? 'is-active' : ''}">${escapeHtml(tag)}</span>`).join('')}
+            ${model.tags
+              .map((tag, index) => `<span class="analysis-hub__flow-mini-item ${index === 0 ? 'is-active' : ''}">${escapeHtml(tag)}</span>`)
+              .join('')}
           </div>
         </div>
 
-        <div class="analysis-hub__score-card ${toneByScore(summary.score)}">
-          <span class="analysis-hub__score-kicker">Draft</span>
-          <strong>${escapeHtml(summary.grade)}</strong>
-          <span>${escapeHtml(summary.badge)}</span>
+        <div class="analysis-hub__score-card ${toneByScore(model.confidence)}">
+          <span class="analysis-hub__score-kicker">Lectura rápida</span>
+          <strong>${escapeHtml(model.grade)}</strong>
+          <span>${escapeHtml(model.scoreBadge)} · ${escapeHtml(String(model.confidence))}%</span>
         </div>
       </header>
 
-      <section class="analysis-hub__summary-panel">
-        <div class="analysis-hub__summary-panel-head">
-          <span class="analysis-hub__card-kicker">Perfil del draft</span>
-          <span class="analysis-hub__summary-panel-note">Lectura visual</span>
-        </div>
-        <div class="analysis-hub__profile-grid">
-          ${summary.profile.map(renderProfileRow).join('')}
-        </div>
-      </section>
-
-      <section class="analysis-hub__summary-panel">
-        <div class="analysis-hub__summary-panel-head">
-          <span class="analysis-hub__card-kicker">Perfil de ejecución</span>
-          <span class="analysis-hub__summary-panel-note">Coaching práctico</span>
-        </div>
-        <div class="analysis-hub__execution-grid">
-          ${executionProfile.map(renderExecutionRow).join('')}
-        </div>
-      </section>
-
-      <section class="analysis-hub__summary-panel">
-        <div class="analysis-hub__summary-panel-head">
-          <span class="analysis-hub__card-kicker">Plan de partida</span>
-          <span class="analysis-hub__summary-panel-note">Qué hacer por fases</span>
-        </div>
-        <div class="analysis-hub__timeline-grid">
-          ${gamePlanTimeline.map(renderTimelineRow).join('')}
-        </div>
-      </section>
-
-      <section class="analysis-hub__summary-panel">
-        <div class="analysis-hub__summary-panel-head">
-          <span class="analysis-hub__card-kicker">Checklist de partida</span>
-          <span class="analysis-hub__summary-panel-note">Lo que debes hacer</span>
-        </div>
-        <div class="analysis-hub__list">
-          ${checklist.map(renderChecklistRow).join('')}
-        </div>
-      </section>
-
-      <section class="analysis-hub__summary-panel">
-        <div class="analysis-hub__summary-panel-head">
-          <span class="analysis-hub__card-kicker">Errores críticos</span>
-          <span class="analysis-hub__summary-panel-note">Lo que debes evitar</span>
-        </div>
-        <div class="analysis-hub__list">
-          ${criticalErrors.map(renderCriticalErrorRow).join('')}
-        </div>
-        <div class="analysis-hub__priority-strip">
-          ${summary.priorities.map((item) => `<span class="analysis-hub__priority-pill">${escapeHtml(item)}</span>`).join('')}
-        </div>
-      </section>
+      <div class="analysis-hub__grid">
+        ${renderIdentityCard(model)}
+        ${renderStrengthsCard(model)}
+        ${renderWeaknessesCard(model)}
+        ${renderPlanCard(model)}
+        ${renderSynergyRiskCard(model)}
+      </div>
     </section>
   `;
+}
+
+function renderIdentityCard(model) {
+  return `
+    <article class="analysis-hub__card analysis-hub__card--assessment">
+      <span class="analysis-hub__card-kicker">Identidad</span>
+      <strong class="analysis-hub__card-title">${escapeHtml(model.primaryIdentity)}</strong>
+      <p class="analysis-hub__card-copy">${escapeHtml(model.identityCopy)}</p>
+      <div class="analysis-hub__chip-list">
+        ${model.secondaryIdentities.length
+          ? model.secondaryIdentities.map((item) => `<span class="story-pill story-pill--info">${escapeHtml(item)}</span>`).join('')
+          : '<span class="analysis-empty">Sin secundarias claras</span>'}
+      </div>
+      <div class="analysis-hub__profile-bar" aria-hidden="true">
+        <div class="analysis-hub__profile-fill" style="--meter:${clamp(model.confidence, 0, 100)}%"></div>
+      </div>
+      <p class="analysis-hub__card-foot">Tempo: ${escapeHtml(model.tempo)} · Dominancia: ${escapeHtml(model.dominance)}</p>
+    </article>
+  `;
+}
+
+function renderStrengthsCard(model) {
+  return `
+    <article class="analysis-hub__card">
+      <span class="analysis-hub__card-kicker">Fortalezas</span>
+      <div class="analysis-hub__list">
+        ${renderSignalRows(model.strengths, 'good', 'Apoya el plan')}
+      </div>
+    </article>
+  `;
+}
+
+function renderWeaknessesCard(model) {
+  return `
+    <article class="analysis-hub__card">
+      <span class="analysis-hub__card-kicker">Debilidades</span>
+      <div class="analysis-hub__list">
+        ${renderSignalRows(model.weaknesses, 'bad', 'A vigilar')}
+      </div>
+    </article>
+  `;
+}
+
+function renderPlanCard(model) {
+  return `
+    <article class="analysis-hub__card analysis-hub__card--assessment">
+      <span class="analysis-hub__card-kicker">Plan</span>
+      <div class="analysis-hub__timeline-grid">
+        ${model.phases
+          .map(
+            (phase) => `
+              <article class="analysis-hub__timeline-row">
+                <div class="analysis-hub__profile-head">
+                  <strong>${escapeHtml(phase.phase)}</strong>
+                  <span>${escapeHtml(phase.title)}</span>
+                </div>
+                <p>${escapeHtml(phase.detail)}</p>
+                ${phase.actions.length ? `<div class="analysis-hub__chip-list">${phase.actions.map((action) => `<span class="story-pill story-pill--info">${escapeHtml(action)}</span>`).join('')}</div>` : ''}
+              </article>
+            `
+          )
+          .join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderSynergyRiskCard(model) {
+  return `
+    <article class="analysis-hub__card analysis-hub__card--assessment">
+      <span class="analysis-hub__card-kicker">Sinergias y riesgos</span>
+      <div class="analysis-hub__coverage-grid">
+        <article class="analysis-hub__mini-panel">
+          <strong>Sinergias</strong>
+          <div class="analysis-hub__chip-list">
+            ${model.synergies.length
+              ? model.synergies.map((item) => `<span class="story-pill story-pill--good">${escapeHtml(item)}</span>`).join('')
+              : '<span class="analysis-empty">Sin sinergias claras</span>'}
+          </div>
+        </article>
+
+        <article class="analysis-hub__mini-panel analysis-hub__mini-panel--danger">
+          <strong>Riesgos</strong>
+          <div class="analysis-hub__chip-list">
+            ${model.risks.length
+              ? model.risks.map((item) => `<span class="story-pill story-pill--warning">${escapeHtml(item)}</span>`).join('')
+              : '<span class="analysis-empty">Sin riesgos claros</span>'}
+          </div>
+        </article>
+      </div>
+    </article>
+  `;
+}
+
+function renderSignalRows(items, tone, emptyLabel) {
+  if (!items.length) {
+    return `<p class="analysis-empty">${escapeHtml(emptyLabel)}</p>`;
+  }
+
+  return items
+    .map((item) => {
+      const score = item.score;
+      return `
+        <article class="analysis-hub__profile-row analysis-hub__profile-row--${tone}">
+          <div class="analysis-hub__profile-head">
+            <strong>${escapeHtml(item.label)}</strong>
+            <span>${escapeHtml(item.badge)} · ${escapeHtml(String(score))}%</span>
+          </div>
+          <div class="analysis-hub__profile-bar" aria-hidden="true">
+            <div class="analysis-hub__profile-fill" style="--meter:${clamp(score, 0, 100)}%"></div>
+          </div>
+          <p>${escapeHtml(item.detail)}</p>
+        </article>
+      `;
+    })
+    .join('');
+}
+
+function buildMainModel(analysis = {}) {
+  const executive = analysis.executiveSummary || {};
+  const confidence = clamp(Number(executive.score ?? analysis.confidence ?? 0), 0, 100);
+  const primaryIdentity = cleanText(analysis.primaryIdentity || 'Sin definir');
+  const winLabel = cleanText(analysis.winCondition?.label || 'Jugar a tu plan');
+  const winDetail = cleanText(analysis.winCondition?.detail || analysis.summaryText || '');
+  const title = cleanText(executive.title || `${primaryIdentity} · ${winLabel}`);
+  const summaryText = cleanText(executive.text || winDetail || 'Resumen compacto basado en la composición propia.');
+  const tempo = cleanText(analysis.tempoDetail?.label || analysis.tempo || 'Tempo medio');
+  const dominance = cleanText(analysis.dominance || 'Sin definir');
+  const secondaryIdentities = uniqueValues(
+    [
+      ...(Array.isArray(analysis.secondaryIdentities) ? analysis.secondaryIdentities : []),
+      analysis.coherence?.label,
+    ].filter(Boolean)
+  ).slice(0, 3);
+
+  const strengths = uniqueValues(Array.isArray(analysis.strengths) ? analysis.strengths : []).slice(0, 3).map((item, index) => ({
+    label: item,
+    detail: 'Apoya la condición principal.',
+    score: clamp(92 - index * 8, 55, 100),
+    badge: 'Apoya el plan',
+  }));
+
+  const weaknesses = uniqueValues(Array.isArray(analysis.weaknesses) ? analysis.weaknesses : []).slice(0, 3).map((item, index) => ({
+    label: item,
+    detail: 'Te expone si lo fuerzas mal.',
+    score: clamp(72 - index * 10, 35, 90),
+    badge: 'A vigilar',
+  }));
+
+  const synergies = uniqueValues([
+    ...(Array.isArray(analysis.synergies) ? analysis.synergies.map(formatEntry) : []),
+    ...(Array.isArray(analysis.dependencies?.items) ? analysis.dependencies.items.map(formatEntry) : []),
+  ]).slice(0, 3);
+
+  const risks = uniqueValues([
+    ...(Array.isArray(analysis.coherence?.conflicts) ? analysis.coherence.conflicts.map(formatEntry) : []),
+    ...(Array.isArray(analysis.winCondition?.avoid) ? analysis.winCondition.avoid : []),
+  ]).slice(0, 3);
+
+  const phases = buildPhases(analysis);
+
+  return {
+    title,
+    summaryText,
+    confidence,
+    scoreBadge: labelFromConfidence(confidence),
+    grade: gradeFromScore(confidence),
+    tags: uniqueValues([primaryIdentity, tempo, winLabel, analysis.coherence?.label || '']).slice(0, 4),
+    primaryIdentity,
+    identityCopy: summaryText,
+    secondaryIdentities,
+    strengths,
+    weaknesses,
+    synergies,
+    risks,
+    phases,
+    tempo,
+    dominance,
+  };
+}
+
+function buildPhases(analysis = {}) {
+  const coachPhases = Array.isArray(analysis.coach?.phases) ? analysis.coach.phases : [];
+  if (coachPhases.length >= 3) {
+    return coachPhases.slice(0, 3).map((phase, index) => ({
+      phase: phase.phase || ['EARLY (0–10)', 'MID (10–20)', 'LATE (20+)'][index],
+      title: cleanText(phase.title || phase.label || 'Ajusta tu plan'),
+      detail: cleanText(phase.detail || 'Sigue la condición de victoria principal.'),
+      actions: uniqueValues(Array.isArray(phase.actions) ? phase.actions : []).slice(0, 3),
+    }));
+  }
+
+  const gamePlan = Array.isArray(analysis.gamePlan) ? analysis.gamePlan : [];
+  return [
+    {
+      phase: 'EARLY (0–10)',
+      title: cleanText(gamePlan[0] || 'Gana tiempo'),
+      detail: 'Evita regalar ventajas y prepara tu ventana real.',
+      actions: ['Visión', 'Tempo', 'Primer objetivo'],
+    },
+    {
+      phase: 'MID (10–20)',
+      title: cleanText(gamePlan[1] || 'Convierte ventaja'),
+      detail: 'Transforma tu plan en mapa y objetivos.',
+      actions: ['Agrupar', 'Pick', 'Objetivos'],
+    },
+    {
+      phase: 'LATE (20+)',
+      title: cleanText(gamePlan[2] || 'Cierra limpio'),
+      detail: 'Juega tu condición de victoria principal sin improvisar.',
+      actions: ['Proteger carry', 'Teamfight', 'Cerrar'],
+    },
+  ];
+}
+
+function formatEntry(value) {
+  if (value == null) return '';
+  if (typeof value === 'string') return cleanText(value);
+  if (typeof value === 'object') {
+    return cleanText(value.label || value.name || value.title || value.text || value.value || value.detail || value.summary || value.reason || value.description || value.champion || value.item || '');
+  }
+  return cleanText(String(value));
 }
 
 function collectSelectedChampions() {
@@ -162,183 +341,41 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
-function buildGamePlanTimeline(analysis = {}, summary = {}, coach = {}) {
-  const coachPhases = Array.isArray(coach.phases) ? coach.phases : [];
-  if (coachPhases.length >= 3) {
-    return coachPhases.slice(0, 3).map((phase, index) => ({
-      phase: phase.phase || ['EARLY (0–10)', 'MID (10–20)', 'LATE (20+)'][index] || `PHASE ${index + 1}`,
-      title: phase.title || phase.label || 'Ajusta tu plan',
-      detail: phase.detail || 'Sigue la condición de victoria principal.',
-      actions: uniqueValues([...(phase.actions || []), ...(phase.avoid || [])].filter(Boolean)).slice(0, 3),
-      avoid: uniqueValues(phase.avoid || []).slice(0, 2),
-    }));
-  }
-
-  const context = normalizeText(
-    [
-      analysis?.primaryIdentity,
-      analysis?.winCondition?.label,
-      analysis?.winCondition?.detail,
-      analysis?.tempoDetail?.label,
-      analysis?.tempoDetail?.detail,
-      analysis?.summaryText,
-      summary?.text,
-    ]
-      .filter(Boolean)
-      .join(' ')
-  );
-
-  const isFrontToBack = containsAny(context, ['front to back', 'fronttoback', 'protect', 'peel', 'frontline', 'teamfight', 'wombo']);
-  const isPoke = containsAny(context, ['poke', 'siege']);
-  const isPick = containsAny(context, ['pick', 'dive']);
-  const isSplitPush = containsAny(context, ['splitpush', 'side lane', 'sidelane', 'abrir mapa']);
-  const isScaling = containsAny(context, ['scaling', 'late', 'escala']);
-
-  const checklist = Array.isArray(summary.checklist) ? summary.checklist : [];
-  const criticalErrors = Array.isArray(summary.criticalErrors) ? summary.criticalErrors : [];
-
-  const early = {
-    phase: 'EARLY (0–10)',
-    title: isPoke ? 'Desgasta y toma visión' : isPick ? 'Busca ventanas cortas' : isSplitPush ? 'Gana tempo en laterales' : isFrontToBack ? 'Escala sin regalar ventajas' : 'Asegura la base',
-    detail: isPoke
-      ? 'Prioriza visión de río y poke seguro. No comprometas la entrada si no has debilitado al rival.'
-      : isPick
-        ? 'Juega alrededor de niebla y castiga errores rápidos. No alargues la pelea.'
-        : isSplitPush
-          ? 'Abre el mapa y fuerza respuestas tempranas. Tu valor aparece en laterales y rotaciones.'
-          : isFrontToBack
-            ? 'No fuerces peleas largas si no tienes prioridad. Protege recursos y prepara el escalado.'
-            : 'Gana tiempo, evita desventajas gratis y prepara la composición para su ventana real.',
-    actions: checklist.slice(0, 2).map((item) => item.label),
-    avoid: criticalErrors.slice(0, 1).map((item) => item.label),
-  };
-
-  const mid = {
-    phase: 'MID (10–20)',
-    title: isPoke ? 'Convierte poke en objetivo' : isPick ? 'Encadena picks y objetivos' : isSplitPush ? 'Convierte presión en mapa' : isFrontToBack ? 'Agrúpate y fuerza objetivos' : 'Transforma la ventaja',
-    detail: isPoke
-      ? 'Tu ventana real está en convertir desgaste en torre, dragón o heraldo.'
-      : isPick
-        ? 'La visión ya debe producir picks y esas ventanas tienen que acabar en objetivos.'
-        : isSplitPush
-          ? 'Obliga al rival a responder en más de una línea y usa esa ventaja para tomar objetivos.'
-          : isFrontToBack
-            ? 'Es el momento de agruparte, controlar espacio y jugar alrededor del objetivo clave.'
-            : 'Tu composición debe convertir el mapa en una ventaja concreta y repetible.',
-    actions: checklist.slice(1, 3).map((item) => item.label),
-    avoid: criticalErrors.slice(1, 2).map((item) => item.label),
-  };
-
-  const late = {
-    phase: 'LATE (20+)',
-    title: isSplitPush ? 'Cierra por presión lateral' : isFrontToBack ? 'Juega el 5v5 limpio' : isPoke ? 'No entres sin ventaja' : isScaling ? 'Cierra con calma y orden' : 'Ejecuta la condición de victoria',
-    detail: isSplitPush
-      ? 'Sigue abriendo el mapa y castiga las respuestas tarde. No regales el control central.'
-      : isFrontToBack
-        ? 'Protege al carry y fuerza peleas limpias. Tu victoria depende de un 5v5 ordenado.'
-        : isPoke
-          ? 'Usa el daño previo para evitar entradas malas y cierra la partida sin regalar el tempo.'
-          : isScaling
-            ? 'Tu ventaja aparece aquí: agrúpate, protege la condición de victoria y no improvises.'
-            : 'Haz que todo el trabajo previo termine en una pelea clara o en un cierre de objetivo.',
-    actions: checklist.slice(2, 4).map((item) => item.label),
-    avoid: criticalErrors.slice(2, 3).map((item) => item.label),
-  };
-
-  return [early, mid, late];
-}
-
 function uniqueValues(values = []) {
-  return [...new Set(values.filter(Boolean))];
+  return [...new Set(values.filter(Boolean).map((value) => cleanText(value)).filter(Boolean))];
 }
 
-function renderProfileRow(item) {
-  return `
-    <article class="analysis-hub__profile-row">
-      <div class="analysis-hub__profile-head">
-        <strong>${escapeHtml(item.label)}</strong>
-        <span>${escapeHtml(item.badge)} · ${item.score}/100</span>
-      </div>
-      <div class="analysis-hub__profile-bar" aria-hidden="true">
-        <div class="analysis-hub__profile-fill" style="--meter:${clamp(item.score, 0, 100)}%"></div>
-      </div>
-      <p>${escapeHtml(item.text)}</p>
-    </article>
-  `;
+function cleanText(value = '') {
+  return String(value).replace(/\s+/g, ' ').trim();
 }
 
-function renderExecutionRow(item) {
-  return `
-    <article class="analysis-hub__profile-row">
-      <div class="analysis-hub__profile-head">
-        <strong>${escapeHtml(item.label)}</strong>
-        <span>${item.score}/5 · ${escapeHtml(item.badge)}</span>
-      </div>
-      <div class="analysis-hub__profile-bar" aria-hidden="true">
-        <div class="analysis-hub__profile-fill" style="--meter:${clamp(item.score * 20, 0, 100)}%"></div>
-      </div>
-      <p>${escapeHtml(item.detail)}</p>
-    </article>
-  `;
+function gradeFromScore(score) {
+  const value = clamp(Number(score) || 0, 0, 100);
+  if (value >= 90) return 'S';
+  if (value >= 80) return 'A+';
+  if (value >= 70) return 'A';
+  if (value >= 60) return 'B';
+  if (value >= 45) return 'C';
+  return 'D';
 }
 
-function renderTimelineRow(item) {
-  return `
-    <article class="analysis-hub__timeline-row">
-      <div class="analysis-hub__profile-head">
-        <strong>${escapeHtml(item.phase)}</strong>
-        <span>${escapeHtml(item.title)}</span>
-      </div>
-      <p>${escapeHtml(item.detail)}</p>
-      ${item.actions?.length ? `<div class="analysis-hub__chip-list">${item.actions.map((action) => `<span class="story-pill story-pill--info">${escapeHtml(action)}</span>`).join('')}</div>` : ''}
-      ${item.avoid?.length ? `<div class="analysis-hub__chip-list">${item.avoid.map((avoid) => `<span class="story-pill story-pill--warning">${escapeHtml(avoid)}</span>`).join('')}</div>` : ''}
-    </article>
-  `;
-}
-
-function renderChecklistRow(item) {
-  return `
-    <article class="analysis-hub__row">
-      <div class="analysis-hub__row-copy">
-        <strong>✓ ${escapeHtml(item.label)}</strong>
-        <p>${escapeHtml(item.detail)}</p>
-      </div>
-    </article>
-  `;
-}
-
-function renderCriticalErrorRow(item) {
-  return `
-    <article class="analysis-hub__row">
-      <div class="analysis-hub__row-copy">
-        <strong>⚠ ${escapeHtml(item.label)}</strong>
-        <p>${escapeHtml(item.detail)}</p>
-      </div>
-    </article>
-  `;
-}
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function normalizeText(value = '') {
-  return String(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
-}
-
-function containsAny(text, terms = []) {
-  const normalized = normalizeText(text);
-  return terms.some((term) => normalized.includes(normalizeText(term)));
+function labelFromConfidence(score = 0) {
+  const value = clamp(Math.round(Number(score) || 0), 0, 100);
+  if (value >= 90) return 'Excelente';
+  if (value >= 80) return 'Muy alta';
+  if (value >= 70) return 'Alta';
+  if (value >= 55) return 'Media';
+  return 'Baja';
 }
 
 function toneByScore(score) {
   if (score >= 85) return 'is-good';
   if (score >= 70) return 'is-mid';
   return 'is-low';
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
 }
 
 function escapeHtml(value) {
