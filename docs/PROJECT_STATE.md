@@ -31,11 +31,11 @@ La pregunta central sigue siendo:
 - Convierte el análisis en una **Narrative Engine** corta y ejecutiva.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Re-renderiza la Story cuando cambia el borrador guardado de la composición.
-- Muestra seis tarjetas fijas, cada una con un resumen corto y líneas compactas.
+- Muestra seis tarjetas fijas con señales compactas, barras y chips.
 - Mantiene la cabecera limpia: solo build visible.
 - El botón **Actualizar** quedó oculto para no ensuciar la UI.
-- La Story mantiene la misma jerarquía en móvil, tablet y escritorio con una rejilla 3/2/1.
-- La beta se está validando como web app normal para evitar problemas de caché PWA mientras se estabiliza.
+- La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
+- La Beta corre como una web normal mientras se estabiliza la interfaz.
 - La pantalla principal sigue la arquitectura de información fija:
   - Tu composición,
   - Plan de victoria,
@@ -52,7 +52,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Lo siguiente por hacer
 
-1. Pulir el contenido de las tarjetas fijas.
+1. Pulir la calidad de las señales de cada tarjeta.
 2. Reducir texto redundante en algunas tarjetas.
 3. Validar más composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
@@ -66,6 +66,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.28 / Compact Responsive Cards
+**Fase actual:** Beta 0.29 / Compact Story Signals
 
 **Meta inmediata:** mantener la Story en tarjetas fijas compactas y responsive, asegurando que el análisis aparece al completar los 5 campeones en móvil, tablet y escritorio.
