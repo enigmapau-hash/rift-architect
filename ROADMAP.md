@@ -126,12 +126,18 @@
 - Mantener la explicación corta, estructurada y reutilizable.
 - Mostrar un badge visible de build y versión en la cabecera para confirmar el despliegue.
 
-## Fase 20 — Beta 0.3 / One Story 🔄
+## Fase 20 — Beta 0.3 / One Story ✅
 - Convertir la parte superior en una sola historia visible.
 - Mostrar la respuesta primero y el detalle completo plegado.
 - Eliminar nombres técnicos visibles cuando no aporten valor.
 - Reducir el ruido visual sin tocar el motor.
 - Acercar la experiencia a una Beta 1.0 utilizable de forma habitual.
+
+## Fase 21 — Beta 0.4 / Product Audit 🔄
+- Revisar la experiencia superior como una sola tarjeta narrativa.
+- Eliminar nombres técnicos visibles que no aporten valor a la decisión.
+- Reducir tarjetas y texto innecesario en la vista principal.
+- Validar que la respuesta principal se entiende en segundos.
 
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
