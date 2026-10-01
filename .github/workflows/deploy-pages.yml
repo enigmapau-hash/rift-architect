@@ -37,6 +37,7 @@ jobs:
         run: |
           mkdir -p .site
           cp index.html .site/
+          cp version.json .site/
           cp service-worker.js .site/
           cp manifest.webmanifest .site/
           cp Draft\ Pool.xlsx .site/
