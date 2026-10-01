@@ -5,6 +5,9 @@ const LIMITS = {
   value: 28,
   meta: 34,
   pill: 18,
+  signalLabel: 18,
+  signalValue: 24,
+  signalBar: 16,
 };
 
 let observer = null;
@@ -32,6 +35,18 @@ function compactStory() {
 
   root.querySelectorAll('.composition-story__summary-meta .story-pill').forEach((element) => {
     compactNodeText(element, LIMITS.pill);
+  });
+
+  root.querySelectorAll('.composition-story__signal-label').forEach((element) => {
+    compactNodeText(element, LIMITS.signalLabel);
+  });
+
+  root.querySelectorAll('.composition-story__signal-value').forEach((element) => {
+    compactNodeText(element, LIMITS.signalValue, { preserveEllipsis: true });
+  });
+
+  root.querySelectorAll('.composition-story__signal-bar').forEach((element) => {
+    compactNodeText(element, LIMITS.signalBar, { preserveEllipsis: true });
   });
 
   root.querySelectorAll('.design-system-flow__label').forEach((element) => {
