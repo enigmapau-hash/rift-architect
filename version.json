@@ -1,6 +1,6 @@
 {
-  "version": "v66",
-  "stage": "Patch 0.45.2 / Analysis Failsafe Renderer",
+  "version": "v67",
+  "stage": "Patch 0.46.0 / Render Simplification",
   "date": "2026-10-01",
-  "cache": "rift-architect-v142"
+  "cache": "rift-architect-v143"
 }
