@@ -10,20 +10,22 @@
 - **Fase 33** — Story Sync: la Story se actualiza desde el borrador guardado en localStorage para reflejar la composición real.
 - **Fase 34** — Fixed Cards: la Story vuelve a una rejilla de tarjetas fijas, compactas y jerarquizadas.
 - **Fase 35** — Responsive Fixed Cards: las tarjetas fijas se ajustan a móvil, tablet y escritorio con la misma jerarquía.
+- **Fase 36** — Compact Story Signals: la Story reduce texto redundante y prioriza señales compactas por tarjeta.
 
 ## Estado actual
 
 - Home con seis tarjetas fijas de resumen.
 - Cada tarjeta muestra líneas cortas, chips, barras textuales e iconos.
-- La experiencia mantiene la misma estructura en móvil, tablet y escritorio con una rejilla 3/2/1.
-- La beta se está validando como web app normal para evitar cachés PWA durante el desarrollo.
+- La experiencia mantiene la misma estructura en móvil, tablet y escritorio.
+- La lectura es más compacta y deja más aire al contenido importante.
+- No hay modales ni acordeones en la Story principal.
+- La Beta se ejecuta como una web normal mientras la UI termina de estabilizarse.
 - El botón **Actualizar** sigue oculto.
-- Cache de GitHub Pages y artefactos de publicación alineados con la versión visible.
 
 ## Siguiente trabajo
 
-- Pulir la lectura de las tarjetas fijas.
-- Reducir texto redundante.
+- Pulir la calidad de las señales por tarjeta.
+- Reducir más redundancia textual.
 - Validar más composiciones reales en varios tamaños de pantalla.
 - Seguir limpiando código legado si reaparece alguna regresión.
 
