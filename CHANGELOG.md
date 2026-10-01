@@ -1,5 +1,19 @@
 # Changelog
 
+## v55 · Beta 0.36 / Unified Analysis Model
+### Added
+- A unified analysis model that normalizes identity, tempo, victory, draft and explainability into one shared object.
+- A single contract for Story, Coach, Draft Assistant and Explainability to read from.
+- A new cache version for the normal web-app beta flow.
+
+### Changed
+- The motor output is now easier to reuse across surfaces without recalculating the same structures.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the data model became more unified.
+
 ## v54 · Beta 0.35 / Explainability Panel
 ### Added
 - An explainability panel that surfaces evidence, weights and confidence for the engine.
@@ -40,64 +54,4 @@
 - The top-right Update button stays hidden.
 
 ### Notes
-- The analysis still comes from the same motor; only the presentation layer became more readable on PC.
-
-## v51 · Beta 0.32 / Desktop Signal Balance
-### Added
-- A more relaxed desktop signal layout so the cards stop feeling cramped on PC.
-- Viewport-aware compacting so desktop keeps a little more text visible.
-- A new cache version for the normal web-app beta flow.
-
-### Changed
-- The Story still uses the same six-card hierarchy, but the desktop presentation now breathes more.
-- Signal blocks keep the same meaning while using fewer forced truncations on larger screens.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
 - The analysis still comes from the same motor; only the presentation layer became more balanced on desktop.
-
-## v50 · Beta 0.31 / Visual Signal Cards
-### Added
-- Signal cards with chips and meters for the most important values.
-- A visual layer that compresses the motor output into faster-to-scan cues.
-- More explicit state, tempo and focus indicators inside each fixed card.
-
-### Changed
-- The Story still uses the same six-card hierarchy, but now reads more like a dashboard.
-- The communication layer relies less on paragraph text and more on visual signals.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the presentation layer became more visual.
-
-## v49 · Beta 0.30 / Signal Cards
-### Added
-- Compact signal blocks for each fixed summary card.
-- A post-render layer that keeps the most important metrics visible at a glance.
-- Shorter, more visual summaries for mobile, tablet and desktop.
-
-### Changed
-- The Story now emphasizes bars, chips and compact indicators over long text blocks.
-- The presentation layer keeps the same six-card hierarchy but reads faster.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the communication layer became more visual.
-
-## v48 · Beta 0.29 / Compact Story Signals
-### Added
-- A compact story post-processor that trims labels, metadata and bars after render.
-- Shorter text on the fixed cards so repeated ideas do not crowd the screen.
-- A clearer separation between the motor output and the presentation layer.
-
-### Changed
-- The Story keeps the same six-card hierarchy, but now reads faster.
-- The cards are more compact in mobile, tablet and desktop.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the presentation layer became more compact.
