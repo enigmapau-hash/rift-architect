@@ -1,33 +1,24 @@
 import { analyzeComposition } from './analyzer.js';
 import { getSectionToneLabel } from './modal-helpers.js';
 
-const WORKBOOK_URL = './Draft%20Pool.xlsx';
-const DATA_MANIFEST_URL = './data/index.json';
-const ROLE_FILES = [
-  { key: 'top', file: './data/top.json', sheet: 'Tabla Top' },
-  { key: 'jungle', file: './data/jungle.json', sheet: 'Tabla Jungla' },
-  { key: 'mid', file: './data/mid.json', sheet: 'Tabla Mid' },
-  { key: 'botline', file: './data/bot.json', sheet: 'Tabla Botline' },
-  { key: 'support', file: './data/support.json', sheet: 'Tabla Support' },
-];
-
-const SECTIONS = [
-  { key: 'composition', title: 'Tu composición', kicker: 'Identidad', badge: 'Ver análisis' },
-  { key: 'victory', title: 'Plan de victoria', kicker: 'Cómo gana', badge: 'Ver análisis' },
-  { key: 'priorities', title: 'Prioridades', kicker: 'Qué hacer ahora', badge: 'Ver análisis' },
-  { key: 'risks', title: 'Riesgos', kicker: 'Qué evitar', badge: 'Ver análisis' },
-  { key: 'draft', title: 'Draft', kicker: 'Picks y bans', badge: 'Ver análisis' },
-  { key: 'advanced', title: 'Análisis avanzado', kicker: 'Por qué', badge: 'Ver análisis' },
+const ANALYSIS_SECTIONS = [
+  { key: 'composition', title: 'Tu composición', kicker: 'Identidad' },
+  { key: 'victory', title: 'Plan de victoria', kicker: 'Cómo gana' },
+  { key: 'priorities', title: 'Prioridades', kicker: 'Qué hacer ahora' },
+  { key: 'risks', title: 'Riesgos', kicker: 'Qué evitar' },
+  { key: 'draft', title: 'Draft', kicker: 'Picks y bans' },
+  { key: 'advanced', title: 'Análisis avanzado', kicker: 'Por qué' },
 ];
 
 const state = {
   data: new Map(),
-  loaded: false,
+  currentAnalysis: null,
+  currentModel: null,
   modalOpen: false,
   activeSection: 'composition',
   lastFocus: null,
-  currentAnalysis: null,
-  currentModel: null,
+  renderQueued: false,
+  observer: null,
 };
 
 const els = {
@@ -45,13 +36,14 @@ init().catch((error) => console.error(error));
 
 globalThis.openAnalysisModal = openModal;
 globalThis.closeAnalysisModal = closeModal;
+globalThis.renderAnalysisStory = renderStory;
 
 async function init() {
   els.root = document.getElementById('storyView');
   if (!els.root) return;
 
-  await loadRoleData();
   ensureModal();
+  observeCompositionGrid();
   renderStory();
 
   document.addEventListener('keydown', (event) => {
@@ -105,6 +97,27 @@ function ensureModal() {
   els.close.addEventListener('click', closeModal);
 }
 
+function observeCompositionGrid() {
+  const grid = document.getElementById('compositionGrid');
+  if (!grid) {
+    window.requestAnimationFrame(observeCompositionGrid);
+    return;
+  }
+
+  if (state.observer) state.observer.disconnect();
+  state.observer = new MutationObserver(() => queueRender());
+  state.observer.observe(grid, { childList: true, subtree: true, attributes: true, characterData: true });
+}
+
+function queueRender() {
+  if (state.renderQueued) return;
+  state.renderQueued = true;
+  window.requestAnimationFrame(() => {
+    state.renderQueued = false;
+    renderStory();
+  });
+}
+
 function openModal(section) {
   if (!state.currentModel) return;
 
@@ -153,9 +166,15 @@ function renderStory() {
 
   state.currentAnalysis = analyzeComposition(selectedChampions);
   state.currentModel = buildStoryModel(state.currentAnalysis, selectedChampions);
-
-  els.root.innerHTML = `<section class="composition-story composition-story--cards">${SECTIONS.map((section) => renderSummaryCard(section, state.currentModel)).join('')}</section>`;
+  els.root.innerHTML = `<section class="composition-story composition-story--cards">${ANALYSIS_SECTIONS.map((section) => renderSummaryCard(section, state.currentModel)).join('')}</section>`;
   bindCardClicks();
+
+  if (state.modalOpen) {
+    renderModal();
+    els.modal.classList.remove('is-hidden');
+    els.modal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+  }
 }
 
 function bindCardClicks() {
@@ -170,9 +189,10 @@ function bindCardClicks() {
 function renderSummaryCard(section, model) {
   const summary = getSectionSummary(section.key, model);
   const meta = getSectionMeta(section.key, model);
+  const tone = getSectionTone(section.key);
 
   return `
-    <button type="button" class="composition-story__summary-card composition-story__summary-card--${getSectionTone(section.key)}" data-modal-section="${escapeHtml(section.key)}" aria-haspopup="dialog">
+    <button type="button" class="composition-story__summary-card composition-story__summary-card--${tone}" data-modal-section="${escapeHtml(section.key)}" aria-haspopup="dialog">
       <span class="composition-story__summary-kicker">${escapeHtml(section.kicker)}</span>
       <div class="composition-story__summary-main">
         <strong class="composition-story__summary-title">${escapeHtml(section.title)}</strong>
@@ -180,7 +200,7 @@ function renderSummaryCard(section, model) {
       </div>
       <div class="composition-story__summary-meta">
         ${meta.map((item) => `<span class="story-pill story-pill--neutral">${escapeHtml(item)}</span>`).join('')}
-        <span class="composition-story__summary-cta">▼ ${escapeHtml(section.badge)}</span>
+        <span class="composition-story__summary-cta">▼ Ver análisis</span>
       </div>
     </button>
   `;
@@ -190,13 +210,13 @@ function renderModal() {
   if (!els.modal || !state.currentModel) return;
 
   const section = normalizeSection(state.activeSection);
-  const config = SECTIONS.find((item) => item.key === section) || SECTIONS[0];
+  const config = ANALYSIS_SECTIONS.find((item) => item.key === section) || ANALYSIS_SECTIONS[0];
   const data = getSectionData(section, state.currentModel, state.currentAnalysis || {});
 
   els.title.textContent = config.title;
   els.kicker.textContent = config.kicker;
   els.summary.textContent = data.summary;
-  els.tabs.innerHTML = SECTIONS.map((item) => `
+  els.tabs.innerHTML = ANALYSIS_SECTIONS.map((item) => `
     <button type="button" class="analysis-modal__tab ${item.key === section ? 'is-active' : ''}" data-modal-nav="${escapeHtml(item.key)}" aria-pressed="${item.key === section ? 'true' : 'false'}">${escapeHtml(item.title)}</button>
   `).join('');
 
@@ -304,12 +324,11 @@ function getSectionData(section, model, raw) {
           ['Bans', joinTexts(model.banRecommendations.map((item) => item.label)), 'Amenazas que frenan el plan.'],
         ],
       };
-    case 'advanced':
     default:
       return {
         title: model.coherenceLabel,
         summary: model.coherenceDetail,
-        meta: [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales de ejecución`],
+        meta: [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales`],
         blockKicker: 'Por qué',
         blockTitle: 'Análisis avanzado',
         rows: [
@@ -339,7 +358,9 @@ function renderHero(title, summary, meta = []) {
       <div class="analysis-modal__hero-copy">
         <h3>${escapeHtml(title)}</h3>
         <p>${escapeHtml(summary)}</p>
-        <div class="analysis-modal__hero-meta">${meta.map((item) => `<span class="story-pill story-pill--info">${escapeHtml(item)}</span>`).join('')}</div>
+        <div class="analysis-modal__hero-meta">
+          ${meta.map((item) => `<span class="story-pill story-pill--info">${escapeHtml(item)}</span>`).join('')}
+        </div>
       </div>
     </section>
   `;
@@ -364,7 +385,9 @@ function renderTrace(title, rows) {
         <span class="analysis-modal__eyebrow">Motor</span>
         <h3 class="analysis-modal__block-title">${escapeHtml(title)}</h3>
       </div>
-      <div class="design-system-flow">${rows.map((row, index) => renderRow(row[0], row[1], row[2], index === 0 ? 'is-hero' : index === 1 ? 'is-primary' : 'is-warning')).join('')}</div>
+      <div class="design-system-flow">
+        ${rows.map((row, index) => renderRow(row[0], row[1], row[2], index === 0 ? 'is-hero' : index === 1 ? 'is-primary' : 'is-warning')).join('')}
+      </div>
     </section>
   `;
 }
@@ -379,20 +402,57 @@ function renderRow(label = '', value = '', meta = '', tone = '') {
   `;
 }
 
+function getSectionSummary(section, model) {
+  switch (section) {
+    case 'composition': return model.summaryText;
+    case 'victory': return model.winCondition;
+    case 'priorities': return model.priorities[0] || 'Ganar tempo y visión';
+    case 'risks': return model.avoid[0] || 'Forzar peleas malas';
+    case 'draft': return model.draftSummary;
+    default: return model.coherenceLabel;
+  }
+}
+
+function getSectionMeta(section, model) {
+  switch (section) {
+    case 'composition': return [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`, `${model.selectedCount}/5 roles`];
+    case 'victory': return [`Pico: ${model.tempo}`, `${model.phases.length} fases`, `${model.gamePlan.length} pasos`];
+    case 'priorities': return [`${model.priorities.length} pasos`, `${model.checklist.length} checks`, 'Plan activo'];
+    case 'risks': return [`${model.weaknesses.length} debilidades`, `${model.criticalErrors.length} errores`, `${model.avoid.length} riesgos`];
+    case 'draft': return [`${model.compositionNeeds.length} necesidades`, `${model.pickRecommendations.length} picks`, `${model.banRecommendations.length} bans`];
+    default: return [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales`];
+  }
+}
+
+function getSectionTone(section) {
+  switch (section) {
+    case 'composition': return 'info';
+    case 'victory': return 'success';
+    case 'priorities': return 'success';
+    case 'risks': return 'danger';
+    case 'draft': return 'neutral';
+    default: return 'info';
+  }
+}
+
+function normalizeSection(section) {
+  return ANALYSIS_SECTIONS.some((item) => item.key === section) ? section : 'composition';
+}
+
 function buildStoryModel(analysis, selectedChampions) {
   const executive = analysis?.executiveSummary || {};
   const coach = analysis?.coach || {};
   const advisor = analysis?.advisor || {};
   const draftAssistant = analysis?.draftAssistant || {};
+
   const strengths = asArray(analysis?.strengths).slice(0, 4).map(normalizeEntry);
   const weaknesses = asArray(analysis?.weaknesses).slice(0, 4).map(normalizeEntry);
-  const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map(asText).filter(Boolean);
-  const gamePlan = asArray(analysis?.gamePlan).slice(0, 3).map(asText).filter(Boolean);
+  const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase)).filter(Boolean);
+  const gamePlan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step)).filter(Boolean);
   const tempo = asText(analysis?.tempoDetail?.label || analysis?.tempo || 'Mid Game');
   const identity = asText(analysis?.primaryIdentity || executive.title || 'Sin identidad clara');
   const score = clampToRange(Number(analysis?.confidence) || Number(executive.score) || 0, 0, 100);
   const grade = gradeFromScore(score);
-
   const keyPiece = findKeyPiece(selectedChampions);
   const objectivePriority = asArray(advisor.objectivePriority).slice(0, 3).map(normalizeEntry);
   const loseConditions = asArray(advisor.loseConditions).slice(0, 3).map((item) => normalizeEntry({ label: item?.label ?? item, detail: item?.detail ?? item?.reason ?? item?.description ?? '' }));
@@ -408,6 +468,23 @@ function buildStoryModel(analysis, selectedChampions) {
     ...weaknesses.map((item) => item.label),
     'Forzar peleas antes del pico de poder',
   ]).slice(0, 3);
+
+  const checklist = asArray(executive.checklist).slice(0, 4).map(normalizeEntry);
+  const criticalErrors = asArray(executive.criticalErrors).slice(0, 4).map(normalizeEntry);
+  const execPriorities = asArray(executive.priorities).slice(0, 4).map(normalizeEntry);
+  const executionProfile = asArray(executive.executionProfile).slice(0, 4).map(normalizeEntry);
+  const compositionNeeds = asArray(draftAssistant.compositionNeeds).slice(0, 4).map(normalizeEntry);
+  const pickRecommendations = asArray(draftAssistant.pickRecommendations).slice(0, 4).map(normalizeEntry);
+  const banRecommendations = asArray(draftAssistant.banRecommendations).slice(0, 4).map(normalizeEntry);
+  const metrics = asArray(analysis?.metrics).slice(0, 4).map(normalizeEntry);
+  const insights = uniqueValues(asArray(coach.insights).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
+  const alerts = uniqueValues(asArray(coach.alerts).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
+  const whyItems = uniqueValues([
+    identity,
+    asText(analysis?.winCondition?.label || ''),
+    asText(analysis?.coherence?.label || ''),
+    ...metrics.map((item) => item.label),
+  ]).slice(0, 4);
 
   return {
     analysis,
@@ -425,23 +502,18 @@ function buildStoryModel(analysis, selectedChampions) {
     weaknesses,
     priorities,
     avoid,
-    checklist: asArray(executive.checklist).slice(0, 4).map(normalizeEntry),
-    criticalErrors: asArray(executive.criticalErrors).slice(0, 4).map(normalizeEntry),
-    execPriorities: asArray(executive.priorities).slice(0, 4).map(normalizeEntry),
-    executionProfile: asArray(executive.executionProfile).slice(0, 4).map(normalizeEntry),
+    checklist,
+    criticalErrors,
+    execPriorities,
+    executionProfile,
     objectivePriority,
-    compositionNeeds: asArray(draftAssistant.compositionNeeds).slice(0, 4).map(normalizeEntry),
-    pickRecommendations: asArray(draftAssistant.pickRecommendations).slice(0, 4).map(normalizeEntry),
-    banRecommendations: asArray(draftAssistant.banRecommendations).slice(0, 4).map(normalizeEntry),
-    metrics: asArray(analysis?.metrics).slice(0, 4).map(normalizeEntry),
-    insights: uniqueValues(asArray(coach.insights).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4),
-    alerts: uniqueValues(asArray(coach.alerts).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4),
-    whyItems: uniqueValues([
-      identity,
-      asText(analysis?.winCondition?.label || ''),
-      asText(analysis?.coherence?.label || ''),
-      ...asArray(analysis?.metrics).slice(0, 4).map((item) => normalizeEntry(item).label),
-    ]).slice(0, 4),
+    compositionNeeds,
+    pickRecommendations,
+    banRecommendations,
+    metrics,
+    insights,
+    alerts,
+    whyItems,
     quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
     draftSummary: asText(draftAssistant.summary || draftAssistant.profileSummary || 'La composición todavía pide completar huecos concretos con picks y bans que protejan el plan.'),
     coherenceLabel: asText(analysis?.coherence?.label || 'Coherencia'),
@@ -450,126 +522,23 @@ function buildStoryModel(analysis, selectedChampions) {
   };
 }
 
-function normalizeEntry(item) {
-  return {
-    label: asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir'),
-    detail: asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', ''),
-    score: Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null,
-  };
+function findKeyPiece(selectedChampions) {
+  return (
+    findChampionByTags(selectedChampions, ['adc', 'carry', 'hypercarry', 'escalado']) ||
+    findChampionByTags(selectedChampions, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start']) ||
+    findChampionByTags(selectedChampions, ['peel', 'protect', 'shield']) ||
+    findChampionByTags(selectedChampions, ['frontline', 'tanque', 'front', 'defensa']) ||
+    selectedChampions[0] ||
+    null
+  );
 }
 
-function getSectionSummary(section, model) {
-  switch (section) {
-    case 'composition': return model.summaryText;
-    case 'victory': return model.winCondition;
-    case 'priorities': return model.priorities[0] || 'Ganar tempo y visión';
-    case 'risks': return model.avoid[0] || 'Forzar peleas malas';
-    case 'draft': return model.draftSummary;
-    case 'advanced': return model.coherenceLabel;
-    default: return model.summaryText;
-  }
-}
-
-function getSectionMeta(section, model) {
-  switch (section) {
-    case 'composition': return [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`, `${model.selectedCount}/5 roles`];
-    case 'victory': return [`Pico: ${model.tempo}`, `${model.phases.length} fases`, `${model.gamePlan.length} pasos`];
-    case 'priorities': return [`${model.priorities.length} pasos`, `${model.checklist.length} checks`, 'Plan activo'];
-    case 'risks': return [`${model.weaknesses.length} debilidades`, `${model.criticalErrors.length} errores`, `${model.avoid.length} riesgos`];
-    case 'draft': return [`${model.compositionNeeds.length} necesidades`, `${model.pickRecommendations.length} picks`, `${model.banRecommendations.length} bans`];
-    case 'advanced': return [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales`];
-    default: return [];
-  }
-}
-
-function getSectionTone(section) {
-  switch (section) {
-    case 'composition': return 'info';
-    case 'victory': return 'success';
-    case 'priorities': return 'success';
-    case 'risks': return 'danger';
-    case 'draft': return 'neutral';
-    case 'advanced': return 'info';
-    default: return 'info';
-  }
-}
-
-function normalizeSection(section) {
-  return SECTIONS.some((item) => item.key === section) ? section : 'composition';
-}
-
-async function loadRoleData() {
-  if (state.loaded) return;
-  state.loaded = true;
-
-  const loaded = (await loadJsonDataset()) || (await loadWorkbookDataset());
-  if (loaded) {
-    Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
-    return;
-  }
-
-  ROLE_FILES.forEach(({ key }) => state.data.set(key, []));
-}
-
-async function loadJsonDataset() {
-  try {
-    const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: 'reload' });
-    if (!manifestResponse.ok) return null;
-
-    const manifest = await manifestResponse.json();
-    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
-
-    const loaded = await Promise.all(
-      ROLE_FILES.map(async ({ key, file }) => {
-        const response = await fetch(file, { cache: 'reload' });
-        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
-        return [key, await response.json()];
-      }),
-    );
-
-    return Object.fromEntries(loaded);
-  } catch {
-    return null;
-  }
-}
-
-async function loadWorkbookDataset() {
-  if (!window.XLSX) return null;
-
-  try {
-    const response = await fetch(WORKBOOK_URL, { cache: 'reload' });
-    if (!response.ok) return null;
-
-    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
-    const dataset = {};
-    ROLE_FILES.forEach(({ key, sheet }) => {
-      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
-    });
-    return dataset;
-  } catch {
-    return null;
-  }
-}
-
-function worksheetToRows(worksheet) {
-  if (!worksheet) return [];
-  const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-  return rows
-    .slice(1)
-    .filter((row) => row[0])
-    .map((row) => ({
-      champion: String(row[0]).trim(),
-      identity: String(row[1] || '').trim(),
-      function: String(row[2] || '').trim(),
-      tempo: String(row[3] || '').trim(),
-      strengths: splitTags(row[4]),
-      weaknesses: splitTags(row[5]),
-    }));
-}
-
-function splitTags(value) {
-  if (!value) return [];
-  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
+function findChampionByTags(selectedChampions, tags = []) {
+  const normalizedTags = tags.map((tag) => normalizeText(tag));
+  return selectedChampions.find((champion) => {
+    const values = [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)];
+    return values.some((value) => normalizedTags.some((tag) => normalizeText(asText(value)).includes(tag)));
+  });
 }
 
 function collectSelectedChampions() {
@@ -591,8 +560,8 @@ function normalizeSelectedChampion(champion) {
     identity: asText(champion.identity, ''),
     function: asText(champion.function, ''),
     tempo: asText(champion.tempo, ''),
-    strengths: asArray(champion.strengths).map(asText).filter(Boolean),
-    weaknesses: asArray(champion.weaknesses).map(asText).filter(Boolean),
+    strengths: asArray(champion.strengths).map((item) => asText(item)).filter(Boolean),
+    weaknesses: asArray(champion.weaknesses).map((item) => asText(item)).filter(Boolean),
   };
 }
 
@@ -602,27 +571,21 @@ function findChampion(roleKey, championName) {
   return rows.find((item) => String(item?.champion || '').trim().toLowerCase() === normalizedName) || null;
 }
 
-function findKeyPiece(selectedChampions) {
-  return (
-    findChampionByTags(selectedChampions, ['adc', 'carry', 'hypercarry', 'escalado']) ||
-    findChampionByTags(selectedChampions, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start']) ||
-    findChampionByTags(selectedChampions, ['peel', 'protect', 'shield']) ||
-    findChampionByTags(selectedChampions, ['frontline', 'tanque', 'front', 'defensa']) ||
-    selectedChampions[0] ||
-    null
-  );
+function normalizeEntry(item) {
+  return {
+    label: asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir'),
+    detail: asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', ''),
+    score: Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null,
+  };
 }
 
-function findChampionByTags(selectedChampions, tags = []) {
-  const normalizedTags = tags.map(normalizeText);
-  return selectedChampions.find((champion) => {
-    const values = [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)];
-    return values.some((value) => normalizedTags.some((tag) => normalizeText(asText(value)).includes(tag)));
-  });
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function joinTexts(values = []) {
-  return uniqueValues(values.map(asText).filter(Boolean)).join(' · ') || 'Sin datos';
+  return uniqueValues(values.map((value) => asText(value)).filter(Boolean)).join(' · ') || 'Sin datos';
 }
 
 function uniqueValues(values = []) {
@@ -647,10 +610,7 @@ function asText(value, fallback = 'Sin definir') {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (Array.isArray(value)) return value.map((item) => asText(item, '')).filter(Boolean).join(' · ') || fallback;
   if (typeof value === 'object') {
-    return asText(
-      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
-      fallback,
-    );
+    return asText(value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '', fallback);
   }
   return String(value) || fallback;
 }
@@ -675,4 +635,84 @@ function phaseSummary(gameWindows) {
     gameWindows?.mid?.label ? `Mid: ${gameWindows.mid.label}` : null,
     gameWindows?.late?.label ? `Late: ${gameWindows.late.label}` : null,
   ]).join(' · ') || 'Early · Mid · Late';
+}
+
+async function loadRoleData() {
+  if (state.currentAnalysis) return;
+
+  const loaded = (await loadJsonDataset()) || (await loadWorkbookDataset());
+  if (loaded) {
+    Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
+    return;
+  }
+
+  ['top', 'jungle', 'mid', 'botline', 'support'].forEach((key) => state.data.set(key, []));
+}
+
+async function loadJsonDataset() {
+  try {
+    const manifestResponse = await fetch('./data/index.json', { cache: 'reload' });
+    if (!manifestResponse.ok) return null;
+
+    const manifest = await manifestResponse.json();
+    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
+
+    const loaded = await Promise.all(
+      [
+        { key: 'top', file: './data/top.json' },
+        { key: 'jungle', file: './data/jungle.json' },
+        { key: 'mid', file: './data/mid.json' },
+        { key: 'botline', file: './data/bot.json' },
+        { key: 'support', file: './data/support.json' },
+      ].map(async ({ key, file }) => {
+        const response = await fetch(file, { cache: 'reload' });
+        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
+        return [key, await response.json()];
+      })
+    );
+
+    return Object.fromEntries(loaded);
+  } catch {
+    return null;
+  }
+}
+
+async function loadWorkbookDataset() {
+  if (!window.XLSX) return null;
+
+  try {
+    const response = await fetch('./Draft%20Pool.xlsx', { cache: 'reload' });
+    if (!response.ok) return null;
+
+    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    const dataset = {};
+    [
+      { key: 'top', sheet: 'Tabla Top' },
+      { key: 'jungle', sheet: 'Tabla Jungla' },
+      { key: 'mid', sheet: 'Tabla Mid' },
+      { key: 'botline', sheet: 'Tabla Botline' },
+      { key: 'support', sheet: 'Tabla Support' },
+    ].forEach(({ key, sheet }) => {
+      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
+    });
+    return dataset;
+  } catch {
+    return null;
+  }
+}
+
+function worksheetToRows(worksheet) {
+  if (!worksheet) return [];
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+  return rows
+    .slice(1)
+    .filter((row) => row[0])
+    .map((row) => ({
+      champion: String(row[0]).trim(),
+      identity: String(row[1] || '').trim(),
+      function: String(row[2] || '').trim(),
+      tempo: String(row[3] || '').trim(),
+      strengths: splitTags(row[4]),
+      weaknesses: splitTags(row[5]),
+    }));
 }
