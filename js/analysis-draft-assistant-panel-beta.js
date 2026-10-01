@@ -72,11 +72,9 @@ function renderPanel() {
   const profiles = Array.isArray(draftAssistant.strategicProfiles) ? draftAssistant.strategicProfiles : [];
   const picks = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
   const bans = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
-
   const story = [
     { label: 'Cómo gana', text: narrative.winLine || fallbackWinLine(analysis, strategicPlan) },
     { label: 'Qué necesita', text: narrative.needLine || fallbackNeedLine(needs) },
-    { label: 'Por qué', text: narrative.becauseLine || fallbackBecauseLine(needs[0] || null, strategicPlan) },
     { label: 'Mejor decisión', text: narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan) },
     { label: 'Qué evitar', text: narrative.warningLine || fallbackWarningLine(bans[0] || null) },
   ];
@@ -85,39 +83,40 @@ function renderPanel() {
   state.root.innerHTML = `
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
-        <span class="analysis-hub__card-kicker">Beta 0.3</span>
-        <span class="analysis-hub__summary-panel-note">Una sola conversación · respuesta primero</span>
+        <span class="analysis-hub__card-kicker">Beta 0.4</span>
+        <span class="analysis-hub__summary-panel-note">Una sola historia · menos ruido visual</span>
       </div>
 
       <div class="analysis-hub__assistant-story">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(narrative.title || 'Tu composición quiere ganar por un plan claro.')}</p>
         <p>${escapeHtml(narrative.summary || 'La composición se entiende mejor como una sola historia.')}</p>
+        ${narrative.becauseLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.becauseLine)}</p>` : ''}
       </div>
 
-      <div class="analysis-hub__assistant-grid analysis-hub__assistant-grid--compact">
-        <article class="analysis-hub__assistant-card analysis-hub__assistant-card--summary">
-          <div class="analysis-hub__assistant-card-head">
-            <strong>Respuesta rápida</strong>
-            <span>Lo esencial</span>
-          </div>
-          <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
-            ${story.map(renderStoryLine).join('')}
-          </div>
-        </article>
+      <article class="analysis-hub__assistant-card analysis-hub__assistant-card--summary">
+        <div class="analysis-hub__assistant-list analysis-hub__assistant-list--compact">
+          ${story.map(renderStoryLine).join('')}
+        </div>
+      </article>
 
-        <details class="analysis-hub__assistant-card">
-          <summary>
-            <strong>Ver análisis completo</strong>
-            <span>${needs.length} señales</span>
-          </summary>
-          <div class="analysis-hub__assistant-list">
-            ${renderNeedRows(needs, strategicPlan)}
-            ${renderProfileRows(profiles)}
-            ${renderRecommendationRows(picks, 'Mejor decisión')}
-            ${renderRecommendationRows(bans, 'Qué evitar')}
-          </div>
-        </details>
-      </div>
+      <details class="analysis-hub__assistant-card">
+        <summary>
+          <strong>Ver análisis completo</strong>
+          <span>${needs.length} señales</span>
+        </summary>
+        <div class="analysis-hub__assistant-list">
+          <article class="analysis-hub__row analysis-hub__row--executive">
+            <div class="analysis-hub__row-copy">
+              <strong>Por qué</strong>
+              <p>${escapeHtml(narrative.becauseLine || fallbackBecauseLine(needs[0] || null, strategicPlan))}</p>
+            </div>
+          </article>
+          ${renderNeedRows(needs, strategicPlan)}
+          ${renderProfileRows(profiles)}
+          ${renderRecommendationRows(picks, 'Mejor decisión')}
+          ${renderRecommendationRows(bans, 'Qué evitar')}
+        </div>
+      </details>
     </section>
   `;
 }
