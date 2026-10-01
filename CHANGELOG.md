@@ -1,5 +1,15 @@
 # Changelog
 
+## v61 · Beta 0.42 / Core Story Restore
+### Changed
+- The main flow returns to the core composition story.
+- Experimental coach, recommendation and tactical views are no longer part of the visible app flow.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; the visible surface is simpler again.
+
 ## v60 · Beta 0.41 / Tactical Intelligence
 ### Added
 - A tactical intelligence view that turns the plan into concrete decisions and alternatives.
@@ -13,45 +23,3 @@
 
 ### Notes
 - The analysis still comes from the same motor; only the tactical layer became more explicit.
-
-## v59 · Beta 0.40 / Strategic Coach
-### Added
-- A Strategic Coach view inside the explainability surface.
-- Phase-based coaching with early, mid and late game guidance.
-- More explicit alerts, priorities and power spikes in the coach layer.
-
-### Changed
-- The Explainability Panel now groups coach guidance with recommendations and evidence.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the coach surface became more explicit.
-
-## v58 · Beta 0.39 / Explainability Panel Fix
-### Added
-- A repaired explainability panel implementation with helper coverage restored.
-- A coach-aware explanation surface that can coexist with recommendations.
-- A new cache version for the normal web-app beta flow.
-
-### Changed
-- The Explainability Panel now renders from a safer, self-contained module.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the explanation layer was hardened.
-
-## v57 · Beta 0.38 / Recommendation Hub
-### Added
-- A recommendation hub inside the explainability surface.
-- Structured recommendations with priority, confidence, evidence and metrics.
-- A unified context for actions, reasons and supporting signals.
-
-### Changed
-- The Explainability Panel now groups recommendations by impact and confidence.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the action layer became more structured.
