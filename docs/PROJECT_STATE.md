@@ -34,7 +34,8 @@ La pregunta central sigue siendo:
 - Muestra seis tarjetas fijas, cada una con un resumen corto y líneas compactas.
 - Mantiene la cabecera limpia: solo build visible.
 - El botón **Actualizar** quedó oculto para no ensuciar la UI.
-- La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
+- La Story mantiene la misma jerarquía en móvil, tablet y escritorio con una rejilla 3/2/1.
+- La beta se está validando como web app normal para evitar problemas de caché PWA mientras se estabiliza.
 - La pantalla principal sigue la arquitectura de información fija:
   - Tu composición,
   - Plan de victoria,
@@ -65,6 +66,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.27 / Responsive Fixed Cards
+**Fase actual:** Beta 0.28 / Compact Responsive Cards
 
 **Meta inmediata:** mantener la Story en tarjetas fijas compactas y responsive, asegurando que el análisis aparece al completar los 5 campeones en móvil, tablet y escritorio.
