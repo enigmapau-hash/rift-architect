@@ -1,6 +1,6 @@
 {
-  "version": "v52",
-  "stage": "Beta 0.33 / Desktop Signal Stack",
+  "version": "v53",
+  "stage": "Beta 0.34 / Non-Interactive Signal Surface",
   "date": "2026-10-01",
-  "cache": "rift-architect-v128"
+  "cache": "rift-architect-v129"
 }
