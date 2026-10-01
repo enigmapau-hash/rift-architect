@@ -45,12 +45,13 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.8 de una sola tarjeta de decisión:
-  - decisión principal arriba,
-  - riesgo principal arriba,
-  - detalle plegado como soporte,
-  - menos ruido técnico visible.
-- La interfaz empieza a apoyarse en un pequeño sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips y badges.
+- Muestra el Draft Assistant como una beta 0.9 de home wireframe:
+  - hero,
+  - cómo gana,
+  - prioridad,
+  - evita,
+  - detalle plegado como soporte.
+- La interfaz usa un sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips, badges y flow cards.
 
 ## Arquitectura mental actual
 
@@ -88,6 +89,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.8 / Design System
+**Fase actual:** Beta 0.9 / Home Wireframe
 
-**Meta inmediata:** consolidar un sistema visual compartido y mantener la tarjeta superior como una sola decisión clara con el detalle plegado debajo.
+**Meta inmediata:** dejar la tarjeta superior como un wireframe claro con hero, cómo gana, prioridad y evita, y el detalle plegado debajo.
