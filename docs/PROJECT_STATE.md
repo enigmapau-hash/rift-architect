@@ -40,6 +40,7 @@ La pregunta central sigue siendo:
 - El Explainability Panel muestra evidencias, pesos y confianza de la lectura del motor.
 - El panel contextual agrupa recomendaciones ordenadas por impacto y confianza.
 - El panel de explicación añade una vista de **Strategic Coach** con fases, alertas, prioridades y picos de poder.
+- La interfaz suma una lectura de **Tactical Intelligence** para traducir el plan en decisiones concretas y alternativas.
 
 ## Arquitectura mental actual
 
@@ -63,6 +64,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.39 / Strategic Coach
+**Fase actual:** Beta 0.41 / Tactical Intelligence
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar el panel de recomendaciones y explicación con evidencias, confianza y pesos sin perder claridad en móvil, tablet y escritorio.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar el panel de recomendaciones, explicación y táctica con evidencias, confianza y pesos sin perder claridad en móvil, tablet y escritorio.
