@@ -33,3 +33,11 @@ Why:
 - keep the product usable everywhere,
 - avoid desktop-only layouts,
 - preserve the same analysis contract on every device.
+
+## D-007 — Beta as web app
+During beta stabilization, the site behaves as a normal web app instead of an installable PWA.
+
+Why:
+- avoid stale mobile caches,
+- keep iterations visible immediately,
+- reduce time lost to service-worker issues.
