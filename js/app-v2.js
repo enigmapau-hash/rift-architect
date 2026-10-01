@@ -1,4 +1,4 @@
-import { normalizeText } from './analyzer.js';
+import { normalizeText } from './engine/utils.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
@@ -250,21 +250,6 @@ function renderAll() {
   renderCompositionGrid();
   renderModal();
   syncStatusBadge();
-  emitCompositionChanged();
-}
-
-function emitCompositionChanged() {
-  try {
-    const detail = {
-      selectedChampions: getSelectedChampions(),
-      selectedCount: getSelectedChampions().length,
-      activeRole: state.activeRole,
-      dataSource: state.dataSource,
-    };
-    window.dispatchEvent(new CustomEvent('rift-architect:composition-changed', { detail }));
-  } catch {
-    // ignore dispatch errors
-  }
 }
 
 function renderCompositionGrid() {
