@@ -1,5 +1,9 @@
 /* Small visual fixes for the v2 selector */
 
+#refreshBtn {
+  display: none !important;
+}
+
 .avatar img {
   position: relative;
   z-index: 1;
