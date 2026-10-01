@@ -1,5 +1,17 @@
 # Changelog
 
+## v66 · Patch 0.45.2 / Analysis Failsafe Renderer
+### Added
+- A failsafe analysis renderer that keeps the main story visible even if the render bridge misses a change event.
+
+### Changed
+- The main screen render is now backed by a direct failsafe path.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The visible analysis still comes from the same motor; the new path only makes the render more resilient.
+
 ## v65 · Patch 0.45.1 / Analysis Render Bridge
 ### Added
 - A render bridge that forces the main analysis story to repaint when the composition changes.
