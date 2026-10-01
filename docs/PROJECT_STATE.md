@@ -44,11 +44,13 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué solución tiene,
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
+- Añade una capa `Motor Trace` que muestra de dónde salen los resúmenes: Executive Summary, Coach, Advisor, Draft Assistant y Execution Profile.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.15 de Legacy Migration:
+- Muestra el Draft Assistant como una beta 0.16 de Motor Trace:
   - resumen corto primero,
   - detalle bajo demanda,
-  - flujo acordeón con una sola tarjeta abierta a la vez.
+  - flujo acordeón con una sola tarjeta abierta a la vez,
+  - una capa visible de trazabilidad del motor.
 - El antiguo Analysis Hub ya no forma parte de la interfaz principal.
 - La interfaz usa un sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips, badges y flow cards.
 - La pantalla principal sigue la arquitectura de información definitiva:
@@ -95,6 +97,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.15 / Legacy Migration
+**Fase actual:** Beta 0.16 / Motor Trace
 
-**Meta inmediata:** retirar por completo los paneles heredados de la interfaz visible y dejar solo el flujo acordeón de la home.
+**Meta inmediata:** mostrar la trazabilidad del motor detrás de cada tarjeta sin perder la lectura limpia del flujo acordeón.
