@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v122';
+const CACHE_NAME = 'rift-architect-v123';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -17,6 +17,7 @@ const STATIC_ASSETS = [
   './css/design-system.css',
   './css/analysis-modal.css',
   './css/composition-story.css',
+  './css/responsive-story.css',
   './css/accordion.css',
   './js/bootstrap.js',
   './js/block-legacy-data-fetches.js',
