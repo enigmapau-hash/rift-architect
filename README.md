@@ -6,7 +6,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 
 - **Knowledge Layer**: Excel + reglas estratégicas normalizadas.
 - **Inference Layer**: análisis, coach, necesidades, perfiles y narrativa.
-- **Communication Layer**: tarjetas-resumen y modal de análisis completo.
+- **Communication Layer**: tarjetas fijas de resumen con lectura compacta por línea.
 
 ## Fuente de verdad
 
@@ -20,18 +20,15 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Selector modal por rol con iconos oficiales y alias para variantes como Kayn, Shaco o Varus.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - La pantalla principal sigue una arquitectura fija: Tu composición, Plan de victoria, Prioridades, Riesgos, Draft y Análisis avanzado.
-- La Story muestra tarjetas-resumen compactas y abre un modal de análisis completo al pulsar cada bloque.
-- La Story se sincroniza con la composición mediante un puente ligero que escucha el borrador guardado en localStorage.
-- El modal conserva el resumen corto y despliega el análisis completo dentro de una ventana dedicada.
-- La capa `Motor Trace` muestra de dónde sale cada conclusión: Executive Summary, Coach, Advisor, Draft Assistant y Execution Profile.
-- El bloque Draft completa el recorrido con necesidades, picks y bans antes del análisis avanzado.
-- El antiguo **Analysis Hub** quedó fuera de la interfaz principal para evitar una segunda lectura paralela.
-- El botón **Actualizar** quedó oculto para mantener la cabecera limpia.
+- La Story muestra seis tarjetas fijas, compactas y jerarquizadas.
+- Cada tarjeta resume el análisis con líneas cortas, barras textuales, iconos y chips para evitar scroll largo.
+- La Story se sincroniza con la composición mediante el borrador guardado en localStorage.
+- El antiguo flujo de modal/accordion quedó descartado para simplificar la lectura principal.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases y medición básica de tiempo.
-- El **Coach** genera un `StrategicPlan` único con briefing, fases, riesgos, picos de poder y perfil de ejecución.
-- El **Draft Assistant** perfila necesidades de composición, prioriza picks y orienta bans a partir del `StrategicPlan`.
+- El Coach genera un `StrategicPlan` único con briefing, fases, riesgos, picos de poder y perfil de ejecución.
+- El Draft Assistant perfila necesidades de composición, prioriza picks y orienta bans a partir del `StrategicPlan`.
 
 ## GitHub Pages
 
