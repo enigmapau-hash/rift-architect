@@ -32,6 +32,7 @@ La pregunta central sigue siendo:
 - La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
 - La interfaz vuelve a centrarse en una lectura rápida de la composición propia.
+- El resumen ejecutivo principal vuelve a ser una pieza compacta de cuatro bloques: identidad, fortalezas, debilidades y plan.
 
 ## Arquitectura mental actual
 
@@ -55,6 +56,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.42 / Core Story Restore
+**Fase actual:** Beta 0.43 / Executive Summary 2.0
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y dejar el resto de señales como apoyo secundario sin perder claridad en móvil, tablet y escritorio.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y dejar el resumen ejecutivo principal en un formato simple, tangible y funcional.
