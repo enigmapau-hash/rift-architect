@@ -57,7 +57,8 @@
 .design-system-card__copy,
 .design-system-card__reason,
 .design-system-card__summary span,
-.design-system-chip__value {
+.design-system-chip__value,
+.design-system-flow__meta {
   color: var(--muted);
   line-height: 1.5;
 }
@@ -77,7 +78,8 @@
 }
 
 .design-system-badge,
-.design-system-chip__label {
+.design-system-chip__label,
+.design-system-flow__label {
   text-transform: uppercase;
   letter-spacing: 0.1em;
   font-size: 0.72rem;
@@ -133,6 +135,52 @@
   margin: 0;
   color: var(--text);
   font-size: 0.95rem;
+}
+
+.design-system-flow {
+  display: grid;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.design-system-flow__item {
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.design-system-flow__item.is-hero {
+  border-color: rgba(124, 140, 255, 0.2);
+  background: rgba(124, 140, 255, 0.06);
+}
+
+.design-system-flow__item.is-primary {
+  border-color: rgba(70, 211, 161, 0.2);
+  background: rgba(70, 211, 161, 0.06);
+}
+
+.design-system-flow__item.is-warning {
+  border-color: rgba(255, 209, 138, 0.24);
+  background: rgba(255, 209, 138, 0.08);
+}
+
+.design-system-flow__label {
+  color: var(--accent-2);
+}
+
+.design-system-flow__value {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.98rem;
+  line-height: 1.35;
+}
+
+.design-system-flow__meta {
+  margin: 0;
+  font-size: 0.88rem;
 }
 
 @media (max-width: 720px) {
