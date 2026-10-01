@@ -201,6 +201,7 @@ export function analyzeComposition(selectedChampions = []) {
   };
 
   analysis.explanation = buildExplainability(analysis, safeChampions);
+  analysis.explainability = analysis.explanation;
   analysis.coach = buildCoach(analysis, safeChampions);
   analysis.strategicPlan = analysis.coach.strategicPlan;
   analysis.plan = analysis.strategicPlan;
