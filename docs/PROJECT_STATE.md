@@ -45,8 +45,9 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Añade una capa `Motor Trace` que muestra de dónde salen los resúmenes: Executive Summary, Coach, Advisor, Draft Assistant y Execution Profile.
+- Mantiene la cabecera más limpia: ya no se muestra el badge de fuente/datos, solo la build visible.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.16 de Motor Trace:
+- Muestra el Draft Assistant como una beta 0.17 de Header Cleanup:
   - resumen corto primero,
   - detalle bajo demanda,
   - flujo acordeón con una sola tarjeta abierta a la vez,
@@ -97,6 +98,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.16 / Motor Trace
+**Fase actual:** Beta 0.17 / Header Cleanup
 
-**Meta inmediata:** mostrar la trazabilidad del motor detrás de cada tarjeta sin perder la lectura limpia del flujo acordeón.
+**Meta inmediata:** dejar la vista principal limpia, con el badge de fuente oculto, y seguir puliendo la trazabilidad del motor dentro del acordeón.
