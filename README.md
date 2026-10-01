@@ -34,7 +34,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
-- El **Draft Assistant** ahora se muestra como una beta 0.5 de una sola historia: respuesta arriba, detalle plegado y menos ruido técnico visible.
+- El **Draft Assistant** ahora se muestra como una beta 0.6 de una sola pantalla de decisión: respuesta arriba, detalle plegado y menos ruido técnico visible.
 - El **Narrative Engine** convierte el análisis ejecutivo en una historia corta: cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - La línea de razón del Narrative Engine muestra el “por qué” detrás de la necesidad principal.
 - Hay un badge visible de build en la cabecera para comprobar de un vistazo qué versión está cargada.
