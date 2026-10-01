@@ -38,7 +38,8 @@ La pregunta central sigue siendo:
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
 - En escritorio, el banco de señales se abre más y deja de comprimir tanto los valores.
 - El Explainability Panel muestra evidencias, pesos y confianza de la lectura del motor.
-- El panel contextual ahora también agrupa recomendaciones ordenadas por impacto y confianza.
+- El panel contextual agrupa recomendaciones ordenadas por impacto y confianza.
+- El panel de explicación añade una vista de **Strategic Coach** con fases, alertas, prioridades y picos de poder.
 
 ## Arquitectura mental actual
 
@@ -62,6 +63,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.38 / Recommendation Hub
+**Fase actual:** Beta 0.39 / Strategic Coach
 
 **Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar el panel de recomendaciones y explicación con evidencias, confianza y pesos sin perder claridad en móvil, tablet y escritorio.
