@@ -6,7 +6,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 
 - **Knowledge Layer**: Excel + reglas estratégicas normalizadas.
 - **Inference Layer**: análisis, coach, necesidades, perfiles y narrativa.
-- **Communication Layer**: Draft Assistant y vistas ejecutivas para leer el resultado rápido.
+- **Communication Layer**: tarjetas-resumen y modal de análisis completo.
 
 ## Fuente de verdad
 
@@ -19,14 +19,15 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 
 - Selector modal por rol con iconos oficiales y alias para variantes como Kayn, Shaco o Varus.
 - La composición se reinicia al recargar; no hay persistencia automática.
-- La pantalla principal ahora sigue una arquitectura de información fija: Tu composición, Plan de victoria, Prioridades, Riesgos, Draft y Análisis avanzado.
-- La composición Story muestra tarjetas-resumen compactas y abre un modal de análisis completo al pulsar cada bloque.
-- La Story conserva un resumen corto primero y despliega el análisis completo dentro de una ventana dedicada.
-- La capa `Motor Trace` añade una lectura compacta de dónde sale cada conclusión: Executive Summary, Coach, Advisor, Draft Assistant y Execution Profile.
+- La pantalla principal sigue una arquitectura de información fija: Tu composición, Plan de victoria, Prioridades, Riesgos, Draft y Análisis avanzado.
+- La Story muestra tarjetas-resumen compactas y abre un modal de análisis completo al pulsar cada bloque.
+- La Story se vuelve a renderizar cuando cambia la composición, así que el análisis aparece después de elegir los 5 campeones.
+- El modal conserva el resumen corto y despliega el análisis completo dentro de una ventana dedicada.
+- La capa `Motor Trace` muestra de dónde sale cada conclusión: Executive Summary, Coach, Advisor, Draft Assistant y Execution Profile.
 - El bloque Draft completa el recorrido con necesidades, picks y bans antes del análisis avanzado.
 - El antiguo **Analysis Hub** quedó fuera de la interfaz principal para evitar una segunda lectura paralela.
-- El análisis ejecutivo se concentra ahora en la ventana modal de la home.
-- El selector de campeones se ha ampliado para ser más cómodo en escritorio.
+- El análisis ejecutivo se concentra ahora en el modal de la home.
+- El botón **Actualizar** quedó oculto para mantener la cabecera limpia.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - El **Composition Optimizer** permite probar swaps internos y priorizar mejoras.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
@@ -34,7 +35,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
-- El **Draft Assistant** ahora se muestra como una beta 0.20 de Modal Analysis: resumen corto primero y detalle completo dentro de un modal dedicado.
+- El **Draft Assistant** se muestra como una beta de análisis modal con resumen corto primero y detalle completo bajo demanda.
 - La capa visual usa un sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips, badges y flow cards.
 - El **Narrative Engine** convierte el análisis ejecutivo en una historia corta: cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - La línea de razón del Narrative Engine muestra el “por qué” detrás de la necesidad principal.
