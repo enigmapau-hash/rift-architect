@@ -120,7 +120,7 @@
 
 .composition-story__signal {
   display: grid;
-  gap: 6px;
+  gap: 8px;
   padding: 11px 12px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -143,26 +143,82 @@
   background: rgba(255, 122, 122, 0.08);
 }
 
+.composition-story__signal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .composition-story__signal-label {
   color: var(--accent-2);
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  font-size: 0.68rem;
+  font-size: 0.66rem;
+}
+
+.composition-story__signal-chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.62rem;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.composition-story__signal--good .composition-story__signal-chip {
+  border-color: rgba(70, 211, 161, 0.24);
+  background: rgba(70, 211, 161, 0.12);
+}
+
+.composition-story__signal--neutral .composition-story__signal-chip {
+  border-color: rgba(124, 140, 255, 0.24);
+  background: rgba(124, 140, 255, 0.12);
+}
+
+.composition-story__signal--bad .composition-story__signal-chip {
+  border-color: rgba(255, 122, 122, 0.24);
+  background: rgba(255, 122, 122, 0.12);
 }
 
 .composition-story__signal-value {
   color: var(--text);
-  line-height: 1.35;
-  font-size: 0.94rem;
+  line-height: 1.25;
+  font-size: 0.92rem;
   -webkit-line-clamp: 2;
 }
 
-.composition-story__signal-bar {
-  color: var(--muted);
-  line-height: 1.3;
-  font-size: 0.74rem;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
+.composition-story__signal-meter {
+  position: relative;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.composition-story__signal-meter span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(124, 140, 255, 0.82), rgba(70, 211, 161, 0.94));
+}
+
+.composition-story__signal--good .composition-story__signal-meter span {
+  background: linear-gradient(90deg, rgba(70, 211, 161, 0.84), rgba(124, 140, 255, 0.94));
+}
+
+.composition-story__signal--neutral .composition-story__signal-meter span {
+  background: linear-gradient(90deg, rgba(124, 140, 255, 0.84), rgba(255, 209, 138, 0.92));
+}
+
+.composition-story__signal--bad .composition-story__signal-meter span {
+  background: linear-gradient(90deg, rgba(255, 122, 122, 0.84), rgba(255, 209, 138, 0.92));
 }
 
 .design-system-flow {
@@ -257,15 +313,16 @@
   }
 
   .composition-story__signal-label {
-    font-size: 0.66rem;
+    font-size: 0.64rem;
+  }
+
+  .composition-story__signal-chip {
+    font-size: 0.58rem;
+    padding: 2px 6px;
   }
 
   .composition-story__signal-value {
-    font-size: 0.9rem;
-  }
-
-  .composition-story__signal-bar {
-    font-size: 0.7rem;
+    font-size: 0.88rem;
   }
 
   .design-system-flow {
