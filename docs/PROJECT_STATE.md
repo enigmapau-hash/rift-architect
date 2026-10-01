@@ -47,10 +47,10 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
 - Integra la trazabilidad del motor dentro de cada tarjeta de la Story para mostrar de dónde salen los resúmenes y recomendaciones.
 - Mantiene la cabecera más limpia: ya no se muestra el badge de fuente/datos, solo la build visible.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.19 de Unified Accordion:
+- Muestra el Draft Assistant como una beta 0.20 de Modal Analysis:
   - resumen corto primero,
-  - detalle bajo demanda,
-  - flujo acordeón con una sola tarjeta abierta a la vez,
+  - detalle completo dentro de un modal dedicado,
+  - navegación por secciones,
   - trazabilidad integrada dentro de cada bloque.
 - El antiguo Analysis Hub ya no forma parte de la interfaz principal.
 - La interfaz usa un sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips, badges y flow cards.
@@ -98,6 +98,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.19 / Unified Accordion
+**Fase actual:** Beta 0.20 / Modal Analysis
 
-**Meta inmediata:** dejar la vista principal funcionando con tarjetas desplegables estables y trazabilidad integrada dentro de cada bloque.
+**Meta inmediata:** mostrar las tarjetas-resumen en la home y abrir el análisis completo dentro de un modal dedicado, reutilizando la trazabilidad del motor.
