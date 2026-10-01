@@ -1,4 +1,5 @@
 import { analyzeComposition } from './analyzer.js';
+import { getSectionToneLabel } from './modal-helpers.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
 const DATA_MANIFEST_URL = './data/index.json';
@@ -30,7 +31,16 @@ const state = {
   currentModel: null,
 };
 
-const els = { root: null, modal: null, modalTitle: null, modalKicker: null, modalSummary: null, modalTabs: null, modalBody: null, modalClose: null };
+const els = {
+  root: null,
+  modal: null,
+  modalTitle: null,
+  modalKicker: null,
+  modalSummary: null,
+  modalTabs: null,
+  modalBody: null,
+  modalClose: null,
+};
 
 init().catch((error) => console.error(error));
 
@@ -157,8 +167,7 @@ function renderStory() {
   state.currentAnalysis = analysis;
   state.currentModel = model;
 
-  const cards = SECTIONS.map((section) => renderSummaryCard(section, model)).join('');
-  els.root.innerHTML = `<section class="composition-story composition-story--cards">${cards}</section>`;
+  els.root.innerHTML = `<section class="composition-story composition-story--cards">${SECTIONS.map((section) => renderSummaryCard(section, model)).join('')}</section>`;
 
   if (state.modalOpen) {
     ensureModal();
@@ -220,130 +229,139 @@ function renderTabs(activeSection) {
 
 function renderSection(section, model) {
   const raw = state.currentAnalysis || {};
+  const data = getSectionData(section, model, raw);
 
+  return [
+    renderHero(data.title, data.summary, data.meta),
+    renderBlock(data.blockKicker, data.blockTitle, data.rows),
+    renderTrace('Motor', data.trace),
+  ].join('');
+}
+
+function getSectionData(section, model, raw) {
   switch (section) {
     case 'composition':
-      return [
-        renderHero(model.identity, model.summaryText, [
-          `${model.grade} · ${model.score}/100`,
-          `Pico: ${model.tempo}`,
-          `${model.selectedCount}/5 roles`,
-        ]),
-        renderBlock('Identidad', 'Qué somos', [
-          renderFlowItem('Identidad', model.identity, `Confianza ${model.grade} · ${model.score}/100`, 'is-hero'),
-          renderFlowItem('Pieza clave', model.keyPiece ? model.keyPiece.champion : 'Sin pieza clave', model.keyPiece ? [model.keyPiece.function, model.keyPiece.identity, model.keyPiece.tempo].filter(Boolean).join(' · ') : 'Todavía no hay una pieza clave clara.', 'is-primary'),
-          renderFlowItem('Fortalezas', joinTexts(model.strengths.map((item) => item.label)), 'Puntos que ya funcionan.', 'is-primary'),
-          renderFlowItem('Debilidades', joinTexts(model.weaknesses.map((item) => item.label)), 'Huecos que conviene cerrar.', 'is-warning'),
-          renderFlowItem('Lectura', model.quickCoach, 'La composición se entiende desde su identidad.', 'is-warning'),
-        ]),
-        renderTrace('Motor que alimenta esta lectura', [
-          ['Resumen ejecutivo', raw.primaryIdentity || model.identity, raw.summaryText || model.summaryText],
+      return {
+        title: model.identity,
+        summary: model.summaryText,
+        meta: [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`, `${model.selectedCount}/5 roles`],
+        blockKicker: 'Identidad',
+        blockTitle: 'Qué somos',
+        rows: [
+          renderRow('Identidad', model.identity, `Confianza ${model.grade} · ${model.score}/100`, 'is-hero'),
+          renderRow('Pieza clave', model.keyPiece ? model.keyPiece.champion : 'Sin pieza clave', model.keyPiece ? [model.keyPiece.function, model.keyPiece.identity, model.keyPiece.tempo].filter(Boolean).join(' · ') : 'Todavía no hay una pieza clave clara.', 'is-primary'),
+          renderRow('Fortalezas', joinTexts(model.strengths.map((item) => item.label)), 'Puntos que ya funcionan.', 'is-primary'),
+          renderRow('Debilidades', joinTexts(model.weaknesses.map((item) => item.label)), 'Huecos que conviene cerrar.', 'is-warning'),
+          renderRow('Lectura', model.quickCoach, 'La composición se entiende desde su identidad.', 'is-warning'),
+        ],
+        trace: [
+          ['Executive Summary', raw.primaryIdentity || model.identity, raw.summaryText || model.summaryText],
           ['Win condition', raw.winCondition?.label || 'Sin win condition', asText(raw.winCondition?.detail || model.winCondition)],
           ['Coherencia', raw.coherence?.label || 'Sin coherencia', asText(raw.coherence?.detail || 'La lectura se apoya en el motor y en la composición.')],
-        ]),
-      ].join('');
+        ],
+      };
 
     case 'victory':
-      return [
-        renderHero(model.winCondition, model.quickCoach, [
-          `Pico: ${model.tempo}`,
-          `${model.phases.length} fases`,
-          joinTexts(model.objectivePriority.slice(0, 2).map((item) => item.label || item)),
-        ]),
-        renderBlock('Cómo gana', 'Plan de victoria', [
-          renderFlowItem('Win condition', model.winCondition, model.quickCoach, 'is-primary'),
-          renderFlowItem('Tempo', model.tempo, 'Cuándo es más fuerte esta composición.', 'is-hero'),
-          renderFlowItem('Fases', model.phases.join(' · ') || 'Sin fases definidas', 'Early · Mid · Late', 'is-warning'),
-          renderFlowItem('Plan', joinTexts((raw.gamePlan || []).map((item) => asText(item)).slice(0, 3)), 'Secuencia que convierte la ventaja en victoria.', 'is-primary'),
-          renderFlowItem('Objetivo', joinTexts(model.objectivePriority.slice(0, 3).map((item) => item.label || item)), 'Prioridad sugerida por el motor.', 'is-warning'),
-        ]),
-        renderTrace('De dónde sale la victoria', [
+      return {
+        title: model.winCondition,
+        summary: model.quickCoach,
+        meta: [`Pico: ${model.tempo}`, `${model.phases.length} fases`, `${model.gamePlan.length} pasos`],
+        blockKicker: 'Cómo gana',
+        blockTitle: 'Plan de victoria',
+        rows: [
+          renderRow('Win condition', model.winCondition, model.quickCoach, 'is-primary'),
+          renderRow('Tempo', model.tempo, 'Cuándo es más fuerte esta composición.', 'is-hero'),
+          renderRow('Fases', model.phases.join(' · ') || 'Sin fases definidas', 'Early · Mid · Late', 'is-warning'),
+          renderRow('Plan', joinTexts(model.gamePlan), 'Secuencia que convierte la ventaja en victoria.', 'is-primary'),
+          renderRow('Objetivo', joinTexts(model.objectivePriority.map((item) => item.label)), 'Prioridad sugerida por el motor.', 'is-warning'),
+        ],
+        trace: [
           ['Objetivo principal', raw.advisor?.primaryObjective || model.winCondition, raw.advisor?.summary?.reason || model.winCondition],
           ['Ventanas', phaseSummary(model.gameWindows), 'Early · Mid · Late'],
           ['Pico de poder', model.tempo, raw.winCondition?.detail || model.winCondition],
-        ]),
-      ].join('');
+        ],
+      };
 
     case 'priorities':
-      return [
-        renderHero(model.priorities[0] || 'Prioriza lo que más acelera la victoria', model.quickCoach, [
-          `${model.priorities.length} pasos`,
-          'Plan activo',
-          `${model.checklist.length} checks`,
-        ]),
-        renderBlock('Qué hacer ahora', 'Prioridades', [
-          ...model.priorities.map((priority, index) => renderFlowItem(`Prioridad ${index + 1}`, priority, index === 0 ? 'La más importante ahora' : 'Siguiente paso del plan', index === 0 ? 'is-primary' : '')),
-          renderFlowItem('Coach', model.quickCoach, 'El criterio que ordena todo el plan.', 'is-hero'),
-          ...model.checklist.map((item, index) => renderFlowItem(`Checklist ${index + 1}`, item.label, item.detail || 'Paso operativo del plan.', index === 0 ? 'is-primary' : '')),
-        ]),
-        renderTrace('Prioridades y ejecución', [
+      return {
+        title: model.priorities[0] || 'Prioriza lo que más acelera la victoria',
+        summary: model.quickCoach,
+        meta: [`${model.priorities.length} pasos`, 'Plan activo', `${model.checklist.length} checks`],
+        blockKicker: 'Qué hacer ahora',
+        blockTitle: 'Prioridades',
+        rows: [
+          ...model.priorities.map((priority, index) => renderRow(`Prioridad ${index + 1}`, priority, index === 0 ? 'La más importante ahora' : 'Siguiente paso del plan', index === 0 ? 'is-primary' : '')),
+          renderRow('Coach', model.quickCoach, 'El criterio que ordena todo el plan.', 'is-hero'),
+          ...model.checklist.map((item, index) => renderRow(`Checklist ${index + 1}`, item.label, item.detail || 'Paso operativo del plan.', index === 0 ? 'is-primary' : '')),
+        ],
+        trace: [
           ['Checklist', joinTexts(model.checklist.map((item) => item.label)), 'Pasos que no deben olvidarse.'],
           ['Prioridades IA', joinTexts(model.execPriorities.map((item) => item.label)), 'Lo más importante ahora.'],
           ['Coach', raw.coach?.headline || model.quickCoach, raw.coach?.briefing || model.quickCoach],
-        ]),
-      ].join('');
+        ],
+      };
 
     case 'risks':
-      return [
-        renderHero(model.avoid[0] || 'No fuerces el plan equivocado', model.quickCoach, [
-          `${model.weaknesses.length} debilidades`,
-          `${model.avoid.length} riesgos`,
-          `${model.criticalErrors.length} errores críticos`,
-        ]),
-        renderBlock('Qué evitar', 'Riesgos', [
-          ...model.avoid.map((risk, index) => renderFlowItem(`Riesgo ${index + 1}`, risk, index === 0 ? 'El más castigado' : 'Compensar a tiempo', index === 0 ? 'is-warning' : '')),
-          ...model.weaknesses.map((item) => renderFlowItem(item.label, item.detail || 'Sin detalle adicional', item.score !== null ? `${item.score}/100` : 'Debilidad detectada', '')),
-          ...model.criticalErrors.map((item, index) => renderFlowItem(item.label, item.detail || 'Puede romper el plan principal.', index === 0 ? 'Prioridad defensiva' : 'Riesgo detectado', index === 0 ? 'is-warning' : '')),
-        ]),
-        renderTrace('Riesgos del motor', [
+      return {
+        title: model.avoid[0] || 'No fuerces el plan equivocado',
+        summary: model.quickCoach,
+        meta: [`${model.weaknesses.length} debilidades`, `${model.avoid.length} riesgos`, `${model.criticalErrors.length} errores críticos`],
+        blockKicker: 'Qué evitar',
+        blockTitle: 'Riesgos',
+        rows: [
+          ...model.avoid.map((risk, index) => renderRow(`Riesgo ${index + 1}`, risk, index === 0 ? 'El más castigado' : 'Compensar a tiempo', index === 0 ? 'is-warning' : '')),
+          ...model.weaknesses.map((item) => renderRow(item.label, item.detail || 'Sin detalle adicional', item.score !== null ? `${item.score}/100` : 'Debilidad detectada', '')),
+          ...model.criticalErrors.map((item, index) => renderRow(item.label, item.detail || 'Puede romper el plan principal.', index === 0 ? 'Prioridad defensiva' : 'Riesgo detectado', index === 0 ? 'is-warning' : '')),
+        ],
+        trace: [
           ['Mayor riesgo', model.avoid[0] || 'Sin riesgo claro', joinTexts(model.criticalErrors.map((item) => item.detail || item.label).slice(0, 2))],
           ['Debilidades', joinTexts(model.weaknesses.map((item) => item.label)), 'Se conectan con el perfil del draft.'],
           ['Alertas', joinTexts(model.alerts), 'Lo que conviene vigilar.'],
-        ]),
-      ].join('');
+        ],
+      };
 
     case 'draft':
-      return [
-        renderHero(model.draftSummary, 'El draft completa el plan de la composición.', [
-          `${model.compositionNeeds.length} necesidades`,
-          `${model.pickRecommendations.length} picks`,
-          `${model.banRecommendations.length} bans`,
-        ]),
-        renderBlock('Picks y bans', 'Draft', [
-          renderFlowItem('Resumen', model.draftSummary, model.compositionNeeds[0]?.detail || 'El draft completa el plan de la composición.', 'is-hero'),
-          ...model.compositionNeeds.map((item, index) => renderFlowItem(`Necesidad ${index + 1}`, item.label, item.detail || 'Hueco a cubrir.', index === 0 ? 'is-primary' : '')),
-          ...model.pickRecommendations.map((item, index) => renderFlowItem(`Pick ${index + 1}`, item.label, joinTexts([item.detail, item.meta]), index === 0 ? 'Mejora el plan' : '')),
-          ...model.banRecommendations.map((item, index) => renderFlowItem(`Ban ${index + 1}`, item.label, joinTexts([item.detail, item.meta]), index === 0 ? 'Bloquea una amenaza' : 'is-warning')),
-        ]),
-        renderTrace('Pistas del draft assistant', [
+      return {
+        title: model.draftSummary,
+        summary: 'El draft completa el plan de la composición.',
+        meta: [`${model.compositionNeeds.length} necesidades`, `${model.pickRecommendations.length} picks`, `${model.banRecommendations.length} bans`],
+        blockKicker: 'Picks y bans',
+        blockTitle: 'Draft',
+        rows: [
+          renderRow('Resumen', model.draftSummary, model.compositionNeeds[0]?.detail || 'El draft completa el plan de la composición.', 'is-hero'),
+          ...model.compositionNeeds.map((item, index) => renderRow(`Necesidad ${index + 1}`, item.label, item.detail || 'Hueco a cubrir.', index === 0 ? 'is-primary' : '')),
+          ...model.pickRecommendations.map((item, index) => renderRow(`Pick ${index + 1}`, item.label, joinTexts([item.detail, item.meta]), index === 0 ? 'Mejora el plan' : '')),
+          ...model.banRecommendations.map((item, index) => renderRow(`Ban ${index + 1}`, item.label, joinTexts([item.detail, item.meta]), index === 0 ? 'Bloquea una amenaza' : 'is-warning')),
+        ],
+        trace: [
           ['Necesidades', joinTexts(model.compositionNeeds.map((item) => item.label)), 'Huecos que el draft debe cubrir.'],
           ['Picks', joinTexts(model.pickRecommendations.map((item) => item.label)), 'Opciones que completan el plan.'],
           ['Bans', joinTexts(model.banRecommendations.map((item) => item.label)), 'Amenazas que frenan el plan.'],
-        ]),
-      ].join('');
+        ],
+      };
 
     case 'advanced':
     default:
-      return [
-        renderHero(model.coherenceLabel, model.coherenceDetail, [
-          `${model.metrics.length} métricas`,
-          `${model.insights.length} insights`,
-          `${model.executionProfile.length} señales de ejecución`,
-        ]),
-        renderBlock('Por qué', 'Análisis avanzado', [
-          renderFlowItem('Coherencia', model.coherenceLabel, model.coherenceDetail, 'is-primary'),
-          renderFlowItem('Señales', joinTexts(model.whyItems), 'Evidencias que sostienen la lectura.', 'is-warning'),
-          ...model.metrics.map((metric, index) => renderFlowItem(metric.label, metric.score !== null ? `${metric.score}/10` : metric.detail || 'Sin puntuación', metric.detail || 'Señal cuantitativa del motor.', index === 0 ? 'is-hero' : '')),
-          ...model.executionProfile.map((item, index) => renderFlowItem(item.label, item.score !== null ? `${item.score}/5` : item.badge || 'Señal', item.detail || 'Perfil de ejecución.', index === 0 ? 'is-primary' : '')),
-          ...model.insights.map((insight, index) => renderFlowItem(`Insight ${index + 1}`, insight, 'Consejo táctico del motor.', index === 0 ? 'is-warning' : '')),
-          ...model.alerts.map((alert, index) => renderFlowItem(`Alerta ${index + 1}`, alert, 'Punto que conviene vigilar.', index === 0 ? 'is-warning' : '')),
-        ]),
-        renderTrace('Explicación del motor', [
+      return {
+        title: model.coherenceLabel,
+        summary: model.coherenceDetail,
+        meta: [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales de ejecución`],
+        blockKicker: 'Por qué',
+        blockTitle: 'Análisis avanzado',
+        rows: [
+          renderRow('Coherencia', model.coherenceLabel, model.coherenceDetail, 'is-primary'),
+          renderRow('Señales', joinTexts(model.whyItems), 'Evidencias que sostienen la lectura.', 'is-warning'),
+          ...model.metrics.map((metric, index) => renderRow(metric.label, metric.score !== null ? `${metric.score}/10` : metric.detail || 'Sin puntuación', metric.detail || 'Señal cuantitativa del motor.', index === 0 ? 'is-hero' : '')),
+          ...model.executionProfile.map((item, index) => renderRow(item.label, item.score !== null ? `${item.score}/5` : item.badge || 'Señal', item.detail || 'Perfil de ejecución.', index === 0 ? 'is-primary' : '')),
+          ...model.insights.map((insight, index) => renderRow(`Insight ${index + 1}`, insight, 'Consejo táctico del motor.', index === 0 ? 'is-warning' : '')),
+          ...model.alerts.map((alert, index) => renderRow(`Alerta ${index + 1}`, alert, 'Punto que conviene vigilar.', index === 0 ? 'is-warning' : '')),
+        ],
+        trace: [
           ['Coherencia', model.coherenceLabel, model.coherenceDetail],
           ['Métricas', joinTexts(model.metrics.map((item) => item.label)), 'Señales cuantitativas del motor.'],
           ['Insights', joinTexts(model.insights), 'Consejos tácticos resumidos.'],
-        ]),
-      ].join('');
+        ],
+      };
   }
 }
 
@@ -387,13 +405,13 @@ function renderTrace(title, rows) {
         <h3 class="analysis-modal__block-title">${escapeHtml(title)}</h3>
       </div>
       <div class="design-system-flow">
-        ${rows.map((row, index) => renderFlowItem(row[0], row[1], row[2], index === 0 ? 'is-hero' : index === 1 ? 'is-primary' : 'is-warning')).join('')}
+        ${rows.map((row, index) => renderRow(row[0], row[1], row[2], index === 0 ? 'is-hero' : index === 1 ? 'is-primary' : 'is-warning')).join('')}
       </div>
     </section>
   `;
 }
 
-function renderFlowItem(label = '', value = '', meta = '', tone = '') {
+function renderRow(label = '', value = '', meta = '', tone = '') {
   return `
     <article class="design-system-flow__item ${tone}">
       <span class="design-system-flow__label">${escapeHtml(label)}</span>
@@ -401,97 +419,6 @@ function renderFlowItem(label = '', value = '', meta = '', tone = '') {
       ${meta ? `<p class="design-system-flow__meta">${escapeHtml(meta)}</p>` : ''}
     </article>
   `;
-}
-
-function buildStoryModel(analysis, selectedChampions) {
-  const executive = analysis?.executiveSummary || {};
-  const coach = analysis?.coach || {};
-  const advisor = analysis?.advisor || {};
-  const draftAssistant = analysis?.draftAssistant || {};
-  const strengths = asArray(analysis?.strengths).slice(0, 4).map(normalizeEntry);
-  const weaknesses = asArray(analysis?.weaknesses).slice(0, 4).map(normalizeEntry);
-  const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase)).filter(Boolean);
-  const gamePlan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step)).filter(Boolean);
-  const tempo = asText(analysis?.tempoDetail?.label || analysis?.tempo || 'Mid Game');
-  const identity = asText(analysis?.primaryIdentity || 'Sin identidad clara');
-  const score = clampToRange(Number(analysis?.confidence) || Number(executive.score) || 0, 0, 100);
-  const grade = gradeFromScore(score);
-
-  const keyPiece = findKeyPiece(selectedChampions);
-  const objectivePriority = asArray(advisor.objectivePriority).slice(0, 3).map(normalizeEntry);
-  const loseConditions = asArray(advisor.loseConditions).slice(0, 3).map((item) => normalizeEntry({ label: item?.label ?? item, detail: item?.detail ?? item?.reason ?? item?.description ?? '' }));
-
-  const priorities = uniqueValues([
-    ...objectivePriority.map((item) => item.label),
-    analysis?.winCondition?.label,
-    executive.priorities?.[0]?.label,
-    keyPiece ? `Cuidar a ${keyPiece.champion}` : 'Proteger tu pieza clave',
-  ]).slice(0, 3);
-
-  const avoid = uniqueValues([
-    ...loseConditions.map((item) => item.label),
-    ...weaknesses.map((item) => item.label),
-    'Forzar peleas antes del pico de poder',
-  ]).slice(0, 3);
-
-  const checklist = asArray(executive.checklist).slice(0, 4).map(normalizeEntry);
-  const criticalErrors = asArray(executive.criticalErrors).slice(0, 4).map(normalizeEntry);
-  const execPriorities = asArray(executive.priorities).slice(0, 4).map(normalizeEntry);
-  const executionProfile = asArray(executive.executionProfile).slice(0, 4).map(normalizeEntry);
-  const compositionNeeds = asArray(draftAssistant.compositionNeeds).slice(0, 4).map(normalizeEntry);
-  const pickRecommendations = asArray(draftAssistant.pickRecommendations).slice(0, 4).map(normalizeEntry);
-  const banRecommendations = asArray(draftAssistant.banRecommendations).slice(0, 4).map(normalizeEntry);
-  const metrics = asArray(analysis?.metrics).slice(0, 4).map(normalizeEntry);
-  const insights = uniqueValues(asArray(coach.insights).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
-  const alerts = uniqueValues(asArray(coach.alerts).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
-  const whyItems = uniqueValues([
-    identity,
-    asText(analysis?.winCondition?.label || ''),
-    asText(analysis?.coherence?.label || ''),
-    ...metrics.map((item) => item.label),
-  ]).slice(0, 4);
-
-  const summaryText = asText(analysis?.summaryText || `Tu composición gira alrededor de ${identity} y necesita una lectura simple para convertir esa idea en decisiones.`);
-  const winCondition = asText(analysis?.winCondition?.detail || analysis?.winCondition?.label || 'Escala y gana la pelea correcta en tu ventana de poder.');
-  const quickCoach = asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.');
-  const draftSummary = asText(draftAssistant.summary || draftAssistant.profileSummary || 'La composición todavía pide completar huecos concretos con picks y bans que protejan el plan.');
-  const coherenceLabel = asText(analysis?.coherence?.label || 'Coherencia');
-  const coherenceDetail = asText(analysis?.coherence?.detail || 'La consistencia del plan se apoya en el motor y en la composición seleccionada.');
-
-  return {
-    analysis,
-    selectedCount: selectedChampions.length,
-    score,
-    grade,
-    identity,
-    summaryText,
-    winCondition,
-    tempo,
-    phases,
-    gamePlan,
-    keyPiece,
-    strengths,
-    weaknesses,
-    priorities,
-    avoid,
-    checklist,
-    criticalErrors,
-    execPriorities,
-    executionProfile,
-    objectivePriority,
-    compositionNeeds,
-    pickRecommendations,
-    banRecommendations,
-    metrics,
-    insights,
-    alerts,
-    whyItems,
-    quickCoach,
-    draftSummary,
-    coherenceLabel,
-    coherenceDetail,
-    gameWindows: advisor.gameWindows || {},
-  };
 }
 
 function getSectionSummary(section, model) {
@@ -530,39 +457,210 @@ function getSectionTone(section) {
   }
 }
 
-function getSectionToneLabel(summary) {
-  const text = asText(summary).trim();
-  if (!text) return 'IA';
-  const words = text.split(/\s+/).filter(Boolean);
-  return words.slice(0, 2).map((part) => part[0]?.toUpperCase() || '').join('') || 'IA';
-}
-
-function renderModalIfOpen() {
-  if (state.modalOpen) renderModal();
-}
-
 function normalizeSection(section) {
   return SECTIONS.some((item) => item.key === section) ? section : 'composition';
 }
 
-function observeComposition() {
-  const node = document.getElementById('compositionGrid');
-  if (!node) {
-    window.requestAnimationFrame(observeComposition);
-    return;
-  }
+function buildStoryModel(analysis, selectedChampions) {
+  const executive = analysis?.executiveSummary || {};
+  const coach = analysis?.coach || {};
+  const advisor = analysis?.advisor || {};
+  const draftAssistant = analysis?.draftAssistant || {};
 
-  const observer = new MutationObserver(schedulePatch);
-  observer.observe(node, { childList: true, subtree: true, characterData: true });
+  const strengths = asArray(analysis?.strengths).slice(0, 4).map(normalizeEntry);
+  const weaknesses = asArray(analysis?.weaknesses).slice(0, 4).map(normalizeEntry);
+  const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase)).filter(Boolean);
+  const gamePlan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step)).filter(Boolean);
+  const tempo = asText(analysis?.tempoDetail?.label || analysis?.tempo || 'Mid Game');
+  const identity = asText(analysis?.primaryIdentity || executive.title || 'Sin identidad clara');
+  const score = clampToRange(Number(analysis?.confidence) || Number(executive.score) || 0, 0, 100);
+  const grade = gradeFromScore(score);
+
+  const keyPiece = findKeyPiece(selectedChampions);
+  const objectivePriority = asArray(advisor.objectivePriority).slice(0, 3).map(normalizeEntry);
+  const loseConditions = asArray(advisor.loseConditions).slice(0, 3).map((item) => normalizeEntry({ label: item?.label ?? item, detail: item?.detail ?? item?.reason ?? item?.description ?? '' }));
+
+  const priorities = uniqueValues([
+    ...objectivePriority.map((item) => item.label),
+    asText(analysis?.winCondition?.label || executive.priorities?.[0]?.label || ''),
+    keyPiece ? `Cuidar a ${keyPiece.champion}` : 'Proteger tu pieza clave',
+  ]).slice(0, 3);
+
+  const avoid = uniqueValues([
+    ...loseConditions.map((item) => item.label),
+    ...weaknesses.map((item) => item.label),
+    'Forzar peleas antes del pico de poder',
+  ]).slice(0, 3);
+
+  const checklist = asArray(executive.checklist).slice(0, 4).map(normalizeEntry);
+  const criticalErrors = asArray(executive.criticalErrors).slice(0, 4).map(normalizeEntry);
+  const execPriorities = asArray(executive.priorities).slice(0, 4).map(normalizeEntry);
+  const executionProfile = asArray(executive.executionProfile).slice(0, 4).map(normalizeEntry);
+  const compositionNeeds = asArray(draftAssistant.compositionNeeds).slice(0, 4).map(normalizeEntry);
+  const pickRecommendations = asArray(draftAssistant.pickRecommendations).slice(0, 4).map(normalizeEntry);
+  const banRecommendations = asArray(draftAssistant.banRecommendations).slice(0, 4).map(normalizeEntry);
+  const metrics = asArray(analysis?.metrics).slice(0, 4).map(normalizeEntry);
+  const insights = uniqueValues(asArray(coach.insights).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
+  const alerts = uniqueValues(asArray(coach.alerts).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
+  const whyItems = uniqueValues([
+    identity,
+    asText(analysis?.winCondition?.label || ''),
+    asText(analysis?.coherence?.label || ''),
+    ...metrics.map((item) => item.label),
+  ]).slice(0, 4);
+
+  return {
+    analysis,
+    selectedCount: selectedChampions.length,
+    score,
+    grade,
+    identity,
+    summaryText: asText(analysis?.summaryText || `Tu composición gira alrededor de ${identity} y necesita una lectura simple para convertir esa idea en decisiones.`),
+    winCondition: asText(analysis?.winCondition?.detail || analysis?.winCondition?.label || 'Escala y gana la pelea correcta en tu ventana de poder.'),
+    tempo,
+    phases,
+    gamePlan,
+    keyPiece,
+    strengths,
+    weaknesses,
+    priorities,
+    avoid,
+    checklist,
+    criticalErrors,
+    execPriorities,
+    executionProfile,
+    objectivePriority,
+    compositionNeeds,
+    pickRecommendations,
+    banRecommendations,
+    metrics,
+    insights,
+    alerts,
+    whyItems,
+    quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
+    draftSummary: asText(draftAssistant.summary || draftAssistant.profileSummary || 'La composición todavía pide completar huecos concretos con picks y bans que protejan el plan.'),
+    coherenceLabel: asText(analysis?.coherence?.label || 'Coherencia'),
+    coherenceDetail: asText(analysis?.coherence?.detail || 'La consistencia del plan se apoya en el motor y en la composición seleccionada.'),
+    gameWindows: advisor.gameWindows || {},
+  };
 }
 
-function schedulePatch() {
-  if (state.patchScheduled) return;
-  state.patchScheduled = true;
-  window.requestAnimationFrame(() => {
-    state.patchScheduled = false;
-    renderStory();
+function findKeyPiece(selectedChampions) {
+  return (
+    findChampionByTags(selectedChampions, ['adc', 'carry', 'hypercarry', 'escalado']) ||
+    findChampionByTags(selectedChampions, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start']) ||
+    findChampionByTags(selectedChampions, ['peel', 'protect', 'shield']) ||
+    findChampionByTags(selectedChampions, ['frontline', 'tanque', 'front', 'defensa']) ||
+    selectedChampions[0] ||
+    null
+  );
+}
+
+function findChampionByTags(selectedChampions, tags = []) {
+  const normalizedTags = tags.map((tag) => normalizeText(tag));
+  return selectedChampions.find((champion) => {
+    const values = [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)];
+    return values.some((value) => normalizedTags.some((tag) => normalizeText(asText(value)).includes(tag)));
   });
+}
+
+function collectSelectedChampions() {
+  return [...document.querySelectorAll('#compositionGrid .slot.is-filled')]
+    .map((slot) => {
+      const role = String(slot.dataset.role || 'top');
+      const name = slot.querySelector('.slot__name')?.textContent?.trim() || '';
+      const champion = findChampion(role, name);
+      return normalizeSelectedChampion(champion ? { role, ...champion } : null);
+    })
+    .filter(Boolean);
+}
+
+function normalizeSelectedChampion(champion) {
+  if (!champion) return null;
+  return {
+    role: asText(champion.role, 'top'),
+    champion: asText(champion.champion, 'Sin definir'),
+    identity: asText(champion.identity, ''),
+    function: asText(champion.function, ''),
+    tempo: asText(champion.tempo, ''),
+    strengths: asArray(champion.strengths).map((item) => asText(item)).filter(Boolean),
+    weaknesses: asArray(champion.weaknesses).map((item) => asText(item)).filter(Boolean),
+  };
+}
+
+function findChampion(roleKey, championName) {
+  const normalizedName = String(championName || '').trim().toLowerCase();
+  const rows = state.data.get(roleKey) || [];
+  return rows.find((item) => String(item?.champion || '').trim().toLowerCase() === normalizedName) || null;
+}
+
+function normalizeEntry(item) {
+  return {
+    label: asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir'),
+    detail: asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', ''),
+    score: Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null,
+  };
+}
+
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
+}
+
+function joinTexts(values = []) {
+  return uniqueValues(values.map((value) => asText(value)).filter(Boolean)).join(' · ') || 'Sin datos';
+}
+
+function uniqueValues(values = []) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function normalizeText(value = '') {
+  return String(value)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+}
+
+function asArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function asText(value, fallback = 'Sin definir') {
+  if (value == null) return fallback;
+  if (typeof value === 'string') return value.trim() || fallback;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map((item) => asText(item, '')).filter(Boolean).join(' · ') || fallback;
+  if (typeof value === 'object') {
+    return asText(
+      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
+      fallback,
+    );
+  }
+  return String(value) || fallback;
+}
+
+function clampToRange(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function gradeFromScore(score) {
+  if (score >= 95) return 'A+';
+  if (score >= 88) return 'A';
+  if (score >= 80) return 'B+';
+  if (score >= 72) return 'B';
+  if (score >= 64) return 'C+';
+  if (score >= 56) return 'C';
+  return 'D';
+}
+
+function phaseSummary(gameWindows) {
+  return uniqueValues([
+    gameWindows?.early?.label ? `Early: ${gameWindows.early.label}` : null,
+    gameWindows?.mid?.label ? `Mid: ${gameWindows.mid.label}` : null,
+    gameWindows?.late?.label ? `Late: ${gameWindows.late.label}` : null,
+  ]).join(' · ') || 'Early · Mid · Late';
 }
 
 async function loadRoleData() {
@@ -591,7 +689,7 @@ async function loadJsonDataset() {
         const response = await fetch(file, { cache: 'reload' });
         if (!response.ok) throw new Error(`No se pudo leer ${file}`);
         return [key, await response.json()];
-      })
+      }),
     );
 
     return Object.fromEntries(loaded);
@@ -634,126 +732,22 @@ function worksheetToRows(worksheet) {
     }));
 }
 
-function splitTags(value) {
-  if (!value) return [];
-  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
-}
-
-function findChampion(roleKey, championName) {
-  const normalizedName = String(championName || '').trim().toLowerCase();
-  const rows = state.data.get(roleKey) || [];
-  return rows.find((item) => String(item?.champion || '').trim().toLowerCase() === normalizedName) || null;
-}
-
-function collectSelectedChampions() {
-  return [...document.querySelectorAll('#compositionGrid .slot.is-filled')]
-    .map((slot) => {
-      const role = String(slot.dataset.role || 'top');
-      const name = slot.querySelector('.slot__name')?.textContent?.trim() || '';
-      const champion = findChampion(role, name);
-      return normalizeSelectedChampion(champion ? { role, ...champion } : null);
-    })
-    .filter(Boolean);
-}
-
-function normalizeSelectedChampion(champion) {
-  if (!champion) return null;
-  return {
-    role: champion.role,
-    champion: asText(champion.champion, 'Sin definir'),
-    identity: asText(champion.identity, ''),
-    function: asText(champion.function, ''),
-    tempo: asText(champion.tempo, ''),
-    strengths: asArray(champion.strengths).map((item) => asText(item)).filter(Boolean),
-    weaknesses: asArray(champion.weaknesses).map((item) => asText(item)).filter(Boolean),
-  };
-}
-
-function findChampionByTags(selectedChampions, tags = []) {
-  const normalizedTags = tags.map((tag) => normalizeText(tag));
-  return selectedChampions.find((champion) => {
-    const values = [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)];
-    return values.some((value) => normalizedTags.some((tag) => normalizeText(asText(value)).includes(tag)));
-  });
-}
-
-function joinTexts(values = []) {
-  return uniqueValues(values.map((value) => asText(value)).filter(Boolean)).join(' · ') || 'Sin datos';
-}
-
-function uniqueValues(values = []) {
-  return [...new Set(values.filter(Boolean))];
-}
-
-function normalizeEntry(item) {
-  return {
-    label: asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir'),
-    detail: asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', ''),
-    score: Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null,
-  };
-}
-
-function clampToRange(value, min, max) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function gradeFromScore(score) {
-  if (score >= 95) return 'A+';
-  if (score >= 88) return 'A';
-  if (score >= 80) return 'B+';
-  if (score >= 72) return 'B';
-  if (score >= 64) return 'C+';
-  if (score >= 56) return 'C';
-  return 'D';
-}
-
-function asArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
-function asText(value, fallback = 'Sin definir') {
-  if (value == null) return fallback;
-  if (typeof value === 'string') return value.trim() || fallback;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-  if (Array.isArray(value)) return value.map((item) => asText(item, '')).filter(Boolean).join(' · ') || fallback;
-  if (typeof value === 'object') {
-    return asText(
-      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
-      fallback,
-    );
+function observeComposition() {
+  const node = document.getElementById('compositionGrid');
+  if (!node) {
+    window.requestAnimationFrame(observeComposition);
+    return;
   }
-  return String(value) || fallback;
+
+  const observer = new MutationObserver(schedulePatch);
+  observer.observe(node, { childList: true, subtree: true, characterData: true });
 }
 
-function normalizeText(value = '') {
-  return String(value)
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '');
-}
-
-function phaseSummary(gameWindows) {
-  return uniqueValues([
-    gameWindows?.early?.label ? `Early: ${gameWindows.early.label}` : null,
-    gameWindows?.mid?.label ? `Mid: ${gameWindows.mid.label}` : null,
-    gameWindows?.late?.label ? `Late: ${gameWindows.late.label}` : null,
-  ]).join(' · ') || 'Early · Mid · Late';
-}
-
-function findKeyPiece(selectedChampions) {
-  const engager = findChampionByTags(selectedChampions, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start']);
-  const carry = findChampionByTags(selectedChampions, ['adc', 'carry', 'hypercarry', 'escalado']);
-  const protector = findChampionByTags(selectedChampions, ['peel', 'protect', 'shield']);
-  const frontline = findChampionByTags(selectedChampions, ['frontline', 'tanque', 'front', 'defensa']);
-  return carry || engager || protector || frontline || selectedChampions[0] || null;
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
+function schedulePatch() {
+  if (state.patchScheduled) return;
+  state.patchScheduled = true;
+  window.requestAnimationFrame(() => {
+    state.patchScheduled = false;
+    renderStory();
+  });
 }
