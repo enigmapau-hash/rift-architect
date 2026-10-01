@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v123';
+const CACHE_NAME = 'rift-architect-v124';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -22,6 +22,7 @@ const STATIC_ASSETS = [
   './js/bootstrap.js',
   './js/block-legacy-data-fetches.js',
   './js/picker-a11y-fix.js',
+  './js/pwa-reset.js',
   './js/app-v2.js',
   './js/v2_patch.js',
   './js/escape-html.js',
