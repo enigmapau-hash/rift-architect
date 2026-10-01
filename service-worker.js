@@ -1,10 +1,9 @@
-const CACHE_NAME = 'rift-architect-v143';
-const STATIC_ASSETS = [
+const CACHE_NAME = 'rift-architect-v144';
+const CORE_ASSETS = [
   './',
   './index.html',
   './version.json',
   './manifest.webmanifest',
-  './Draft%20Pool.xlsx',
   './assets/icon.svg',
   './css/main.css',
   './css/v2.css',
@@ -18,42 +17,11 @@ const STATIC_ASSETS = [
   './css/analysis-modal.css',
   './css/composition-story.css',
   './css/responsive-story.css',
-  './css/explainability-panel.css',
-  './css/explainability-panel-coach.css',
   './css/accordion.css',
-  './js/bootstrap.js',
-  './js/block-legacy-data-fetches.js',
-  './js/picker-a11y-fix.js',
-  './js/pwa-reset.js',
-  './js/app-v2.js',
-  './js/v2_patch.js',
-  './js/escape-html.js',
-  './js/modal-helpers.js',
-  './js/story-sync.js',
-  './js/story-compact.js',
-  './js/story-signals.js',
-  './js/analysis-summary.js',
-  './js/analysis-render-bridge.js',
-  './js/analysis-failsafe.js',
-  './js/explainability-panel.js',
-  './js/explainability-panel-coach.js',
-  './js/explainability-panel-tactical.js',
-  './js/panel-helpers-global.js',
-  './js/composition-ia.js',
-  './js/composition-modal-final.js',
-  './js/analyzer.js',
-  './js/engine/unifiedAnalysisModel.js',
-  './js/engine/recommendationEngine.js',
-  './data/index.json',
-  './data/top.json',
-  './data/jungle.json',
-  './data/mid.json',
-  './data/bot.json',
-  './data/support.json',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)));
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(CORE_ASSETS)));
   self.skipWaiting();
 });
 
@@ -65,9 +33,10 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const request = event.request;
+  const { request } = event;
+  if (request.method !== 'GET') return;
 
-  if (request.mode === 'navigate' || (request.method === 'GET' && request.destination === 'document')) {
+  if (request.mode === 'navigate' || request.destination === 'document') {
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -75,19 +44,18 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
           return response;
         })
-        .catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html')))
+        .catch(() => caches.match('./index.html'))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
-      return fetch(request).then((response) => {
+    fetch(request)
+      .then((response) => {
         const copy = response.clone();
         caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => {});
         return response;
-      });
-    })
+      })
+      .catch(() => caches.match(request).then((cached) => cached || Response.error()))
   );
 });
