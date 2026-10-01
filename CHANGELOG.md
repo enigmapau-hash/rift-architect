@@ -1,5 +1,19 @@
 # Changelog
 
+## v47 · Beta 0.28 / Compact Responsive Cards
+### Added
+- A 3/2/1 responsive grid for the six fixed summary cards.
+- Slightly denser card spacing and tighter line clamping to reduce vertical scroll.
+- Beta delivery as a normal web app while the UI stabilizes.
+
+### Changed
+- The Story stays compact on mobile, tablet and desktop with the same hierarchy.
+- The presentation layer now fits more information above the fold on large screens.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the presentation layer and beta delivery mode changed.
+
 ## v46 · Beta 0.27 / Responsive Fixed Cards
 ### Added
 - Responsive overrides for the six fixed summary cards.
