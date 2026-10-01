@@ -34,6 +34,7 @@ const STATIC_ASSETS = [
   './js/story-signals.js',
   './js/explainability-panel.js',
   './js/explainability-panel-coach.js',
+  './js/panel-helpers-global.js',
   './js/composition-ia.js',
   './js/composition-modal-final.js',
   './js/analyzer.js',
