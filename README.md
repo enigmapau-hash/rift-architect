@@ -33,6 +33,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El análisis ahora expone un **Unified Analysis Model** para que Story, Coach, Draft y Explainability lean la misma estructura.
 - El Explainability Panel incorpora un **Recommendation Hub** para revisar acciones ordenadas por impacto, confianza y evidencia.
 - El panel explicativo añade una vista de **Strategic Coach** con fases, alertas, prioridades y picos de poder.
+- Se añadió una vista de **Tactical Intelligence** para traducir el plan en decisiones concretas y alternativas si se cierra la ventana.
 
 ## GitHub Pages
 
