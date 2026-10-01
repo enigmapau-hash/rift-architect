@@ -12,27 +12,10 @@ const ROLE_FILES = [
 
 const ROLE_ORDER = ROLE_FILES.map(({ key }) => key);
 const ROLE_LABELS = Object.fromEntries(ROLE_FILES.map(({ key, sheet }) => [key, sheet.replace(/^Tabla\s+/i, '')]));
-const QUESTION_BLUEPRINTS = [
-  { key: 'howWin', label: 'Cómo gano' },
-  { key: 'whatDo', label: 'Qué hago ahora' },
-  { key: 'whatAvoid', label: 'Qué evitar' },
-  { key: 'whoKey', label: 'Pieza clave' },
-  { key: 'behind', label: 'Si voy por detrás' },
-];
-
-const PROFILE_BLUEPRINTS = [
-  { key: 'engage', label: 'Engage', keywords: ['engage', 'iniciacion', 'iniciación', 'start', 'iniciar'] },
-  { key: 'peel', label: 'Peel', keywords: ['peel', 'protect', 'shield', 'save', 'disengage'] },
-  { key: 'scaling', label: 'Escalado', keywords: ['scale', 'scaling', 'escalado', 'late'] },
-  { key: 'frontline', label: 'Frontline', keywords: ['frontline', 'tank', 'tanque', 'front'] },
-  { key: 'mobility', label: 'Movilidad', keywords: ['mobility', 'movilidad', 'dash', 'roam', 'move'] },
-  { key: 'cc', label: 'CC', keywords: ['cc', 'stun', 'root', 'knock', 'slow', 'control'] },
-];
 
 const state = {
   data: new Map(),
   loaded: false,
-  activeQuestion: 'howWin',
   patchScheduled: false,
 };
 
@@ -101,10 +84,8 @@ function gradeFromScore(score) {
 function normalizeEntry(item) {
   const label = asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir');
   const detail = asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', '');
-  const champions = asArray(item?.champions).map((entry) => asText(entry)).filter(Boolean);
-  const missing = asArray(item?.missing).map((entry) => asText(entry)).filter(Boolean);
   const score = Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null;
-  return { label, detail, champions, missing, score };
+  return { label, detail, score };
 }
 
 function normalizeSelectedChampion(champion) {
@@ -221,36 +202,35 @@ function findChampionByTags(selectedChampions, tags = []) {
   });
 }
 
-function scoreProfile(selectedChampions, keywords) {
+function buildProfile(selectedChampions) {
+  const profiles = [
+    { key: 'engage', label: 'Engage', keywords: ['engage', 'iniciacion', 'iniciación', 'start', 'iniciar'], hint: 'Iniciación y cazadas.' },
+    { key: 'peel', label: 'Peel', keywords: ['peel', 'protect', 'shield', 'save', 'disengage'], hint: 'Protección del carry.' },
+    { key: 'scaling', label: 'Escalado', keywords: ['scale', 'scaling', 'escalado', 'late'], hint: 'Ventaja en juego medio/tardío.' },
+    { key: 'frontline', label: 'Frontline', keywords: ['frontline', 'tank', 'tanque', 'front'], hint: 'Capacidad de aguantar peleas.' },
+    { key: 'mobility', label: 'Movilidad', keywords: ['mobility', 'movilidad', 'dash', 'roam', 'move'], hint: 'Rotaciones y flancos.' },
+    { key: 'cc', label: 'CC', keywords: ['cc', 'stun', 'root', 'knock', 'slow', 'control'], hint: 'Control para fijar objetivos.' },
+  ];
+
   const sources = selectedChampions.flatMap((champion) => [champion.champion, champion.identity, champion.function, champion.tempo, ...asArray(champion.strengths), ...asArray(champion.weaknesses)]);
-  const matches = sources.reduce((total, value) => {
-    const normalized = normalizeText(asText(value));
-    return total + (keywords.some((keyword) => normalized.includes(normalizeText(keyword))) ? 1 : 0);
-  }, 0);
-  const score = Math.max(0, Math.min(10, Math.round((matches / Math.max(2, selectedChampions.length)) * 6 + (matches > 2 ? 3 : 0))));
-  return score;
-}
 
-function buildProfile(selectedChampions, analysis) {
-  return PROFILE_BLUEPRINTS.map((profile) => {
-    const score = scoreProfile(selectedChampions, profile.keywords);
-    const hintMap = {
-      engage: 'Iniciación y cazadas.',
-      peel: 'Protección del carry.',
-      scaling: 'Ventaja en juego medio/tardío.',
-      frontline: 'Capacidad de aguantar peleas.',
-      mobility: 'Rotaciones y flancos.',
-      cc: 'Control para fijar objetivos.',
-    };
+  return profiles
+    .map((profile) => {
+      const matches = sources.reduce((total, value) => {
+        const normalized = normalizeText(asText(value));
+        return total + (profile.keywords.some((keyword) => normalized.includes(normalizeText(keyword))) ? 1 : 0);
+      }, 0);
 
-    return {
-      label: profile.label,
-      score,
-      detail: hintMap[profile.key] || '',
-      high: score >= 8,
-      medium: score >= 5 && score < 8,
-    };
-  }).sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'es'));
+      const score = Math.max(0, Math.min(10, Math.round((matches / Math.max(2, selectedChampions.length)) * 6 + (matches > 2 ? 3 : 0))));
+      return {
+        label: profile.label,
+        score,
+        detail: profile.hint,
+        high: score >= 8,
+        medium: score >= 5 && score < 8,
+      };
+    })
+    .sort((a, b) => b.score - a.score || a.label.localeCompare(b.label, 'es'));
 }
 
 function buildStoryModel(analysis, selectedChampions) {
@@ -281,19 +261,10 @@ function buildStoryModel(analysis, selectedChampions) {
   const loseConditions = uniqueValues(asArray(advisor.loseConditions).slice(0, 3).map((item) => asText(item))).filter(Boolean);
 
   const priorities = [
-    {
-      label: objectivePriority[0] || plan[0] || 'Ganar tempo y visión',
-      detail: objectivePriority[1] || 'Convierte tu identidad en un objetivo o una pelea favorable.',
-    },
-    {
-      label: objectivePriority[1] || plan[1] || 'Agruparte en tu ventana de poder',
-      detail: objectivePriority[2] || `Tu mejor momento suele aparecer en ${tempo}.`,
-    },
-    {
-      label: keyPiece ? `Cuidar a ${keyPiece.champion}` : 'Proteger tu pieza clave',
-      detail: keyPiece ? `${keyPiece.champion} es la pieza que más condiciona el resultado.` : 'La composición todavía no muestra una pieza clara.',
-    },
-  ];
+    objectivePriority[0] || plan[0] || 'Ganar tempo y visión',
+    objectivePriority[1] || plan[1] || 'Agruparte en tu ventana de poder',
+    keyPiece ? `Cuidar a ${keyPiece.champion}` : 'Proteger tu pieza clave',
+  ].filter(Boolean);
 
   const avoid = uniqueValues([
     loseConditions[0] || weaknesses[0]?.label || 'Iniciar sin visión',
@@ -327,266 +298,111 @@ function buildStoryModel(analysis, selectedChampions) {
     whyItems,
     topMetric: uniqueValues((analysis?.metrics || []).map((metric) => asText(metric?.label)).filter(Boolean)).slice(0, 4),
     quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
-    profile: buildProfile(selectedChampions, analysis),
+    profile: buildProfile(selectedChampions),
   };
 }
 
 function renderHero(model) {
   return `
-    <section class="composition-story__hero">
-      <div class="composition-story__score-card">
-        <span class="composition-story__kicker">Story Score</span>
-        <strong>${model.grade} · ${model.score}</strong>
-        <span>${model.difficulty}</span>
+    <article class="design-system-card design-system-card--hero">
+      <div class="design-system-card__header">
+        <span class="design-system-badge">Tu composición</span>
+        <span class="design-system-badge design-system-badge--muted">Home wireframe</span>
       </div>
 
-      <div class="composition-story__hero-copy">
-        <p class="eyebrow">Composition Story</p>
-        <h3>${escapeHtml(model.identity)}</h3>
-        <p class="composition-story__lead">${escapeHtml(model.summaryText)}</p>
-        <div class="composition-story__meta-row">
-          <span class="story-pill story-pill--info">Cómo ganas: ${escapeHtml(model.win)}</span>
-          <span class="story-pill story-pill--success">Pico: ${escapeHtml(model.tempo)}</span>
-          <span class="story-pill story-pill--neutral">${escapeHtml(model.topMetric.join(' · ') || 'Sin métricas destacadas')}</span>
-        </div>
+      <h3 class="design-system-card__title">${escapeHtml(model.identity)}</h3>
+      <p class="design-system-card__copy">${escapeHtml(model.summaryText)}</p>
+      <p class="design-system-card__reason">${escapeHtml(model.win)}</p>
+
+      <div class="design-system-chip-row">
+        <article class="design-system-chip is-primary">
+          <span class="design-system-chip__label">Cómo ganas</span>
+          <strong class="design-system-chip__value">${escapeHtml(model.win)}</strong>
+        </article>
+        <article class="design-system-chip">
+          <span class="design-system-chip__label">Prioridad</span>
+          <strong class="design-system-chip__value">${escapeHtml(model.priorities[0] || 'Gana tempo y visión')}</strong>
+        </article>
+        <article class="design-system-chip is-warning">
+          <span class="design-system-chip__label">Evita</span>
+          <strong class="design-system-chip__value">${escapeHtml(model.avoid[0] || 'Forzar peleas malas')}</strong>
+        </article>
       </div>
-    </section>
+    </article>
   `;
 }
 
-function renderOverview(model) {
-  return `
-    <section class="composition-story__section">
-      <div class="composition-story__section-head">
-        <p class="eyebrow">Resumen visual</p>
-        <h4>Identidad, plan y pieza clave</h4>
-      </div>
-      <div class="composition-story__overview-grid">
-        <article class="composition-story__overview-card composition-story__overview-card--info">
-          <span>Identidad</span>
-          <strong>${escapeHtml(model.identity)}</strong>
-          <p>${escapeHtml(model.summaryText)}</p>
-        </article>
-        <article class="composition-story__overview-card composition-story__overview-card--success">
-          <span>Cómo gana</span>
-          <strong>${escapeHtml(model.win)}</strong>
-          <p>${escapeHtml(model.tempo)}</p>
-        </article>
-        <article class="composition-story__overview-card composition-story__overview-card--coach">
-          <span>Pieza clave</span>
-          <strong>${escapeHtml(model.keyPiece?.champion || 'Sin definir')}</strong>
-          <p>${escapeHtml(model.keyPiece ? model.keyPiece.function || model.keyPiece.identity || 'La composición gira a su alrededor.' : 'Aún no hay una pieza clave clara.')}</p>
-        </article>
-      </div>
-    </section>
-  `;
-}
-
-function renderProfile(model) {
-  return `
-    <section class="composition-story__section composition-story__section--wide">
-      <div class="composition-story__section-head">
-        <p class="eyebrow">Perfil de composición</p>
-        <h4>Tu ADN táctico</h4>
-      </div>
-      <div class="composition-story__profile-grid">
-        ${model.profile.map((item) => `
-          <article class="composition-story__profile-card ${item.high ? 'composition-story__profile-card--high' : item.medium ? 'composition-story__profile-card--mid' : 'composition-story__profile-card--low'}">
-            <div class="composition-story__profile-head">
-              <strong>${escapeHtml(item.label)}</strong>
-              <span>${item.score}/10</span>
-            </div>
-            <div class="composition-story__meter" aria-hidden="true">
-              <span class="composition-story__meter-fill" style="width:${item.score * 10}%"></span>
-            </div>
-            <p>${escapeHtml(item.detail || 'Sin detalle')}</p>
-          </article>
-        `).join('')}
-      </div>
-    </section>
-  `;
-}
-
-function renderPlan(model) {
-  return `
-    <section class="composition-story__section composition-story__section--wide">
-      <div class="composition-story__section-head">
-        <p class="eyebrow">Prioridades</p>
-        <h4>Qué hacer primero</h4>
-      </div>
-      <div class="composition-story__checklist-grid">
-        <article class="composition-story__checklist composition-story__checklist--good">
-          <span class="composition-story__checklist-title">Plan</span>
-          ${model.priorities.map((item) => `
-            <div class="composition-story__checkline composition-story__checkline--yes">
-              <span class="composition-story__checkmark">✓</span>
-              <div>
-                <strong>${escapeHtml(item.label)}</strong>
-                <p>${escapeHtml(item.detail)}</p>
-              </div>
-            </div>
-          `).join('')}
-        </article>
-        <article class="composition-story__checklist composition-story__checklist--danger">
-          <span class="composition-story__checklist-title">Evita</span>
-          ${model.avoid.map((item) => `
-            <div class="composition-story__checkline composition-story__checkline--no">
-              <span class="composition-story__checkmark">✕</span>
-              <div>
-                <strong>${escapeHtml(item)}</strong>
-                <p>No es la forma óptima de jugar esta composición.</p>
-              </div>
-            </div>
-          `).join('')}
-        </article>
-      </div>
-    </section>
-  `;
-}
-
-function renderPieces(model) {
-  const piece = model.keyPiece;
-  return `
-    <section class="composition-story__two-col">
-      <article class="composition-story__panel composition-story__panel--good">
-        <div class="composition-story__section-head">
-          <p class="eyebrow">Fortalezas</p>
-          <h4>Lo que mejor hace tu composición</h4>
-        </div>
-        <div class="composition-story__stack-list">
-          ${model.strengths.length ? model.strengths.map((item) => `
-            <div class="composition-story__stack-item composition-story__stack-item--good">
-              <div class="composition-story__stack-head">
-                <strong>${escapeHtml(item.label)}</strong>
-                ${item.score !== null ? `<span>${item.score}/10</span>` : ''}
-              </div>
-              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
-            </div>
-          `).join('') : '<p class="composition-story__empty">Sin fortalezas claras.</p>'}
-        </div>
-      </article>
-
-      <article class="composition-story__panel composition-story__panel--danger">
-        <div class="composition-story__section-head">
-          <p class="eyebrow">Riesgos</p>
-          <h4>Qué debes compensar</h4>
-        </div>
-        <div class="composition-story__stack-list">
-          ${model.weaknesses.length ? model.weaknesses.map((item) => `
-            <div class="composition-story__stack-item composition-story__stack-item--danger">
-              <div class="composition-story__stack-head">
-                <strong>${escapeHtml(item.label)}</strong>
-                ${item.score !== null ? `<span>${item.score}/10</span>` : ''}
-              </div>
-              ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
-            </div>
-          `).join('') : '<p class="composition-story__empty">Sin riesgos claros.</p>'}
-        </div>
-      </article>
-
-      <article class="composition-story__panel composition-story__panel--coach composition-story__panel--wide">
-        <div class="composition-story__section-head">
-          <p class="eyebrow">Pieza clave</p>
-          <h4>${escapeHtml(piece?.champion || 'No definida')}</h4>
-        </div>
-        <p class="composition-story__lead">${escapeHtml(piece ? piece.function || piece.identity || 'La composición gira alrededor de esta pieza.' : 'Todavía no hay una pieza clave clara.')}</p>
-        <div class="composition-story__chip-list">
-          ${piece?.role ? `<span class="story-pill">${escapeHtml(ROLE_LABELS[piece.role] || piece.role)}</span>` : ''}
-          ${piece?.tempo ? `<span class="story-pill">${escapeHtml(asText(piece.tempo))}</span>` : ''}
-          ${piece?.identity ? `<span class="story-pill">${escapeHtml(asText(piece.identity))}</span>` : ''}
-        </div>
-      </article>
-    </section>
-  `;
-}
-
-function renderTimeline(model) {
-  const timeline = [
-    { label: 'Early', title: model.phases[0] || 'Farm y visión', detail: 'Evita peleas largas y prepara el mapa.' },
-    { label: 'Mid', title: model.phases[1] || 'Objetivos y rotaciones', detail: 'Convierte prioridad en dragones, torres o visión.' },
-    { label: 'Late', title: model.phases[2] || '5v5 y cierre', detail: 'Protege la pieza clave y cierra la partida.' },
+function renderDetail(model) {
+  const detailRows = [
+    {
+      label: 'Por qué',
+      text: model.quickCoach || 'Juega alrededor de tu identidad.',
+      note: model.whyItems.join(' · '),
+    },
+    {
+      label: 'Pieza clave',
+      text: model.keyPiece ? `${model.keyPiece.champion} es la pieza que más condiciona el resultado.` : 'No hay una pieza clave clara todavía.',
+      note: model.keyPiece ? [model.keyPiece.function, model.keyPiece.identity, model.keyPiece.tempo].filter(Boolean).join(' · ') : '',
+    },
+    {
+      label: 'Plan por fases',
+      text: model.phases.length ? model.phases.join(' · ') : model.tempo,
+      note: 'Early · Mid · Late',
+    },
   ];
 
   return `
-    <section class="composition-story__section composition-story__section--wide">
-      <div class="composition-story__section-head">
-        <p class="eyebrow">Plan de partida</p>
-        <h4>Cuándo presionar</h4>
-      </div>
-      <div class="composition-story__timeline-track">
-        ${timeline.map((item, index) => `
-          <article class="composition-story__timeline-step ${index === 1 ? 'is-mid' : ''}">
-            <span>${item.label}</span>
-            <strong>${escapeHtml(item.title)}</strong>
-            <p>${escapeHtml(item.detail)}</p>
-          </article>
-        `).join('')}
-      </div>
-    </section>
-  `;
-}
+    <details class="design-system-card design-system-card--detail">
+      <summary class="design-system-card__summary">
+        <strong>Ver análisis completo</strong>
+        <span>${model.score}/100 · ${model.grade}</span>
+      </summary>
 
-function renderQuestions(analysis, model) {
-  const answers = {
-    howWin: {
-      title: 'Cómo ganas',
-      text: model.win,
-      chips: uniqueValues([model.identity, model.tempo, ...model.topMetric].filter(Boolean)).slice(0, 4),
-    },
-    whatDo: {
-      title: 'Qué haces ahora',
-      text: model.priorities[0]?.detail || 'Gana tempo y visión, luego convierte la ventaja en objetivo.',
-      chips: [model.priorities[0]?.label, model.priorities[1]?.label].filter(Boolean),
-    },
-    whatAvoid: {
-      title: 'Qué evitar',
-      text: model.avoid.join(' · ') || 'Evita pelear sin visión ni prioridad.',
-      chips: model.avoid,
-    },
-    whoKey: {
-      title: 'Pieza clave',
-      text: model.keyPiece ? `${model.keyPiece.champion} es la pieza que más condiciona el resultado.` : 'No hay una pieza clave clara todavía.',
-      chips: uniqueValues([model.keyPiece?.champion, model.keyPiece?.identity, model.keyPiece?.function].filter(Boolean)).slice(0, 4),
-    },
-    behind: {
-      title: 'Si vas por detrás',
-      text: 'Baja el ritmo: visión, oleadas seguras y peleas cortas.',
-      chips: ['visión', 'oleadas seguras', 'peleas cortas'],
-    },
-  };
-  const active = answers[state.activeQuestion] || answers.howWin;
-
-  return `
-    <section class="composition-story__section composition-story__section--wide">
-      <div class="composition-story__section-head">
-        <p class="eyebrow">Pregunta a Rift</p>
-        <h4>Respuestas rápidas</h4>
-      </div>
-      <div class="composition-story__question-row">
-        ${QUESTION_BLUEPRINTS.map((question) => `
-          <button class="composition-story__question ${state.activeQuestion === question.key ? 'is-active' : ''}" type="button" data-question="${escapeHtml(question.key)}">
-            ${escapeHtml(question.label)}
-          </button>
-        `).join('')}
-      </div>
-      <div class="composition-story__answer-card">
-        <span class="composition-story__answer-kicker">${escapeHtml(active.title)}</span>
-        <strong>${escapeHtml(active.text)}</strong>
-        <div class="composition-story__chip-list">
-          ${active.chips.map((chip) => `<span class="story-pill">${escapeHtml(chip)}</span>`).join('')}
-        </div>
-      </div>
-      <details class="composition-story__details">
-        <summary>Ver razonamiento completo</summary>
-        <div class="composition-story__details-body">
-          <p>${escapeHtml(asText(analysis?.summaryText || model.summaryText))}</p>
-          <div class="composition-story__chip-list">
-            ${model.whyItems.map((item) => `<span class="story-pill story-pill--neutral">${escapeHtml(item)}</span>`).join('')}
+      <div class="analysis-hub__assistant-list">
+        <article class="analysis-hub__row analysis-hub__row--executive">
+          <div class="analysis-hub__row-copy">
+            <strong>Por qué</strong>
+            <p>${escapeHtml(model.quickCoach)}</p>
           </div>
-          <p class="composition-story__muted">${escapeHtml(model.quickCoach)}</p>
-        </div>
-      </details>
-    </section>
+          <span class="analysis-hub__assistant-score">${escapeHtml(model.difficulty)}</span>
+        </article>
+
+        ${detailRows
+          .map(
+            (item) => `
+              <article class="analysis-hub__row">
+                <div class="analysis-hub__row-copy">
+                  <strong>${escapeHtml(item.label)}</strong>
+                  <p>${escapeHtml(item.text)}</p>
+                  ${item.note ? `<p class="analysis-hub__row-note">${escapeHtml(item.note)}</p>` : ''}
+                </div>
+              </article>
+            `,
+          )
+          .join('')}
+
+        <article class="analysis-hub__row">
+          <div class="analysis-hub__row-copy">
+            <strong>Fortalezas</strong>
+            <p>${escapeHtml(model.strengths.map((item) => item.label).join(' · ') || 'Sin fortalezas claras.')}</p>
+          </div>
+        </article>
+
+        <article class="analysis-hub__row">
+          <div class="analysis-hub__row-copy">
+            <strong>Riesgos</strong>
+            <p>${escapeHtml(model.weaknesses.map((item) => item.label).join(' · ') || 'Sin riesgos claros.')}</p>
+          </div>
+        </article>
+
+        <article class="analysis-hub__row">
+          <div class="analysis-hub__row-copy">
+            <strong>Qué debes evitar</strong>
+            <p>${escapeHtml(model.avoid.join(' · ') || 'Evita pelear sin visión ni prioridad.')}</p>
+          </div>
+        </article>
+      </div>
+    </details>
   `;
 }
 
@@ -598,14 +414,8 @@ function renderStory() {
     els.root.innerHTML = `
       <section class="composition-story composition-story--empty">
         <p class="eyebrow">Composition Story</p>
-        <h3>Selecciona cinco campeones para ver el análisis visual</h3>
-        <p>La vista te mostrará identidad, cómo ganas, prioridades, riesgos, plan y una IA explicativa más clara.</p>
-        <div class="composition-story__empty-grid">
-          <span>Identidad</span>
-          <span>Cómo gana</span>
-          <span>Pieza clave</span>
-          <span>Plan</span>
-        </div>
+        <h3>Selecciona cinco campeones para ver la home wireframe</h3>
+        <p>La pantalla principal reducirá ruido y mostrará solo la decisión principal, con la explicación completa plegada debajo.</p>
       </section>
     `;
     return;
@@ -615,28 +425,11 @@ function renderStory() {
   const model = buildStoryModel(analysis, selectedChampions);
 
   els.root.innerHTML = `
-    <section class="composition-story">
+    <section class="composition-story composition-story--wireframe">
       ${renderHero(model)}
-      ${renderOverview(model)}
-      ${renderProfile(model)}
-      ${renderPlan(model)}
-      ${renderPieces(model)}
-      ${renderTimeline(model)}
-      ${renderQuestions(analysis, model)}
+      ${renderDetail(model)}
     </section>
   `;
-
-  bindQuestionActions();
-}
-
-function bindQuestionActions() {
-  if (!els.root) return;
-  els.root.querySelectorAll('[data-question]').forEach((button) => {
-    button.addEventListener('click', () => {
-      state.activeQuestion = button.dataset.question || 'howWin';
-      renderStory();
-    });
-  });
 }
 
 function observeComposition() {
