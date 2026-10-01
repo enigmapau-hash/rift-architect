@@ -181,11 +181,18 @@
 - Mantener toda la información del motor sin sacrificar limpieza visual.
 - Unificar la interacción en una sola experiencia de acordeón inteligente.
 
-## Fase 29 — Beta 0.12 / Accordion Flow 🔄
+## Fase 29 — Beta 0.12 / Accordion Flow ✅
 - Convertir cada bloque en un acordeón con resumen breve y razonamiento desplegable.
 - Mantener una sola tarjeta abierta a la vez para reducir ruido.
 - Reordenar el flujo de lectura para que siga una secuencia natural.
 - Preservar todo el análisis del motor sin obligar a leerlo de golpe.
+
+## Fase 30 — Information Architecture / IA Flow ✅
+- Reordenar la home en la secuencia definitiva de lectura.
+- Añadir el bloque Draft al flujo principal.
+- Mantener un solo acordeón abierto.
+- Eliminar repeticiones entre tarjetas y dar a cada dato un único propietario.
+- Convertir la tarjeta superior en una narrativa de seis bloques.
 
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
@@ -196,6 +203,6 @@
 - Afinar textos, espaciado, accesibilidad y rendimiento.
 
 ## Regla del proyecto
-- Cada entrega debe actualizar código, README, roadmap y Pages.
+- Cada entrega debe actualizar código, README, ROADMAP y Pages.
 - Cada entrega incluye revisión de regresiones visuales y de estado.
 - Ningún sprint se cierra sin auditoría técnica y funcional mínima.
