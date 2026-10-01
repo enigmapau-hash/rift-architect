@@ -1,5 +1,15 @@
 # Changelog
 
+## v67 · Patch 0.46.0 / Render Simplification
+### Changed
+- The analysis story now uses a single simplified visible path.
+- The render path has been consolidated to reduce interference between experimental modules.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; the visible surface is simpler and more predictable.
+
 ## v66 · Patch 0.45.2 / Analysis Failsafe Renderer
 ### Added
 - A failsafe analysis renderer that keeps the main story visible even if the render bridge misses a change event.
@@ -24,17 +34,3 @@
 
 ### Notes
 - The analysis still comes from the same motor; this patch only tightens the render path.
-
-## v64 · Beta 0.45 / Main Screen Complete
-### Added
-- A completed main screen with Executive Summary, Identity, Strengths, Weaknesses, Plan, and Synergies/Risks.
-- A single visible story flow that brings the core composition read back to the center.
-
-### Changed
-- Hito 2 is now closed.
-- The visible flow stays focused on the own-composition analysis.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; the screen is now the intended main product surface.
