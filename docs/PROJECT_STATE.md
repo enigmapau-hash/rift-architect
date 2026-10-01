@@ -45,11 +45,11 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.6 de una sola pantalla de decisión:
-  - respuesta arriba,
-  - detalle plegado,
-  - menos ruido técnico visible,
-  - más sensación de producto terminado.
+- Muestra el Draft Assistant como una beta 0.7 de una sola tarjeta de decisión:
+  - decisión principal arriba,
+  - riesgo principal arriba,
+  - detalle plegado como soporte,
+  - menos ruido técnico visible.
 
 ## Arquitectura mental actual
 
@@ -61,7 +61,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ### Próximo bloque lógico
 1. Consolidar el **Explainability Engine** como soporte estable de la narrativa.
-2. Mantener el Draft Assistant en formato beta de una sola pantalla de decisión.
+2. Mantener el Draft Assistant en formato beta de una sola tarjeta de decisión.
 3. Revisar qué parte del Excel ya cubre esas necesidades sin añadir campos nuevos.
 4. Mejorar la explicación de por qué un pick o un ban encaja con el plan.
 5. Mantener la interfaz compacta y fácil de leer.
@@ -87,6 +87,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.6 / Single Decision Screen
+**Fase actual:** Beta 0.7 / Single Decision Card
 
-**Meta inmediata:** dejar la tarjeta superior como una única respuesta directa, con el detalle plegado como soporte debajo.
+**Meta inmediata:** dejar la tarjeta superior como una única decisión principal, con el detalle plegado como soporte debajo.
