@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v106';
+const CACHE_NAME = 'rift-architect-v108';
 const STATIC_ASSETS = [
   './',
   './index.html',
