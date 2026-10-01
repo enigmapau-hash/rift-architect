@@ -9,11 +9,13 @@
 - **Fases 20-32** — Evolución hacia una home limpia, tarjetas-resumen, Motor Trace y limpieza del Analysis Hub.
 - **Fase 33** — Story Sync: la Story se actualiza desde el borrador guardado en localStorage para reflejar la composición real.
 - **Fase 34** — Fixed Cards: la Story vuelve a una rejilla de tarjetas fijas, compactas y jerarquizadas.
+- **Fase 35** — Responsive Fixed Cards: las tarjetas fijas se ajustan a móvil, tablet y escritorio con la misma jerarquía.
 
 ## Estado actual
 
 - Home con seis tarjetas fijas de resumen.
 - Cada tarjeta muestra líneas cortas, chips, barras textuales e iconos.
+- La experiencia mantiene la misma estructura en móvil, tablet y escritorio.
 - No hay modales ni acordeones en la Story principal.
 - El botón **Actualizar** sigue oculto.
 - Cache de GitHub Pages y service worker alineados con la versión visible.
@@ -22,7 +24,7 @@
 
 - Pulir la lectura de las tarjetas fijas.
 - Reducir texto redundante.
-- Validar más composiciones reales.
+- Validar más composiciones reales en varios tamaños de pantalla.
 - Seguir limpiando código legado si reaparece alguna regresión.
 
 ## Regla del proyecto
