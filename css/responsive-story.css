@@ -114,7 +114,7 @@
 
 .composition-story__signal-bank {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 8px;
 }
 
@@ -263,10 +263,6 @@
   .composition-story--cards {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
-
-  .composition-story__signal-bank {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 720px) {
@@ -323,6 +319,10 @@
 
   .composition-story__signal-value {
     font-size: 0.88rem;
+  }
+
+  .composition-story__signal-meter {
+    height: 5px;
   }
 
   .design-system-flow {
