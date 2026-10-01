@@ -25,10 +25,10 @@ The reasoning core.
 ### Communication Layer
 The surface the user reads.
 
-- `js/analysis-draft-assistant-panel-v3.js` renders the executive Draft Assistant.
-- The Analysis Hub shows the story first and the detail only when expanded.
-- The UI stays short, compact, and easy to read.
-- The assistant does not replace the motor; it only communicates it.
+- The main Story now uses six fixed summary cards instead of modals or accordions.
+- Each card compresses the analysis into short lines, icons, chips and text bars.
+- The view stays short, compact, and easy to scan.
+- The communication layer should not replace the motor; it only translate it.
 
 ## Build flow
 
