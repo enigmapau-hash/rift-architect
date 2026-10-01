@@ -25,8 +25,23 @@ async function init() {
   els.root = document.getElementById('storyView');
   if (!els.root) return;
 
+  bindEvents();
   await loadRoleData();
   observeComposition();
+  renderStory();
+}
+
+function bindEvents() {
+  els.root.addEventListener('click', (event) => {
+    const trigger = event.target.closest('[data-accordion-toggle]');
+    if (!trigger || !els.root.contains(trigger)) return;
+    toggleCard(String(trigger.dataset.accordionToggle || ''));
+  });
+}
+
+function toggleCard(cardKey) {
+  if (!cardKey) return;
+  state.openCard = state.openCard === cardKey ? null : cardKey;
   renderStory();
 }
 
@@ -203,7 +218,6 @@ function formatTags(values = []) {
 }
 
 function buildStoryModel(analysis, selectedChampions) {
-  const strengths = asArray(analysis?.strengths).slice(0, 3).map(normalizeEntry);
   const weaknesses = asArray(analysis?.weaknesses).slice(0, 3).map(normalizeEntry);
   const plan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step));
   const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase));
@@ -211,6 +225,7 @@ function buildStoryModel(analysis, selectedChampions) {
   const coach = analysis?.coach || analysis?.assistant || {};
   const advisor = analysis?.advisor || analysis?.assistant || {};
   const draftAssistant = analysis?.draftAssistant || {};
+
   const engager = findChampionByTags(selectedChampions, ['engage', 'iniciación', 'iniciacion', 'frontline', 'start']);
   const carry = findChampionByTags(selectedChampions, ['adc', 'carry', 'hypercarry', 'escalado']);
   const protector = findChampionByTags(selectedChampions, ['peel', 'protect', 'shield']);
@@ -287,9 +302,8 @@ function buildStoryModel(analysis, selectedChampions) {
       'La composición todavía pide completar huecos concretos con picks y bans que protejan el plan.'
   );
 
-  const advancedMetrics = asArray(analysis?.metrics).slice(0, 4).map(normalizeEntry);
-  const advancedInsights = uniqueValues(asArray(coach.insights).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 3);
-  const advancedAlerts = uniqueValues(asArray(coach.alerts).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 3);
+  const executive = analysis?.executiveSummary || {};
+  const executiveScore = Number.isFinite(Number(executive.score)) ? Number(executive.score) : score;
 
   return {
     score,
@@ -302,7 +316,6 @@ function buildStoryModel(analysis, selectedChampions) {
     priorities,
     avoid,
     keyPiece,
-    strengths,
     weaknesses,
     whyItems,
     quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
@@ -316,10 +329,12 @@ function buildStoryModel(analysis, selectedChampions) {
     advanced: {
       coherenceLabel: analysis?.coherence?.label || 'Coherencia',
       coherenceDetail: analysis?.coherence?.detail || 'La consistencia del plan se apoya en el motor y en la composición seleccionada.',
-      metrics: advancedMetrics,
-      insights: advancedInsights,
-      alerts: advancedAlerts,
+      metrics: asArray(analysis?.metrics).slice(0, 4).map(normalizeEntry),
+      insights: uniqueValues(asArray(coach.insights).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 3),
+      alerts: uniqueValues(asArray(coach.alerts).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 3),
     },
+    executive,
+    executiveScore,
   };
 }
 
@@ -333,10 +348,42 @@ function renderFlowItem(label = '', value = '', meta = '', tone = '') {
   `;
 }
 
-function renderAccordionCard({ key, title, kicker, summary, meta = [], body = '' }) {
+function renderMotorTrace(title, rows = []) {
+  if (!rows.length) return '';
   return `
-    <details class="design-system-card design-system-card--accordion" data-accordion-card="${escapeHtml(key)}"${state.openCard === key ? ' open' : ''}>
-      <summary class="design-system-card__summary">
+    <article class="design-system-card design-system-card--detail motor-trace">
+      <span class="design-system-badge design-system-badge--muted">Motor</span>
+      <div class="design-system-flow">
+        <article class="design-system-flow__item is-hero">
+          <span class="design-system-flow__label">Fuente</span>
+          <p class="design-system-flow__value">${escapeHtml(title)}</p>
+          <p class="design-system-flow__meta">De dónde sale este bloque del análisis.</p>
+        </article>
+        ${rows.map((row, index) => {
+          const tone = index === 0 ? 'is-hero' : index === 1 ? 'is-primary' : 'is-warning';
+          return `
+            <article class="design-system-flow__item ${tone}">
+              <span class="design-system-flow__label">${escapeHtml(row.label)}</span>
+              <p class="design-system-flow__value">${escapeHtml(row.value)}</p>
+              ${row.detail ? `<p class="design-system-flow__meta">${escapeHtml(row.detail)}</p>` : ''}
+            </article>
+          `;
+        }).join('')}
+      </div>
+    </article>
+  `;
+}
+
+function renderAccordionCard({ key, title, kicker, summary, meta = [], body = '', traceTitle = '', traceRows = [] }) {
+  const isOpen = state.openCard === key;
+  return `
+    <article class="design-system-card design-system-card--accordion ${isOpen ? 'is-open' : ''}" data-accordion-card="${escapeHtml(key)}">
+      <button
+        type="button"
+        class="design-system-card__summary"
+        data-accordion-toggle="${escapeHtml(key)}"
+        aria-expanded="${String(isOpen)}"
+      >
         <div class="design-system-card__summary-main">
           <span class="design-system-badge">${escapeHtml(kicker)}</span>
           <strong class="design-system-card__title">${escapeHtml(title)}</strong>
@@ -347,11 +394,12 @@ function renderAccordionCard({ key, title, kicker, summary, meta = [], body = ''
           <span class="design-system-card__toggle design-system-card__toggle--closed">▼ Ver análisis</span>
           <span class="design-system-card__toggle design-system-card__toggle--open">▲ Ocultar análisis</span>
         </div>
-      </summary>
-      <div class="design-system-card__body">
+      </button>
+      <div class="design-system-card__body" ${isOpen ? '' : 'hidden'}>
         ${body}
+        ${traceTitle || traceRows.length ? renderMotorTrace(traceTitle || title, traceRows) : ''}
       </div>
-    </details>
+    </article>
   `;
 }
 
@@ -386,6 +434,12 @@ function renderStory() {
           ${renderFlowItem('Lectura', model.quickCoach, 'La composición se entiende desde su identidad.', 'is-warning')}
         </div>
       `,
+      traceTitle: 'Executive Summary + Coach',
+      traceRows: [
+        { label: 'Resumen ejecutivo', value: model.executive.title || model.identity, detail: model.executive.text || model.summaryText },
+        { label: 'Fuente principal', value: uniqueValues([model.identity, model.win, model.tempo]).join(' · ') || 'Identidad + condición de victoria + tempo', detail: 'La lectura sale del motor y de la composición.' },
+        { label: 'Confianza', value: `${model.grade} · ${model.executiveScore || model.score}/100`, detail: 'La confianza sintetiza la coherencia del draft.' },
+      ],
     }),
     renderAccordionCard({
       key: 'victory',
@@ -400,6 +454,12 @@ function renderStory() {
           ${renderFlowItem('Fases', model.phases.join(' · ') || 'Sin fases definidas', 'Early · Mid · Late', 'is-warning')}
         </div>
       `,
+      traceTitle: 'Advisor + tempo',
+      traceRows: [
+        { label: 'Objetivo principal', value: analysis?.advisor?.primaryObjective || model.win, detail: analysis?.advisor?.summary?.reason || model.win },
+        { label: 'Ventanas', value: model.phases.join(' · ') || 'Early · Mid · Late', detail: 'Dónde debe crecer el plan.' },
+        { label: 'Pico de poder', value: model.tempo, detail: 'La ventana natural de victoria.' },
+      ],
     }),
     renderAccordionCard({
       key: 'priorities',
@@ -413,6 +473,12 @@ function renderStory() {
           ${renderFlowItem('Coach', model.quickCoach, 'El criterio que ordena todo el plan.', 'is-hero')}
         </div>
       `,
+      traceTitle: 'Checklist + Coach',
+      traceRows: [
+        { label: 'Checklist', value: model.priorities.slice(0, 3).join(' · ') || 'Sin checklist', detail: 'Pasos que el plan necesita cumplir.' },
+        { label: 'Prioridades IA', value: model.priorities.slice(0, 3).join(' · ') || 'Sin prioridades', detail: 'Lo más importante ahora mismo.' },
+        { label: 'Coach', value: model.quickCoach, detail: 'El criterio que ordena la ejecución.' },
+      ],
     }),
     renderAccordionCard({
       key: 'risks',
@@ -426,6 +492,12 @@ function renderStory() {
           ${model.weaknesses.map((item) => renderFlowItem(item.label, item.detail || 'Sin detalle adicional', item.score !== null ? `${item.score}/10` : 'Debilidad detectada', '')).join('')}
         </div>
       `,
+      traceTitle: 'Errores críticos + debilidades',
+      traceRows: [
+        { label: 'Errores críticos', value: model.avoid.join(' · ') || 'Sin errores críticos', detail: 'Lo que más castiga el plan.' },
+        { label: 'Riesgo mayor', value: model.avoid[0] || 'Sin riesgo claro', detail: 'La amenaza principal que conviene vigilar.' },
+        { label: 'Debilidades', value: model.weaknesses.slice(0, 3).map((item) => item.label).join(' · ') || 'Sin debilidades visibles', detail: 'Se conectan al perfil del draft.' },
+      ],
     }),
     renderAccordionCard({
       key: 'draft',
@@ -441,6 +513,12 @@ function renderStory() {
           ${model.draft.bans.map((item, index) => renderFlowItem(`Ban ${index + 1}`, item.label, [item.detail, item.meta].filter(Boolean).join(' · ') || 'Bloquear una amenaza clave.', index === 0 ? 'is-warning' : '')).join('')}
         </div>
       `,
+      traceTitle: 'Need Engine + picks/bans',
+      traceRows: [
+        { label: 'Necesidades', value: model.draft.priorities.map((item) => item.label).join(' · ') || 'Sin necesidades', detail: 'Huecos que el draft debe cubrir.' },
+        { label: 'Picks', value: model.draft.picks.map((item) => item.label).join(' · ') || 'Sin picks', detail: 'Opciones que completan el plan.' },
+        { label: 'Bans', value: model.draft.bans.map((item) => item.label).join(' · ') || 'Sin bans', detail: 'Amenazas que frenan el plan.' },
+      ],
     }),
     renderAccordionCard({
       key: 'advanced',
@@ -453,11 +531,17 @@ function renderStory() {
           ${renderFlowItem('Razonamiento', model.quickCoach, 'La explicación resumida de la IA.', 'is-hero')}
           ${renderFlowItem('Coherencia', model.advanced.coherenceLabel, model.advanced.coherenceDetail || `Confianza global ${model.score}/100`, 'is-primary')}
           ${renderFlowItem('Señales', model.whyItems.join(' · ') || 'Sin señales destacadas', 'Evidencias que sostienen la lectura.', 'is-warning')}
-          ${model.advanced.metrics.map((metric, index) => renderFlowItem(metric.label, `${metric.score}/10`, index === 0 ? 'Métrica agregada' : 'Señal cuantitativa', '')).join('')}
+          ${model.advanced.metrics.map((metric, index) => renderFlowItem(metric.label, `${metric.score ?? 0}/10`, index === 0 ? 'Métrica agregada' : 'Señal cuantitativa', '')).join('')}
           ${model.advanced.insights.map((insight, index) => renderFlowItem(`Insight ${index + 1}`, insight, 'Consejo táctico del motor.', index === 0 ? 'is-primary' : '')).join('')}
           ${model.advanced.alerts.length ? renderFlowItem('Alertas', model.advanced.alerts.join(' · '), 'Puntos que conviene vigilar.', 'is-warning') : ''}
         </div>
       `,
+      traceTitle: 'Explainability Engine',
+      traceRows: [
+        { label: 'Ejecución', value: model.quickCoach, detail: 'Cómo se ordena la partida.' },
+        { label: 'Métricas', value: model.advanced.metrics.map((item) => `${item.label} ${item.score ?? 0}/10`).join(' · ') || 'Sin métricas', detail: 'Señales cuantitativas del motor.' },
+        { label: 'Razón', value: model.advanced.coherenceLabel, detail: model.advanced.coherenceDetail || 'La consistencia del plan se apoya en el motor y la composición.' },
+      ],
     }),
   ];
 
@@ -466,30 +550,6 @@ function renderStory() {
       ${cards.join('')}
     </section>
   `;
-
-  bindAccordionBehavior();
-}
-
-function bindAccordionBehavior() {
-  const cards = [...els.root.querySelectorAll('details[data-accordion-card]')];
-
-  cards.forEach((card) => {
-    card.addEventListener('toggle', () => {
-      const key = card.dataset.accordionCard || null;
-      if (card.open) {
-        state.openCard = key;
-        cards.forEach((other) => {
-          if (other !== card) other.open = false;
-        });
-      } else if (state.openCard === key) {
-        state.openCard = null;
-      }
-    });
-
-    if (state.openCard && card.dataset.accordionCard === state.openCard) {
-      card.open = true;
-    }
-  });
 }
 
 function observeComposition() {
