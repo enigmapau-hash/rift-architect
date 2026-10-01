@@ -175,6 +175,12 @@
 - Dar más protagonismo a la decisión principal y menos al soporte.
 - Preparar el terreno para el último pulido antes de la beta estable.
 
+## Fase 28 — Beta 0.11 / Expandable Cards 🔄
+- Convertir cada bloque de análisis en una tarjeta resumen expandible.
+- Mostrar una sola línea de valor al cerrar y el razonamiento completo al abrir.
+- Mantener toda la información del motor sin sacrificar limpieza visual.
+- Unificar la interacción en una sola experiencia de acordeón inteligente.
+
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
 
