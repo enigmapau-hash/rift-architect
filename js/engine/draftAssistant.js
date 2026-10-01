@@ -1,6 +1,7 @@
 import { normalizeText } from './utils.js';
 import { buildNeeds, summarizeNeeds } from './needEngine.js';
 import { buildStrategicProfiles } from './strategicProfiles.js';
+import { buildRecommendationEngine } from './recommendationEngine.js';
 
 function summarizeProfiles(profiles) {
   if (!profiles.length) return 'No hay un perfil dominante todavía.';
@@ -102,6 +103,7 @@ export function buildDraftAssistant(analysis = {}) {
   const strategicPlan = analysis?.strategicPlan || analysis?.plan || {};
   const compositionNeeds = buildNeeds(analysis, strategicPlan);
   const strategicProfiles = buildStrategicProfiles(compositionNeeds, strategicPlan);
+  const recommendationEngine = buildRecommendationEngine(analysis);
 
   return {
     summary: summarizeNeeds(compositionNeeds),
@@ -117,5 +119,7 @@ export function buildDraftAssistant(analysis = {}) {
     })),
     pickRecommendations: buildPickRecommendations(compositionNeeds, strategicPlan, strategicProfiles),
     banRecommendations: buildBanRecommendations(compositionNeeds, strategicPlan, strategicProfiles),
+    recommendations: recommendationEngine.items,
+    recommendationSummary: recommendationEngine.summary,
   };
 }
