@@ -30,7 +30,7 @@ La pregunta central sigue siendo:
 - Traduce esas necesidades a perfiles estratégicos y recomendaciones de picks/bans.
 - Convierte el análisis en una **Narrative Engine** corta y ejecutiva.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
-- Re-renderiza la Story cuando cambia la composición, así que el análisis aparece al completar los 5 campeones.
+- Re-renderiza la Story cuando cambia el borrador guardado de la composición, así que el análisis aparece al completar los 5 campeones.
 - Abre el análisis completo de cada tarjeta en una **ventana modal dedicada**.
 - Mantiene la cabecera limpia: solo build visible.
 - El botón **Actualizar** quedó oculto para no ensuciar la UI.
@@ -64,6 +64,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.24 / Modal Observer
+**Fase actual:** Beta 0.25 / Story Sync
 
-**Meta inmediata:** que al pulsar una tarjeta se abra el modal correcto con el análisis completo de esa sección.
+**Meta inmediata:** que la Story se actualice con la composición guardada y mantenga el modal de análisis completo por tarjeta.
