@@ -30,6 +30,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El Coach genera un `StrategicPlan` único con briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El Draft Assistant perfila necesidades de composición, prioriza picks y orienta bans a partir del `StrategicPlan`.
 - El Explainability Panel permite abrir la lectura del motor en forma de evidencias, pesos y confianza.
+- El análisis ahora expone un **Unified Analysis Model** para que Story, Coach, Draft y Explainability lean la misma estructura.
 
 ## GitHub Pages
 
