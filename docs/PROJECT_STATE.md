@@ -38,26 +38,18 @@ La pregunta central sigue siendo:
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
 - En escritorio, el banco de señales se abre más y deja de comprimir tanto los valores.
 - El Explainability Panel muestra evidencias, pesos y confianza de la lectura del motor.
-- El análisis expone un **Unified Analysis Model** para que Story, Coach, Draft y Explainability lean la misma estructura.
-- La beta funciona como web app normal mientras la UI se estabiliza.
-- La pantalla principal sigue la arquitectura de información fija:
-  - Tu composición,
-  - Plan de victoria,
-  - Prioridades,
-  - Riesgos,
-  - Draft,
-  - Análisis avanzado.
+- El panel contextual ahora también agrupa recomendaciones ordenadas por impacto y confianza.
 
 ## Arquitectura mental actual
 
-`analysisEngine` → `unifiedAnalysisModel` → `coachEngine` → `strategicPlan` → `needEngine` → `strategicProfiles` → `narrativeEngine` → `draft assistant`
+`analysisEngine` → `coachEngine` → `strategicPlan` → `needEngine` → `strategicProfiles` → `narrativeEngine` → `draft assistant`
 
 La fuente de verdad estratégica está en el análisis de la propia composición, no en el equipo rival.
 
 ## Lo siguiente por hacer
 
 1. Unificar todavía más los indicadores visuales.
-2. Reducir la redundancia entre las tarjetas, el panel explicativo y el modelo unificado.
+2. Reducir la redundancia entre las tarjetas, el panel explicativo y el panel de recomendaciones.
 3. Validar más composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
 
@@ -70,6 +62,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.36 / Unified Analysis Model
+**Fase actual:** Beta 0.38 / Recommendation Hub
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar el modelo unificado con evidencias, confianza y pesos sin perder claridad en móvil, tablet y escritorio.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar el panel de recomendaciones y explicación con evidencias, confianza y pesos sin perder claridad en móvil, tablet y escritorio.
