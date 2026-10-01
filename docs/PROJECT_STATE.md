@@ -26,6 +26,7 @@ La pregunta central sigue siendo:
 - Debilidades.
 - Plan de partida.
 - Sinergias y Riesgos.
+- **Cerrado**.
 
 ### Hito 3: IA refinada
 - Mejorar lo que ya existe.
@@ -62,6 +63,7 @@ La pregunta central sigue siendo:
 - Draft Assistant básico.
 - Documentación y roadmap alineados.
 - Hito 1 cerrado.
+- Hito 2 cerrado.
 
 ### Lo que hace ahora el sistema
 - Analiza la composición seleccionada.
@@ -77,6 +79,7 @@ La pregunta central sigue siendo:
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
 - La interfaz vuelve a centrarse en una lectura rápida de la composición propia.
 - El resumen ejecutivo principal se mantiene en un formato corto y tangible.
+- La pantalla principal ya muestra Executive Summary, Identidad, Fortalezas, Debilidades, Plan, Sinergias y Riesgos.
 
 ## Arquitectura mental actual
 
@@ -86,7 +89,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Lo siguiente por hacer
 
-1. Cerrar el Hito 2.
+1. Empezar el Hito 3.
 2. Reducir cualquier redundancia residual.
 3. Validar composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
@@ -100,6 +103,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Hito 1 cerrado / Base estable
+**Fase actual:** Hito 2 cerrado / Pantalla principal terminada
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y dejar el Hito 2 listo sin abrir otros bloques.
+**Meta inmediata:** dejar la pantalla principal como experiencia finalizada, y pasar al Hito 3 sin abrir otros bloques.
