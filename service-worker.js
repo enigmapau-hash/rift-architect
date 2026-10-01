@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v131';
+const CACHE_NAME = 'rift-architect-v132';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -36,6 +36,7 @@ const STATIC_ASSETS = [
   './js/composition-modal-final.js',
   './js/analyzer.js',
   './js/engine/unifiedAnalysisModel.js',
+  './js/engine/recommendationEngine.js',
   './data/index.json',
   './data/top.json',
   './data/jungle.json',
