@@ -37,6 +37,7 @@ La pregunta central sigue siendo:
 - La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
 - En escritorio, el banco de señales se abre más y deja de comprimir tanto los valores.
+- El Explainability Panel muestra evidencias, pesos y confianza de la lectura del motor.
 - La beta funciona como web app normal mientras la UI se estabiliza.
 - La pantalla principal sigue la arquitectura de información fija:
   - Tu composición,
@@ -55,7 +56,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 ## Lo siguiente por hacer
 
 1. Unificar todavía más los indicadores visuales.
-2. Reducir la redundancia entre las tarjetas y el banco de señales.
+2. Reducir la redundancia entre las tarjetas y el panel explicativo.
 3. Validar más composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
 
@@ -68,6 +69,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.32 / Desktop Signal Balance
+**Fase actual:** Beta 0.35 / Explainability Panel
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar las señales gráficas de cada tarjeta sin perder claridad en móvil, tablet y escritorio.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar el panel explicativo con evidencias, confianza y pesos sin perder claridad en móvil, tablet y escritorio.
