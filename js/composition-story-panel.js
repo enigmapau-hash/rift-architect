@@ -14,6 +14,7 @@ const state = {
   data: new Map(),
   loaded: false,
   patchScheduled: false,
+  openCard: null,
 };
 
 const els = { root: null };
@@ -79,10 +80,11 @@ function gradeFromScore(score) {
 }
 
 function normalizeEntry(item) {
-  const label = asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir');
-  const detail = asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', '');
-  const score = Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null;
-  return { label, detail, score };
+  return {
+    label: asText(item?.label ?? item?.name ?? item?.title ?? item?.text ?? item?.value ?? item?.champion ?? item, 'Sin definir'),
+    detail: asText(item?.detail ?? item?.summary ?? item?.description ?? item?.reason ?? item?.note ?? item?.explanation ?? item?.message ?? '', ''),
+    score: Number.isFinite(Number(item?.score)) ? Math.round(Number(item.score)) : null,
+  };
 }
 
 function normalizeSelectedChampion(champion) {
@@ -169,10 +171,7 @@ function worksheetToRows(worksheet) {
 
 function splitTags(value) {
   if (!value) return [];
-  return String(value)
-    .split('·')
-    .map((part) => part.trim())
-    .filter(Boolean);
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function findChampion(roleKey, championName) {
@@ -200,8 +199,8 @@ function findChampionByTags(selectedChampions, tags = []) {
 }
 
 function buildStoryModel(analysis, selectedChampions) {
-  const strengths = asArray(analysis?.strengths).map(normalizeEntry);
-  const weaknesses = asArray(analysis?.weaknesses).map(normalizeEntry);
+  const strengths = asArray(analysis?.strengths).slice(0, 3).map(normalizeEntry);
+  const weaknesses = asArray(analysis?.weaknesses).slice(0, 3).map(normalizeEntry);
   const plan = asArray(analysis?.gamePlan).slice(0, 3).map((step) => asText(step));
   const phases = asArray(analysis?.tempoDetail?.phases).slice(0, 3).map((phase) => asText(phase));
   const tempo = analysis?.tempoDetail?.label || analysis?.tempo || 'tu ventana natural de poder';
@@ -242,7 +241,8 @@ function buildStoryModel(analysis, selectedChampions) {
     analysis?.primaryIdentity || 'Identidad no definida',
     analysis?.winCondition?.label || 'Win condition no definida',
     analysis?.coherence?.label || 'Coherencia no definida',
-  ].filter(Boolean)).slice(0, 3);
+    ...(analysis?.metrics || []).map((metric) => asText(metric?.label)).filter(Boolean),
+  ].filter(Boolean)).slice(0, 4);
 
   return {
     score,
@@ -255,94 +255,45 @@ function buildStoryModel(analysis, selectedChampions) {
     priorities,
     avoid,
     keyPiece,
-    strengths: strengths.slice(0, 3),
-    weaknesses: weaknesses.slice(0, 3),
+    strengths,
+    weaknesses,
     whyItems,
     quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
+    summaryStat: [
+      `${grade} · ${score}/100`,
+      `Pico: ${tempo}`,
+      `${selectedChampions.length}/5 roles`,
+    ],
   };
 }
 
-function renderChip(label = '', value = '', tone = '') {
+function renderFlowItem(label = '', value = '', meta = '', tone = '') {
   return `
-    <article class="design-system-chip ${tone}">
-      <span class="design-system-chip__label">${escapeHtml(label)}</span>
-      <strong class="design-system-chip__value">${escapeHtml(value)}</strong>
+    <article class="design-system-flow__item ${tone}">
+      <span class="design-system-flow__label">${escapeHtml(label)}</span>
+      <p class="design-system-flow__value">${escapeHtml(value)}</p>
+      ${meta ? `<p class="design-system-flow__meta">${escapeHtml(meta)}</p>` : ''}
     </article>
   `;
 }
 
-function renderHero(model) {
+function renderAccordionCard({ key, title, kicker, summary, meta = [], body = '' }) {
   return `
-    <article class="design-system-card design-system-card--hero">
-      <div class="design-system-card__header">
-        <span class="design-system-badge">Tu composición</span>
-        <span class="design-system-badge design-system-badge--muted">Resumen ejecutivo</span>
-      </div>
-
-      <h3 class="design-system-card__title">${escapeHtml(model.identity)}</h3>
-      <p class="design-system-card__copy">${escapeHtml(model.summaryText)}</p>
-
-      <div class="design-system-chip-row">
-        ${renderChip(`${model.grade} · ${model.score}/100`, model.quickCoach, 'is-primary')}
-        ${renderChip('Pico', model.tempo)}
-        ${renderChip('Pieza clave', model.keyPiece ? model.keyPiece.champion : 'Sin definir', 'is-warning')}
-      </div>
-    </article>
-  `;
-}
-
-function renderCompactList(items = [], fallback = 'Sin datos claros.') {
-  if (!items.length) {
-    return `<p class="design-system-expandable__muted">${escapeHtml(fallback)}</p>`;
-  }
-
-  return `
-    <div class="design-system-expandable__list">
-      ${items.map((item) => `
-        <article class="design-system-expandable__item">
-          <div class="design-system-expandable__item-head">
-            <strong>${escapeHtml(item.label)}</strong>
-            ${item.score !== null ? `<span>${item.score}/10</span>` : ''}
-          </div>
-          ${item.detail ? `<p>${escapeHtml(item.detail)}</p>` : ''}
-        </article>
-      `).join('')}
-    </div>
-  `;
-}
-
-function renderDetailRow(title, text, note = '') {
-  return `
-    <article class="design-system-expandable__item">
-      <div class="design-system-expandable__item-head">
-        <strong>${escapeHtml(title)}</strong>
-      </div>
-      <p>${escapeHtml(text || 'Sin detalle')}</p>
-      ${note ? `<p class="design-system-expandable__muted">${escapeHtml(note)}</p>` : ''}
-    </article>
-  `;
-}
-
-function renderExpandableCard({ label, summary, meta = [], tone = '', details = '', open = false }) {
-  const metaMarkup = meta.filter(Boolean).map((item) => `<span class="design-system-expandable__pill">${escapeHtml(item)}</span>`).join('');
-
-  return `
-    <details class="design-system-card design-system-expandable ${tone ? `design-system-expandable--${tone}` : ''}" data-expandable-card${open ? ' open' : ''}>
-      <summary class="design-system-expandable__summary">
-        <div class="design-system-expandable__copy">
-          <span class="design-system-badge">${escapeHtml(label)}</span>
-          <p class="design-system-expandable__summary-text">${escapeHtml(summary)}</p>
+    <details class="design-system-card design-system-card--accordion" data-accordion-card="${escapeHtml(key)}"${state.openCard === key ? ' open' : ''}>
+      <summary class="design-system-card__summary">
+        <div class="design-system-card__summary-main">
+          <span class="design-system-badge">${escapeHtml(kicker)}</span>
+          <strong class="design-system-card__title">${escapeHtml(title)}</strong>
+          <p class="design-system-card__summary-copy">${escapeHtml(summary)}</p>
         </div>
-
-        <div class="design-system-expandable__aside">
-          ${metaMarkup ? `<div class="design-system-expandable__meta">${metaMarkup}</div>` : ''}
-          <span class="design-system-expandable__toggle design-system-expandable__toggle--closed">▼ Ver más</span>
-          <span class="design-system-expandable__toggle design-system-expandable__toggle--open">▲ Ocultar</span>
+        <div class="design-system-card__summary-meta">
+          ${meta.map((item) => `<span class="design-system-badge design-system-badge--muted">${escapeHtml(item)}</span>`).join('')}
+          <span class="design-system-card__toggle design-system-card__toggle--closed">▼ Ver razonamiento</span>
+          <span class="design-system-card__toggle design-system-card__toggle--open">▲ Ocultar razonamiento</span>
         </div>
       </summary>
-
-      <div class="design-system-expandable__body">
-        ${details}
+      <div class="design-system-card__body">
+        ${body}
       </div>
     </details>
   `;
@@ -356,8 +307,8 @@ function renderStory() {
     els.root.innerHTML = `
       <section class="composition-story composition-story--empty">
         <p class="eyebrow">Composition Story</p>
-        <h3>Selecciona cinco campeones para ver el resumen compacto</h3>
-        <p>La pantalla principal mostrará solo una decisión clara por bloque y el detalle quedará oculto hasta que lo abras.</p>
+        <h3>Selecciona cinco campeones para ver la home expandible</h3>
+        <p>La pantalla principal mostrará un resumen compacto y abrirá el detalle solo cuando lo necesites.</p>
       </section>
     `;
     return;
@@ -367,93 +318,104 @@ function renderStory() {
   const model = buildStoryModel(analysis, selectedChampions);
 
   const cards = [
-    renderExpandableCard({
-      label: 'Lectura táctica',
-      summary: model.quickCoach,
-      meta: [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`],
-      tone: 'hero',
-      details: `
-        ${renderDetailRow('Identidad', model.identity, model.summaryText)}
-        ${renderDetailRow('Pieza clave', model.keyPiece ? `${model.keyPiece.champion} es la pieza que más condiciona el resultado.` : 'No hay una pieza clave clara todavía.', model.keyPiece ? [model.keyPiece.function, model.keyPiece.identity, model.keyPiece.tempo].filter(Boolean).join(' · ') : '')}
-        ${renderDetailRow('Razonamiento', model.quickCoach, model.whyItems.join(' · '))}
+    renderAccordionCard({
+      key: 'composition',
+      title: 'Tu composición',
+      kicker: 'Identidad',
+      summary: model.summaryText,
+      meta: model.summaryStat,
+      body: `
+        <div class="design-system-flow">
+          ${renderFlowItem('Identidad', model.identity, model.quickCoach, 'is-hero')}
+          ${renderFlowItem('Pieza clave', model.keyPiece ? model.keyPiece.champion : 'Sin pieza clave', model.keyPiece ? [model.keyPiece.function, model.keyPiece.identity, model.keyPiece.tempo].filter(Boolean).join(' · ') : 'Todavía no hay una pieza clave clara.', 'is-primary')}
+          ${renderFlowItem('Evidencias', model.whyItems.join(' · ') || 'Sin evidencias destacadas', `${model.whyItems.length} señales`, 'is-warning')}
+        </div>
       `,
     }),
-    renderExpandableCard({
-      label: 'Cómo ganas',
+    renderAccordionCard({
+      key: 'victory',
+      title: 'Plan de victoria',
+      kicker: 'Cómo gana',
       summary: model.win,
-      meta: [model.tempo, model.phases[0] || 'Primer pico'],
-      tone: 'primary',
-      details: `
-        ${renderDetailRow('Condición de victoria', model.win, 'La composición gana cuando juega alrededor de su mejor ventana.')}
-        ${renderDetailRow('Ventanas de poder', model.phases.join(' · ') || model.tempo, 'Early · Mid · Late')}
-        ${renderDetailRow('Señales del plan', model.priorities[0] || 'Ganar tempo y visión', model.priorities.slice(1, 3).join(' · '))}
+      meta: [`Pico: ${model.tempo}`, `${model.phases.length} fases`],
+      body: `
+        <div class="design-system-flow">
+          ${renderFlowItem('Win condition', model.win, model.quickCoach, 'is-primary')}
+          ${renderFlowItem('Tempo', model.tempo, 'Cuándo es más fuerte esta composición.', 'is-hero')}
+          ${renderFlowItem('Fases', model.phases.join(' · ') || 'Sin fases definidas', 'Early · Mid · Late', 'is-warning')}
+        </div>
       `,
     }),
-    renderExpandableCard({
-      label: 'Tu prioridad',
+    renderAccordionCard({
+      key: 'priorities',
+      title: 'Prioridades',
+      kicker: 'Qué hacer ahora',
       summary: model.priorities[0] || 'Ganar tempo y visión',
-      meta: [model.priorities[1] || 'Agruparte bien', model.keyPiece ? model.keyPiece.champion : 'Sin pieza clave'],
-      tone: 'success',
-      details: `
-        ${renderCompactList(
-          model.priorities.map((priority, index) => ({ label: `Prioridad ${index + 1}`, detail: priority, score: null })),
-          'No hay prioridades claras.',
-        )}
-        ${renderDetailRow('Pieza clave', model.keyPiece ? `${model.keyPiece.champion} debe estar protegida o habilitada.` : 'No hay una pieza clave clara todavía.')}
+      meta: [`${model.priorities.length} pasos`, 'Plan activo'],
+      body: `
+        <div class="design-system-flow">
+          ${model.priorities.map((priority, index) => renderFlowItem(`Prioridad ${index + 1}`, priority, index === 0 ? 'La más importante ahora' : 'Siguiente paso del plan', index === 0 ? 'is-primary' : '')).join('')}
+          ${renderFlowItem('Coach', model.quickCoach, 'El criterio que ordena todo el plan.', 'is-hero')}
+        </div>
       `,
     }),
-    renderExpandableCard({
-      label: 'Qué evitar',
-      summary: model.avoid.join(' · ') || 'Evita pelear sin visión',
-      meta: ['Errores críticos', 'Control del ritmo'],
-      tone: 'warning',
-      details: `
-        ${renderCompactList(
-          model.avoid.map((item) => ({ label: item, detail: 'Evita este error porque castiga directamente tu plan.', score: null })),
-          'No hay riesgos claros.',
-        )}
-        ${renderDetailRow('Riesgo mayor', model.weaknesses.map((item) => item.label).join(' · ') || 'Sin riesgos claros.', 'Lo que más necesitas compensar.')}
+    renderAccordionCard({
+      key: 'risks',
+      title: 'Riesgos',
+      kicker: 'Qué evitar',
+      summary: model.avoid[0] || 'Forzar peleas malas',
+      meta: [`${model.weaknesses.length} debilidades`, `${model.avoid.length} riesgos`],
+      body: `
+        <div class="design-system-flow">
+          ${model.avoid.map((risk, index) => renderFlowItem(`Riesgo ${index + 1}`, risk, index === 0 ? 'El más castigado' : 'Compensar a tiempo', index === 0 ? 'is-warning' : '')).join('')}
+          ${model.weaknesses.map((item) => renderFlowItem(item.label, item.detail || 'Sin detalle adicional', item.score !== null ? `${item.score}/10` : 'Debilidad detectada', '')).join('')}
+        </div>
       `,
     }),
-    renderExpandableCard({
-      label: 'Fortalezas',
-      summary: model.strengths.map((item) => item.label).join(' · ') || 'Sin fortalezas claras',
-      meta: ['Sostén del plan'],
-      details: `
-        ${renderCompactList(model.strengths, 'Sin fortalezas claras.')}
-      `,
-    }),
-    renderExpandableCard({
-      label: 'Debilidades',
-      summary: model.weaknesses.map((item) => item.label).join(' · ') || 'Sin riesgos claros',
-      meta: ['Necesidades', 'Compensación'],
-      details: `
-        ${renderCompactList(model.weaknesses, 'Sin riesgos claros.')}
+    renderAccordionCard({
+      key: 'advanced',
+      title: 'Análisis avanzado',
+      kicker: 'Por qué',
+      summary: model.quickCoach,
+      meta: [`${model.whyItems.length} señales`, `${model.strengths.length} fortalezas`],
+      body: `
+        <div class="design-system-flow">
+          ${renderFlowItem('Razonamiento', model.quickCoach, 'La explicación resumida de la IA.', 'is-hero')}
+          ${renderFlowItem('Fortalezas', model.strengths.map((item) => item.label).join(' · ') || 'Sin fortalezas claras', 'Lo que mejor sostiene el plan.', 'is-primary')}
+          ${renderFlowItem('Evidencias', model.whyItems.join(' · ') || 'Sin evidencias adicionales', 'La IA las usa para justificar el veredicto.', 'is-warning')}
+        </div>
       `,
     }),
   ];
 
   els.root.innerHTML = `
-    <section class="composition-story composition-story--wireframe">
-      ${renderHero(model)}
-      <div class="composition-story__accordion">
-        ${cards.join('')}
-      </div>
+    <section class="composition-story composition-story--accordion" style="grid-template-columns:minmax(0,1fr);gap:12px;">
+      ${cards.join('')}
     </section>
   `;
 
-  bindAccordion();
+  bindAccordionBehavior();
 }
 
-function bindAccordion() {
-  const cards = [...els.root.querySelectorAll('[data-expandable-card]')];
+function bindAccordionBehavior() {
+  const cards = [...els.root.querySelectorAll('details[data-accordion-card]')];
+
   cards.forEach((card) => {
     card.addEventListener('toggle', () => {
-      if (!card.open) return;
-      cards.forEach((other) => {
-        if (other !== card) other.open = false;
-      });
+      const key = card.dataset.accordionCard || null;
+      if (card.open) {
+        state.openCard = key;
+        cards.forEach((other) => {
+          if (other !== card) other.open = false;
+        });
+      } else if (state.openCard === key) {
+        state.openCard = null;
+      }
     });
+
+    if (state.openCard && card.dataset.accordionCard === state.openCard) {
+      card.open = true;
+    }
   });
 }
 
