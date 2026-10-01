@@ -25,7 +25,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - La lectura sigue centrada en la composición propia.
 - La UI prioriza claridad, bloques compactos y lectura rápida.
 - El resumen principal se mantiene simple, tangible y funcional.
-- El render del análisis tiene ahora una ruta de respaldo para no perder la pantalla principal.
+- El render del análisis se ha consolidado en una única ruta simplificada con respaldo.
 
 ## GitHub Pages
 
