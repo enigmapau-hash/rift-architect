@@ -22,15 +22,12 @@ function enhanceStory() {
   const cards = [...root.querySelectorAll('.composition-story__summary-card')];
   cards.forEach((card, index) => {
     const section = SECTION_KEYS[index] || 'composition';
-    const existing = card.querySelector('.composition-story__signal-bank');
-    if (existing) existing.remove();
+    card.querySelector('.composition-story__signal-bank')?.remove();
 
     const signals = buildSignals(section, card);
     const bank = document.createElement('div');
     bank.className = 'composition-story__signal-bank';
-    bank.innerHTML = signals
-      .map((signal) => renderSignal(signal))
-      .join('');
+    bank.innerHTML = signals.map((signal) => renderSignal(signal)).join('');
 
     const anchor = card.querySelector('.composition-story__summary-main');
     if (anchor) {
@@ -57,75 +54,90 @@ function buildSignals(section, card) {
   const firstFlow = flows[0] || {};
   const secondFlow = flows[1] || {};
   const thirdFlow = flows[2] || {};
+  const fourthFlow = flows[3] || {};
+  const state = toneState(score);
 
   switch (section) {
     case 'composition':
       return [
-        { label: 'Identidad', value: shorten(summary || title, 22), score },
-        { label: 'Pico', value: shorten(pills[1] || firstFlow.value || 'Estable', 18), score: clamp(score - 4, 0, 100) },
-        { label: 'Huecos', value: shorten(thirdFlow.value || firstFlow.meta || 'Bajos', 18), score: clamp(100 - flows.length * 12, 35, 92) },
+        signal('Estado', state.label, `${score}%`, score),
+        signal('Ritmo', smartText(pills[2] || firstFlow.value || summary || 'Mid game', 16), 'Tempo', clamp(score - 6, 0, 100)),
+        signal('Foco', smartText(fourthFlow.value || thirdFlow.value || title || 'A revisar', 16), 'Prioridad', clamp(score - 14, 0, 100)),
       ];
     case 'victory':
       return [
-        { label: 'Early', value: shorten(firstFlow.value || summary || 'Presión', 18), score: clamp(score - 6, 0, 100) },
-        { label: 'Mid', value: shorten(secondFlow.value || 'Ventaja', 18), score: score },
-        { label: 'Late', value: shorten(thirdFlow.value || 'Cierre', 18), score: clamp(score - 8, 0, 100) },
+        signal('Plan', smartText(summary || firstFlow.value || 'Ejecutar', 16), 'Win', clamp(score, 0, 100)),
+        signal('Tempo', smartText(firstFlow.value || pills[0] || 'Mid game', 16), smartText(pills[0] || 'Ritmo', 12), clamp(score - 6, 0, 100)),
+        signal('Cierre', smartText(fourthFlow.value || thirdFlow.value || 'Cerrar limpio', 16), 'Final', clamp(score - 10, 0, 100)),
       ];
     case 'priorities':
       return [
-        { label: 'Paso 1', value: shorten(firstFlow.value || 'Ejecutar', 18), score: clamp(score + 4, 0, 100) },
-        { label: 'Paso 2', value: shorten(secondFlow.value || 'Preparar', 18), score: clamp(score - 2, 0, 100) },
-        { label: 'Paso 3', value: shorten(thirdFlow.value || 'Cerrar', 18), score: clamp(score - 10, 0, 100) },
+        signal('Ahora', smartText(firstFlow.value || 'Ejecutar', 16), 'Paso 1', clamp(score + 4, 0, 100)),
+        signal('Orden', smartText(secondFlow.value || 'Preparar', 16), 'Paso 2', clamp(score - 2, 0, 100)),
+        signal('Disciplina', smartText(thirdFlow.value || 'Cerrar', 16), 'Checks', clamp(score - 10, 0, 100)),
       ];
     case 'risks':
       return [
-        { label: 'Riesgo', value: shorten(firstFlow.value || 'Forzar', 18), score: clamp(100 - score, 0, 100) },
-        { label: 'Errores', value: shorten(secondFlow.value || 'Mal timing', 18), score: clamp(100 - score / 2, 0, 100) },
-        { label: 'Evitar', value: shorten(thirdFlow.value || 'Sobreextender', 18), score: clamp(90 - flows.length * 8, 35, 90) },
+        signal('Riesgo', smartText(firstFlow.value || 'Forzar', 16), 'Crítico', clamp(100 - score, 0, 100)),
+        signal('Exposición', smartText(secondFlow.value || 'Timing', 16), 'Atención', clamp(100 - score / 2, 0, 100)),
+        signal('Mitigar', smartText(thirdFlow.value || 'Sobreextender', 16), 'Plan', clamp(90 - flows.length * 8, 35, 90)),
       ];
     case 'draft':
       return [
-        { label: 'Necesidad', value: shorten(firstFlow.value || 'Cubrir huecos', 18), score: clamp(score - 2, 0, 100) },
-        { label: 'Pick', value: shorten(secondFlow.value || 'Mejorar plan', 18), score: clamp(score + 2, 0, 100) },
-        { label: 'Ban', value: shorten(thirdFlow.value || 'Proteger', 18), score: clamp(score - 8, 0, 100) },
+        signal('Necesidad', smartText(firstFlow.value || 'Cubrir huecos', 16), 'Hueco', clamp(score - 2, 0, 100)),
+        signal('Pick', smartText(secondFlow.value || 'Mejorar plan', 16), 'Añadir', clamp(score + 2, 0, 100)),
+        signal('Ban', smartText(thirdFlow.value || 'Proteger', 16), 'Bloquear', clamp(score - 8, 0, 100)),
       ];
     case 'advanced':
     default:
       return [
-        { label: 'Coherencia', value: shorten(summary || title, 22), score },
-        { label: 'Métricas', value: shorten(firstFlow.value || 'Lectura estable', 18), score: clamp(score - 6, 0, 100) },
-        { label: 'Señales', value: shorten(secondFlow.meta || thirdFlow.meta || 'IA compacta', 18), score: clamp(score - 10, 0, 100) },
+        signal('Coherencia', smartText(summary || title || 'Lectura estable', 16), 'IA', clamp(score, 0, 100)),
+        signal('Métrica', smartText(firstFlow.value || 'Lectura estable', 16), 'Dato', clamp(score - 6, 0, 100)),
+        signal('Señal', smartText(secondFlow.value || secondFlow.meta || 'Motor', 16), 'Clave', clamp(score - 10, 0, 100)),
       ];
   }
 }
 
-function renderSignal(signal) {
-  const tone = toneFromScore(signal.score);
+function signal(label, value, chip, score) {
+  return {
+    label,
+    value,
+    chip,
+    score: clamp(Math.round(Number(score) || 0), 0, 100),
+  };
+}
+
+function renderSignal(signalData) {
+  const tone = toneFromScore(signalData.score);
   return `
     <article class="composition-story__signal composition-story__signal--${tone}">
-      <span class="composition-story__signal-label">${escapeHtml(signal.label)}</span>
-      <strong class="composition-story__signal-value">${escapeHtml(signal.value)}</strong>
-      <span class="composition-story__signal-bar" aria-hidden="true">${escapeHtml(renderMeter(signal.score))}</span>
+      <div class="composition-story__signal-head">
+        <span class="composition-story__signal-label">${escapeHtml(signalData.label)}</span>
+        <span class="composition-story__signal-chip">${escapeHtml(signalData.chip)}</span>
+      </div>
+      <strong class="composition-story__signal-value">${escapeHtml(signalData.value)}</strong>
+      <div class="composition-story__signal-meter" aria-hidden="true">
+        <span style="width:${signalData.score}%"></span>
+      </div>
     </article>
   `;
 }
 
-function renderMeter(score = 0) {
-  const value = clamp(Math.round(Number(score) || 0), 0, 100);
-  const filled = Math.round(value / 20);
-  const empty = 5 - filled;
-  return `${'█'.repeat(filled)}${'░'.repeat(empty)} ${value}%`;
+function toneState(score) {
+  if (score >= 75) return { tone: 'good', label: 'Fuerte' };
+  if (score >= 55) return { tone: 'neutral', label: 'Equilibrada' };
+  return { tone: 'bad', label: 'Frágil' };
+}
+
+function smartText(value, maxLength) {
+  const text = textOf({ textContent: value });
+  if (!text) return '';
+  if (text.length <= maxLength) return text;
+  return `${text.slice(0, Math.max(8, maxLength - 1)).trimEnd()}…`;
 }
 
 function textOf(element) {
   return String(element?.textContent || '').replace(/\s+/g, ' ').trim();
-}
-
-function shorten(value, maxLength) {
-  const text = String(value || '').replace(/\s+/g, ' ').trim();
-  if (!text) return '';
-  if (text.length <= maxLength) return text;
-  return `${text.slice(0, Math.max(8, maxLength - 1)).trimEnd()}…`;
 }
 
 function readScore(value) {
@@ -151,7 +163,10 @@ function ensureObserver() {
     scheduleEnhance();
   });
 
-  observer.observe(root, { childList: true, subtree: true });
+  observer.observe(root, {
+    childList: true,
+    subtree: true,
+  });
 }
 
 function init() {
