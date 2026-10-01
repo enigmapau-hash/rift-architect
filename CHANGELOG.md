@@ -1,5 +1,20 @@
 # Changelog
 
+## v48 · Beta 0.29 / Compact Story Signals
+### Added
+- A compact story post-processor that trims labels, metadata and bars after render.
+- Shorter text on the fixed cards so repeated ideas do not crowd the screen.
+- A clearer separation between the motor output and the presentation layer.
+
+### Changed
+- The Story keeps the same six-card hierarchy, but now reads faster.
+- The cards are more compact in mobile, tablet and desktop.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the presentation layer became more compact.
+
 ## v47 · Beta 0.28 / Compact Responsive Cards
 ### Added
 - A 3/2/1 responsive grid for the six fixed summary cards.
@@ -27,31 +42,3 @@
 
 ### Notes
 - The analysis still comes from the same motor; only the presentation layer became fully responsive.
-
-## v45 · Beta 0.26 / Fixed Cards
-### Added
-- Six fixed summary cards for the main Story surface.
-- Compact lines with icons, chips and text bars to keep the scroll short.
-- Story sync from the saved draft in `localStorage`.
-
-### Changed
-- The Story no longer depends on modals or accordions.
-- The top-right Update button stays hidden.
-- The analysis now reads as a compact set of fixed cards instead of a second interaction layer.
-
-### Notes
-- The analysis still comes from the same motor; only the communication layer changed.
-
-## v44 · Beta 0.25 / Story Sync
-### Added
-- A sync bridge so the Story rerenders when the saved draft changes.
-
-### Changed
-- The Story started to follow the selected composition more reliably.
-
-## v43 · Beta 0.24 / Modal Observer
-### Added
-- Observer-driven Story rerendering.
-
-### Changed
-- The Story reacted to composition changes through localStorage and DOM sync.
