@@ -1,7 +1,17 @@
 import { analyzeComposition } from './analyzer.js';
 import { getSectionToneLabel } from './modal-helpers.js';
 
-const ANALYSIS_SECTIONS = [
+const DATA_MANIFEST_URL = './data/index.json';
+const WORKBOOK_URL = './Draft%20Pool.xlsx';
+const ROLE_FILES = [
+  { key: 'top', file: './data/top.json', sheet: 'Tabla Top' },
+  { key: 'jungle', file: './data/jungle.json', sheet: 'Tabla Jungla' },
+  { key: 'mid', file: './data/mid.json', sheet: 'Tabla Mid' },
+  { key: 'botline', file: './data/bot.json', sheet: 'Tabla Botline' },
+  { key: 'support', file: './data/support.json', sheet: 'Tabla Support' },
+];
+
+const SECTIONS = [
   { key: 'composition', title: 'Tu composición', kicker: 'Identidad' },
   { key: 'victory', title: 'Plan de victoria', kicker: 'Cómo gana' },
   { key: 'priorities', title: 'Prioridades', kicker: 'Qué hacer ahora' },
@@ -12,139 +22,107 @@ const ANALYSIS_SECTIONS = [
 
 const state = {
   data: new Map(),
+  loaded: false,
   currentAnalysis: null,
   currentModel: null,
-  modalOpen: false,
-  activeSection: 'composition',
-  lastFocus: null,
-  renderQueued: false,
-  observer: null,
 };
 
 const els = {
   root: null,
-  modal: null,
-  title: null,
-  kicker: null,
-  summary: null,
-  tabs: null,
-  body: null,
-  close: null,
 };
 
 init().catch((error) => console.error(error));
 
-globalThis.openAnalysisModal = openModal;
-globalThis.closeAnalysisModal = closeModal;
 globalThis.renderAnalysisStory = renderStory;
+globalThis.openAnalysisModal = () => {};
+globalThis.closeAnalysisModal = () => {};
 
 async function init() {
   els.root = document.getElementById('storyView');
   if (!els.root) return;
 
-  ensureModal();
-  observeCompositionGrid();
+  await loadRoleData();
   renderStory();
-
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && state.modalOpen) closeModal();
-  });
 }
 
-function ensureModal() {
-  if (els.modal) return;
+async function loadRoleData() {
+  if (state.loaded) return;
+  state.loaded = true;
 
-  const modal = document.createElement('div');
-  modal.id = 'analysisModal';
-  modal.className = 'analysis-modal is-hidden';
-  modal.setAttribute('aria-hidden', 'true');
-  modal.innerHTML = `
-    <div class="analysis-modal__backdrop" data-modal-close></div>
-    <section class="analysis-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="analysisModalTitle">
-      <header class="analysis-modal__header">
-        <div class="analysis-modal__header-copy">
-          <span id="analysisModalKicker" class="analysis-modal__kicker">Análisis</span>
-          <h2 id="analysisModalTitle" class="analysis-modal__title">Tu composición</h2>
-          <p id="analysisModalSummary" class="analysis-modal__summary"></p>
-        </div>
-        <button type="button" class="ghost-btn analysis-modal__close" data-modal-close>Cerrar</button>
-      </header>
-      <nav id="analysisModalTabs" class="analysis-modal__tabs" aria-label="Secciones del análisis"></nav>
-      <div id="analysisModalBody" class="analysis-modal__body"></div>
-    </section>
-  `;
-
-  document.body.appendChild(modal);
-
-  els.modal = modal;
-  els.title = modal.querySelector('#analysisModalTitle');
-  els.kicker = modal.querySelector('#analysisModalKicker');
-  els.summary = modal.querySelector('#analysisModalSummary');
-  els.tabs = modal.querySelector('#analysisModalTabs');
-  els.body = modal.querySelector('#analysisModalBody');
-  els.close = modal.querySelector('.analysis-modal__close');
-
-  modal.addEventListener('click', (event) => {
-    if (event.target.closest('[data-modal-close]')) closeModal();
-  });
-
-  els.tabs.addEventListener('click', (event) => {
-    const tab = event.target.closest('[data-modal-nav]');
-    if (!tab) return;
-    openModal(String(tab.dataset.modalNav || 'composition'));
-  });
-
-  els.close.addEventListener('click', closeModal);
-}
-
-function observeCompositionGrid() {
-  const grid = document.getElementById('compositionGrid');
-  if (!grid) {
-    window.requestAnimationFrame(observeCompositionGrid);
+  const loaded = (await loadJsonDataset()) || (await loadWorkbookDataset());
+  if (loaded) {
+    Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
     return;
   }
 
-  if (state.observer) state.observer.disconnect();
-  state.observer = new MutationObserver(() => queueRender());
-  state.observer.observe(grid, { childList: true, subtree: true, attributes: true, characterData: true });
+  ROLE_FILES.forEach(({ key }) => state.data.set(key, []));
 }
 
-function queueRender() {
-  if (state.renderQueued) return;
-  state.renderQueued = true;
-  window.requestAnimationFrame(() => {
-    state.renderQueued = false;
-    renderStory();
-  });
-}
+async function loadJsonDataset() {
+  try {
+    const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: 'reload' });
+    if (!manifestResponse.ok) return null;
 
-function openModal(section) {
-  if (!state.currentModel) return;
+    const manifest = await manifestResponse.json();
+    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
 
-  state.activeSection = normalizeSection(section);
-  state.modalOpen = true;
-  state.lastFocus = document.activeElement;
+    const loaded = await Promise.all(
+      ROLE_FILES.map(async ({ key, file }) => {
+        const response = await fetch(file, { cache: 'reload' });
+        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
+        return [key, await response.json()];
+      })
+    );
 
-  ensureModal();
-  renderModal();
-  els.modal.classList.remove('is-hidden');
-  els.modal.setAttribute('aria-hidden', 'false');
-  document.body.classList.add('modal-open');
-
-  window.requestAnimationFrame(() => els.close?.focus());
-}
-
-function closeModal() {
-  if (!els.modal) return;
-
-  state.modalOpen = false;
-  els.modal.classList.add('is-hidden');
-  els.modal.setAttribute('aria-hidden', 'true');
-  document.body.classList.remove('modal-open');
-
-  if (state.lastFocus instanceof HTMLElement) {
-    window.requestAnimationFrame(() => state.lastFocus.focus());
+    return Object.fromEntries(loaded);
+  } catch {
+    return null;
   }
+}
+
+async function loadWorkbookDataset() {
+  if (!window.XLSX) return null;
+
+  try {
+    const response = await fetch(WORKBOOK_URL, { cache: 'reload' });
+    if (!response.ok) return null;
+
+    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    const dataset = {};
+    ROLE_FILES.forEach(({ key, sheet }) => {
+      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
+    });
+    return dataset;
+  } catch {
+    return null;
+  }
+}
+
+function worksheetToRows(worksheet) {
+  if (!worksheet) return [];
+
+  const rows = window.XLSX.utils.sheet_to_json(worksheet, {
+    header: 1,
+    blankrows: false,
+    defval: '',
+  });
+
+  return rows
+    .slice(1)
+    .filter((row) => row[0])
+    .map((row) => ({
+      champion: String(row[0]).trim(),
+      identity: String(row[1] || '').trim(),
+      function: String(row[2] || '').trim(),
+      tempo: String(row[3] || '').trim(),
+      strengths: splitTags(row[4]),
+      weaknesses: splitTags(row[5]),
+    }));
+}
+
+function splitTags(value) {
+  if (!value) return [];
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function renderStory() {
@@ -154,289 +132,199 @@ function renderStory() {
   if (selectedChampions.length < 5) {
     state.currentAnalysis = null;
     state.currentModel = null;
-    closeModal();
     els.root.innerHTML = `
       <section class="composition-story composition-story--empty">
         <h3>Selecciona cinco campeones para ver el análisis</h3>
-        <p>Primero verás un resumen corto. Al abrir cada tarjeta aparecerá el análisis completo en una ventana dedicada.</p>
+        <p>Primero verás un resumen corto. La historia completa aparecerá cuando la composición esté completa.</p>
       </section>
     `;
     return;
   }
 
-  state.currentAnalysis = analyzeComposition(selectedChampions);
-  state.currentModel = buildStoryModel(state.currentAnalysis, selectedChampions);
-  els.root.innerHTML = `<section class="composition-story composition-story--cards">${ANALYSIS_SECTIONS.map((section) => renderSummaryCard(section, state.currentModel)).join('')}</section>`;
-  bindCardClicks();
+  const analysis = analyzeComposition(selectedChampions);
+  const model = buildStoryModel(analysis, selectedChampions);
+  state.currentAnalysis = analysis;
+  state.currentModel = model;
 
-  if (state.modalOpen) {
-    renderModal();
-    els.modal.classList.remove('is-hidden');
-    els.modal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('modal-open');
-  }
+  els.root.innerHTML = `
+    <section class="composition-story composition-story--cards">
+      ${SECTIONS.map((section) => renderFixedCard(section, model)).join('')}
+    </section>
+  `;
 }
 
-function bindCardClicks() {
-  els.root.querySelectorAll('[data-modal-section]').forEach((button) => {
-    button.addEventListener('click', (event) => {
-      event.preventDefault();
-      openModal(String(button.dataset.modalSection || 'composition'));
-    });
-  });
-}
-
-function renderSummaryCard(section, model) {
+function renderFixedCard(section, model) {
   const summary = getSectionSummary(section.key, model);
   const meta = getSectionMeta(section.key, model);
+  const lines = getSectionLines(section.key, model);
   const tone = getSectionTone(section.key);
+  const score = getSectionScore(section.key, model);
+  const bar = renderTextBar(score);
 
   return `
-    <button type="button" class="composition-story__summary-card composition-story__summary-card--${tone}" data-modal-section="${escapeHtml(section.key)}" aria-haspopup="dialog">
-      <span class="composition-story__summary-kicker">${escapeHtml(section.kicker)}</span>
+    <article class="composition-story__summary-card composition-story__summary-card--${tone}">
+      <div class="composition-story__summary-head">
+        <span class="composition-story__summary-kicker">${escapeHtml(section.kicker)}</span>
+        <span class="composition-story__summary-cta">${escapeHtml(score)}%</span>
+      </div>
       <div class="composition-story__summary-main">
         <strong class="composition-story__summary-title">${escapeHtml(section.title)}</strong>
         <p class="composition-story__summary-copy">${escapeHtml(summary)}</p>
       </div>
       <div class="composition-story__summary-meta">
         ${meta.map((item) => `<span class="story-pill story-pill--neutral">${escapeHtml(item)}</span>`).join('')}
-        <span class="composition-story__summary-cta">▼ Ver análisis</span>
       </div>
-    </button>
-  `;
-}
-
-function renderModal() {
-  if (!els.modal || !state.currentModel) return;
-
-  const section = normalizeSection(state.activeSection);
-  const config = ANALYSIS_SECTIONS.find((item) => item.key === section) || ANALYSIS_SECTIONS[0];
-  const data = getSectionData(section, state.currentModel, state.currentAnalysis || {});
-
-  els.title.textContent = config.title;
-  els.kicker.textContent = config.kicker;
-  els.summary.textContent = data.summary;
-  els.tabs.innerHTML = ANALYSIS_SECTIONS.map((item) => `
-    <button type="button" class="analysis-modal__tab ${item.key === section ? 'is-active' : ''}" data-modal-nav="${escapeHtml(item.key)}" aria-pressed="${item.key === section ? 'true' : 'false'}">${escapeHtml(item.title)}</button>
-  `).join('');
-
-  els.body.innerHTML = `
-    ${renderHero(data.title, data.summary, data.meta)}
-    ${renderBlock(data.blockKicker, data.blockTitle, data.rows)}
-    ${renderTrace('Motor', data.trace)}
-  `;
-}
-
-function getSectionData(section, model, raw) {
-  switch (section) {
-    case 'composition':
-      return {
-        title: model.identity,
-        summary: model.summaryText,
-        meta: [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`, `${model.selectedCount}/5 roles`],
-        blockKicker: 'Identidad',
-        blockTitle: 'Qué somos',
-        rows: [
-          renderRow('Identidad', model.identity, `Confianza ${model.grade} · ${model.score}/100`, 'is-hero'),
-          renderRow('Pieza clave', model.keyPiece ? model.keyPiece.champion : 'Sin pieza clave', model.keyPiece ? [model.keyPiece.function, model.keyPiece.identity, model.keyPiece.tempo].filter(Boolean).join(' · ') : 'Todavía no hay una pieza clave clara.', 'is-primary'),
-          renderRow('Fortalezas', joinTexts(model.strengths.map((item) => item.label)), 'Puntos que ya funcionan.', 'is-primary'),
-          renderRow('Debilidades', joinTexts(model.weaknesses.map((item) => item.label)), 'Huecos que conviene cerrar.', 'is-warning'),
-          renderRow('Lectura', model.quickCoach, 'La composición se entiende desde su identidad.', 'is-warning'),
-        ],
-        trace: [
-          ['Executive Summary', raw.primaryIdentity || model.identity, raw.summaryText || model.summaryText],
-          ['Win condition', raw.winCondition?.label || 'Sin win condition', asText(raw.winCondition?.detail || model.winCondition)],
-          ['Coherencia', raw.coherence?.label || 'Sin coherencia', asText(raw.coherence?.detail || 'La lectura se apoya en el motor y en la composición.')],
-        ],
-      };
-    case 'victory':
-      return {
-        title: model.winCondition,
-        summary: model.quickCoach,
-        meta: [`Pico: ${model.tempo}`, `${model.phases.length} fases`, `${model.gamePlan.length} pasos`],
-        blockKicker: 'Cómo gana',
-        blockTitle: 'Plan de victoria',
-        rows: [
-          renderRow('Win condition', model.winCondition, model.quickCoach, 'is-primary'),
-          renderRow('Tempo', model.tempo, 'Cuándo es más fuerte esta composición.', 'is-hero'),
-          renderRow('Fases', model.phases.join(' · ') || 'Sin fases definidas', 'Early · Mid · Late', 'is-warning'),
-          renderRow('Plan', joinTexts(model.gamePlan), 'Secuencia que convierte la ventaja en victoria.', 'is-primary'),
-          renderRow('Objetivo', joinTexts(model.objectivePriority.map((item) => item.label)), 'Prioridad sugerida por el motor.', 'is-warning'),
-        ],
-        trace: [
-          ['Objetivo principal', raw.advisor?.primaryObjective || model.winCondition, raw.advisor?.summary?.reason || model.winCondition],
-          ['Ventanas', phaseSummary(model.gameWindows), 'Early · Mid · Late'],
-          ['Pico de poder', model.tempo, raw.winCondition?.detail || model.winCondition],
-        ],
-      };
-    case 'priorities':
-      return {
-        title: model.priorities[0] || 'Prioriza lo que más acelera la victoria',
-        summary: model.quickCoach,
-        meta: [`${model.priorities.length} pasos`, 'Plan activo', `${model.checklist.length} checks`],
-        blockKicker: 'Qué hacer ahora',
-        blockTitle: 'Prioridades',
-        rows: [
-          ...model.priorities.map((priority, index) => renderRow(`Prioridad ${index + 1}`, priority, index === 0 ? 'La más importante ahora' : 'Siguiente paso del plan', index === 0 ? 'is-primary' : '')),
-          renderRow('Coach', model.quickCoach, 'El criterio que ordena todo el plan.', 'is-hero'),
-          ...model.checklist.map((item, index) => renderRow(`Checklist ${index + 1}`, item.label, item.detail || 'Paso operativo del plan.', index === 0 ? 'is-primary' : '')),
-        ],
-        trace: [
-          ['Checklist', joinTexts(model.checklist.map((item) => item.label)), 'Pasos que no deben olvidarse.'],
-          ['Prioridades IA', joinTexts(model.execPriorities.map((item) => item.label)), 'Lo más importante ahora.'],
-          ['Coach', raw.coach?.headline || model.quickCoach, raw.coach?.briefing || model.quickCoach],
-        ],
-      };
-    case 'risks':
-      return {
-        title: model.avoid[0] || 'No fuerces el plan equivocado',
-        summary: model.quickCoach,
-        meta: [`${model.weaknesses.length} debilidades`, `${model.avoid.length} riesgos`, `${model.criticalErrors.length} errores críticos`],
-        blockKicker: 'Qué evitar',
-        blockTitle: 'Riesgos',
-        rows: [
-          ...model.avoid.map((risk, index) => renderRow(`Riesgo ${index + 1}`, risk, index === 0 ? 'El más castigado' : 'Compensar a tiempo', index === 0 ? 'is-warning' : '')),
-          ...model.weaknesses.map((item) => renderRow(item.label, item.detail || 'Sin detalle adicional', item.score !== null ? `${item.score}/100` : 'Debilidad detectada', '')),
-          ...model.criticalErrors.map((item, index) => renderRow(item.label, item.detail || 'Puede romper el plan principal.', index === 0 ? 'Prioridad defensiva' : 'Riesgo detectado', index === 0 ? 'is-warning' : '')),
-        ],
-        trace: [
-          ['Mayor riesgo', model.avoid[0] || 'Sin riesgo claro', joinTexts(model.criticalErrors.map((item) => item.detail || item.label).slice(0, 2))],
-          ['Debilidades', joinTexts(model.weaknesses.map((item) => item.label)), 'Se conectan con el perfil del draft.'],
-          ['Alertas', joinTexts(model.alerts), 'Lo que conviene vigilar.'],
-        ],
-      };
-    case 'draft':
-      return {
-        title: model.draftSummary,
-        summary: 'El draft completa el plan de la composición.',
-        meta: [`${model.compositionNeeds.length} necesidades`, `${model.pickRecommendations.length} picks`, `${model.banRecommendations.length} bans`],
-        blockKicker: 'Picks y bans',
-        blockTitle: 'Draft',
-        rows: [
-          renderRow('Resumen', model.draftSummary, model.compositionNeeds[0]?.detail || 'El draft completa el plan de la composición.', 'is-hero'),
-          ...model.compositionNeeds.map((item, index) => renderRow(`Necesidad ${index + 1}`, item.label, item.detail || 'Hueco a cubrir.', index === 0 ? 'is-primary' : '')),
-          ...model.pickRecommendations.map((item, index) => renderRow(`Pick ${index + 1}`, item.label, joinTexts([item.detail, item.meta]), index === 0 ? 'Mejora el plan' : '')),
-          ...model.banRecommendations.map((item, index) => renderRow(`Ban ${index + 1}`, item.label, joinTexts([item.detail, item.meta]), index === 0 ? 'Bloquea una amenaza' : 'is-warning')),
-        ],
-        trace: [
-          ['Necesidades', joinTexts(model.compositionNeeds.map((item) => item.label)), 'Huecos que el draft debe cubrir.'],
-          ['Picks', joinTexts(model.pickRecommendations.map((item) => item.label)), 'Opciones que completan el plan.'],
-          ['Bans', joinTexts(model.banRecommendations.map((item) => item.label)), 'Amenazas que frenan el plan.'],
-        ],
-      };
-    default:
-      return {
-        title: model.coherenceLabel,
-        summary: model.coherenceDetail,
-        meta: [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales`],
-        blockKicker: 'Por qué',
-        blockTitle: 'Análisis avanzado',
-        rows: [
-          renderRow('Coherencia', model.coherenceLabel, model.coherenceDetail, 'is-primary'),
-          renderRow('Señales', joinTexts(model.whyItems), 'Evidencias que sostienen la lectura.', 'is-warning'),
-          ...model.metrics.map((metric, index) => renderRow(metric.label, metric.score !== null ? `${metric.score}/10` : metric.detail || 'Sin puntuación', metric.detail || 'Señal cuantitativa del motor.', index === 0 ? 'is-hero' : '')),
-          ...model.executionProfile.map((item, index) => renderRow(item.label, item.score !== null ? `${item.score}/5` : item.badge || 'Señal', item.detail || 'Perfil de ejecución.', index === 0 ? 'is-primary' : '')),
-          ...model.insights.map((insight, index) => renderRow(`Insight ${index + 1}`, insight, 'Consejo táctico del motor.', index === 0 ? 'is-warning' : '')),
-          ...model.alerts.map((alert, index) => renderRow(`Alerta ${index + 1}`, alert, 'Punto que conviene vigilar.', index === 0 ? 'is-warning' : '')),
-        ],
-        trace: [
-          ['Coherencia', model.coherenceLabel, model.coherenceDetail],
-          ['Métricas', joinTexts(model.metrics.map((item) => item.label)), 'Señales cuantitativas del motor.'],
-          ['Insights', joinTexts(model.insights), 'Consejos tácticos resumidos.'],
-        ],
-      };
-  }
-}
-
-function renderHero(title, summary, meta = []) {
-  return `
-    <section class="analysis-modal__hero">
-      <div class="analysis-modal__hero-score">
-        <strong>${escapeHtml(getSectionToneLabel(summary))}</strong>
-        <span>${escapeHtml(meta[0] || 'Análisis')}</span>
-      </div>
-      <div class="analysis-modal__hero-copy">
-        <h3>${escapeHtml(title)}</h3>
-        <p>${escapeHtml(summary)}</p>
-        <div class="analysis-modal__hero-meta">
-          ${meta.map((item) => `<span class="story-pill story-pill--info">${escapeHtml(item)}</span>`).join('')}
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-function renderBlock(kicker, title, items) {
-  return `
-    <section class="analysis-modal__block">
-      <div class="analysis-modal__block-head">
-        <span class="analysis-modal__eyebrow">${escapeHtml(kicker)}</span>
-        <h3 class="analysis-modal__block-title">${escapeHtml(title)}</h3>
-      </div>
-      <div class="design-system-flow">${items.join('')}</div>
-    </section>
-  `;
-}
-
-function renderTrace(title, rows) {
-  return `
-    <section class="analysis-modal__block analysis-modal__block--trace">
-      <div class="analysis-modal__block-head">
-        <span class="analysis-modal__eyebrow">Motor</span>
-        <h3 class="analysis-modal__block-title">${escapeHtml(title)}</h3>
-      </div>
+      <div class="composition-story__mini-bar" aria-hidden="true">${bar}</div>
       <div class="design-system-flow">
-        ${rows.map((row, index) => renderRow(row[0], row[1], row[2], index === 0 ? 'is-hero' : index === 1 ? 'is-primary' : 'is-warning')).join('')}
+        ${lines.map((line, index) => renderLine(line, index)).join('')}
       </div>
-    </section>
-  `;
-}
-
-function renderRow(label = '', value = '', meta = '', tone = '') {
-  return `
-    <article class="design-system-flow__item ${tone}">
-      <span class="design-system-flow__label">${escapeHtml(label)}</span>
-      <p class="design-system-flow__value">${escapeHtml(value)}</p>
-      ${meta ? `<p class="design-system-flow__meta">${escapeHtml(meta)}</p>` : ''}
     </article>
   `;
 }
 
+function renderLine(line, index) {
+  const toneClass = index === 0 ? 'is-hero' : index === 1 ? 'is-primary' : 'is-warning';
+  const label = `${line.icon || '•'} ${line.label || 'Sin dato'}`;
+  const value = line.value || 'Sin datos';
+  const meta = line.meta || '';
+  const bar = renderTextBar(line.score);
+
+  return `
+    <article class="design-system-flow__item ${toneClass}">
+      <span class="design-system-flow__label">${escapeHtml(label)}</span>
+      <p class="design-system-flow__value">${escapeHtml(value)}</p>
+      ${meta ? `<p class="design-system-flow__meta">${escapeHtml(meta)}</p>` : ''}
+      <div class="composition-story__mini-bar composition-story__mini-bar--inline" aria-hidden="true">${bar}</div>
+    </article>
+  `;
+}
+
+function getSectionScore(section, model) {
+  switch (section) {
+    case 'composition':
+      return model.score;
+    case 'victory':
+      return Math.max(45, Math.min(100, model.score + 4));
+    case 'priorities':
+      return Math.max(40, Math.min(100, model.score + 2));
+    case 'risks':
+      return Math.max(35, 100 - (model.avoid.length * 14));
+    case 'draft':
+      return Math.max(40, Math.min(100, 50 + model.compositionNeeds.length * 10));
+    case 'advanced':
+    default:
+      return Math.max(45, Math.min(100, model.score + (model.metrics.length * 2)));
+  }
+}
+
+function renderTextBar(score = 0) {
+  const value = clampToRange(Math.round(Number(score) || 0), 0, 100);
+  const filled = Math.round(value / 10);
+  const empty = 10 - filled;
+  return `${'█'.repeat(filled)}${'░'.repeat(empty)} ${value}%`;
+}
+
 function getSectionSummary(section, model) {
   switch (section) {
-    case 'composition': return model.summaryText;
-    case 'victory': return model.winCondition;
-    case 'priorities': return model.priorities[0] || 'Ganar tempo y visión';
-    case 'risks': return model.avoid[0] || 'Forzar peleas malas';
-    case 'draft': return model.draftSummary;
-    default: return model.coherenceLabel;
+    case 'composition':
+      return model.summaryText;
+    case 'victory':
+      return model.winCondition;
+    case 'priorities':
+      return model.priorities[0] || 'Ganar tempo y visión';
+    case 'risks':
+      return model.avoid[0] || 'Forzar peleas malas';
+    case 'draft':
+      return model.draftSummary;
+    case 'advanced':
+    default:
+      return model.coherenceLabel;
   }
 }
 
 function getSectionMeta(section, model) {
   switch (section) {
-    case 'composition': return [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`, `${model.selectedCount}/5 roles`];
-    case 'victory': return [`Pico: ${model.tempo}`, `${model.phases.length} fases`, `${model.gamePlan.length} pasos`];
-    case 'priorities': return [`${model.priorities.length} pasos`, `${model.checklist.length} checks`, 'Plan activo'];
-    case 'risks': return [`${model.weaknesses.length} debilidades`, `${model.criticalErrors.length} errores`, `${model.avoid.length} riesgos`];
-    case 'draft': return [`${model.compositionNeeds.length} necesidades`, `${model.pickRecommendations.length} picks`, `${model.banRecommendations.length} bans`];
-    default: return [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales`];
+    case 'composition':
+      return [`${model.grade} · ${model.score}/100`, `Pico: ${model.tempo}`, `${model.selectedCount}/5 roles`];
+    case 'victory':
+      return [`Pico: ${model.tempo}`, `${model.phases.length} fases`, `${model.gamePlan.length} pasos`];
+    case 'priorities':
+      return [`${model.priorities.length} pasos`, `${model.checklist.length} checks`, 'Plan activo'];
+    case 'risks':
+      return [`${model.weaknesses.length} debilidades`, `${model.criticalErrors.length} errores`, `${model.avoid.length} riesgos`];
+    case 'draft':
+      return [`${model.compositionNeeds.length} necesidades`, `${model.pickRecommendations.length} picks`, `${model.banRecommendations.length} bans`];
+    case 'advanced':
+    default:
+      return [`${model.metrics.length} métricas`, `${model.insights.length} insights`, `${model.executionProfile.length} señales`];
+  }
+}
+
+function getSectionLines(section, model) {
+  switch (section) {
+    case 'composition':
+      return [
+        { icon: '✓', label: 'Identidad', value: model.identity, meta: `Confianza ${model.grade} · ${model.score}/100`, score: model.score },
+        { icon: '★', label: 'Win condition', value: model.winCondition, meta: model.quickCoach, score: Math.max(55, model.score - 4) },
+        { icon: '⚔', label: 'Pieza clave', value: model.keyPiece?.champion || 'Sin pieza clave', meta: [model.keyPiece?.function, model.keyPiece?.identity, model.keyPiece?.tempo].filter(Boolean).join(' · ') || 'Sin definición clara', score: model.keyPiece ? 84 : 52 },
+        { icon: '⚠', label: 'Hueco principal', value: model.weaknesses[0]?.label || 'Sin hueco crítico', meta: model.weaknesses[0]?.detail || 'La composición está bastante cerrada.', score: model.weaknesses.length ? 62 : 80 },
+      ];
+
+    case 'victory':
+      return [
+        { icon: '▶', label: 'Tempo', value: model.tempo, meta: model.quickCoach, score: 78 },
+        { icon: '◔', label: 'Early', value: model.phases[0] || 'Presión temprana', meta: model.gamePlan[0] || 'Busca prioridad y visión', score: 72 },
+        { icon: '◑', label: 'Mid', value: model.phases[1] || 'Encadenar picks', meta: model.gamePlan[1] || 'Convierte ventaja en objetivo', score: 82 },
+        { icon: '◕', label: 'Late', value: model.phases[2] || 'Cerrar limpio', meta: model.gamePlan[2] || 'No alargues la pelea', score: 68 },
+      ];
+
+    case 'priorities':
+      return [
+        { icon: '1', label: 'Prioridad 1', value: model.priorities[0] || 'Ganar la ventana', meta: model.checklist[0]?.label || 'Sigue el plan principal', score: 88 },
+        { icon: '2', label: 'Prioridad 2', value: model.priorities[1] || 'Preparar el objetivo', meta: model.checklist[1]?.label || 'Cierra la siguiente acción', score: 76 },
+        { icon: '3', label: 'Prioridad 3', value: model.priorities[2] || 'No dispersarse', meta: model.checklist[2]?.label || 'Evita desviarte del plan', score: 64 },
+      ];
+
+    case 'risks':
+      return [
+        { icon: '✖', label: 'Riesgo 1', value: model.avoid[0] || 'Forzar peleas malas', meta: model.weaknesses[0]?.label || 'El hueco más castigado', score: 28 },
+        { icon: '✖', label: 'Riesgo 2', value: model.avoid[1] || 'Quedarte sin control', meta: model.criticalErrors[0]?.label || 'Evita el error crítico', score: 34 },
+        { icon: '✖', label: 'Riesgo 3', value: model.avoid[2] || 'Alargar de más', meta: model.criticalErrors[1]?.label || 'No regales tiempo', score: 40 },
+      ];
+
+    case 'draft':
+      return [
+        { icon: '🛡', label: 'Necesidad', value: model.compositionNeeds[0]?.label || 'Cerrar frontline', meta: model.compositionNeeds[0]?.detail || 'El draft debe cubrir este hueco.', score: 68 },
+        { icon: '⚡', label: 'Pick', value: model.pickRecommendations[0]?.label || 'Añadir una pieza', meta: model.pickRecommendations[0]?.detail || 'Mejora el plan', score: 76 },
+        { icon: '⛔', label: 'Ban', value: model.banRecommendations[0]?.label || 'Bloquear amenaza', meta: model.banRecommendations[0]?.detail || 'Protege tu plan', score: 58 },
+      ];
+
+    case 'advanced':
+    default:
+      return [
+        { icon: '◎', label: 'Coherencia', value: model.coherenceLabel, meta: model.coherenceDetail, score: model.score },
+        { icon: '▤', label: 'Métricas', value: model.metrics[0]?.label || 'Lectura estable', meta: model.metrics[0]?.detail || `${model.metrics.length} métricas activas`, score: 72 },
+        { icon: '🧠', label: 'Insights', value: model.insights[0] || 'Juega alrededor del plan', meta: model.insights[1] || 'La IA compacta la explicación', score: 70 },
+        { icon: 'ℹ', label: 'Señales', value: model.executionProfile[0]?.label || 'Perfil de ejecución', meta: model.executionProfile[0]?.detail || 'Lo que pide la partida', score: 66 },
+      ];
   }
 }
 
 function getSectionTone(section) {
   switch (section) {
-    case 'composition': return 'info';
-    case 'victory': return 'success';
-    case 'priorities': return 'success';
-    case 'risks': return 'danger';
-    case 'draft': return 'neutral';
-    default: return 'info';
+    case 'composition':
+      return 'info';
+    case 'victory':
+      return 'success';
+    case 'priorities':
+      return 'success';
+    case 'risks':
+      return 'danger';
+    case 'draft':
+      return 'neutral';
+    default:
+      return 'info';
   }
-}
-
-function normalizeSection(section) {
-  return ANALYSIS_SECTIONS.some((item) => item.key === section) ? section : 'composition';
 }
 
 function buildStoryModel(analysis, selectedChampions) {
@@ -479,12 +367,6 @@ function buildStoryModel(analysis, selectedChampions) {
   const metrics = asArray(analysis?.metrics).slice(0, 4).map(normalizeEntry);
   const insights = uniqueValues(asArray(coach.insights).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
   const alerts = uniqueValues(asArray(coach.alerts).map((item) => asText(item?.label ?? item)).filter(Boolean)).slice(0, 4);
-  const whyItems = uniqueValues([
-    identity,
-    asText(analysis?.winCondition?.label || ''),
-    asText(analysis?.coherence?.label || ''),
-    ...metrics.map((item) => item.label),
-  ]).slice(0, 4);
 
   return {
     analysis,
@@ -513,12 +395,10 @@ function buildStoryModel(analysis, selectedChampions) {
     metrics,
     insights,
     alerts,
-    whyItems,
     quickCoach: asText(coach.headline || coach.summary || 'Juega alrededor de tu identidad.'),
     draftSummary: asText(draftAssistant.summary || draftAssistant.profileSummary || 'La composición todavía pide completar huecos concretos con picks y bans que protejan el plan.'),
     coherenceLabel: asText(analysis?.coherence?.label || 'Coherencia'),
     coherenceDetail: asText(analysis?.coherence?.detail || 'La consistencia del plan se apoya en el motor y en la composición seleccionada.'),
-    gameWindows: advisor.gameWindows || {},
   };
 }
 
@@ -579,11 +459,6 @@ function normalizeEntry(item) {
   };
 }
 
-function splitTags(value) {
-  if (!value) return [];
-  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
-}
-
 function joinTexts(values = []) {
   return uniqueValues(values.map((value) => asText(value)).filter(Boolean)).join(' · ') || 'Sin datos';
 }
@@ -629,90 +504,11 @@ function gradeFromScore(score) {
   return 'D';
 }
 
-function phaseSummary(gameWindows) {
-  return uniqueValues([
-    gameWindows?.early?.label ? `Early: ${gameWindows.early.label}` : null,
-    gameWindows?.mid?.label ? `Mid: ${gameWindows.mid.label}` : null,
-    gameWindows?.late?.label ? `Late: ${gameWindows.late.label}` : null,
-  ]).join(' · ') || 'Early · Mid · Late';
-}
-
-async function loadRoleData() {
-  if (state.currentAnalysis) return;
-
-  const loaded = (await loadJsonDataset()) || (await loadWorkbookDataset());
-  if (loaded) {
-    Object.entries(loaded).forEach(([key, rows]) => state.data.set(key, Array.isArray(rows) ? rows : []));
-    return;
-  }
-
-  ['top', 'jungle', 'mid', 'botline', 'support'].forEach((key) => state.data.set(key, []));
-}
-
-async function loadJsonDataset() {
-  try {
-    const manifestResponse = await fetch('./data/index.json', { cache: 'reload' });
-    if (!manifestResponse.ok) return null;
-
-    const manifest = await manifestResponse.json();
-    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
-
-    const loaded = await Promise.all(
-      [
-        { key: 'top', file: './data/top.json' },
-        { key: 'jungle', file: './data/jungle.json' },
-        { key: 'mid', file: './data/mid.json' },
-        { key: 'botline', file: './data/bot.json' },
-        { key: 'support', file: './data/support.json' },
-      ].map(async ({ key, file }) => {
-        const response = await fetch(file, { cache: 'reload' });
-        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
-        return [key, await response.json()];
-      })
-    );
-
-    return Object.fromEntries(loaded);
-  } catch {
-    return null;
-  }
-}
-
-async function loadWorkbookDataset() {
-  if (!window.XLSX) return null;
-
-  try {
-    const response = await fetch('./Draft%20Pool.xlsx', { cache: 'reload' });
-    if (!response.ok) return null;
-
-    const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
-    const dataset = {};
-    [
-      { key: 'top', sheet: 'Tabla Top' },
-      { key: 'jungle', sheet: 'Tabla Jungla' },
-      { key: 'mid', sheet: 'Tabla Mid' },
-      { key: 'botline', sheet: 'Tabla Botline' },
-      { key: 'support', sheet: 'Tabla Support' },
-    ].forEach(({ key, sheet }) => {
-      dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
-    });
-    return dataset;
-  } catch {
-    return null;
-  }
-}
-
-function worksheetToRows(worksheet) {
-  if (!worksheet) return [];
-  const rows = window.XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
-  return rows
-    .slice(1)
-    .filter((row) => row[0])
-    .map((row) => ({
-      champion: String(row[0]).trim(),
-      identity: String(row[1] || '').trim(),
-      function: String(row[2] || '').trim(),
-      tempo: String(row[3] || '').trim(),
-      strengths: splitTags(row[4]),
-      weaknesses: splitTags(row[5]),
-    }));
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
