@@ -73,50 +73,51 @@ function renderPanel() {
   const picks = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
   const bans = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
 
-  const primaryDecision = narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan);
-  const primaryRisk = narrative.warningLine || fallbackWarningLine(bans[0] || null);
-  const heroLine = narrative.summary || 'La composicion se entiende mejor como una sola historia.';
+  const heroTitle = narrative.title || 'Tu composición quiere ganar por un plan claro.';
+  const heroLine = narrative.summary || 'La composición se entiende mejor como una sola historia.';
+  const winLine = narrative.winLine || fallbackWinLine(analysis, strategicPlan);
+  const priorityLine = narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan);
+  const riskLine = narrative.warningLine || fallbackWarningLine(bans[0] || null);
+  const confidenceLine = confidencePrefix(narrative.confidence ?? analysis.confidence ?? 78);
 
   state.root.hidden = false;
   state.root.innerHTML = `
-    <section class='analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant'>
-      <article class='design-system-card design-system-card--hero'>
-        <div class='design-system-card__header'>
-          <span class='design-system-badge'>Tu composicion</span>
-          <span class='design-system-badge design-system-badge--muted'>Una sola decision</span>
-        </div>
+    <section class="design-system-card design-system-card--hero">
+      <div class="design-system-card__header">
+        <span class="design-system-badge">Tu composición</span>
+        <span class="design-system-badge design-system-badge--muted">Confianza ${escapeHtml(confidenceLine)}</span>
+      </div>
 
-        <h3 class='design-system-card__title'>${escapeHtml(narrative.title || 'Tu composicion quiere ganar por un plan claro.')}</h3>
-        <p class='design-system-card__copy'>${escapeHtml(heroLine)}</p>
-        ${narrative.becauseLine ? `<p class='design-system-card__reason'>${escapeHtml(narrative.becauseLine)}</p>` : ''}
+      <h3 class="design-system-card__title">${escapeHtml(heroTitle)}</h3>
+      <p class="design-system-card__copy">${escapeHtml(heroLine)}</p>
 
-        <div class='design-system-chip-row'>
-          ${renderDecisionChip('Siguiente decision', primaryDecision, 'is-primary')}
-          ${renderDecisionChip('Riesgo principal', primaryRisk, 'is-warning')}
-        </div>
-      </article>
-
-      <details class='design-system-card design-system-card--detail'>
-        <summary class='design-system-card__summary'>
-          <strong>Ver analisis completo</strong>
-          <span>${needs.length} señales</span>
-        </summary>
-
-        <div class='analysis-hub__assistant-list'>
-          <article class='analysis-hub__row analysis-hub__row--executive'>
-            <div class='analysis-hub__row-copy'>
-              <strong>Por qué</strong>
-              <p>${escapeHtml(narrative.becauseLine || fallbackBecauseLine(needs[0] || null, strategicPlan))}</p>
-            </div>
-          </article>
-
-          ${renderNeedRows(needs, strategicPlan)}
-          ${renderProfileRows(profiles)}
-          ${renderRecommendationRows(picks, 'Mejor decision')}
-          ${renderRecommendationRows(bans, 'Que evitar')}
-        </div>
-      </details>
+      <div class="design-system-flow">
+        ${renderFlowItem('Cómo ganas', winLine, 'is-hero', 'La idea principal de la partida')}
+        ${renderFlowItem('Tu prioridad', priorityLine, 'is-primary', 'La acción que más te acerca al plan')}
+        ${renderFlowItem('Evita', riskLine, 'is-warning', 'El error que más castiga la partida')}
+      </div>
     </section>
+
+    <details class="design-system-card design-system-card--detail">
+      <summary class="design-system-card__summary">
+        <strong>Ver análisis completo</strong>
+        <span>${needs.length} señales</span>
+      </summary>
+
+      <div class="analysis-hub__assistant-list">
+        <article class="analysis-hub__row analysis-hub__row--executive">
+          <div class="analysis-hub__row-copy">
+            <strong>Por qué</strong>
+            <p>${escapeHtml(narrative.becauseLine || fallbackBecauseLine(needs[0] || null, strategicPlan))}</p>
+          </div>
+        </article>
+
+        ${renderNeedRows(needs, strategicPlan)}
+        ${renderProfileRows(profiles)}
+        ${renderRecommendationRows(picks, 'Mejor decisión')}
+        ${renderRecommendationRows(bans, 'Qué evitar')}
+      </div>
+    </details>
   `;
 }
 
@@ -134,11 +135,12 @@ function collectSelectedChampions() {
     .filter((champion) => champion.champion);
 }
 
-function renderDecisionChip(label = '', value = '', tone = '') {
+function renderFlowItem(label = '', value = '', tone = '', meta = '') {
   return `
-    <article class='design-system-chip ${tone}'>
-      <span class='design-system-chip__label'>${escapeHtml(label)}</span>
-      <strong class='design-system-chip__value'>${escapeHtml(value)}</strong>
+    <article class="design-system-flow__item ${tone}">
+      <span class="design-system-flow__label">${escapeHtml(label)}</span>
+      <strong class="design-system-flow__value">${escapeHtml(value)}</strong>
+      ${meta ? `<p class="design-system-flow__meta">${escapeHtml(meta)}</p>` : ''}
     </article>
   `;
 }
@@ -147,13 +149,13 @@ function renderNeedRows(needs = [], strategicPlan = {}) {
   if (!needs.length) return '';
 
   return needs.slice(0, 3).map((need) => `
-    <article class='analysis-hub__row'>
-      <div class='analysis-hub__row-copy'>
+    <article class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(priorityPrefix(need.priority))} · ${escapeHtml(need.label)}</strong>
         <p>${escapeHtml(clampWords(need.detail, 11))}</p>
-        <p class='analysis-hub__row-note'>Impacto: ${escapeHtml(clampWords(need.impact || buildNeedImpact(need, strategicPlan), 13))}</p>
+        <p class="analysis-hub__row-note">Impacto: ${escapeHtml(clampWords(need.impact || buildNeedImpact(need, strategicPlan), 13))}</p>
       </div>
-      <span class='analysis-hub__assistant-score'>${escapeHtml(String(need.score ?? 0))}/5</span>
+      <span class="analysis-hub__assistant-score">${escapeHtml(String(need.score ?? 0))}/5</span>
     </article>
   `).join('');
 }
@@ -162,13 +164,13 @@ function renderProfileRows(profiles = []) {
   if (!profiles.length) return '';
 
   return profiles.slice(0, 2).map((profile) => `
-    <article class='analysis-hub__row'>
-      <div class='analysis-hub__row-copy'>
+    <article class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(profile.label)}</strong>
         <p>${escapeHtml(clampWords(profile.detail, 12))}</p>
-        <p class='analysis-hub__row-note'>Por qué: ${escapeHtml(clampWords(profile.why || profile.impact || 'Encaja con el plan actual.', 12))}</p>
+        <p class="analysis-hub__row-note">Por qué: ${escapeHtml(clampWords(profile.why || profile.impact || 'Encaja con el plan actual.', 12))}</p>
       </div>
-      <span class='analysis-hub__assistant-score'>${escapeHtml(confidencePrefix(profile.confidence))}<br>${escapeHtml(String(profile.confidence ?? 0))}/100</span>
+      <span class="analysis-hub__assistant-score">${escapeHtml(confidencePrefix(profile.confidence))}<br>${escapeHtml(String(profile.confidence ?? 0))}/100</span>
     </article>
   `).join('');
 }
@@ -177,20 +179,26 @@ function renderRecommendationRows(items = [], title = 'ITEM') {
   if (!items.length) return '';
 
   return items.slice(0, 2).map((item) => `
-    <article class='analysis-hub__row'>
-      <div class='analysis-hub__row-copy'>
+    <article class="analysis-hub__row">
+      <div class="analysis-hub__row-copy">
         <strong>${escapeHtml(title)} · ${escapeHtml(item.label)}</strong>
         <p>${escapeHtml(clampWords(item.detail, 12))}</p>
-        ${item.profileLabel ? `<p class='analysis-hub__row-note'>Perfil: ${escapeHtml(item.profileLabel)}</p>` : ''}
+        ${item.profileLabel ? `<p class="analysis-hub__row-note">Perfil: ${escapeHtml(item.profileLabel)}</p>` : ''}
       </div>
-      <span class='analysis-hub__assistant-score'>${escapeHtml(priorityPrefix(item.priority || 'minor'))}</span>
+      <span class="analysis-hub__assistant-score">${escapeHtml(priorityPrefix(item.priority || 'minor'))}</span>
     </article>
   `).join('');
 }
 
+function fallbackWinLine(analysis = {}, strategicPlan = {}) {
+  const identity = analysis?.primaryIdentity || strategicPlan?.fightStyle || 'Tu composición';
+  const objective = strategicPlan?.primaryObjective || analysis?.winCondition?.label || 'su plan principal';
+  return `${identity} quiere ganar por ${String(objective).toLowerCase()}.`;
+}
+
 function fallbackSolutionLine(topProfile = null, topPick = null, strategicPlan = {}) {
   const profile = topProfile?.label || 'un perfil estable';
-  const pick = topPick?.profileLabel || topPick?.label || 'una opcion compatible';
+  const pick = topPick?.profileLabel || topPick?.label || 'una opción compatible';
   const focus = String(strategicPlan?.fightStyle || strategicPlan?.mapFocus || 'el plan').toLowerCase();
   return `La mejor forma de resolverlo es buscar ${profile.toLowerCase()} y, si hace falta, traducirlo a ${pick.toLowerCase()} para sostener ${focus}.`;
 }
@@ -203,7 +211,7 @@ function fallbackWarningLine(topBan = null) {
 function fallbackBecauseLine(primaryNeed = null, strategicPlan = {}) {
   if (!primaryNeed) return 'La necesidad principal sale del plan de juego actual.';
   const plan = String(strategicPlan?.fightStyle || strategicPlan?.mode || 'el plan actual').toLowerCase();
-  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composicion todavia tiene un hueco importante').toLowerCase();
+  const reason = String(primaryNeed.impact || primaryNeed.detail || 'la composición todavia tiene un hueco importante').toLowerCase();
   return `Necesita ${primaryNeed.label.toLowerCase()} porque ${reason} y eso afecta a ${plan}.`;
 }
 
@@ -257,6 +265,6 @@ function escapeHtml(value) {
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
-    .replaceAll(String.fromCharCode(34), '&quot;')
-    .replaceAll(String.fromCharCode(39), '&#39;');
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
 }
