@@ -20,8 +20,9 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Selector modal por rol con iconos oficiales y alias para variantes como Kayn, Shaco o Varus.
 - La composición se reinicia al recargar; no hay persistencia automática.
 - La pantalla principal ahora gira alrededor de una sola tarjeta wireframe de decisión.
-- La composición Story se ha reducido a una estructura más limpia: hero, tarjetas resumen expandibles y detalle plegado.
+- La composición Story se ha reducido a una estructura más limpia: tarjetas resumen expandibles y detalle plegado.
 - La Story muestra resumen corto primero y despliega el razonamiento completo solo al abrir cada apartado.
+- Cada tarjeta funciona como acordeón y solo una queda abierta a la vez.
 - El **Analysis Hub** unifica assessment y Rift Advisor en una sola superficie de lectura y acción.
 - El hub concentra veredicto, diagnósticos, cobertura, prioridades, fases y respuestas contextuales.
 - El hub usa ahora un único modelo interno de análisis tras retirar la referencia obsoleta del asistente.
@@ -33,7 +34,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases, cobertura de patrones y dependencias, y medición básica de tiempo.
 - El **Coach** ya genera un `StrategicPlan` único con modo de plan, briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El **Draft Assistant** ya tiene una base para perfilar necesidades de composición, priorizar picks y orientar bans a partir del `StrategicPlan`.
-- El **Draft Assistant** ahora se muestra como una beta 0.11 de tarjetas expandibles: resumen corto primero y detalle bajo demanda.
+- El **Draft Assistant** ahora se muestra como una beta 0.12 de tarjetas expandibles y flujo acordeón: resumen corto primero y detalle bajo demanda.
 - La capa visual usa un sistema de diseño compartido para Hero Card, Decision Card, Insight Card, Detail Card, chips, badges y flow cards.
 - El **Narrative Engine** convierte el análisis ejecutivo en una historia corta: cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - La línea de razón del Narrative Engine muestra el “por qué” detrás de la necesidad principal.
