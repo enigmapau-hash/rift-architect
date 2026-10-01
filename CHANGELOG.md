@@ -1,5 +1,20 @@
 # Changelog
 
+## v51 · Beta 0.32 / Desktop Signal Balance
+### Added
+- A more relaxed desktop signal layout so the cards stop feeling cramped on PC.
+- Viewport-aware compacting so desktop keeps a little more text visible.
+- A new cache version for the normal web-app beta flow.
+
+### Changed
+- The Story still uses the same six-card hierarchy, but the desktop presentation now breathes more.
+- Signal blocks keep the same meaning while using fewer forced truncations on larger screens.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the presentation layer became more balanced on desktop.
+
 ## v50 · Beta 0.31 / Visual Signal Cards
 ### Added
 - Signal cards with chips and meters for the most important values.
