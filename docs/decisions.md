@@ -65,3 +65,11 @@ Why:
 - make the motor auditable,
 - surface confidence and supporting evidence,
 - prepare the product for future contextual interactions.
+
+## D-011 — Unified analysis model
+All visible surfaces should read from the same normalized analysis object.
+
+Why:
+- reduce duplicated transforms,
+- keep Story, Coach, Draft and Explainability aligned,
+- make future reasoning changes flow through one contract.
