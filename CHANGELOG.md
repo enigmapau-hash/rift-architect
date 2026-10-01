@@ -1,5 +1,19 @@
 # Changelog
 
+## v60 · Beta 0.41 / Tactical Intelligence
+### Added
+- A tactical intelligence view that turns the plan into concrete decisions and alternatives.
+- Decision trees that explain the main route, fallback and recovery path.
+- Tactical confidence, signals and evidence cards.
+
+### Changed
+- The explainability surface now exposes a more action-oriented layer on top of strategy.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the tactical layer became more explicit.
+
 ## v59 · Beta 0.40 / Strategic Coach
 ### Added
 - A Strategic Coach view inside the explainability surface.
