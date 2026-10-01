@@ -75,6 +75,10 @@
   font-size: 0.92rem;
 }
 
+.composition-story__summary-card.has-signals .composition-story__summary-copy {
+  -webkit-line-clamp: 1;
+}
+
 .composition-story__summary-meta {
   display: flex;
   flex-wrap: wrap;
@@ -106,6 +110,59 @@
 
 .composition-story__mini-bar--inline {
   padding-top: 0;
+}
+
+.composition-story__signal-bank {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.composition-story__signal {
+  display: grid;
+  gap: 6px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  min-width: 0;
+}
+
+.composition-story__signal--good {
+  border-color: rgba(70, 211, 161, 0.18);
+  background: rgba(70, 211, 161, 0.08);
+}
+
+.composition-story__signal--neutral {
+  border-color: rgba(124, 140, 255, 0.18);
+  background: rgba(124, 140, 255, 0.08);
+}
+
+.composition-story__signal--bad {
+  border-color: rgba(255, 122, 122, 0.18);
+  background: rgba(255, 122, 122, 0.08);
+}
+
+.composition-story__signal-label {
+  color: var(--accent-2);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+}
+
+.composition-story__signal-value {
+  color: var(--text);
+  line-height: 1.35;
+  font-size: 0.94rem;
+  -webkit-line-clamp: 2;
+}
+
+.composition-story__signal-bar {
+  color: var(--muted);
+  line-height: 1.3;
+  font-size: 0.74rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
 }
 
 .design-system-flow {
@@ -142,8 +199,16 @@
   font-size: 0.76rem;
 }
 
+.composition-story__summary-card.has-signals .design-system-flow {
+  display: none;
+}
+
 @media (max-width: 1200px) {
   .composition-story--cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .composition-story__signal-bank {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -180,6 +245,27 @@
     font-size: 0.64rem;
     min-height: 30px;
     padding: 6px 9px;
+  }
+
+  .composition-story__signal-bank {
+    grid-template-columns: 1fr;
+    gap: 7px;
+  }
+
+  .composition-story__signal {
+    padding: 10px;
+  }
+
+  .composition-story__signal-label {
+    font-size: 0.66rem;
+  }
+
+  .composition-story__signal-value {
+    font-size: 0.9rem;
+  }
+
+  .composition-story__signal-bar {
+    font-size: 0.7rem;
   }
 
   .design-system-flow {
