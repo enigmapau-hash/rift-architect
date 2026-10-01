@@ -2,7 +2,7 @@ import { analyzeComposition } from './analyzer.js';
 
 const ROOT_ID = 'analysisExplainabilityView';
 const SELECTOR = '#compositionGrid .slot.is-filled';
-const SECTION_ORDER = ['summary', 'identity', 'tempo', 'winCondition', 'draft', 'risks'];
+const SECTION_ORDER = ['summary', 'identity', 'tempo', 'winCondition', 'draft', 'risks', 'recommendations'];
 
 const state = {
   root: null,
@@ -70,8 +70,9 @@ function renderPanel() {
   state.root.hidden = false;
 
   const analysis = analyzeComposition(selectedChampions);
-  const explanation = analysis?.explanation || analysis?.explainability || {};
-  const sections = buildSections(analysis, explanation);
+  const unified = analysis?.model || analysis?.unified || analysis?.analysisModel || {};
+  const explanation = unified?.explainability || analysis?.explanation || analysis?.explainability || {};
+  const sections = buildSections(analysis, unified, explanation);
   const activeKey = SECTION_ORDER.includes(state.activeSection) ? state.activeSection : sections[0]?.key || 'summary';
   const activeSection = sections.find((section) => section.key === activeKey) || sections[0];
   state.activeSection = activeSection?.key || 'summary';
@@ -82,9 +83,9 @@ function renderPanel() {
         <div class="analysis-explainability__hero-copy">
           <p class="eyebrow">Explain Engine</p>
           <h4>Por qué la IA llega a esta conclusión</h4>
-          <p>La lectura del motor se convierte en evidencias, pesos y confianza para que puedas revisar el razonamiento paso a paso.</p>
+          <p>La lectura del motor se convierte en evidencias, pesos, confianza y recomendaciones para revisar el razonamiento paso a paso.</p>
           <div class="analysis-explainability__signal-row">
-            ${uniqueValues([analysis?.primaryIdentity, analysis?.tempoDetail?.label, analysis?.winCondition?.label, analysis?.coherence?.label, ...(analysis?.explanation?.signals || [])]).slice(0, 6).map((signal) => `<span class="story-pill story-pill--info">${escapeHtml(signal)}</span>`).join('')}
+            ${uniqueValues([analysis?.primaryIdentity, analysis?.tempoDetail?.label, analysis?.winCondition?.label, analysis?.coherence?.label, ...(explanation?.signals || [])]).slice(0, 6).map((signal) => `<span class="story-pill story-pill--info">${escapeHtml(signal)}</span>`).join('')}
           </div>
         </div>
 
@@ -129,13 +130,15 @@ function renderPanel() {
 
           <p class="analysis-explainability__reason">${escapeHtml(activeSection.reason)}</p>
 
-          ${activeSection.champions.length ? `
+          ${activeSection.champions?.length ? `
             <div class="analysis-explainability__chips">
               ${activeSection.champions.map((champion) => `<span class="story-pill story-pill--neutral">${escapeHtml(champion)}</span>`).join('')}
             </div>
           ` : ''}
 
-          ${activeSection.evidence.length ? `
+          ${activeSection.key === 'recommendations' ? renderRecommendationHub(activeSection.recommendations || [], unified) : ''}
+
+          ${activeSection.key !== 'recommendations' && activeSection.evidence?.length ? `
             <div class="analysis-explainability__evidence-list">
               ${activeSection.evidence.map((item) => `
                 <article class="analysis-explainability__evidence-item">
@@ -162,7 +165,90 @@ function renderPanel() {
   });
 }
 
-function buildSections(analysis, explanation) {
+function renderRecommendationHub(recommendations = [], unified = {}) {
+  if (!recommendations.length) {
+    return `
+      <div class="analysis-explainability__recommendation-empty">
+        <p>No hay recomendaciones estructuradas todavía.</p>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="analysis-explainability__recommendation-stack">
+      ${recommendations.map((item, index) => renderRecommendationCard(item, index, unified)).join('')}
+    </div>
+  `;
+}
+
+function renderRecommendationCard(item, index, unified = {}) {
+  const tone = toneByScore(item.confidence || 0);
+  const metrics = Array.isArray(item.metrics) ? item.metrics : [];
+  const evidence = Array.isArray(item.evidence) ? item.evidence : [];
+  const champions = uniqueValues([...(item.affectedChampions || []), ...(item.evidence || []).flatMap((evidenceItem) => evidenceItem.champions || [])]).slice(0, 6);
+  const priorityLabel = index === 0 ? 'Más importante' : item.priority >= 85 ? 'Muy recomendable' : item.priority >= 70 ? 'Situacional' : 'Opcional';
+
+  return `
+    <article class="analysis-explainability__recommendation-card analysis-explainability__recommendation-card--${tone}">
+      <div class="analysis-explainability__recommendation-head">
+        <div>
+          <span class="analysis-explainability__card-kicker">${escapeHtml(item.category || 'recommendation')}</span>
+          <strong>${escapeHtml(item.action || 'Recomendación')}</strong>
+          <p class="analysis-explainability__recommendation-priority">${escapeHtml(priorityLabel)}</p>
+        </div>
+        <div class="analysis-explainability__score-card ${tone}">
+          <span class="analysis-explainability__score-kicker">Confianza</span>
+          <strong>${escapeHtml(item.confidenceLabel || labelFromConfidence(item.confidence || 0))}</strong>
+          <span>${escapeHtml(String(item.confidence || 0))}%</span>
+        </div>
+      </div>
+
+      <p class="analysis-explainability__recommendation-reason">${escapeHtml(item.reason || 'Sin detalle disponible.')}</p>
+
+      <div class="analysis-explainability__meter" aria-hidden="true">
+        <span style="width:${clamp(item.confidence || 0, 0, 100)}%"></span>
+      </div>
+
+      ${champions.length ? `
+        <div class="analysis-explainability__chips">
+          ${champions.map((champion) => `<span class="story-pill story-pill--neutral">${escapeHtml(champion)}</span>`).join('')}
+        </div>
+      ` : ''}
+
+      ${metrics.length ? `
+        <div class="analysis-explainability__metric-row">
+          ${metrics.map((metric) => `
+            <span class="analysis-explainability__metric-pill">
+              ${escapeHtml(metric.label)} <strong>${escapeHtml(String(metric.score))}</strong>
+            </span>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      ${evidence.length ? `
+        <div class="analysis-explainability__recommendation-evidence">
+          ${evidence.slice(0, 3).map((evidenceItem) => `
+            <article class="analysis-explainability__recommendation-evidence-item">
+              <div class="analysis-explainability__evidence-head">
+                <strong>${escapeHtml(evidenceItem.label || evidenceItem.source || 'Evidencia')}</strong>
+                <span>${escapeHtml(String(evidenceItem.weight || 0))}</span>
+              </div>
+              <p>${escapeHtml(evidenceItem.detail || evidenceItem.source || 'Sin detalle')}</p>
+            </article>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      ${item.affectedChampions?.length ? `
+        <div class="analysis-explainability__chips">
+          ${item.affectedChampions.map((champion) => `<span class="story-pill story-pill--info">${escapeHtml(champion)}</span>`).join('')}
+        </div>
+      ` : ''}
+    </article>
+  `;
+}
+
+function buildSections(analysis, unified, explanation) {
   const summaryConfidence = Number(explanation.confidence) || Number(analysis?.confidence) || 0;
   const identity = explanation.identity || {};
   const tempo = explanation.tempo || {};
@@ -171,6 +257,8 @@ function buildSections(analysis, explanation) {
   const synergies = Array.isArray(explanation.synergies) ? explanation.synergies : [];
   const dependencies = Array.isArray(explanation.dependencies) ? explanation.dependencies : [];
   const draftAssistant = analysis?.draftAssistant || {};
+  const recommendationItems = normalizeRecommendationList(unified?.draft?.recommendations || analysis?.recommendations || draftAssistant?.recommendations || []);
+  const topRecommendation = recommendationItems[0] || null;
   const pick = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations[0] : null;
   const ban = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations[0] : null;
 
@@ -258,7 +346,53 @@ function buildSections(analysis, explanation) {
         ...(synergies[0]?.evidence || []),
       ]).slice(0, 4),
     },
+    {
+      key: 'recommendations',
+      label: 'Acción',
+      title: topRecommendation?.action || unified?.draft?.recommendationSummary || 'Recommendation Hub',
+      detail: unified?.draft?.recommendationSummary || 'Las recomendaciones se ordenan por impacto, confianza y evidencia.',
+      confidence: topRecommendation?.confidence || summaryConfidence,
+      confidenceLabel: topRecommendation?.confidenceLabel || labelFromConfidence(topRecommendation?.confidence || summaryConfidence),
+      reason: 'Ordenadas por prioridad, confianza y evidencia. Cada bloque muestra la acción, la razón y el soporte del motor.',
+      champions: uniqueValues(recommendationItems.flatMap((item) => item.affectedChampions || [])).slice(0, 4),
+      evidence: uniqueItems(recommendationItems.flatMap((item) => item.evidence || [])).slice(0, 4),
+      recommendations: recommendationItems.slice(0, 5),
+    },
   ];
+}
+
+function normalizeRecommendationList(items = []) {
+  return toArray(items)
+    .map((item) => ({
+      id: toText(item?.id || item?.key || item?.action || item?.label || 'recommendation'),
+      category: toText(item?.category || 'general'),
+      priority: clamp(Math.round(Number(item?.priority) || 0), 1, 100),
+      confidence: clamp(Math.round(Number(item?.confidence) || 0), 0, 100),
+      confidenceLabel: toText(item?.confidenceLabel || labelFromConfidence(item?.confidence || 0)),
+      action: toText(item?.action || item?.label || 'Recomendación'),
+      reason: toText(item?.reason || 'Sin detalle disponible.'),
+      evidence: normalizeEvidence(item?.evidence || []),
+      affectedChampions: uniqueValues(toArray(item?.affectedChampions).map((champion) => toText(champion))).slice(0, 6),
+      metrics: toArray(item?.metrics).map((metric) => ({
+        key: toText(metric?.key || metric?.label || 'metric'),
+        label: toText(metric?.label || metric?.key || 'Métrica'),
+        score: clamp(Math.round(Number(metric?.score) || 0), 0, 100),
+      })),
+    }))
+    .sort((a, b) => b.priority - a.priority || b.confidence - a.confidence)
+    .filter((item, index, list) => list.findIndex((candidate) => candidate.id === item.id) === index);
+}
+
+function normalizeEvidence(items = []) {
+  return toArray(items)
+    .map((item) => ({
+      source: toText(item?.source || item?.label || item?.name || item),
+      label: toText(item?.label || item?.title || item?.name || item?.source || item),
+      detail: toText(item?.detail || item?.text || item?.summary || ''),
+      weight: clamp(Math.round(Number(item?.weight) || 0), 0, 100),
+      champions: uniqueValues(toArray(item?.champions).map((champion) => toText(champion))).slice(0, 4),
+    }))
+    .filter((item) => item.label || item.detail || item.source);
 }
 
 function collectSelectedChampions() {
