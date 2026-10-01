@@ -139,11 +139,17 @@
 - Reducir tarjetas y texto innecesario en la vista principal.
 - Validar que la respuesta principal se entiende en segundos.
 
-## Fase 22 — Beta 0.5 / Product Simplification 🔄
+## Fase 22 — Beta 0.5 / Product Simplification ✅
 - Dejar la tarjeta superior como una sola respuesta directa.
 - Reducir todavía más el ruido visual del bloque principal.
 - Mantener el detalle plegado como soporte, no como protagonista.
 - Seguir acercando la interfaz a un producto terminado.
+
+## Fase 23 — Beta 0.6 / Single Decision Screen 🔄
+- Convertir la parte superior en una única tarjeta de decisión.
+- Mostrar solo una respuesta directa arriba.
+- Mantener el detalle como apoyo plegado.
+- Reducir la percepción de “paneles” y aumentar la sensación de producto.
 
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
