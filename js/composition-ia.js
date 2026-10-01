@@ -171,10 +171,7 @@ function worksheetToRows(worksheet) {
 
 function splitTags(value) {
   if (!value) return [];
-  return String(value)
-    .split('·')
-    .map((part) => part.trim())
-    .filter(Boolean);
+  return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
 function findChampion(roleKey, championName) {
@@ -347,8 +344,8 @@ function renderAccordionCard({ key, title, kicker, summary, meta = [], body = ''
         </div>
         <div class="design-system-card__summary-meta">
           ${meta.map((item) => `<span class="design-system-badge design-system-badge--muted">${escapeHtml(item)}</span>`).join('')}
-          <span class="design-system-card__toggle design-system-card__toggle--closed">▼ Ver razonamiento</span>
-          <span class="design-system-card__toggle design-system-card__toggle--open">▲ Ocultar razonamiento</span>
+          <span class="design-system-card__toggle design-system-card__toggle--closed">▼ Ver análisis</span>
+          <span class="design-system-card__toggle design-system-card__toggle--open">▲ Ocultar análisis</span>
         </div>
       </summary>
       <div class="design-system-card__body">
@@ -365,9 +362,8 @@ function renderStory() {
   if (selectedChampions.length < 5) {
     els.root.innerHTML = `
       <section class="composition-story composition-story--empty">
-        <p class="eyebrow">Composition Story</p>
-        <h3>Selecciona cinco campeones para ver la arquitectura de la información</h3>
-        <p>La pantalla principal mostrará un resumen compacto y abrirá el detalle solo cuando lo necesites.</p>
+        <h3>Selecciona cinco campeones para ver el análisis</h3>
+        <p>El resumen compacto y el razonamiento aparecen cuando la composición está completa.</p>
       </section>
     `;
     return;
