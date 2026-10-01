@@ -14,6 +14,7 @@
 - **Fase 37** — Signal Cards: la comunicación visual gana peso frente al texto largo y la información repetida.
 - **Fase 38** — Visual Signal Cards: las señales pasan a usar chips y barras más gráficas para leer de un vistazo.
 - **Fase 39** — Desktop Signal Balance: el banco de señales gana más aire en escritorio para evitar columnas estrechas y texto comprimido.
+- **Fase 40** — Explainability Panel: el motor se expone como evidencias, pesos y confianza dentro de un panel contextual.
 
 ## Estado actual
 
@@ -27,7 +28,7 @@
 ## Siguiente trabajo
 
 - Unificar todavía más los indicadores visuales.
-- Reducir la redundancia entre las tarjetas y el banco de señales.
+- Reducir la redundancia entre las tarjetas, el panel de señales y el nuevo panel explicativo.
 - Validar más composiciones reales en varios tamaños de pantalla.
 - Seguir limpiando código legado si reaparece alguna regresión.
 
