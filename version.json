@@ -1,6 +1,6 @@
 {
-  "version": "v34",
-  "stage": "Beta 0.15 / Legacy Migration",
+  "version": "v35",
+  "stage": "Beta 0.16 / Motor Trace",
   "date": "2026-09-30",
-  "cache": "rift-architect-v111"
+  "cache": "rift-architect-v112"
 }
