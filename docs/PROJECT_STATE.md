@@ -15,43 +15,34 @@ La pregunta central sigue siendo:
 ### Ya resuelto
 - Selector de campeones por rol.
 - Composition Story resumida.
-- Analysis Hub unificado.
-- Executive Summary estable.
-- Coach con `StrategicPlan` central.
-- Draft Assistant básico en UI.
-- Documentación de trabajo y roadmap al día.
-- Consola limpia tras los últimos errores de helpers y referencias.
+- Analysis Engine unificado.
+- Coach base con `StrategicPlan`.
+- Draft Assistant básico.
+- Documentación y roadmap al día.
 
 ### Lo que hace ahora el sistema
 - Analiza la composición seleccionada.
 - Construye un `StrategicPlan`.
-- Genera resumen ejecutivo, perfil de ejecución, plan por fases, checklist y errores críticos.
-- Deriva un bloque de necesidades desde un **Need Engine** propio.
-- Traduce esas necesidades a perfiles estratégicos y recomendaciones de picks/bans.
-- Convierte el análisis en una **Narrative Engine** corta y ejecutiva.
-- Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
-- Re-renderiza la Story cuando cambia el borrador guardado de la composición.
-- Muestra seis tarjetas fijas, cada una con un resumen corto y señales visuales compactas.
+- Genera resumen ejecutivo, plan por fases, checklist y errores críticos.
+- Deriva necesidades de composición y recomendaciones de picks/bans.
+- Re-renderiza la Story cuando cambia el borrador guardado.
+- Muestra tarjetas fijas, compactas y visuales.
 - Mantiene la cabecera limpia: solo build visible.
-- El botón **Actualizar** quedó oculto para no ensuciar la UI.
+- El botón **Actualizar** quedó oculto.
 - La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
-- En escritorio, el banco de señales se abre más y deja de comprimir tanto los valores.
-- El Explainability Panel muestra evidencias, pesos y confianza de la lectura del motor.
-- El panel contextual agrupa recomendaciones ordenadas por impacto y confianza.
-- El panel de explicación añade una vista de **Strategic Coach** con fases, alertas, prioridades y picos de poder.
-- La interfaz suma una lectura de **Tactical Intelligence** para traducir el plan en decisiones concretas y alternativas.
+- La interfaz vuelve a centrarse en una lectura rápida de la composición propia.
 
 ## Arquitectura mental actual
 
 `analysisEngine` → `coachEngine` → `strategicPlan` → `needEngine` → `strategicProfiles` → `narrativeEngine` → `draft assistant`
 
-La fuente de verdad estratégica está en el análisis de la propia composición, no en el equipo rival.
+La fuente de verdad estratégica está en el análisis de la propia composición.
 
 ## Lo siguiente por hacer
 
 1. Unificar todavía más los indicadores visuales.
-2. Reducir la redundancia entre las tarjetas, el panel explicativo y el panel de recomendaciones.
+2. Reducir la redundancia entre bloques.
 3. Validar más composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
 
@@ -64,6 +55,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.41 / Tactical Intelligence
+**Fase actual:** Beta 0.42 / Core Story Restore
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar el panel de recomendaciones, explicación y táctica con evidencias, confianza y pesos sin perder claridad en móvil, tablet y escritorio.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y dejar el resto de señales como apoyo secundario sin perder claridad en móvil, tablet y escritorio.
