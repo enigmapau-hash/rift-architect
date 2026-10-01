@@ -28,6 +28,7 @@ const STATIC_ASSETS = [
   './js/escape-html.js',
   './js/modal-helpers.js',
   './js/story-sync.js',
+  './js/story-compact.js',
   './js/composition-ia.js',
   './js/composition-modal-final.js',
   './js/analyzer.js',
