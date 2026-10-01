@@ -151,11 +151,17 @@
 - Mantener el detalle como apoyo plegado.
 - Reducir la percepción de “paneles” y aumentar la sensación de producto.
 
-## Fase 24 — Beta 0.7 / Single Decision Card 🔄
+## Fase 24 — Beta 0.7 / Single Decision Card ✅
 - Reducir la tarjeta superior a dos señales visibles: decisión principal y riesgo principal.
 - Mantener el resto del análisis plegado como soporte.
 - Seguir simplificando la lectura inicial.
 - Acercar la experiencia a una pantalla única de decisión.
+
+## Fase 25 — Beta 0.8 / Design System 🔄
+- Unificar las piezas visuales compartidas en Hero Card, Decision Card, Insight Card, Detail Card, chips y badges.
+- Reducir variantes visuales para que la experiencia sea más consistente.
+- Mantener una sola identidad de diseño en toda la app.
+- Hacer que nuevas pantallas reutilicen componentes comunes en vez de inventar versiones nuevas.
 
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
