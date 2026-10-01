@@ -80,7 +80,7 @@
 - Reducir duplicidad entre bloques y simplificar la lectura principal.
 - Cerrar la dependencia del asistente obsoleto y trabajar con un único modelo interno.
 
-## Fase 14 — Draft Coach / Coach Intelligence 🔄
+## Fase 14 — Draft Coach / Coach Intelligence ✅
 - Consolidar el `StrategicPlan` como contrato único del coach.
 - Generar briefing, fases, riesgos, picos de poder y perfil de ejecución desde una sola fuente.
 - Reducir duplicidades entre resumen, plan, checklist y Advisor.
@@ -88,7 +88,7 @@
 - Restabilizar helpers compartidos del Executive Summary y evitar regresiones por referencias rotas.
 - Preparar el siguiente paso del Draft Assistant sin salir de la filosofía de analizar solo la propia composición.
 
-## Fase 15 — Draft Assistant 🔄
+## Fase 15 — Draft Assistant ✅
 - Recomendar el pick que mejor completa la composición.
 - Proponer bans que protejan el plan de juego.
 - Reusar `StrategicPlan` sin depender del rival.
@@ -98,7 +98,7 @@
 - Introducir una capa de perfiles estratégicos entre las necesidades y las clases para mantener la explicación y el motor desacoplados de campeones concretos.
 - Pulir la interfaz para que el panel sea más ejecutivo, más compacto y más coherente con el resto del hub.
 
-## Fase 16 — Need Engine 🔄
+## Fase 16 — Need Engine ✅
 - Extraer la detección de necesidades a un módulo propio.
 - Priorizar necesidades reales de la composición con una salida corta y fácil de leer.
 - Mantener el motor simple reutilizando atributos existentes antes de añadir nuevos campos al Excel.
@@ -106,20 +106,20 @@
 - Mantener la IA como capa de explicación y no de decisión.
 - Evitar añadir complejidad visual innecesaria.
 
-## Fase 17 — Executive UX Pass 🔄
+## Fase 17 — Executive UX Pass ✅
 - Convertir el Draft Assistant en una vista ejecutiva primero, con el veredicto por delante.
 - Mantener el detalle completo como ampliación opcional.
 - Reducir superficies de lectura redundantes sin tocar el motor.
 - Conservar toda la profundidad estratégica detrás de una interfaz más compacta.
 - Priorizar comprensión rápida sin devaluar el trabajo del análisis.
 
-## Fase 18 — Narrative Engine 🔄
+## Fase 18 — Narrative Engine ✅
 - Convertir el análisis ejecutivo en una historia corta y legible.
 - Unificar cómo gana, qué necesita, qué le falta, qué solución tiene y qué debe evitar.
 - Mostrar la narrativa antes del detalle técnico.
 - Reutilizar el motor existente sin añadir nuevos datos al Excel.
 
-## Fase 19 — Explainability Engine 🔄
+## Fase 19 — Explainability Engine ✅
 - Hacer que cada conclusión responda al “por qué”.
 - Conectar las necesidades con su causa principal.
 - Dar soporte a la narrativa sin añadir ruido.
@@ -133,21 +133,25 @@
 - Reducir el ruido visual sin tocar el motor.
 - Acercar la experiencia a una Beta 1.0 utilizable de forma habitual.
 
-## Fase 21 — Beta 0.4 / Product Audit 🔄
+## Fase 21 — Beta 0.4 / Product Audit ✅
 - Revisar la experiencia superior como una sola tarjeta narrativa.
 - Eliminar nombres técnicos visibles que no aporten valor a la decisión.
 - Reducir tarjetas y texto innecesario en la vista principal.
 - Validar que la respuesta principal se entiende en segundos.
 
+## Fase 22 — Beta 0.5 / Product Simplification 🔄
+- Dejar la tarjeta superior como una sola respuesta directa.
+- Reducir todavía más el ruido visual del bloque principal.
+- Mantener el detalle plegado como soporte, no como protagonista.
+- Seguir acercando la interfaz a un producto terminado.
+
+## Ideas futuras (fuera de Beta 1.0)
+- Champion Pool Architect.
+
 ## Fase 8 — Validación y pulido ⏳
 - Validar el motor con composiciones de referencia.
 - Revisar coherencia tras cambios en el Excel.
 - Afinar textos, espaciado, accesibilidad y rendimiento.
-
-## Fase 9 — Champion Pool Architect ⏳
-- Analizar el estilo del jugador.
-- Recomendar campeones por pool y rol.
-- Detectar huecos del pool y prioridades de práctica.
 
 ## Regla del proyecto
 - Cada entrega debe actualizar código, README, roadmap y Pages.
