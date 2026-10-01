@@ -45,7 +45,7 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.9 de home wireframe:
+- Muestra el Draft Assistant como una beta 0.10 de layout pass 1:
   - hero,
   - cómo gana,
   - prioridad,
@@ -89,6 +89,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.9 / Home Wireframe
+**Fase actual:** Beta 0.10 / Layout Pass 1
 
 **Meta inmediata:** dejar la tarjeta superior como un wireframe claro con hero, cómo gana, prioridad y evita, y el detalle plegado debajo.
