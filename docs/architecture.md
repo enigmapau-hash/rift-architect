@@ -27,9 +27,10 @@ The surface the user reads.
 
 - The main Story now uses six fixed summary cards instead of modals or accordions.
 - Each card compresses the analysis into short lines, icons, chips and text bars.
-- The layout is responsive across mobile, tablet and desktop without changing the hierarchy.
+- The layout is responsive across mobile, tablet and desktop with a 3/2/1 grid and no change in hierarchy.
 - The view stays short, compact, and easy to scan.
-- The communication layer should not replace the motor; it only translate it.
+- During beta stabilization, the app behaves as a standard web app so mobile caches do not block visible changes.
+- The communication layer should not replace the motor; it only translates it.
 
 ## Build flow
 
@@ -37,7 +38,7 @@ The surface the user reads.
 2. Commit the Excel to `main`.
 3. GitHub Actions runs `npm run generate:data`.
 4. The generated JSON is included in the Pages artifact.
-5. The PWA loads `data/index.json` first and then the role JSON files.
+5. The PWA/web delivery path loads `data/index.json` first and then the role JSON files.
 
 ## Current analysis contract
 
