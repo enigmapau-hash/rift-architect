@@ -23,6 +23,20 @@
   box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
   align-content: start;
   min-width: 0;
+  cursor: default;
+}
+
+.composition-story__summary-card:hover,
+.composition-story__summary-card:focus-visible,
+.composition-story__signal:hover,
+.composition-story__signal:focus-visible,
+.composition-story__signal-chip:hover,
+.composition-story__signal-chip:focus-visible,
+.design-system-flow__item:hover,
+.design-system-flow__item:focus-visible,
+.story-pill:hover,
+.story-pill:focus-visible {
+  cursor: default;
 }
 
 .composition-story__summary-card--info {
@@ -126,6 +140,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   min-width: 0;
+  cursor: default;
 }
 
 .composition-story__signal--good {
@@ -170,6 +185,7 @@
   font-size: 0.62rem;
   white-space: nowrap;
   background: rgba(255, 255, 255, 0.04);
+  cursor: default;
 }
 
 .composition-story__signal--good .composition-story__signal-chip {
@@ -234,6 +250,7 @@
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   min-width: 0;
+  cursor: default;
 }
 
 .design-system-flow__label {
