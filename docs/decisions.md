@@ -7,7 +7,7 @@ We analyze the player's own composition, not the enemy draft.
 `Draft Pool.xlsx` stays as the editable source. Everything else is derived from it.
 
 ## D-003 — Fixed cards over modals
-The Story surface now uses six fixed summary cards instead of accordions or modals.
+The Story surface uses six fixed summary cards instead of accordions or modals.
 
 Why:
 - less interaction friction,
@@ -34,10 +34,10 @@ Why:
 - avoid desktop-only layouts,
 - preserve the same analysis contract on every device.
 
-## D-007 — Beta as web app
-During beta stabilization, the site behaves as a normal web app instead of an installable PWA.
+## D-007 — Compact signals over long paragraphs
+When the motor returns dense text, the communication layer should compress it into shorter labels, bars and chips before it reaches the user.
 
 Why:
-- avoid stale mobile caches,
-- keep iterations visible immediately,
-- reduce time lost to service-worker issues.
+- reduce repeated text,
+- show the important signal first,
+- keep each card scannable in a few seconds.
