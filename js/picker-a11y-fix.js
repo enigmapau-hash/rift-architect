@@ -1,30 +1,21 @@
-const PICKER_SELECTORS = ['#closePickerBtn', '#pickerBackdrop'];
+const BACKDROP_SELECTOR = '#pickerBackdrop';
+const CHAMPION_SELECTOR = '#championList .champion-item';
 
-function blurActiveElement() {
+function blurActiveElementIfInsideBackdrop() {
   const active = document.activeElement;
-  if (active instanceof HTMLElement && active !== document.body) {
-    active.blur();
-  }
+  if (!(active instanceof HTMLElement)) return;
+
+  const backdrop = document.querySelector(BACKDROP_SELECTOR);
+  if (!backdrop || !backdrop.contains(active)) return;
+
+  active.blur();
 }
 
-document.addEventListener(
-  'click',
-  (event) => {
-    const target = event.target instanceof Element ? event.target : null;
-    if (!target) return;
-    if (PICKER_SELECTORS.some((selector) => target.closest(selector))) {
-      blurActiveElement();
-    }
-  },
-  true,
-);
+function handlePotentialClose(event) {
+  const target = event.target instanceof Element ? event.target.closest(CHAMPION_SELECTOR) : null;
+  if (!target) return;
+  blurActiveElementIfInsideBackdrop();
+}
 
-document.addEventListener(
-  'keydown',
-  (event) => {
-    if (event.key === 'Escape') {
-      blurActiveElement();
-    }
-  },
-  true,
-);
+document.addEventListener('pointerdown', handlePotentialClose, true);
+document.addEventListener('click', handlePotentialClose, true);
