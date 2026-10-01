@@ -72,10 +72,12 @@ function renderPanel() {
   const profiles = Array.isArray(draftAssistant.strategicProfiles) ? draftAssistant.strategicProfiles : [];
   const picks = Array.isArray(draftAssistant.pickRecommendations) ? draftAssistant.pickRecommendations : [];
   const bans = Array.isArray(draftAssistant.banRecommendations) ? draftAssistant.banRecommendations : [];
+
+  const heroLine = narrative.summary || 'La composición se entiende mejor como una sola historia.';
   const story = [
     { label: 'Cómo gana', text: narrative.winLine || fallbackWinLine(analysis, strategicPlan) },
     { label: 'Qué necesita', text: narrative.needLine || fallbackNeedLine(needs) },
-    { label: 'Mejor decisión', text: narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan) },
+    { label: 'Mejor opción', text: narrative.solutionLine || fallbackSolutionLine(profiles[0] || null, picks[0] || null, strategicPlan) },
     { label: 'Qué evitar', text: narrative.warningLine || fallbackWarningLine(bans[0] || null) },
   ];
 
@@ -84,12 +86,12 @@ function renderPanel() {
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
         <span class="analysis-hub__card-kicker">Tu composición</span>
-        <span class="analysis-hub__summary-panel-note">Respuesta primero · detalle opcional</span>
+        <span class="analysis-hub__summary-panel-note">Una sola decisión · respuesta primero</span>
       </div>
 
       <div class="analysis-hub__assistant-story">
         <p class="analysis-hub__assistant-hero-title">${escapeHtml(narrative.title || 'Tu composición quiere ganar por un plan claro.')}</p>
-        <p>${escapeHtml(narrative.summary || 'La composición se entiende mejor como una sola historia.')}</p>
+        <p>${escapeHtml(heroLine)}</p>
         ${narrative.becauseLine ? `<p class="analysis-hub__assistant-hero-meta">${escapeHtml(narrative.becauseLine)}</p>` : ''}
       </div>
 
@@ -147,9 +149,7 @@ function renderStoryLine(item = {}) {
 }
 
 function renderNeedRows(needs = [], strategicPlan = {}) {
-  if (!needs.length) {
-    return '';
-  }
+  if (!needs.length) return '';
 
   return needs.slice(0, 3).map((need) => `
     <article class="analysis-hub__row">
@@ -164,9 +164,7 @@ function renderNeedRows(needs = [], strategicPlan = {}) {
 }
 
 function renderProfileRows(profiles = []) {
-  if (!profiles.length) {
-    return '';
-  }
+  if (!profiles.length) return '';
 
   return profiles.slice(0, 2).map((profile) => `
     <article class="analysis-hub__row">
@@ -181,9 +179,7 @@ function renderProfileRows(profiles = []) {
 }
 
 function renderRecommendationRows(items = [], title = 'ITEM') {
-  if (!items.length) {
-    return '';
-  }
+  if (!items.length) return '';
 
   return items.slice(0, 2).map((item) => `
     <article class="analysis-hub__row">
