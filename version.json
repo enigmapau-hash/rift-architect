@@ -1,6 +1,6 @@
 {
-  "version": "v56",
-  "stage": "Beta 0.37 / Recommendation Engine 2.0",
+  "version": "v57",
+  "stage": "Beta 0.38 / Recommendation Hub",
   "date": "2026-10-01",
-  "cache": "rift-architect-v132"
+  "cache": "rift-architect-v133"
 }
