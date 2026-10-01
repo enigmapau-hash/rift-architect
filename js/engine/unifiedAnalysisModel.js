@@ -99,6 +99,69 @@ function buildBanRecommendations(needs, strategicPlan, strategicProfiles = []) {
   return recommendations;
 }
 
+function confidenceLabel(score = 0) {
+  const value = clamp(Number(score) || 0, 0, 100);
+  if (value >= 90) return 'Muy alta';
+  if (value >= 75) return 'Alta';
+  if (value >= 60) return 'Media';
+  return 'Baja';
+}
+
+function normalizeEvidenceList(items = []) {
+  return toArray(items)
+    .map((item) => ({
+      source: toText(item?.source || item?.label || item?.name || item),
+      label: toText(item?.label || item?.title || item?.name || item?.source || item),
+      detail: toText(item?.detail || item?.text || item?.summary || item?.description || ''),
+      weight: clamp(Math.round(Number(item?.weight) || 0), 0, 100),
+      champions: uniqueValues(toArray(item?.champions).map((champion) => toText(champion))).slice(0, 4),
+    }))
+    .filter((item) => item.label || item.detail || item.source);
+}
+
+function normalizeSections(items = []) {
+  return toArray(items)
+    .map((item) => {
+      const confidence = clamp(Math.round(Number(item?.confidence) || Number(item?.score) || Number(item?.weight) || 0), 0, 100);
+      return {
+        label: toText(item?.label || item?.title || item?.name || item?.source || item),
+        detail: toText(item?.detail || item?.text || item?.summary || item?.description || ''),
+        confidence,
+        confidenceLabel: toText(item?.confidenceLabel || confidenceLabel(confidence)),
+        reason: toText(item?.reason || item?.why || ''),
+        champions: uniqueValues(toArray(item?.champions).map((champion) => toText(champion))).slice(0, 4),
+        evidence: normalizeEvidenceList(item?.evidence || []),
+      };
+    })
+    .filter((item) => item.label || item.detail || item.evidence.length);
+}
+
+function toArray(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function uniqueValues(values = []) {
+  return [...new Set(values.filter(Boolean).map((value) => String(value).trim()).filter(Boolean))];
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function toText(value, fallback = 'Sin definir') {
+  if (value == null) return fallback;
+  if (typeof value === 'string') return value.trim() || fallback;
+  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+  if (Array.isArray(value)) return value.map((item) => toText(item, '')).filter(Boolean).join(' · ') || fallback;
+  if (typeof value === 'object') {
+    return toText(
+      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
+      fallback
+    );
+  }
+  return String(value) || fallback;
+}
+
 export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = []) {
   const explanation = analysis?.explainability || analysis?.explanation || {};
   const coach = analysis?.coach || {};
@@ -117,6 +180,7 @@ export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = [])
         items: draftAssistant.recommendations,
       }
     : buildRecommendationEngine(analysis);
+
   const signals = uniqueValues([
     analysis?.primaryIdentity,
     analysis?.tempoDetail?.label,
@@ -157,7 +221,7 @@ export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = [])
       mode: toText(strategicPlan?.mode || coach?.summary?.identity || 'hybrid'),
       phases: toArray(coach?.phases).length ? toArray(coach?.phases) : gamePlan,
       steps: toArray(strategicPlan?.steps),
-      risks: risks,
+      risks,
     },
     priorities: priorities.map((item) => ({
       label: toText(item?.label || item),
@@ -225,26 +289,4 @@ export function buildUnifiedAnalysisModel(analysis = {}, selectedChampions = [])
     confidence: Number(analysis?.confidence) || 0,
     raw: analysis,
   };
-}
-
-function uniqueValues(values = []) {
-  return [...new Set(values.filter(Boolean).map((value) => String(value).trim()).filter(Boolean))];
-}
-
-function toArray(value) {
-  return Array.isArray(value) ? value : [];
-}
-
-function toText(value, fallback = 'Sin definir') {
-  if (value == null) return fallback;
-  if (typeof value === 'string') return value.trim() || fallback;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-  if (Array.isArray(value)) return value.map((item) => toText(item, '')).filter(Boolean).join(' · ') || fallback;
-  if (typeof value === 'object') {
-    return toText(
-      value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '',
-      fallback
-    );
-  }
-  return String(value) || fallback;
 }
