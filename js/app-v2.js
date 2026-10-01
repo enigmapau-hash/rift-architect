@@ -250,6 +250,21 @@ function renderAll() {
   renderCompositionGrid();
   renderModal();
   syncStatusBadge();
+  emitCompositionChanged();
+}
+
+function emitCompositionChanged() {
+  try {
+    const detail = {
+      selectedChampions: getSelectedChampions(),
+      selectedCount: getSelectedChampions().length,
+      activeRole: state.activeRole,
+      dataSource: state.dataSource,
+    };
+    window.dispatchEvent(new CustomEvent('rift-architect:composition-changed', { detail }));
+  } catch {
+    // ignore dispatch errors
+  }
 }
 
 function renderCompositionGrid() {
