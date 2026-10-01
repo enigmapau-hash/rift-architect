@@ -34,6 +34,7 @@ La pregunta central sigue siendo:
 - Muestra seis tarjetas fijas, cada una con un resumen corto y líneas compactas.
 - Mantiene la cabecera limpia: solo build visible.
 - El botón **Actualizar** quedó oculto para no ensuciar la UI.
+- La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
 - La pantalla principal sigue la arquitectura de información fija:
   - Tu composición,
   - Plan de victoria,
@@ -52,7 +53,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 1. Pulir el contenido de las tarjetas fijas.
 2. Reducir texto redundante en algunas tarjetas.
-3. Validar más composiciones reales.
+3. Validar más composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
 
 ## Regla del proyecto
@@ -64,6 +65,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.26 / Fixed Cards
+**Fase actual:** Beta 0.27 / Responsive Fixed Cards
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y asegurar que el análisis aparece al completar los 5 campeones.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y responsive, asegurando que el análisis aparece al completar los 5 campeones en móvil, tablet y escritorio.
