@@ -14,7 +14,7 @@ La pregunta central sigue siendo:
 
 ### Ya resuelto
 - Selector de campeones por rol.
-- Composition Story simplificada.
+- Composition Story resumida.
 - Analysis Hub unificado.
 - Executive Summary estable.
 - Coach con `StrategicPlan` central.
@@ -30,8 +30,10 @@ La pregunta central sigue siendo:
 - Traduce esas necesidades a perfiles estratégicos y recomendaciones de picks/bans.
 - Convierte el análisis en una **Narrative Engine** corta y ejecutiva.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
+- Re-renderiza la Story cuando cambia la composición, así que el análisis aparece al completar los 5 campeones.
 - Abre el análisis completo de cada tarjeta en una **ventana modal dedicada**.
 - Mantiene la cabecera limpia: solo build visible.
+- El botón **Actualizar** quedó oculto para no ensuciar la UI.
 - La pantalla principal sigue la arquitectura de información fija:
   - Tu composición,
   - Plan de victoria,
@@ -48,7 +50,7 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Lo siguiente por hacer
 
-1. Terminar de pulir el contenido del modal.
+1. Pulir el contenido del modal.
 2. Reducir texto redundante en algunas tarjetas.
 3. Validar más composiciones reales.
 4. Reforzar auditoría técnica después de cada cambio.
@@ -62,6 +64,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.21 / Modal Analysis Fix
+**Fase actual:** Beta 0.24 / Modal Observer
 
 **Meta inmediata:** que al pulsar una tarjeta se abra el modal correcto con el análisis completo de esa sección.
