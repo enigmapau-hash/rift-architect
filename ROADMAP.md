@@ -13,6 +13,7 @@
 - **Fase 36** — Compact Story Signals: la Story reduce texto redundante y prioriza señales compactas por tarjeta.
 - **Fase 37** — Signal Cards: la comunicación visual gana peso frente al texto largo y la información repetida.
 - **Fase 38** — Visual Signal Cards: las señales pasan a usar chips y barras más gráficas para leer de un vistazo.
+- **Fase 39** — Desktop Signal Balance: el banco de señales gana más aire en escritorio para evitar columnas estrechas y texto comprimido.
 
 ## Estado actual
 
