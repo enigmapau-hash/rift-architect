@@ -11,21 +11,21 @@
 - **Fase 34** — Fixed Cards: la Story vuelve a una rejilla de tarjetas fijas, compactas y jerarquizadas.
 - **Fase 35** — Responsive Fixed Cards: las tarjetas fijas se ajustan a móvil, tablet y escritorio con la misma jerarquía.
 - **Fase 36** — Compact Story Signals: la Story reduce texto redundante y prioriza señales compactas por tarjeta.
+- **Fase 37** — Signal Cards: la comunicación visual gana peso frente al texto largo y la información repetida.
 
 ## Estado actual
 
 - Home con seis tarjetas fijas de resumen.
-- Cada tarjeta muestra líneas cortas, chips, barras textuales e iconos.
+- Cada tarjeta muestra líneas cortas, chips, barras textuales e indicadores visuales.
 - La experiencia mantiene la misma estructura en móvil, tablet y escritorio.
 - La lectura es más compacta y deja más aire al contenido importante.
-- No hay modales ni acordeones en la Story principal.
-- La Beta se ejecuta como una web normal mientras la UI termina de estabilizarse.
 - El botón **Actualizar** sigue oculto.
+- Cache de GitHub Pages y service worker alineados con la versión visible.
 
 ## Siguiente trabajo
 
-- Pulir la calidad de las señales por tarjeta.
-- Reducir más redundancia textual.
+- Reducir todavía más el texto duplicado entre tarjetas.
+- Subir más métricas a formato visual.
 - Validar más composiciones reales en varios tamaños de pantalla.
 - Seguir limpiando código legado si reaparece alguna regresión.
 
