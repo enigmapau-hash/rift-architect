@@ -41,3 +41,11 @@ Why:
 - reduce repeated text,
 - show the important signal first,
 - keep each card scannable in a few seconds.
+
+## D-008 — Visual signal cards
+Signal cards should use chips and meters for the most important values, instead of another block of prose.
+
+Why:
+- faster scanning,
+- better hierarchy,
+- less vertical noise on every screen.
