@@ -31,6 +31,7 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - El Draft Assistant perfila necesidades de composición, prioriza picks y orienta bans a partir del `StrategicPlan`.
 - El Explainability Panel permite abrir la lectura del motor en forma de evidencias, pesos y confianza.
 - El análisis ahora expone un **Unified Analysis Model** para que Story, Coach, Draft y Explainability lean la misma estructura.
+- El Explainability Panel incorpora un **Recommendation Hub** para revisar acciones ordenadas por impacto, confianza y evidencia.
 
 ## GitHub Pages
 
