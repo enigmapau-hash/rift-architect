@@ -1,5 +1,20 @@
 # Changelog
 
+## v50 · Beta 0.31 / Visual Signal Cards
+### Added
+- Signal cards with chips and meters for the most important values.
+- A visual layer that compresses the motor output into faster-to-scan cues.
+- More explicit state, tempo and focus indicators inside each fixed card.
+
+### Changed
+- The Story still uses the same six-card hierarchy, but now reads more like a dashboard.
+- The communication layer relies less on paragraph text and more on visual signals.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the presentation layer became more visual.
+
 ## v49 · Beta 0.30 / Signal Cards
 ### Added
 - Compact signal blocks for each fixed summary card.
@@ -29,31 +44,3 @@
 
 ### Notes
 - The analysis still comes from the same motor; only the presentation layer became more compact.
-
-## v47 · Beta 0.28 / Compact Responsive Cards
-### Added
-- A 3/2/1 responsive grid for the six fixed summary cards.
-- Slightly denser card spacing and tighter line clamping to reduce vertical scroll.
-- Beta delivery as a normal web app while the UI stabilizes.
-
-### Changed
-- The Story stays compact on mobile, tablet and desktop with the same hierarchy.
-- The presentation layer now fits more information above the fold on large screens.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the presentation layer and beta delivery mode changed.
-
-## v46 · Beta 0.27 / Responsive Fixed Cards
-### Added
-- Responsive overrides for the six fixed summary cards.
-- A mobile, tablet and desktop layout that keeps the same hierarchy.
-- Smoother spacing and tighter card density on small screens.
-
-### Changed
-- The Story still uses fixed cards, but now adapts better to different screen sizes.
-- The communication layer stays compact without changing the underlying motor.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the presentation layer became fully responsive.
