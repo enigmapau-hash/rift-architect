@@ -83,8 +83,8 @@ function renderPanel() {
   state.root.innerHTML = `
     <section class="analysis-hub__summary-panel analysis-hub__summary-panel--draft-assistant">
       <div class="analysis-hub__summary-panel-head">
-        <span class="analysis-hub__card-kicker">Beta 0.4</span>
-        <span class="analysis-hub__summary-panel-note">Una sola historia · menos ruido visual</span>
+        <span class="analysis-hub__card-kicker">Tu composición</span>
+        <span class="analysis-hub__summary-panel-note">Respuesta primero · detalle opcional</span>
       </div>
 
       <div class="analysis-hub__assistant-story">
