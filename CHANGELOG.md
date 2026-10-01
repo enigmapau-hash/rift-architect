@@ -1,5 +1,19 @@
 # Changelog
 
+## v68 · Patch 0.46.1 / Guarded Boot Startup
+### Added
+- A guarded bootloader that loads the app modules in sequence.
+- A visible startup overlay when a module fails to load.
+- Filters for external `contentscript.js` noise so browser extensions do not masquerade as app failures.
+
+### Changed
+- The page now boots through a single entrypoint instead of multiple isolated module tags.
+- Startup failures are surfaced in the UI instead of leaving the app silent.
+
+### Notes
+- The underlying analysis logic is unchanged.
+- This patch is about making real startup failures easier to see and debug on GitHub Pages.
+
 ## v67 · Patch 0.46.0 / Render Simplification
 ### Changed
 - The analysis story now uses a single simplified visible path.
