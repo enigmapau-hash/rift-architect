@@ -23,6 +23,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Executive Summary estable tras restaurar helpers de confidencia.
 - Draft Assistant base con necesidades, prioridades, picks y bans.
 - Draft Assistant UI integrada en el Analysis Hub y ya visible con composiciones reales.
+- Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 - README y ROADMAP actualizados de forma continua.
 
 ## En qué punto está ahora
