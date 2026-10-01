@@ -5,3 +5,4 @@ import './story-sync.js';
 import './story-compact.js';
 import './story-signals.js';
 import './explainability-panel-coach.js';
+import './explainability-panel-tactical.js';
