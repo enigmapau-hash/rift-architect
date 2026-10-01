@@ -21,10 +21,10 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 ## Estado actual
 
 - **Hito 1 cerrado**: una sola ruta de render, consola limpia y sin módulos experimentales visibles.
-- La pantalla principal vuelve a estar centrada en la composición y su lectura rápida.
-- La Story muestra tarjetas fijas, compactas y visuales.
-- El resumen ejecutivo principal se mantiene en formato corto: identidad, fortalezas, debilidades y plan.
-- La interfaz prioriza claridad por encima de paneles experimentales.
+- **Hito 2 cerrado**: la pantalla principal ya muestra Executive Summary, Identidad, Fortalezas, Debilidades, Plan, Sinergias y Riesgos.
+- La lectura sigue centrada en la composición propia.
+- La UI prioriza claridad, bloques compactos y lectura rápida.
+- El resumen principal se mantiene simple, tangible y funcional.
 
 ## GitHub Pages
 
@@ -33,7 +33,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 ## Hoja de ruta
 
 1. **Hito 1: Base estable** — cerrado.
-2. **Hito 2: Pantalla principal terminada**.
+2. **Hito 2: Pantalla principal terminada** — cerrado.
 3. **Hito 3: IA refinada**.
 4. **Hito 4: Base de conocimiento madura**.
 5. **Hito 5: Beta 1.0**.
