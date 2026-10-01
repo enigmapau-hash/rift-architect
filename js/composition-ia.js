@@ -4,4 +4,4 @@ import './composition-modal-final.js';
 import './story-sync.js';
 import './story-compact.js';
 import './story-signals.js';
-import './explainability-panel-fixed.js';
+import './explainability-panel-coach.js';
