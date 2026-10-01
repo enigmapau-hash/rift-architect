@@ -1,6 +1,6 @@
 {
-  "version": "v33",
-  "stage": "Beta 0.14 / IA Flow",
+  "version": "v34",
+  "stage": "Beta 0.15 / Legacy Migration",
   "date": "2026-09-30",
-  "cache": "rift-architect-v110"
+  "cache": "rift-architect-v111"
 }
