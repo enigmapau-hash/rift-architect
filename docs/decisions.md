@@ -57,3 +57,11 @@ Why:
 - improve readability on larger screens,
 - keep the same analysis meaning,
 - use the available width instead of fighting it.
+
+## D-010 — Explainability panel
+The reasoning layer should be inspectable through a dedicated evidence explorer instead of being hidden inside long paragraphs.
+
+Why:
+- make the motor auditable,
+- surface confidence and supporting evidence,
+- prepare the product for future contextual interactions.
