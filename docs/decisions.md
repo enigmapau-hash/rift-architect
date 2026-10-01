@@ -25,3 +25,11 @@ Why:
 
 ## D-005 — Sync from saved draft
 The Story rerenders from the saved draft in `localStorage` so the analysis follows the selected champions without manual refresh.
+
+## D-006 — Responsive first
+Every visible change must work across mobile, tablet and desktop with the same hierarchy and no horizontal scrolling.
+
+Why:
+- keep the product usable everywhere,
+- avoid desktop-only layouts,
+- preserve the same analysis contract on every device.
