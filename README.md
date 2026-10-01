@@ -23,14 +23,13 @@ PWA para entender una composición de League of Legends a partir de `Draft Pool.
 - La Story muestra seis tarjetas fijas con señales compactas, barras y chips.
 - La Story se sincroniza con la composición mediante el borrador guardado en localStorage.
 - La lectura prioriza indicadores visuales para reducir texto redundante.
-- En escritorio, el banco de señales usa más aire y evita columnas demasiado estrechas.
-- La beta funciona como web app normal mientras la UI se estabiliza.
 - El antiguo flujo de modal/accordion quedó descartado para simplificar la lectura principal.
 - La IA sigue apoyándose en el motor y en el Excel para explicar el plan en lenguaje simple.
 - La Knowledge Layer separa identidad, sinergias, patrones, dependencias, conflictos y win conditions del motor.
 - Existe un banco de pruebas del motor con composiciones de referencia, edge cases y medición básica de tiempo.
 - El Coach genera un `StrategicPlan` único con briefing, fases, riesgos, picos de poder y perfil de ejecución.
 - El Draft Assistant perfila necesidades de composición, prioriza picks y orienta bans a partir del `StrategicPlan`.
+- El Explainability Panel permite abrir la lectura del motor en forma de evidencias, pesos y confianza.
 
 ## GitHub Pages
 
