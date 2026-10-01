@@ -36,6 +36,7 @@ La pregunta central sigue siendo:
 - El botón **Actualizar** quedó oculto para no ensuciar la UI.
 - La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
+- En escritorio, el banco de señales se abre más y deja de comprimir tanto los valores.
 - La beta funciona como web app normal mientras la UI se estabiliza.
 - La pantalla principal sigue la arquitectura de información fija:
   - Tu composición,
@@ -67,6 +68,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.31 / Visual Signal Cards
+**Fase actual:** Beta 0.32 / Desktop Signal Balance
 
 **Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y consolidar las señales gráficas de cada tarjeta sin perder claridad en móvil, tablet y escritorio.
