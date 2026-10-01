@@ -72,7 +72,7 @@ La pregunta central sigue siendo:
 - Genera plan por fases, checklist y errores críticos.
 - Deriva necesidades de composición y recomendaciones de picks/bans.
 - Re-renderiza la Story cuando cambia el borrador guardado.
-- Re-renderiza también la Story principal con un puente explícito para no depender solo de observers.
+- Re-renderiza también la Story principal con una ruta de respaldo para no depender solo de observers.
 - Muestra tarjetas fijas, compactas y visuales.
 - Mantiene la cabecera limpia: solo build visible.
 - El botón **Actualizar** quedó oculto.
@@ -80,7 +80,6 @@ La pregunta central sigue siendo:
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
 - La interfaz vuelve a centrarse en una lectura rápida de la composición propia.
 - El resumen ejecutivo principal se mantiene en un formato corto y tangible.
-- La pantalla principal ya muestra Executive Summary, Identidad, Fortalezas, Debilidades, Plan, Sinergias y Riesgos.
 
 ## Arquitectura mental actual
 
