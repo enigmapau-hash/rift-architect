@@ -19,6 +19,7 @@
 - **Fase 42** — Recommendation Engine 2.0: las acciones pasan a objetos estructurados con prioridad, confianza, evidencias y métricas.
 - **Fase 43** — Recommendation Hub: el panel contextual organiza las recomendaciones por impacto, confianza y evidencia.
 - **Fase 44** — Strategic Coach: el panel explicativo añade fases, alertas, prioridades y picos de poder para leer el plan de partida.
+- **Fase 45** — Tactical Intelligence: el análisis suma una lectura táctica con decisiones concretas, árbol de alternativas y mitigación si se cierra la ventana.
 
 ## Estado actual
 
