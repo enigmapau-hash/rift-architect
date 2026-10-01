@@ -9,6 +9,8 @@ const MODULES = [
 ];
 
 const IGNORED_FILENAMES = new Set(['contentscript.js']);
+let analysisRenderScheduled = false;
+let compositionObserver = null;
 
 function isLikelyExternalError(error) {
   const filename = String(error?.filename || error?.fileName || '').toLowerCase();
@@ -79,6 +81,45 @@ function showBootError(error, modulePath = '') {
   root.style.display = 'flex';
 }
 
+function scheduleAnalysisRender() {
+  if (analysisRenderScheduled) return;
+  analysisRenderScheduled = true;
+  window.requestAnimationFrame(() => {
+    analysisRenderScheduled = false;
+    try {
+      globalThis.renderAnalysisStory?.();
+    } catch (error) {
+      console.error('[Rift Architect] renderAnalysisStory failed', error);
+    }
+  });
+}
+
+function attachCompositionObserver() {
+  if (compositionObserver) return;
+
+  const node = document.getElementById('compositionGrid');
+  if (!node) {
+    window.requestAnimationFrame(attachCompositionObserver);
+    return;
+  }
+
+  compositionObserver = new MutationObserver(scheduleAnalysisRender);
+  compositionObserver.observe(node, { childList: true, subtree: true, characterData: true });
+
+  node.addEventListener('click', () => window.setTimeout(scheduleAnalysisRender, 0));
+  node.addEventListener('input', () => window.setTimeout(scheduleAnalysisRender, 0));
+  scheduleAnalysisRender();
+}
+
+function startRenderSync() {
+  attachCompositionObserver();
+  window.setInterval(scheduleAnalysisRender, 300);
+  window.addEventListener('focus', scheduleAnalysisRender);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) scheduleAnalysisRender();
+  });
+}
+
 window.addEventListener('error', (event) => {
   if (isLikelyExternalError(event.error || event.message || event)) return;
   showBootError(event.error || event.message || 'Error no controlado');
@@ -101,22 +142,10 @@ window.addEventListener('unhandledrejection', (event) => {
     }
   }
 
+  startRenderSync();
+
   if (failures.length) {
     const firstFailure = failures[0];
     showBootError(firstFailure.error, firstFailure.modulePath);
   }
-
-  const refreshStory = () => {
-    try {
-      globalThis.renderAnalysisStory?.();
-    } catch {
-      // ignore render refresh errors
-    }
-  };
-
-  refreshStory();
-  window.setInterval(refreshStory, 300);
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) refreshStory();
-  });
 })();
