@@ -1,5 +1,33 @@
 # Changelog
 
+## v59 · Beta 0.40 / Strategic Coach
+### Added
+- A Strategic Coach view inside the explainability surface.
+- Phase-based coaching with early, mid and late game guidance.
+- More explicit alerts, priorities and power spikes in the coach layer.
+
+### Changed
+- The Explainability Panel now groups coach guidance with recommendations and evidence.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the coach surface became more explicit.
+
+## v58 · Beta 0.39 / Explainability Panel Fix
+### Added
+- A repaired explainability panel implementation with helper coverage restored.
+- A coach-aware explanation surface that can coexist with recommendations.
+- A new cache version for the normal web-app beta flow.
+
+### Changed
+- The Explainability Panel now renders from a safer, self-contained module.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the explanation layer was hardened.
+
 ## v57 · Beta 0.38 / Recommendation Hub
 ### Added
 - A recommendation hub inside the explainability surface.
@@ -13,41 +41,3 @@
 
 ### Notes
 - The analysis still comes from the same motor; only the action layer became more structured.
-
-## v56 · Beta 0.37 / Recommendation Engine 2.0
-### Added
-- Structured recommendations with priority, confidence, reasons, evidence and metrics.
-- A reusable recommendation engine shared by draft-related UI surfaces.
-- A new cache version for the normal web-app beta flow.
-
-### Changed
-- The Draft Assistant now exposes recommendations as objects instead of loose advice.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the recommendation layer became more explicit.
-
-## v55 · Beta 0.36 / Unified Analysis Model
-### Added
-- A unified analysis model that normalizes identity, tempo, victory, draft and explainability into one shared object.
-- A single contract for Story, Coach, Draft Assistant and Explainability to read from.
-- A new cache version for the normal web-app beta flow.
-
-### Changed
-- The motor output is now easier to reuse across surfaces without recalculating the same structures.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; only the data model became more unified.
-
-## v54 · Beta 0.35 / Explainability Panel
-### Added
-- An explainability panel that surfaces evidence, weights and confidence for the engine.
-- A contextual explorer with sections for identity, tempo, victory, draft and risks.
-- A new visual layer to review the motor without leaving the main composition view.
-
-### Changed
-- The Story remains compact, but the reasoning is now easier to inspect in one place.
-- The beta continues as a normal web app while the UI stabilizes.
