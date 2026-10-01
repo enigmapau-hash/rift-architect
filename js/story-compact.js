@@ -1,15 +1,4 @@
 const STORY_ROOT_SELECTOR = '#storyView';
-const LIMITS = {
-  summary: 72,
-  label: 22,
-  value: 28,
-  meta: 34,
-  pill: 18,
-  signalLabel: 18,
-  signalValue: 24,
-  signalChip: 10,
-  signalBar: 16,
-};
 
 let observer = null;
 let rafId = null;
@@ -26,44 +15,90 @@ function scheduleCompact() {
   });
 }
 
+function getLimits() {
+  const width = window.innerWidth || document.documentElement.clientWidth || 0;
+
+  if (width >= 1200) {
+    return {
+      summary: 92,
+      label: 28,
+      value: 40,
+      meta: 52,
+      pill: 24,
+      signalLabel: 24,
+      signalValue: 40,
+      signalChip: 14,
+      signalBar: 18,
+    };
+  }
+
+  if (width >= 720) {
+    return {
+      summary: 80,
+      label: 24,
+      value: 32,
+      meta: 40,
+      pill: 20,
+      signalLabel: 20,
+      signalValue: 30,
+      signalChip: 12,
+      signalBar: 16,
+    };
+  }
+
+  return {
+    summary: 72,
+    label: 22,
+    value: 28,
+    meta: 34,
+    pill: 18,
+    signalLabel: 18,
+    signalValue: 24,
+    signalChip: 10,
+    signalBar: 16,
+  };
+}
+
 function compactStory() {
   const root = getStoryRoot();
   if (!root) return;
 
+  const limits = getLimits();
+
   root.querySelectorAll('.composition-story__summary-copy').forEach((element) => {
-    compactNodeText(element, LIMITS.summary, { preserveEllipsis: true });
+    compactNodeText(element, limits.summary, { preserveEllipsis: true });
   });
 
   root.querySelectorAll('.composition-story__summary-meta .story-pill').forEach((element) => {
-    compactNodeText(element, LIMITS.pill);
+    compactNodeText(element, limits.pill);
   });
 
   root.querySelectorAll('.composition-story__signal-label').forEach((element) => {
-    compactNodeText(element, LIMITS.signalLabel);
+    compactNodeText(element, limits.signalLabel);
   });
 
   root.querySelectorAll('.composition-story__signal-chip').forEach((element) => {
-    compactNodeText(element, LIMITS.signalChip);
+    compactNodeText(element, limits.signalChip);
   });
 
   root.querySelectorAll('.composition-story__signal-value').forEach((element) => {
-    compactNodeText(element, LIMITS.signalValue, { preserveEllipsis: true });
+    compactNodeText(element, limits.signalValue, { preserveEllipsis: true });
   });
 
   root.querySelectorAll('.composition-story__signal-bar').forEach((element) => {
-    compactNodeText(element, LIMITS.signalBar, { preserveEllipsis: true });
+    compactNodeText(element, limits.signalBar, { preserveEllipsis: true });
   });
 
   root.querySelectorAll('.design-system-flow__label').forEach((element) => {
-    compactNodeText(element, LIMITS.label);
+    compactNodeText(element, limits.label);
   });
 
   root.querySelectorAll('.design-system-flow__value').forEach((element) => {
-    compactNodeText(element, LIMITS.value, { preserveEllipsis: true });
+    compactNodeText(element, limits.value, { preserveEllipsis: true });
   });
 
   root.querySelectorAll('.design-system-flow__meta').forEach((element) => {
-    compactNodeText(element, LIMITS.meta, { preserveEllipsis: true });
+    compactNodeText(element, limits.meta, { preserveEllipsis: true });
   });
 
   root.querySelectorAll('.composition-story__mini-bar').forEach((element) => {
@@ -157,6 +192,8 @@ function ensureObserver() {
 function init() {
   compactStory();
   ensureObserver();
+
+  window.addEventListener('resize', scheduleCompact, { passive: true });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
