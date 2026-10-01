@@ -105,4 +105,18 @@ window.addEventListener('unhandledrejection', (event) => {
     const firstFailure = failures[0];
     showBootError(firstFailure.error, firstFailure.modulePath);
   }
+
+  const refreshStory = () => {
+    try {
+      globalThis.renderAnalysisStory?.();
+    } catch {
+      // ignore render refresh errors
+    }
+  };
+
+  refreshStory();
+  window.setInterval(refreshStory, 300);
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) refreshStory();
+  });
 })();
