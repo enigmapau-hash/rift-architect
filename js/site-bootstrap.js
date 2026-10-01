@@ -4,7 +4,6 @@ const MODULES = [
   './picker-a11y-fix.js',
   './pwa-reset.js',
   './app-v2.js',
-  './v2_patch.js',
   './composition-ia.js',
 ];
 
