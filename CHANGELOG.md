@@ -1,5 +1,20 @@
 # Changelog
 
+## v49 · Beta 0.30 / Signal Cards
+### Added
+- Compact signal blocks for each fixed summary card.
+- A post-render layer that keeps the most important metrics visible at a glance.
+- Shorter, more visual summaries for mobile, tablet and desktop.
+
+### Changed
+- The Story now emphasizes bars, chips and compact indicators over long text blocks.
+- The presentation layer keeps the same six-card hierarchy but reads faster.
+- The beta continues as a normal web app while the UI stabilizes.
+- The top-right Update button stays hidden.
+
+### Notes
+- The analysis still comes from the same motor; only the communication layer became more visual.
+
 ## v48 · Beta 0.29 / Compact Story Signals
 ### Added
 - A compact story post-processor that trims labels, metadata and bars after render.
