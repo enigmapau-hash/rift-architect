@@ -145,11 +145,17 @@
 - Mantener el detalle plegado como soporte, no como protagonista.
 - Seguir acercando la interfaz a un producto terminado.
 
-## Fase 23 — Beta 0.6 / Single Decision Screen 🔄
+## Fase 23 — Beta 0.6 / Single Decision Screen ✅
 - Convertir la parte superior en una única tarjeta de decisión.
 - Mostrar solo una respuesta directa arriba.
 - Mantener el detalle como apoyo plegado.
 - Reducir la percepción de “paneles” y aumentar la sensación de producto.
+
+## Fase 24 — Beta 0.7 / Single Decision Card 🔄
+- Reducir la tarjeta superior a dos señales visibles: decisión principal y riesgo principal.
+- Mantener el resto del análisis plegado como soporte.
+- Seguir simplificando la lectura inicial.
+- Acercar la experiencia a una pantalla única de decisión.
 
 ## Ideas futuras (fuera de Beta 1.0)
 - Champion Pool Architect.
