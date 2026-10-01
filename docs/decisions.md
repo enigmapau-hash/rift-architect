@@ -66,10 +66,10 @@ Why:
 - surface confidence and supporting evidence,
 - prepare the product for future contextual interactions.
 
-## D-011 — Unified analysis model
-All visible surfaces should read from the same normalized analysis object.
+## D-011 — Recommendation hub
+Structured recommendations should be surfaced in the explainability surface as an ordered hub instead of duplicated as loose text.
 
 Why:
-- reduce duplicated transforms,
-- keep Story, Coach, Draft and Explainability aligned,
-- make future reasoning changes flow through one contract.
+- keep one source of truth for actions,
+- sort by priority and confidence,
+- reuse the same recommendation objects in Story, Draft and future contextual views.
