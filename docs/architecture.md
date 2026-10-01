@@ -17,6 +17,7 @@ The reasoning core.
 
 - `js/engine/analysisEngine.js` turns the selected composition into an analysis object.
 - `js/engine/unifiedAnalysisModel.js` normalizes that analysis into one shared object.
+- `js/engine/recommendationEngine.js` turns the unified model into structured recommendations.
 - `js/engine/coachEngine.js` builds the `StrategicPlan`.
 - `js/engine/needEngine.js` turns the plan into clear needs.
 - `js/engine/strategicProfiles.js` maps those needs to profile families.
@@ -30,6 +31,7 @@ The surface the user reads.
 - `js/story-compact.js` trims labels, metadata and bars after render so the cards stay compact.
 - `js/story-signals.js` adds compact signal blocks after render to make the most important metrics visible at a glance.
 - `js/explainability-panel.js` turns the explanation output into a contextual evidence explorer.
+- The explainability surface also exposes the recommendation hub in a unified, ordered way.
 - The compacting logic is viewport-aware, so desktop keeps a little more breathing room than mobile.
 - Each card compresses the analysis into short lines, icons, chips, text bars and signal cards.
 - The layout is responsive across mobile, tablet and desktop without changing the hierarchy.
@@ -62,7 +64,7 @@ The current analysis should remain compact and centered on:
 - Bans.
 - Signal cards.
 - Evidence and confidence.
-- Unified Analysis Model.
+- Recommendation items.
 
 ## Next milestone
 
