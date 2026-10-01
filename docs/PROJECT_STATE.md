@@ -17,6 +17,7 @@ La pregunta central sigue siendo:
 - Consola limpia.
 - Sin paneles experimentales visibles.
 - Responsive estable.
+- **Cerrado**.
 
 ### Hito 2: Pantalla principal terminada
 - Executive Summary.
@@ -60,6 +61,7 @@ La pregunta central sigue siendo:
 - Coach base con `StrategicPlan`.
 - Draft Assistant básico.
 - Documentación y roadmap alineados.
+- Hito 1 cerrado.
 
 ### Lo que hace ahora el sistema
 - Analiza la composición seleccionada.
@@ -74,7 +76,7 @@ La pregunta central sigue siendo:
 - La Story mantiene la misma jerarquía en móvil, tablet y escritorio.
 - La presentación prioriza barras, chips e indicadores visuales frente a bloques largos de texto.
 - La interfaz vuelve a centrarse en una lectura rápida de la composición propia.
-- El resumen ejecutivo principal vuelve a ser una pieza compacta de cuatro bloques: identidad, fortalezas, debilidades y plan.
+- El resumen ejecutivo principal se mantiene en un formato corto y tangible.
 
 ## Arquitectura mental actual
 
@@ -84,8 +86,8 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Lo siguiente por hacer
 
-1. Cerrar el Hito 1 sin añadir más capas.
-2. Terminar la pantalla principal bloque por bloque.
+1. Cerrar el Hito 2.
+2. Reducir cualquier redundancia residual.
 3. Validar composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
 
@@ -98,6 +100,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Hito 1 · Base estable
+**Fase actual:** Hito 1 cerrado / Base estable
 
-**Meta inmediata:** dejar una sola ruta de render, sin experimentos visibles, y preparar el terreno para cerrar la pantalla principal tarjeta por tarjeta.
+**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y dejar el Hito 2 listo sin abrir otros bloques.
