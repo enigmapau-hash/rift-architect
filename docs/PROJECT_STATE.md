@@ -45,7 +45,7 @@ La idea central no es comparar dos drafts ni analizar al rival. La app responde 
   - qué debe evitar.
 - Añade una línea explícita de razonamiento para explicar el porqué de la necesidad principal.
 - Muestra un badge visible de build/versión en la cabecera para comprobar de un vistazo qué despliegue está cargado.
-- Muestra el Draft Assistant como una beta 0.4 de una sola historia:
+- Muestra el Draft Assistant como una beta 0.5 de una sola historia:
   - respuesta arriba,
   - detalle completo plegado,
   - menos ruido técnico visible,
@@ -87,6 +87,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.4 / Product Audit
+**Fase actual:** Beta 0.5 / Product Simplification
 
-**Meta inmediata:** seguir reduciendo ruido visual y consolidar una sola narrativa superior clara, con la respuesta primero y el detalle plegado debajo.
+**Meta inmediata:** seguir reduciendo ruido visual y dejando una sola respuesta directa arriba, con el detalle como soporte plegado debajo.
