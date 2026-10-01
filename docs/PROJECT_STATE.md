@@ -10,6 +10,47 @@ La pregunta central sigue siendo:
 
 **“Con esta composición, ¿cómo debo jugar para maximizar mis opciones de ganar?”**
 
+## Hoja de ruta oficial
+
+### Hito 1: Base estable
+- Una sola ruta de render.
+- Consola limpia.
+- Sin paneles experimentales visibles.
+- Responsive estable.
+
+### Hito 2: Pantalla principal terminada
+- Executive Summary.
+- Identidad.
+- Fortalezas.
+- Debilidades.
+- Plan de partida.
+- Sinergias y Riesgos.
+
+### Hito 3: IA refinada
+- Mejorar lo que ya existe.
+- Más claridad en las salidas del motor.
+- Sin crear nuevas pantallas.
+
+### Hito 4: Base de conocimiento madura
+- Excel más completo.
+- Normalización y validación más estrictas.
+- Más señales útiles por composición.
+
+### Hito 5: Beta 1.0
+- Experiencia estable.
+- Lectura clara en móvil, tablet y escritorio.
+- Sin regresiones conocidas.
+
+### Hito 6: Release Candidate
+- Congelar funciones.
+- Corregir bugs.
+- Pulir rendimiento y accesibilidad.
+
+### Hito 7: Versión 1.0
+- Revisión final.
+- Documentación cerrada.
+- Entrega estable del producto.
+
 ## Estado actual
 
 ### Ya resuelto
@@ -18,12 +59,13 @@ La pregunta central sigue siendo:
 - Analysis Engine unificado.
 - Coach base con `StrategicPlan`.
 - Draft Assistant básico.
-- Documentación y roadmap al día.
+- Documentación y roadmap alineados.
 
 ### Lo que hace ahora el sistema
 - Analiza la composición seleccionada.
 - Construye un `StrategicPlan`.
-- Genera resumen ejecutivo, plan por fases, checklist y errores críticos.
+- Genera un resumen ejecutivo corto.
+- Genera plan por fases, checklist y errores críticos.
 - Deriva necesidades de composición y recomendaciones de picks/bans.
 - Re-renderiza la Story cuando cambia el borrador guardado.
 - Muestra tarjetas fijas, compactas y visuales.
@@ -42,9 +84,9 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Lo siguiente por hacer
 
-1. Unificar todavía más los indicadores visuales.
-2. Reducir la redundancia entre bloques.
-3. Validar más composiciones reales en distintos tamaños de pantalla.
+1. Cerrar el Hito 1 sin añadir más capas.
+2. Terminar la pantalla principal bloque por bloque.
+3. Validar composiciones reales en distintos tamaños de pantalla.
 4. Reforzar auditoría técnica después de cada cambio.
 
 ## Regla del proyecto
@@ -56,6 +98,6 @@ La fuente de verdad estratégica está en el análisis de la propia composición
 
 ## Estado resumido
 
-**Fase actual:** Beta 0.43 / Executive Summary 2.0
+**Fase actual:** Hito 1 · Base estable
 
-**Meta inmediata:** mantener la Story en tarjetas fijas compactas y visuales, y dejar el resumen ejecutivo principal en un formato simple, tangible y funcional.
+**Meta inmediata:** dejar una sola ruta de render, sin experimentos visibles, y preparar el terreno para cerrar la pantalla principal tarjeta por tarjeta.
