@@ -9,6 +9,7 @@ const CORE_ASSETS = [
   './css/main.css',
   './css/design-tokens.css',
   './css/ui-polish.css',
+  './css/rc-polish.css',
   './js/bootstrap.js?v=100',
   './js/pwa-reset.js?v=100',
   './js/picker-a11y-fix.js?v=100',
