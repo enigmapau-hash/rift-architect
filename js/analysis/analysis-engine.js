@@ -1,7 +1,7 @@
 import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
 import { buildCompositionProfile } from './composition-profile.js';
 import { uniqueValues } from './analysis-utils.js';
-import { buildStrategicReasoning } from './strategic-engine.js?v=94';
+import { buildStrategicReasoning } from './strategic-engine.js?v=95';
 import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
@@ -9,9 +9,16 @@ import { buildWeaknessReport } from './weakness-engine.js';
 import { buildGamePlanReport } from './gameplan-engine.js';
 import { buildTimelineReport } from './timeline-engine.js';
 import { buildScoreReport } from './score-engine.js';
-import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=94';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=95';
+
+const ANALYSIS_CACHE = new Map();
+const ANALYSIS_CACHE_LIMIT = 32;
 
 export function runAnalysis(selectedChampions = []) {
+  const cacheKey = buildAnalysisCacheKey(selectedChampions);
+  const cached = ANALYSIS_CACHE.get(cacheKey);
+  if (cached) return cached;
+
   const composition = buildCompositionProfile(selectedChampions);
   const baseAnalysis = analyzeCompositionEngine(composition.selectedChampions);
 
@@ -44,19 +51,23 @@ export function runAnalysis(selectedChampions = []) {
     timeline,
     score,
   });
-  const knowledgeV3 = buildKnowledgeV3Context({
-    ...baseAnalysis,
+  const knowledgeV3 = buildKnowledgeV3Context(
+    {
+      ...baseAnalysis,
+      composition,
+      identity,
+      strategic,
+      score,
+      strengths: strengthsReport.items,
+      weaknesses: weaknessReport.items,
+      synergies,
+      risks,
+    },
     composition,
-    identity,
-    strategic,
-    score,
-    strengths: strengthsReport.items,
-    weaknesses: weaknessReport.items,
-    synergies,
-    risks,
-  }, composition, strategic);
+    strategic
+  );
 
-  return {
+  const analysis = {
     ...baseAnalysis,
     composition,
     identity,
@@ -71,4 +82,26 @@ export function runAnalysis(selectedChampions = []) {
     riskHighlights: risks,
     banRecommendations: buildBanRecommendations(baseAnalysis, composition),
   };
+
+  ANALYSIS_CACHE.set(cacheKey, analysis);
+  if (ANALYSIS_CACHE.size > ANALYSIS_CACHE_LIMIT) {
+    const oldestKey = ANALYSIS_CACHE.keys().next().value;
+    ANALYSIS_CACHE.delete(oldestKey);
+  }
+
+  return analysis;
+}
+
+function buildAnalysisCacheKey(selectedChampions = []) {
+  return selectedChampions
+    .map((champion) => [
+      champion?.role || '',
+      champion?.champion || champion?.name || '',
+      champion?.identity || '',
+      champion?.function || '',
+      champion?.tempo || '',
+      Array.isArray(champion?.strengths) ? champion.strengths.join('|') : '',
+      Array.isArray(champion?.weaknesses) ? champion.weaknesses.join('|') : '',
+    ].join('::'))
+    .join('||');
 }
