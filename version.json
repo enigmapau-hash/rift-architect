@@ -1,6 +1,6 @@
 {
-  "version": "v82",
-  "stage": "Patch 0.58.0 / Last Pick Recommendation",
+  "version": "v83",
+  "stage": "Patch 0.58.1 / Renderer Cache Bust",
   "date": "2026-10-02",
-  "cache": "rift-architect-v161"
+  "cache": "rift-architect-v162"
 }
