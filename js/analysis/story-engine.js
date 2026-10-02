@@ -1,7 +1,7 @@
 import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
 import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
-import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3.js';
+import { buildKnowledgeV3Context } from '../../knowledge/index.js';
 
 export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
@@ -173,7 +173,7 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
       const normalized = normalizeText(value);
       return normalized && !['sin definir', 'resumen', 'narrativa contextual', 'lectura contextual', 'narrativa adaptativa'].includes(normalized);
     })
-    .slice(0, 12);
+    .slice(0, 10);
 }
 
 function banLabelList(bans = []) {
