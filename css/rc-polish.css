@@ -1,0 +1,156 @@
+/* RC polish overrides for Rift Architect */
+
+.analysis-hub__hero {
+  gap: 16px;
+}
+
+.analysis-hub__hero-copy {
+  max-width: 64ch;
+}
+
+.analysis-hub__hero-copy p,
+.analysis-hub__card-copy,
+.analysis-hub__profile-row p,
+.analysis-hub__timeline-row p,
+.analysis-hub__evidence-text,
+.analysis-hub__card-foot {
+  max-width: 62ch;
+}
+
+.analysis-hub__flow-mini,
+.analysis-hub__chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.analysis-hub__flow-mini-item,
+.story-pill {
+  border-radius: 999px;
+  padding: 6px 10px;
+  line-height: 1.2;
+}
+
+.analysis-hub__grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.analysis-hub__card {
+  min-height: 100%;
+}
+
+.analysis-hub__list,
+.analysis-hub__timeline-grid,
+.analysis-hub__evidence-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.analysis-hub__evidence-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.analysis-hub__score-card {
+  border-radius: 20px;
+}
+
+.analysis-hub__score-card strong {
+  display: block;
+  margin: 2px 0 6px;
+}
+
+.analysis-hub__empty {
+  min-height: 132px;
+  align-content: center;
+}
+
+.analysis-hub__card-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.analysis-hub__card-copy,
+.analysis-hub__profile-row p,
+.analysis-hub__timeline-row p,
+.analysis-hub__evidence-text,
+.analysis-hub__card-foot {
+  line-height: 1.6;
+}
+
+.analysis-hub__profile-row,
+.analysis-hub__timeline-row,
+.analysis-hub__evidence-card {
+  gap: 10px;
+}
+
+.analysis-hub__profile-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.analysis-hub__profile-head strong {
+  min-width: 0;
+}
+
+.analysis-hub__profile-head span {
+  white-space: nowrap;
+}
+
+.analysis-hub__card-kicker,
+.analysis-hub__score-kicker,
+.analysis-hub__profile-head span,
+.analysis-hub__flow-mini-item,
+.analysis-hub__card-foot {
+  letter-spacing: 0.08em;
+}
+
+.analysis-hub__profile-bar {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.analysis-hub__profile-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(70, 211, 161, 0.85), rgba(124, 140, 255, 0.95));
+}
+
+.analysis-hub__card--assessment {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.018));
+}
+
+.analysis-hub__card--assessment .analysis-hub__chip-list {
+  margin-top: 2px;
+}
+
+.analysis-hub__card--assessment .analysis-empty {
+  margin-top: 2px;
+}
+
+@media (max-width: 1024px) {
+  .analysis-hub__evidence-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .analysis-hub__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-hub__hero-copy,
+  .analysis-hub__card-copy,
+  .analysis-hub__profile-row p,
+  .analysis-hub__timeline-row p,
+  .analysis-hub__evidence-text,
+  .analysis-hub__card-foot {
+    max-width: none;
+  }
+}
