@@ -23,6 +23,8 @@ La app ya está estable en la ruta principal de render y el trabajo actual se ce
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
+La fase actual está centrada en la **presentación del análisis**: menos duplicidad, mejor jerarquía visual y un informe ejecutivo más claro.
+
 ## Fuente de verdad
 
 - `Draft Pool.xlsx` es la única fuente editable.
