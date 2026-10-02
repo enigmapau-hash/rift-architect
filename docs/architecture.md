@@ -5,67 +5,40 @@
 Rift Architect is organized around three simple layers:
 
 ### Knowledge Layer
-The source material and strategic rules.
-
-- `Draft Pool.xlsx` remains the only editable source of truth.
-- Generated JSON in `data/` mirrors the Excel content.
-- Strategic rules live in the knowledge files and normalize the raw data.
-- No gameplay data is invented outside the Excel or its derived rules.
+- `Draft Pool.xlsx` remains the source of truth.
+- Knowledge files define identities, styles, matchups, macro, tempo, objectives, victory and defeat rules.
+- Knowledge Layer v3 adds explicit playbook-style rules so the engine can reason without hardcoding everything in the UI.
 
 ### Inference Layer
-The reasoning core.
-
-- `js/engine/analysisEngine.js` turns the selected composition into an analysis object.
-- `js/engine/unifiedAnalysisModel.js` normalizes that analysis into one shared object.
-- `js/engine/recommendationEngine.js` turns the unified model into structured recommendations.
-- `js/engine/coachEngine.js` builds the `StrategicPlan`.
-- `js/engine/needEngine.js` turns the plan into clear needs.
-- `js/engine/strategicProfiles.js` maps those needs to profile families.
-- `js/engine/explainabilityEngine.js` explains why each conclusion exists.
-- `js/engine/narrativeEngine.js` converts the analysis into a short executive story.
+- `js/analysis/analysis-engine.js` builds the full report.
+- `js/analysis/strategic-engine.js` reasons about dependencies, redundancy, conflicts, contingencies and adaptation.
+- `js/analysis/story-engine.js` turns the result into a compact coach-like summary.
+- `js/analysis/ban-engine.js` and `js/analysis/last-pick-engine.js` add the practical draft helpers.
+- `js/analysis/analysis-failsafe.js` keeps the visible story in sync with the selected composition.
 
 ### Communication Layer
-The surface the user reads.
-
-- The main Story uses six fixed summary cards instead of modals or accordions.
-- `js/story-compact.js` trims labels, metadata and bars after render so the cards stay compact.
-- `js/story-signals.js` adds compact signal blocks after render to make the most important metrics visible at a glance.
-- `js/explainability-panel.js` turns the explanation output into a contextual evidence explorer.
-- The explainability surface also exposes the recommendation hub in a unified, ordered way.
-- The compacting logic is viewport-aware, so desktop keeps a little more breathing room than mobile.
-- Each card compresses the analysis into short lines, icons, chips, text bars and signal cards.
-- The layout is responsive across mobile, tablet and desktop without changing the hierarchy.
-- The view stays short, compact, and easy to scan.
+- The main UI shows a compact story first.
+- The comparison panel is reused for either A/B comparison or last-pick guidance.
+- The interface stays short, readable and responsive.
 - The communication layer summarizes the motor; it does not replace it.
-
-## Build flow
-
-1. Update the Excel.
-2. Commit the Excel to `main`.
-3. GitHub Actions runs `npm run generate:data`.
-4. The generated JSON is included in the Pages artifact.
-5. The PWA loads `data/index.json` first and then the role JSON files.
 
 ## Current analysis contract
 
-The current analysis should remain compact and centered on:
+The current output stays centered on:
 
-- Identity.
-- Secondary identities.
-- Strengths.
-- Weaknesses.
-- Tempo.
-- Coherence.
-- Win condition.
-- StrategicPlan.
-- Needs.
-- Narrative.
-- Picks.
-- Bans.
-- Signal cards.
-- Evidence and confidence.
-- Recommendation items.
+- identity;
+- secondary identities;
+- strengths and weaknesses;
+- tempo;
+- coherence;
+- win condition;
+- strategic plan;
+- needs;
+- narrative;
+- picks;
+- bans;
+- confidence and evidence.
 
-## Next milestone
+## Working rule
 
-Keep the communication layer even simpler without reducing the value of the inference layer.
+The architecture should evolve by strengthening the reasoning and the knowledge base, not by adding more surface area.
