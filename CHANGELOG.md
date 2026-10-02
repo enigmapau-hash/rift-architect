@@ -1,5 +1,15 @@
 # Changelog
 
+## v107 · Patch 0.62.17 / Visual Polish 1
+### Changed
+- Added a new `analysis-polish.css` layer to unify card spacing, padding, typography rhythm and responsive behavior across the analysis view.
+- Tightened the picker modal layout, avatar sizing, champion rows and list spacing for a more consistent selection experience.
+- Bumped the visible build version to `v107` and rotated the application cache to `rift-architect-v185`.
+- Aligned the entry page, site bootstrap, app bootstrap, analysis boot chain, and service worker asset list to the new generation.
+
+### Notes
+- This patch focuses on visual consistency and responsive polish, not new analysis functionality.
+
 ## v106 · Patch 0.62.16 / Analysis Cache Roll 1
 ### Changed
 - Bumped the visible build version to `v106` and rotated the application cache to `rift-architect-v184`.
@@ -26,33 +36,3 @@
 
 ### Notes
 - This patch fixes the boot error and forces a clean reload path.
-
-## v103 · Patch 0.62.13 / Analysis Report Layout 1
-### Changed
-- Added the new analysis report layout and aligned the composition view with the cleaner report presentation.
-- Introduced `analysis-report.css` as the report-specific polish layer.
-- Bumped the visible build version to keep Pages tracking clear.
-
-### Notes
-- This patch is focused on the new analysis layout.
-
-## v102 · Patch 0.62.12 / Build Reset + Picker Polish 1
-### Changed
-- Resets the saved draft when the Pages build version changes so each new deploy starts from a clean analysis.
-- Keeps the selected composition and the analysis in sync with the current build metadata.
-- Tightens the picker layout and avatar rendering for a more consistent visual result.
-- Bumped the visible build version and the service worker cache to the new generation.
-
-### Notes
-- This patch is focused on fresh starts per deployment and cleaner selection UI.
-
-## v101 · Patch 0.62.11 / Data Flow Clarification 1
-### Changed
-- Recalculated the documentation to make the real data flow explicit: `Draft Pool.xlsx` is the editable source and the analysis engine reads it directly.
-- Clarified that there is no JSON intermediary layer for synchronizing the app data.
-- Bumped the visible build version to keep Pages tracking clear.
-
-### Notes
-- This update is documentation-first and does not change the analysis flow.
-
-## v100 · Patch 0.62.10 / RC1 Integrity Hardening 2
