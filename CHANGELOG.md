@@ -1,5 +1,14 @@
 # Changelog
 
+## v97 · Patch 0.62.7 / Refresh Preservation 1
+### Changed
+- Preserved the current draft when refreshing the workbook instead of clearing it first.
+- Re-hydrated the selection from the pre-refresh snapshot after data reload.
+- Bumped the page bootstrap and module cache to v97.
+
+### Notes
+- This patch keeps the 5-champion composition intact during workbook reloads.
+
 ## v96 · Patch 0.62.6 / Stability Hardening 1
 ### Changed
 - Restored saved draft selections after reload and refresh.
