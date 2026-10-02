@@ -1,12 +1,14 @@
 import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
 import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3.js';
 
 export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
   const score = report.score || {};
   const contextual = buildContextualNarrative(report);
   const strategic = report.strategic || contextual.reasoning || null;
+  const knowledgeV3 = report.knowledgeV3 || buildKnowledgeV3Context(report, report.composition || {}, strategic || contextual);
 
   if (strategic) contextual.reasoning = strategic;
 
@@ -19,6 +21,8 @@ export function buildAnalysisStory(report = {}) {
   const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
   const summaryText = buildNarrativeSummary([
     strategic?.summary,
+    knowledgeV3?.summary,
+    knowledgeV3?.lead,
     strategic?.execution?.detail,
     strategic?.contingency?.detail,
     strategic?.adaptation?.detail,
@@ -58,12 +62,13 @@ export function buildAnalysisStory(report = {}) {
       identity,
       contextual,
       strategic,
+      knowledgeV3,
       strategicClaims,
       bans,
       report,
     }),
     primaryIdentity,
-    identityCopy: cleanText(identity.summaryText || contextual.lead || strategic?.summary || summaryText),
+    identityCopy: cleanText(identity.summaryText || contextual.lead || strategic?.summary || knowledgeV3?.summary || summaryText),
     secondaryIdentities,
     strengths,
     weaknesses,
@@ -74,6 +79,7 @@ export function buildAnalysisStory(report = {}) {
     dominance,
     contextual,
     strategic,
+    knowledgeV3,
     bans,
     banFocus: cleanText(banRecommendations?.focus || strategic?.focus || ''),
     banSummary: cleanText(banRecommendations?.summary || ''),
@@ -89,12 +95,8 @@ function buildStoryTitle(primaryIdentity, focus, winLabel) {
 
   if (!identity && !strategicFocus) return win || 'Análisis de composición';
   if (!strategicFocus) return identity || win || 'Análisis de composición';
-
   if (focusKey === identityKey) return identity || strategicFocus;
-
-  if (identityKey && focusKey.startsWith(`${identityKey} `)) {
-    return strategicFocus;
-  }
+  if (identityKey && focusKey.startsWith(`${identityKey} `)) return strategicFocus;
 
   if (identityKey && strategicFocus.includes('·')) {
     const parts = strategicFocus.split('·').map((part) => cleanText(part)).filter(Boolean);
@@ -113,13 +115,10 @@ function buildNarrativeSummary(parts = []) {
   for (const part of parts) {
     const text = cleanText(part);
     if (!text || isNarrativeNoise(text)) continue;
-
     const normalized = normalizeText(text);
     if (!normalized || seen.has(normalized)) continue;
-
     seen.add(normalized);
     selected.push(text);
-
     if (selected.length >= 2) break;
   }
 
@@ -138,7 +137,7 @@ function isNarrativeNoise(text) {
   ].includes(normalized);
 }
 
-function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategic, strategicClaims, bans, report }) {
+function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategic, knowledgeV3, strategicClaims, bans, report }) {
   const candidates = [
     primaryIdentity,
     tempo,
@@ -154,11 +153,19 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     strategic?.contingency?.label,
     strategic?.adaptation?.label,
     strategic?.metrics?.dominantWindow,
-    strategic?.metrics?.executionRisk >= 70 ? 'Riesgo alto' : null,
+    knowledgeV3?.primaryStyle?.label,
+    knowledgeV3?.matchup?.label,
+    knowledgeV3?.macro?.label,
+    knowledgeV3?.vision?.label,
+    knowledgeV3?.tempo?.label,
+    knowledgeV3?.objectives?.label,
+    knowledgeV3?.victory?.label,
+    knowledgeV3?.defeat?.label,
     banLabelList(bans),
     ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
     ...(Array.isArray(report.tags) ? report.tags : []),
     ...(Array.isArray(contextual?.tags) ? contextual.tags : []),
+    ...(Array.isArray(knowledgeV3?.tags) ? knowledgeV3.tags : []),
   ];
 
   return uniqueValues(candidates.flat ? candidates.flat() : candidates)
@@ -166,7 +173,7 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
       const normalized = normalizeText(value);
       return normalized && !['sin definir', 'resumen', 'narrativa contextual', 'lectura contextual', 'narrativa adaptativa'].includes(normalized);
     })
-    .slice(0, 10);
+    .slice(0, 12);
 }
 
 function banLabelList(bans = []) {
