@@ -21,6 +21,7 @@
 ### Hito 3: IA refinada
 - Mejorar lo que ya existe.
 - Más claridad en las salidas del motor.
+- Narrativa contextual adaptativa basada en reglas.
 - Sin crear nuevas pantallas.
 
 ### Hito 4: Base de conocimiento madura
