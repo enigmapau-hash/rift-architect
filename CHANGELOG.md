@@ -1,5 +1,15 @@
 # Changelog
 
+## v116 · Patch 0.62.26 / RC2 Data Contract 1
+### Changed
+- Added a structured analysis contract so the renderer consumes a single normalized layer instead of reading engine outputs directly.
+- Added `report-contract.js` and routed the report wrapper through the RC2 dashboard renderer.
+- Documented the contract in `docs/ANALYSIS_CONTRACT.md`.
+- Rotated the visible build to `v116` and the application cache to `rift-architect-v194`.
+
+### Notes
+- This patch closes the data-contract step of RC2 and keeps the renderer focused on the dashboard layer only.
+
 ## v115 · Patch 0.62.25 / RC2 Structured Analysis 1
 ### Changed
 - Rebuilt the executive analysis as a structured dashboard where each motor is represented in its own card.
