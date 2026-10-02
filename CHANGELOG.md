@@ -1,5 +1,15 @@
 # Changelog
 
+## v111 · Patch 0.62.21 / Visual Finish 2
+### Changed
+- Added a final visual finesse layer for the analysis report and picker with tighter alignment, consistent chip icons, better heights, cleaner spacing and smoother microinteractions.
+- Added `analysis-visual-finesse.css` and loaded it after the existing polish layers.
+- Bumped the visible build version to `v111` and rotated the application cache to `rift-architect-v189`.
+- Aligned the entry page and service worker with the new generation.
+
+### Notes
+- This patch focuses on the final visual polish pass: alignment, spacing, icon consistency, subtle motion and cleaner presentation.
+
 ## v110 · Patch 0.62.20 / QA Functional 1
 ### Changed
 - Rotated the public build to `v110` and the application cache to `rift-architect-v188`.
