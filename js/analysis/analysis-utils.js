@@ -61,12 +61,38 @@ export function toneFromScore(score = 0) {
 }
 
 export function buildRankedList(items = [], badge = '', detail = '', startScore = 90) {
-  return uniqueValues(Array.isArray(items) ? items : [items])
-    .slice(0, 3)
-    .map((label, index) => ({
-      label,
-      badge,
-      detail,
-      score: clamp(startScore - index * 8, 35, 100),
-    }));
+  const labels = uniqueValues(Array.isArray(items) ? items : [items]);
+
+  return labels.slice(0, 3).map((label, index) => ({
+    label,
+    badge,
+    detail: buildRankedDetail(label, badge, detail),
+    score: clamp(startScore - index * 8, 35, 100),
+  }));
+}
+
+function buildRankedDetail(label, badge, fallback) {
+  const normalizedBadge = cleanText(badge).toLowerCase();
+  const normalizedLabel = cleanText(label).toLowerCase();
+  const normalizedFallback = cleanText(fallback);
+
+  if (normalizedBadge.includes('apoya')) {
+    return normalizedLabel
+      ? `Suma valor cuando juegas alrededor de ${normalizedLabel}.`
+      : normalizedFallback || 'Suma valor cuando sigues el plan.';
+  }
+
+  if (normalizedBadge.includes('vigilar')) {
+    return normalizedLabel
+      ? `Si fuerzas ${normalizedLabel}, te expones más de la cuenta.`
+      : normalizedFallback || 'Te expone si lo fuerzas mal.';
+  }
+
+  if (normalizedBadge.includes('alerta') || normalizedBadge.includes('riesgo')) {
+    return normalizedLabel
+      ? `Conviene respetar ${normalizedLabel} para no regalar el ritmo.`
+      : normalizedFallback || 'Conviene respetarlo para no regalar el ritmo.';
+  }
+
+  return normalizedFallback || cleanText(label);
 }
