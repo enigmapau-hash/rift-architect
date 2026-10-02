@@ -1,16 +1,5 @@
-const MODULES = [
-  './bootstrap.js',
-  './block-legacy-data-fetches.js',
-  './picker-a11y-fix.js',
-  './pwa-reset.js',
-  './app-v2.js',
-  './v2_patch.js',
-  './composition-ia.js',
-];
-
-const IGNORED_FILENAMES = new Set(['contentscript.js']);
-let analysisRenderScheduled = false;
-let compositionObserver = null;
+const CORE_MODULES = ['./bootstrap.js', './pwa-reset.js', './app-v2.js', './composition-ia.js'];
+const OPTIONAL_MODULES = ['./picker-a11y-fix.js'];
 
 function isLikelyExternalError(error) {
   const filename = String(error?.filename || error?.fileName || '').toLowerCase();
@@ -48,7 +37,7 @@ function ensureOverlayRoot() {
         <div>
           <p style="margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:#94a3b8;">Rift Architect</p>
           <h2 style="margin:0 0 10px;font-size:20px;line-height:1.2;color:#f8fafc;">No se pudo arrancar la app</h2>
-          <p style="margin:0 0 14px;color:#cbd5e1;">Hay un fallo de carga en alguno de los módulos del proyecto.</p>
+          <p style="margin:0 0 14px;color:#cbd5e1;">Hay un fallo de carga en alguno de los módulos imprescindibles del proyecto.</p>
         </div>
         <button type="button" data-close style="border:0;border-radius:10px;background:#1e293b;color:#e2e8f0;padding:8px 12px;cursor:pointer;">Cerrar</button>
       </div>
@@ -81,43 +70,21 @@ function showBootError(error, modulePath = '') {
   root.style.display = 'flex';
 }
 
-function scheduleAnalysisRender() {
-  if (analysisRenderScheduled) return;
-  analysisRenderScheduled = true;
-  window.requestAnimationFrame(() => {
-    analysisRenderScheduled = false;
+async function importModuleWithRetry(modulePath, attempts = 2, delayMs = 450) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
     try {
-      globalThis.renderAnalysisStory?.();
+      return await import(modulePath);
     } catch (error) {
-      console.error('[Rift Architect] renderAnalysisStory failed', error);
+      lastError = error;
+      if (attempt < attempts) {
+        await new Promise((resolve) => window.setTimeout(resolve, delayMs * attempt));
+      }
     }
-  });
-}
-
-function attachCompositionObserver() {
-  if (compositionObserver) return;
-
-  const node = document.getElementById('compositionGrid');
-  if (!node) {
-    window.requestAnimationFrame(attachCompositionObserver);
-    return;
   }
 
-  compositionObserver = new MutationObserver(scheduleAnalysisRender);
-  compositionObserver.observe(node, { childList: true, subtree: true, characterData: true });
-
-  node.addEventListener('click', () => window.setTimeout(scheduleAnalysisRender, 0));
-  node.addEventListener('input', () => window.setTimeout(scheduleAnalysisRender, 0));
-  scheduleAnalysisRender();
-}
-
-function startRenderSync() {
-  attachCompositionObserver();
-  window.setInterval(scheduleAnalysisRender, 300);
-  window.addEventListener('focus', scheduleAnalysisRender);
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) scheduleAnalysisRender();
-  });
+  throw lastError;
 }
 
 window.addEventListener('error', (event) => {
@@ -131,21 +98,21 @@ window.addEventListener('unhandledrejection', (event) => {
 });
 
 (async () => {
-  const failures = [];
-
-  for (const modulePath of MODULES) {
+  for (const modulePath of CORE_MODULES) {
     try {
-      await import(modulePath);
+      await importModuleWithRetry(modulePath);
     } catch (error) {
-      failures.push({ modulePath, error });
-      console.error(`[Rift Architect] Failed to load ${modulePath}`, error);
+      console.error(`[Rift Architect] Failed to load required module ${modulePath}`, error);
+      showBootError(error, modulePath);
+      return;
     }
   }
 
-  startRenderSync();
-
-  if (failures.length) {
-    const firstFailure = failures[0];
-    showBootError(firstFailure.error, firstFailure.modulePath);
+  for (const modulePath of OPTIONAL_MODULES) {
+    try {
+      await importModuleWithRetry(modulePath);
+    } catch (error) {
+      console.warn(`[Rift Architect] Optional module failed to load ${modulePath}`, error);
+    }
   }
 })();
