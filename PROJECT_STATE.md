@@ -36,7 +36,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Suite de tests automáticos para evitar regresiones.
 
 ## En qué punto está ahora
-La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar la QA: probar muchas composiciones, revisar consola, validar refresh del Excel, homogeneizar la presentación y limpiar código viejo.
+La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo: orden de lectura, menos duplicidad, textos más cortos y una jerarquía visual más clara.
 
 ## Siguiente bloque de trabajo
 El siguiente paso es una auditoría completa de estabilidad y limpieza:
