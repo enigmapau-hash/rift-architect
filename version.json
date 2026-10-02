@@ -1,6 +1,6 @@
 {
-  "version": "v107",
-  "stage": "Patch 0.62.17 / Visual Polish 1",
+  "version": "v108",
+  "stage": "Patch 0.62.18 / QA Audit 1",
   "date": "2026-10-02",
-  "cache": "rift-architect-v185"
+  "cache": "rift-architect-v186"
 }
