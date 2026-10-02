@@ -1,7 +1,7 @@
 import { normalizeWorkbookDataset } from './dataset-normalizer.js';
 import { ROLE_SHEETS } from './draft-state.js';
 import { loadChampionCatalog, loadWorkbook, parseSheet } from './workbook.js';
-import { invalidateAnalysisCache } from '../analysis/analysis-engine.js?v=98';
+import { invalidateAnalysisCache } from '../analysis/analysis-engine.js?v=99';
 import { invalidateCompositionProfileCache } from '../analysis/composition-profile.js';
 
 const NORMALIZED_WORKBOOK_CACHE = new WeakMap();
