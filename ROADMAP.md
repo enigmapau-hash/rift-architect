@@ -23,6 +23,7 @@
 - Más claridad en las salidas del motor.
 - Narrativa contextual adaptativa basada en reglas.
 - Motor estratégico con razonamiento causal sobre dependencias, visión y win conditions.
+- Bans inteligentes con los 5 campeones más problemáticos para cada plan.
 - Sin crear nuevas pantallas.
 
 ### Hito 4: Base de conocimiento madura
@@ -30,6 +31,7 @@
 - Normalización y validación más estrictas.
 - Taxonomía compartida para identidades, funciones, tempos y etiquetas repetidas.
 - Playbooks explícitos para identidades y patrones.
+- Bans explícitos por identidad y patrón.
 - Más señales útiles por composición.
 
 ### Hito 5: Beta 1.0
@@ -60,4 +62,5 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 - La app mantiene una jerarquía visual simple y funcional.
 - La base del dataset ya usa una taxonomía compartida para reducir duplicidad.
 - La narrativa contextual y el motor estratégico ya razonan sobre la composición.
+- Los bans inteligentes ya priorizan los campeones que más rompen el plan.
 - El siguiente trabajo debe atacar solo el Hito 3.
