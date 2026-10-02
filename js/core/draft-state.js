@@ -46,7 +46,7 @@ export function createDraftState() {
     iconCatalog: null,
     dataset: null,
     datasetStats: null,
-    savedDraft: { activeRole: 'top', selected: {} },
+    savedDraft: loadDraft(),
   };
 }
 
@@ -54,13 +54,53 @@ export function normalizeRole(role) {
   return ROLE_ORDER.includes(role) ? role : 'top';
 }
 
-export function loadDraft() {
-  return { activeRole: 'top', selected: {} };
+export function loadDraft(storage = globalThis.localStorage) {
+  try {
+    const raw = storage?.getItem(STORAGE_KEY);
+    if (!raw) return { activeRole: 'top', selected: {} };
+
+    const parsed = JSON.parse(raw);
+    const activeRole = normalizeRole(parsed?.activeRole);
+    const selected = Object.fromEntries(
+      ROLE_ORDER.map((role) => [role, typeof parsed?.selected?.[role] === 'string' ? parsed.selected[role] : null])
+    );
+
+    return { activeRole, selected };
+  } catch {
+    return { activeRole: 'top', selected: {} };
+  }
 }
 
-export function restoreDraftFromState(state) {
-  state.activeRole = 'top';
-  state.selected = { ...DEFAULT_SELECTED };
+export function restoreDraftFromState(state, draft = loadDraft()) {
+  if (!state) return false;
+
+  state.activeRole = normalizeRole(draft?.activeRole);
+  state.selected = Object.fromEntries(ROLE_ORDER.map((role) => [role, null]));
+
+  const selected = Object.fromEntries(ROLE_ORDER.map((role) => [role, null]));
+  let restoredCount = 0;
+
+  for (const role of ROLE_ORDER) {
+    const championName = String(draft?.selected?.[role] || '').trim();
+    if (!championName) continue;
+
+    const champion = Array.isArray(state.data?.[role])
+      ? state.data[role].find((item) => item && item.champion === championName)
+      : null;
+
+    if (champion) {
+      selected[role] = champion;
+      restoredCount += 1;
+    }
+  }
+
+  state.selected = selected;
+  state.savedDraft = {
+    activeRole: state.activeRole,
+    selected: Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])),
+  };
+
+  return restoredCount > 0;
 }
 
 export function saveDraft(state) {
