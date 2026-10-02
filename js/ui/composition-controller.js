@@ -97,9 +97,15 @@ export function createCompositionController({ state, persistDraft = () => {} } =
   }
 
   function snapshotCurrentDraft() {
+    const selected = Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null]));
+    const selectedKeys = Object.fromEntries(
+      ROLE_ORDER.map((role) => [role, state.selected[role]?.championKey || normalizeText(state.selected[role]?.champion || '') || null])
+    );
+
     return {
       activeRole: state.activeRole,
-      selected: Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])),
+      selected,
+      selectedKeys,
     };
   }
 
