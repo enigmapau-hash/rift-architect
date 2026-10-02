@@ -5,7 +5,7 @@ import { buildStrategicReasoning } from './strategic-engine.js?v=98';
 import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
-import { buildWeaknessReport } from './weakness-engine.js';
+import { buildWeakReport } from './weakness-engine.js';
 import { buildGamePlanReport } from './gameplan-engine.js';
 import { buildTimelineReport } from './timeline-engine.js';
 import { buildScoreReport } from './score-engine.js';
@@ -90,6 +90,10 @@ export function runAnalysis(selectedChampions = []) {
   }
 
   return analysis;
+}
+
+export function invalidateAnalysisCache() {
+  ANALYSIS_CACHE.clear();
 }
 
 function buildAnalysisCacheKey(selectedChampions = []) {
