@@ -1,1 +1,1 @@
-import './analysis-failsafe.js?v=72';
+import './analysis-failsafe.js?v=73';
