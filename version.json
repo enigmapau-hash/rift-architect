@@ -1,6 +1,6 @@
 {
-  "version": "v70",
-  "stage": "Patch 0.49.0 / Cache-Busted Recovery",
+  "version": "v71",
+  "stage": "Patch 0.50.0 / Modular App-v2 Split",
   "date": "2026-10-02",
-  "cache": "rift-architect-v148"
+  "cache": "rift-architect-v149"
 }
