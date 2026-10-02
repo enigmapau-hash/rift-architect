@@ -12,6 +12,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 4. Detectar errores críticos.
 5. Sugerir bans que protejan el plan.
 6. Preparar recomendaciones de pick cuando falte una pieza clave.
+7. Comparar dos composiciones para ver cuál encaja mejor con el plan.
 
 ## Qué ya está hecho
 - Selector modal por rol con composición temporal.
@@ -26,6 +27,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Motor estratégico que razona sobre dependencias, visión y choques de win conditions.
 - Bans inteligentes con los 5 campeones que más dificultan ejecutar el plan.
 - Recomendación del último pick con la mejor opción y alternativas útiles.
+- Comparador A/B para contrastar dos composiciones guardadas.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 
 ## En qué punto está ahora
@@ -61,4 +63,4 @@ Si esta conversación se corta, seguir desde aquí:
 - El proyecto ya tiene la base estable recuperada.
 - El siguiente desarrollo debe respetar el estado actual y pasar por auditoría.
 - Mantener la filosofía de analizar solo la composición propia.
-- Antes de cerrar cualquier sprint, revisar consola, README y ROADMAP.
+- Antes de cerrar cualquier sprint, revisar consola, README, ROADMAP.
