@@ -1,0 +1,313 @@
+/* Analysis report layout for Rift Architect */
+
+.analysis-report {
+  display: grid;
+  gap: 16px;
+}
+
+.analysis-report__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 280px);
+  gap: 14px;
+  align-items: start;
+}
+
+.analysis-report__hero-copy {
+  max-width: 72ch;
+}
+
+.analysis-report__lede {
+  margin-top: 8px;
+  line-height: 1.6;
+  color: var(--text);
+}
+
+.analysis-report__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.analysis-report__chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  line-height: 1.2;
+}
+
+.analysis-report__chip.is-active {
+  border-color: rgba(70, 211, 161, 0.25);
+  background: rgba(70, 211, 161, 0.12);
+}
+
+.analysis-report__score {
+  align-self: start;
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(124, 140, 255, 0.22);
+  background: linear-gradient(180deg, rgba(124, 140, 255, 0.14), rgba(255, 255, 255, 0.04));
+}
+
+.analysis-report__score.is-great {
+  border-color: rgba(70, 211, 161, 0.24);
+}
+
+.analysis-report__score.is-good {
+  border-color: rgba(124, 140, 255, 0.22);
+}
+
+.analysis-report__score.is-mid {
+  border-color: rgba(255, 209, 138, 0.22);
+}
+
+.analysis-report__score.is-low {
+  border-color: rgba(255, 122, 122, 0.22);
+}
+
+.analysis-report__score-kicker {
+  color: var(--accent-2);
+  font-size: 0.66rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.analysis-report__score strong {
+  display: block;
+  margin: 2px 0 6px;
+  font-size: clamp(1.8rem, 2.2vw, 2.35rem);
+  line-height: 1;
+  letter-spacing: var(--letter-tight);
+}
+
+.analysis-report__score span {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.analysis-report__body {
+  display: grid;
+  gap: 14px;
+}
+
+.analysis-report__split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.analysis-report__split--tight {
+  gap: 12px;
+}
+
+.analysis-report__panel {
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px;
+}
+
+.analysis-report__section-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.analysis-report__section-title strong {
+  font-size: 1.04rem;
+  line-height: 1.2;
+}
+
+.analysis-report__section-title span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.analysis-report__copy {
+  font-size: 1.02rem;
+  line-height: 1.45;
+}
+
+.analysis-report__small {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.analysis-report__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.analysis-report__fact {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__fact span {
+  color: var(--accent-2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.analysis-report__fact strong {
+  line-height: 1.35;
+}
+
+.analysis-report__list,
+.analysis-report__timeline {
+  display: grid;
+  gap: 10px;
+}
+
+.analysis-report__timeline-row,
+.analysis-report__item {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__item--soft {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.analysis-report__item-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.analysis-report__item-head strong {
+  min-width: 0;
+  font-size: 0.98rem;
+  line-height: 1.2;
+}
+
+.analysis-report__item-head span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.analysis-report__item p,
+.analysis-report__timeline-row p {
+  line-height: 1.55;
+}
+
+.analysis-report__bar {
+  height: 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.analysis-report__bar-fill {
+  height: 100%;
+  width: var(--meter, 0%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(70, 211, 161, 0.9), rgba(124, 140, 255, 0.95));
+}
+
+.analysis-report__mini-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__mini-title {
+  color: var(--accent-2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.analysis-report__empty,
+.analysis-report__empty-inline {
+  display: grid;
+  gap: 8px;
+}
+
+.analysis-report__empty {
+  min-height: 132px;
+  padding: 18px;
+  align-content: center;
+  border: 1px dashed rgba(124, 140, 255, 0.24);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__empty h4 {
+  margin: 0;
+  font-size: clamp(1.02rem, 0.7vw + 0.98rem, 1.22rem);
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.analysis-report__empty p,
+.analysis-report__empty-inline {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.analysis-report__empty-inline {
+  padding: 6px 0 2px;
+}
+
+.analysis-report__section-note {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 1024px) {
+  .analysis-report__hero,
+  .analysis-report__split,
+  .analysis-report__facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .analysis-report__panel {
+    padding: 16px;
+  }
+
+  .analysis-report__hero {
+    gap: 12px;
+  }
+
+  .analysis-report__item-head,
+  .analysis-report__section-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .analysis-report__chip {
+    width: fit-content;
+  }
+}
