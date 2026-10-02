@@ -1,75 +1,24 @@
-# Rift Architect Decisions
+# Decisions
 
-## D-001 — Own composition only
-We analyze the player's own composition, not the enemy draft.
+## Core product decisions
 
-## D-002 — Excel as source of truth
-`Draft Pool.xlsx` stays as the editable source. Everything else is derived from it.
+- The app analyzes the user’s own composition first.
+- The visible story should feel like a coach, not like a raw label dump.
+- The analysis layer should stay compact and weighted.
+- The knowledge base should live outside the render logic.
+- Strategic reasoning should happen in the engine, not in the UI.
+- New screens should not be added unless they create clear value.
 
-## D-003 — Fixed cards over modals
-The Story surface uses six fixed summary cards instead of accordions or modals.
+## Architecture decisions
 
-Why:
-- less interaction friction,
-- shorter scroll,
-- fewer state bugs,
-- clearer hierarchy.
+- Keep one primary render path.
+- Use Knowledge Layer v3 for explicit strategic rules.
+- Use strategic reasoning for dependencies, redundancy, conflicts and contingencies.
+- Reuse the same visible comparison surface for comparison and last-pick guidance.
+- Keep the boot chain explicit and versioned when stability changes.
 
-## D-004 — Compact communication layer
-The UI should summarize the motor, not duplicate it.
+## Documentation decisions
 
-Why:
-- keep the screen readable at a glance,
-- preserve the depth of the motor,
-- show short lines, chips and text bars instead of long paragraphs.
-
-## D-005 — Sync from saved draft
-The Story rerenders from the saved draft in `localStorage` so the analysis follows the selected champions without manual refresh.
-
-## D-006 — Responsive first
-Every visible change must work across mobile, tablet and desktop with the same hierarchy and no horizontal scrolling.
-
-Why:
-- keep the product usable everywhere,
-- avoid desktop-only layouts,
-- preserve the same analysis contract on every device.
-
-## D-007 — Compact signals over long paragraphs
-When the motor returns dense text, the communication layer should compress it into shorter labels, bars and chips before it reaches the user.
-
-Why:
-- reduce repeated text,
-- show the important signal first,
-- keep each card scannable in a few seconds.
-
-## D-008 — Visual signal cards
-Signal cards should use chips and meters for the most important values, instead of another block of prose.
-
-Why:
-- faster scanning,
-- better hierarchy,
-- less vertical noise on every screen.
-
-## D-009 — Desktop breathing room
-On desktop, signal cards should relax their compacting a bit so text is not forced into narrow columns.
-
-Why:
-- improve readability on larger screens,
-- keep the same analysis meaning,
-- use the available width instead of fighting it.
-
-## D-010 — Explainability panel
-The reasoning layer should be inspectable through a dedicated evidence explorer instead of being hidden inside long paragraphs.
-
-Why:
-- make the motor auditable,
-- surface confidence and supporting evidence,
-- prepare the product for future contextual interactions.
-
-## D-011 — Recommendation hub
-Structured recommendations should be surfaced in the explainability surface as an ordered hub instead of duplicated as loose text.
-
-Why:
-- keep one source of truth for actions,
-- sort by priority and confidence,
-- reuse the same recommendation objects in Story, Draft and future contextual views.
+- README, ROADMAP and the state documents must reflect the actual app state.
+- When the app changes materially, the docs change with it.
+- The repo should be understandable after a restart without reconstructing the whole history from chat.
