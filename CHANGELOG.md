@@ -1,5 +1,15 @@
 # Changelog
 
+## v99 · Patch 0.62.9 / RC1 Integrity Hardening 1
+### Changed
+- Preserved the selected composition across workbook refreshes using normalized champion matching and saved keys.
+- Invalidated analysis and composition caches on forced workbook reloads.
+- Bumped the page bootstrap, analysis chain, knowledge chain, and service worker cache to v99.
+- Aligned the app, site bootstrap, and service worker to the same cache generation.
+
+### Notes
+- This patch closes the first RC1 integrity pass and keeps refreshes and reloads consistent.
+
 ## v98 · Patch 0.62.8 / Stability Audit 2
 ### Changed
 - Aligned the boot chain, analysis chain, and knowledge chain to v98.
