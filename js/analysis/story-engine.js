@@ -1,7 +1,7 @@
 import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
 import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
-import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=99';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=100';
 
 export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
@@ -54,7 +54,7 @@ export function buildAnalysisStory(report = {}) {
     summaryText,
     confidence,
     scoreBadge: score.badge || labelFromConfidence(confidence),
-    grade: score.grade || gradeFromScore(confidence),
+    grade: score.grade || gradeFromConfidence(confidence),
     tags: buildStoryTags({
       primaryIdentity,
       tempo,
