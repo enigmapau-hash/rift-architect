@@ -1,94 +1,27 @@
 # Attribute Catalog
 
-## Objetivo
+## Purpose
 
-Definir qué significa cada atributo para que el motor de análisis y la futura IA interpreten la información del Excel de la misma forma.
+The attribute catalog keeps the vocabulary used by the spreadsheet, normalization layer and analysis engines aligned.
 
-## Regla base
+## Core attributes
 
-- El Excel sigue siendo la fuente de verdad.
-- El catálogo no añade datos nuevos.
-- Solo define el significado, uso y visibilidad de cada atributo.
-- La interfaz debe seguir siendo simple y compacta.
+- identity
+- function
+- tempo
+- role
+- strengths
+- weaknesses
+- tags
+- objectives
+- vision
+- risk
+- confidence
 
-## Niveles de visibilidad
+## Current rule
 
-### Visible en la UI
-Son los atributos que el usuario puede entender de un vistazo.
+Whenever a new label appears in the Excel or the knowledge layer, it should map to an existing concept before a new concept is created.
 
-- Frontline
-- Engage
-- Peel
-- DPS
-- Burst
-- Poke
-- Teamfight
-- Scaling
-- Objective Control
-- Splitpush
-- Waveclear
+## Benefit
 
-### Útil para el motor
-Se usan para agrupar y resumir, aunque no siempre se muestren como texto principal.
-
-- Mobility
-- Siege
-- Pick
-- Control
-- Disengage
-
-### Interno / técnico
-Se usa para ajustar o enriquecer el análisis sin mostrarse en la UI base.
-
-- Confidence
-- Vision
-- Notas internas de normalización
-
-## Significado de referencia
-
-| Atributo | Significado breve | Visible |
-|---|---|:---:|
-| Frontline | Aguantar daño y mantener la pelea | ✅ |
-| Engage | Iniciar la pelea | ✅ |
-| Peel | Proteger al carry | ✅ |
-| DPS | Daño sostenido | ✅ |
-| Burst | Daño explosivo | ✅ |
-| Poke | Daño a distancia antes de pelear | ✅ |
-| Teamfight | Rendimiento en peleas agrupadas | ✅ |
-| Scaling | Mejora con el paso de la partida | ✅ |
-| Objective Control | Ayuda a asegurar objetivos | ✅ |
-| Splitpush | Presión en side lane | ✅ |
-| Waveclear | Limpiar oleadas rápido | ✅ |
-| Mobility | Capacidad de moverse y reposicionarse | ❌ |
-| Siege | Presión sobre torres y zonas | ❌ |
-| Pick | Castigar errores con cazadas | ❌ |
-| Control | Utilidad, CC y zona | ❌ |
-| Disengage | Salir o frenar una pelea | ❌ |
-| Vision | Control de visión | ❌ |
-| Confidence | Dato interno de consistencia | ❌ |
-
-## Uso en Rift Architect
-
-### UI
-Solo debe enseñar lo imprescindible:
-
-- Identity
-- Function
-- Tempo
-- Resumen de análisis
-
-### Motor
-Agrupa atributos y devuelve un bloque compacto:
-
-- Identidad principal
-- Identidades secundarias
-- Hace bien
-- Le falta
-- Plan de juego
-
-### IA
-La IA usará este catálogo para explicar la composición con más contexto, pero sin salir del marco del Excel.
-
-## Regla de calidad
-
-Si un atributo no aparece en el Excel, no se inventa. Si aparece con una variante de nombre, se normaliza antes de llegar a la UI o al motor.
+This reduces duplication and keeps the analysis easier to maintain.
