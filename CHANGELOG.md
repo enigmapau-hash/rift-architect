@@ -1,5 +1,15 @@
 # Changelog
 
+## v102 · Patch 0.62.12 / Build Reset + Picker Polish 1
+### Changed
+- Resets the saved draft when the Pages build version changes so each new deploy starts from a clean analysis.
+- Keeps the selected composition and the analysis in sync with the current build metadata.
+- Tightens the picker layout and avatar rendering for a more consistent visual result.
+- Bumped the visible build version and the service worker cache to the new generation.
+
+### Notes
+- This patch is focused on fresh starts per deployment and cleaner selection UI.
+
 ## v101 · Patch 0.62.11 / Data Flow Clarification 1
 ### Changed
 - Recalculated the documentation to make the real data flow explicit: `Draft Pool.xlsx` is the editable source and the analysis engine reads it directly.
