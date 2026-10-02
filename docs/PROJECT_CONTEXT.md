@@ -42,6 +42,7 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - Ajustar la narrativa para que suene más a coach.
 - Ordenar mejor el informe ejecutivo para que se lea de un vistazo.
 - Cerrar el último pulido visual.
+- Cerrar la accesibilidad.
 - Mantener la documentación sincronizada con la app real.
 - Limpiar restos de código legado.
 - Cerrar la QA con muchas composiciones reales.
