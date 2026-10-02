@@ -481,7 +481,7 @@ function renderFact(label, value) {
   return `
     <div class="analysis-dashboard__metric">
       <span class="analysis-dashboard__metric-label">${escapeHtml(label)}</span>
-      <strong class="analysis-dashboard__metric-value">${escapeHtml(value)}</strong>
+      <strong class="analysis-dashboard__metric-value">${escapeHtml(summarizeText(value, 42))}</strong>
     </div>
   `;
 }
@@ -490,7 +490,7 @@ function renderMetric(label, value) {
   return `
     <div class="analysis-dashboard__metric">
       <span class="analysis-dashboard__metric-label">${escapeHtml(label)}</span>
-      <strong class="analysis-dashboard__metric-value">${escapeHtml(value)}</strong>
+      <strong class="analysis-dashboard__metric-value">${escapeHtml(summarizeText(value, 42))}</strong>
     </div>
   `;
 }
