@@ -70,8 +70,8 @@ test('Knowledge Layer v3 resolves style matchups and core guidance', () => {
   assert.ok(report.primaryStyle);
   assert.equal(report.primaryStyle.key, 'dive');
   assert.ok(report.matchup);
+  assert.equal(report.matchup?.label, 'Dive vs Disengage');
   assert.match(report.lead || '', /Dive/i);
-  assert.match(report.summary || '', /Disengage/i);
   assert.ok(Array.isArray(report.rules) && report.rules.length >= 4);
   assert.ok(Array.isArray(report.claims) && report.claims.some((claim) => claim.kind === 'matchup'));
   assert.ok(Array.isArray(report.tags) && report.tags.includes('Dive'));
