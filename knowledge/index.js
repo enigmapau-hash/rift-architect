@@ -4,7 +4,7 @@ import {
   summarizeKnowledgeV3Context,
   findKnowledgeStyle,
   findKnowledgeMatchup,
-} from './knowledge-v3.js?v=96';
+} from './knowledge-v3.js?v=98';
 
 export { IDENTITY_RELATIONS } from './identity-relations.js';
 export { DIRECT_SYNERGY_RULES, MACRO_SYNERGY_RULES } from './synergies.js';
@@ -38,6 +38,6 @@ export {
   summarizeKnowledgeV3Context,
   findKnowledgeStyle,
   findKnowledgeMatchup,
-} from './knowledge-v3.js?v=96';
-export { buildKnowledgeV3Context, summarizeKnowledgeV3Context as summarizeKnowledgeV3ContextV3 } from './knowledge-v3-context.js?v=96';
+} from './knowledge-v3.js?v=98';
+export { buildKnowledgeV3Context, summarizeKnowledgeV3Context as summarizeKnowledgeV3ContextV3 } from './knowledge-v3-context.js?v=98';
 export { validateKnowledgeLayer, formatKnowledgeReport } from './validator.js';
