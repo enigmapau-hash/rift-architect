@@ -8,13 +8,42 @@ import {
   WORKBOOK_URL,
 } from './draft-state.js';
 
+const XLSX_SCRIPT_URL = 'https://unpkg.com/xlsx/dist/xlsx.full.min.js';
 let workbookCache = null;
 let workbookPromise = null;
 let championCatalogCache = null;
 let championCatalogPromise = null;
+let xlsxPromise = null;
+
+async function ensureXlsx() {
+  if (window.XLSX) return window.XLSX;
+  if (xlsxPromise) return xlsxPromise;
+
+  xlsxPromise = new Promise((resolve, reject) => {
+    const existing = document.querySelector(`script[src="${XLSX_SCRIPT_URL}"]`);
+    if (existing) {
+      existing.addEventListener('load', () => resolve(window.XLSX), { once: true });
+      existing.addEventListener('error', () => reject(new Error('No se pudo cargar XLSX')), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = XLSX_SCRIPT_URL;
+    script.async = true;
+    script.onload = () => resolve(window.XLSX);
+    script.onerror = () => reject(new Error('No se pudo cargar XLSX'));
+    document.head.appendChild(script);
+  });
+
+  try {
+    return await xlsxPromise;
+  } finally {
+    xlsxPromise = null;
+  }
+}
 
 export async function loadWorkbook(force = false) {
-  if (!window.XLSX) return null;
+  if (!(await ensureXlsx())) return null;
   if (!force && workbookCache) return workbookCache;
   if (!force && workbookPromise) return workbookPromise;
 
