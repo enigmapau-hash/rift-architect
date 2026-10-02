@@ -1,0 +1,354 @@
+/* Executive report polish for Rift Architect */
+
+.analysis-report {
+  display: grid;
+  gap: 18px;
+}
+
+.analysis-report__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.analysis-report__hero-copy {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.analysis-report__lede {
+  max-width: 72ch;
+  line-height: 1.65;
+  color: var(--text);
+}
+
+.analysis-report__priority-strip,
+.analysis-report__score-strip,
+.analysis-report__chips,
+.analysis-report__mini-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.analysis-report__priority-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 140, 255, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+}
+
+.analysis-report__score {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  justify-items: start;
+  min-height: 100%;
+}
+
+.analysis-report__score-strip span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.analysis-report__body {
+  display: grid;
+  gap: 16px;
+}
+
+.analysis-report__body > *,
+.analysis-report__split > * {
+  min-width: 0;
+}
+
+.analysis-report__split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.analysis-report__panel {
+  display: grid;
+  gap: 14px;
+  padding: clamp(16px, 1.6vw, 22px);
+  border-radius: 20px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  height: 100%;
+  align-content: start;
+}
+
+.analysis-report__panel--featured {
+  border-color: rgba(70, 211, 161, 0.18);
+  background: linear-gradient(180deg, rgba(70, 211, 161, 0.06), rgba(255, 255, 255, 0.03));
+}
+
+.analysis-report__panel--accent {
+  border-color: rgba(124, 140, 255, 0.2);
+  background: linear-gradient(180deg, rgba(124, 140, 255, 0.06), rgba(255, 255, 255, 0.03));
+}
+
+.analysis-report__section-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.analysis-report__section-step {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  border: 1px solid rgba(124, 140, 255, 0.2);
+  background: linear-gradient(180deg, rgba(124, 140, 255, 0.18), rgba(255, 255, 255, 0.05));
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.analysis-report__section-title {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.analysis-report__section-title strong {
+  font-size: 1.06rem;
+  line-height: 1.2;
+}
+
+.analysis-report__section-subtitle {
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+
+.analysis-report__copy {
+  line-height: 1.6;
+}
+
+.analysis-report__copy--lead {
+  font-size: 1.02rem;
+}
+
+.analysis-report__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.analysis-report__fact {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__fact span {
+  color: var(--accent-2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.analysis-report__fact strong {
+  line-height: 1.35;
+}
+
+.analysis-report__list,
+.analysis-report__timeline,
+.analysis-report__mini-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.analysis-report__item {
+  display: grid;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__item-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.analysis-report__item-head strong {
+  min-width: 0;
+  font-size: 0.98rem;
+  line-height: 1.18;
+}
+
+.analysis-report__item-head span {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.analysis-report__bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+.analysis-report__bar-fill {
+  height: 100%;
+  width: var(--meter, 0%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(70, 211, 161, 0.92), rgba(124, 140, 255, 0.96));
+}
+
+.analysis-report__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  line-height: 1.2;
+}
+
+.analysis-report__chip::before {
+  content: '•';
+  opacity: 0.7;
+  font-weight: 700;
+}
+
+.analysis-report__chip--success::before {
+  content: '✓';
+}
+
+.analysis-report__chip--danger::before {
+  content: '⚠';
+}
+
+.analysis-report__chip--coach::before {
+  content: '›';
+}
+
+.analysis-report__chip--info::before {
+  content: '◆';
+}
+
+.analysis-report__chip--muted::before {
+  content: '•';
+}
+
+.analysis-report__mini-panel {
+  display: grid;
+  gap: 10px;
+  padding: 14px 15px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__mini-title {
+  color: var(--accent-2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.analysis-report__empty-inline,
+.analysis-report__empty-note {
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.analysis-report__empty-note {
+  padding: 8px 0 2px;
+}
+
+.analysis-report__hero-copy h4,
+.analysis-report__section-title strong,
+.analysis-report__score strong {
+  text-wrap: balance;
+}
+
+@media (min-width: 980px) {
+  .analysis-report__panel {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .analysis-report__hero,
+  .analysis-report__split,
+  .analysis-report__facts,
+  .analysis-report__mini-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  .analysis-report__hero {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-report__section-header {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-report__section-step {
+    width: 36px;
+    height: 36px;
+  }
+
+  .analysis-report__item-head,
+  .analysis-report__section-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .analysis-report__item-head span {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 560px) {
+  .analysis-report__score strong {
+    font-size: clamp(1.65rem, 6vw, 2rem);
+  }
+
+  .analysis-report__panel {
+    padding: 15px;
+  }
+}
