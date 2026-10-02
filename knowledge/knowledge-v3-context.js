@@ -1,6 +1,6 @@
-import { findKnowledgeStyle as resolveKnowledgeStyle, findKnowledgeMatchup as resolveKnowledgeMatchup } from './knowledge-v3.js?v=94';
+import { findKnowledgeStyle as resolveKnowledgeStyle, findKnowledgeMatchup as resolveKnowledgeMatchup } from './knowledge-v3.js?v=95';
 
-export { findKnowledgeStyle, findKnowledgeMatchup } from './knowledge-v3.js?v=94';
+export { findKnowledgeStyle, findKnowledgeMatchup } from './knowledge-v3.js?v=95';
 
 export function buildKnowledgeV3Context(report = {}, composition = {}, signalSet = {}) {
   const signals = collectSignals(report, composition, signalSet);
