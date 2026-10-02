@@ -14,6 +14,16 @@ const DIVE_REPORT = {
       detail: 'Buscar picks y convertirlos en objetivos.',
     },
   ],
+  strategic: {
+    focus: 'Dependencia de engage',
+    summary: 'Tu engage depende exclusivamente de Sejuani. Si cae, te quedas sin entrada limpia.',
+    claims: [
+      {
+        label: 'Dependencia de engage',
+        detail: 'Tu engage depende exclusivamente de Sejuani. Si cae, te quedas sin entrada limpia.',
+      },
+    ],
+  },
   composition: {
     identities: ['Dive', 'Pick'],
     functions: ['Bruiser AD', 'Mage'],
@@ -75,11 +85,13 @@ test('buildContextualNarrative slows down late Protect drafts', () => {
   assert.equal(narrative.strategyProfile.key, 'protect');
 });
 
-test('buildAnalysisStory exposes contextual narrative inside the analysis story', () => {
+test('buildAnalysisStory exposes contextual and strategic narrative inside the analysis story', () => {
   const story = buildAnalysisStory(DIVE_REPORT);
 
   assert.ok(story.contextual);
-  assert.match(story.summaryText, /backline es frágil/i);
+  assert.ok(story.strategic);
+  assert.match(story.summaryText, /Sejuani/i);
   assert.ok(story.tags.includes('Dive'));
   assert.equal(story.contextual.strategyProfile.key, 'dive');
+  assert.equal(story.strategic.focus, 'Dependencia de engage');
 });
