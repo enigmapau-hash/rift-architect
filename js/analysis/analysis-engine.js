@@ -1,7 +1,7 @@
 import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
-import { buildCompositionProfile } from './composition-profile.js?v=108';
+import { buildCompositionProfile } from './composition-profile.js?v=110';
 import { uniqueValues } from './analysis-utils.js';
-import { buildStrategicReasoning } from './strategic-engine.js?v=108';
+import { buildStrategicReasoning } from './strategic-engine.js?v=110';
 import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
@@ -9,7 +9,7 @@ import { buildWeaknessReport } from './weakness-engine.js';
 import { buildGamePlanReport } from './gameplan-engine.js';
 import { buildTimelineReport } from './timeline-engine.js';
 import { buildScoreReport } from './score-engine.js';
-import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=108';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=110';
 
 const ANALYSIS_CACHE = new Map();
 const ANALYSIS_CACHE_LIMIT = 32;
