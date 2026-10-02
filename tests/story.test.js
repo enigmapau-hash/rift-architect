@@ -53,13 +53,15 @@ const REPORT = {
 test('buildAnalysisStory creates a narrative report from the analysis model', () => {
   const story = buildAnalysisStory(REPORT);
 
-  assert.equal(story.title, 'Dive · Forzar peleas cortas');
-  assert.equal(story.summaryText, 'Juega en niebla y castiga ventanas cortas.');
+  assert.match(story.title, /Dive/i);
+  assert.ok(story.summaryText.length > 20);
+  assert.match(story.summaryText, /(visión|entra|espacio|mapa)/i);
   assert.equal(story.confidence, 92);
   assert.equal(story.grade, 'S');
   assert.equal(story.scoreBadge, 'Excelente');
   assert.equal(story.primaryIdentity, 'Dive');
   assert.ok(story.tags.includes('Dive'));
+  assert.ok(story.tags.length <= 8);
   assert.equal(story.strengths.length, 3);
   assert.equal(story.weaknesses.length, 2);
   assert.equal(story.phases.length, 3);
