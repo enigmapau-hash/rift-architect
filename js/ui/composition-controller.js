@@ -6,9 +6,9 @@ import {
   ROLE_SHEETS,
   getSelectedChampions,
   normalizeRole,
-} from '../core/draft-state.js?v=97';
-import { clearComparisonSnapshots, loadComparisonSnapshots, saveComparisonSnapshot } from '../analysis/comparison-store.js?v=97';
-import { syncAnalysisStory } from '../analysis/story-sync.js?v=97';
+} from '../core/draft-state.js?v=99';
+import { clearComparisonSnapshots, loadComparisonSnapshots, saveComparisonSnapshot } from '../analysis/comparison-store.js?v=99';
+import { syncAnalysisStory } from '../analysis/story-sync.js?v=99';
 
 export function createCompositionController({ state, persistDraft = () => {} } = {}) {
   if (!state) throw new Error('Composition controller requires state');
