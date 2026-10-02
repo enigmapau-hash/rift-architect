@@ -36,7 +36,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Suite de tests automáticos para evitar regresiones.
 
 ## En qué punto está ahora
-La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar la presentación del análisis: menos duplicidades, mejor jerarquía visual y un informe más ejecutivo.
+La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar la presentación del análisis: menos duplicidades, mejor jerarquía visual, tarjetas homogéneas y modal más claro.
 
 ## Siguiente bloque de trabajo
 El siguiente paso es una auditoría completa de estabilidad y limpieza:
