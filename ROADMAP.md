@@ -26,6 +26,7 @@
 ### Hito 4: Base de conocimiento madura
 - Excel más completo.
 - Normalización y validación más estrictas.
+- Taxonomía compartida para identidades, funciones, tempos y etiquetas repetidas.
 - Más señales útiles por composición.
 
 ### Hito 5: Beta 1.0
@@ -54,4 +55,5 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 - La pantalla principal ya está terminada.
 - La lectura sigue centrada en la composición propia.
 - La app mantiene una jerarquía visual simple y funcional.
+- La base del dataset ya usa una taxonomía compartida para reducir duplicidad.
 - El siguiente trabajo debe atacar solo el Hito 3.
