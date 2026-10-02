@@ -20,32 +20,28 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Knowledge Layer separada del motor.
 - Motor de análisis con identidad, tempo, coherencia, win condition, fortalezas y debilidades.
 - Coach con `StrategicPlan` único.
-- Executive Summary estable tras restaurar helpers de confidencia.
-- Draft Assistant base con necesidades, prioridades, picks y bans.
-- Draft Assistant UI integrada en el Analysis Hub y ya visible con composiciones reales.
+- Executive Summary estable.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
-- README y ROADMAP actualizados de forma continua.
 
 ## En qué punto está ahora
-La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual no es corregir errores, sino aumentar la calidad de las recomendaciones.
+La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es auditar, limpiar y simplificar la base de código antes de volver a crecer.
 
 ## Siguiente bloque de trabajo
-El siguiente paso previsto es evolucionar el Draft Assistant hacia una capa de perfiles estratégicos:
+El siguiente paso es una auditoría completa de estabilidad y limpieza:
 
-- StrategicPlan
-- Necesidades
-- Perfiles requeridos
-- Clases
-- Campeones
-
-La idea es pasar de necesidades genéricas a perfiles de campeón más precisos, sin depender del rival.
+- Selección de campeón.
+- Cambio de campeón.
+- Limpieza de composición.
+- Persistencia al recargar.
+- Análisis con 5 campeones.
+- Re-cálculo al cambiar una pieza.
+- Consola limpia.
+- Responsive correcto.
 
 ## Pendiente por hacer
-- Diseñar y conectar Strategic Profiles.
-- Preparar el Excel para soportar más metadatos estratégicos.
-- Traducir necesidades a perfiles y luego a campeones compatibles.
-- Añadir un índice de confianza para cada recomendación.
-- Seguir afinando el texto para que el panel sea más ejecutivo y compacto.
+- Eliminar código viejo que ya no se use.
+- Mantener una sola ruta de render.
+- Revisar la documentación para que refleje la app real.
 - Validar el sistema con composiciones reales de referencia.
 
 ## Reglas de trabajo
@@ -57,7 +53,7 @@ La idea es pasar de necesidades genéricas a perfiles de campeón más precisos,
 ## Cómo retomar en una nueva conversación
 Si esta conversación se corta, seguir desde aquí:
 
-- El proyecto ya tiene Analysis Hub, Coach y Draft Assistant funcionando.
-- El siguiente desarrollo debe ser la capa de Strategic Profiles.
+- El proyecto ya tiene la base estable recuperada.
+- El siguiente desarrollo debe respetar el estado actual y pasar por auditoría.
 - Mantener la filosofía de analizar solo la composición propia.
 - Antes de cerrar cualquier sprint, revisar consola, README y ROADMAP.
