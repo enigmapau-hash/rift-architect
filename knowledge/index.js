@@ -1,4 +1,10 @@
 import { normalizeText } from '../js/engine/utils.js';
+import {
+  STYLE_KNOWLEDGE_V3,
+  summarizeKnowledgeV3Context,
+  findKnowledgeStyle as resolveKnowledgeStyle,
+  findKnowledgeMatchup as resolveKnowledgeMatchup,
+} from './knowledge-v3.js';
 
 export { IDENTITY_RELATIONS } from './identity-relations.js';
 export { DIRECT_SYNERGY_RULES, MACRO_SYNERGY_RULES } from './synergies.js';
@@ -37,11 +43,11 @@ export { validateKnowledgeLayer, formatKnowledgeReport } from './validator.js';
 
 export function buildKnowledgeV3Context(report = {}, composition = {}, signalSet = {}) {
   const signals = collectSignals(report, composition, signalSet);
-  const primaryProfile = findKnowledgeStyle(
+  const primaryProfile = resolveKnowledgeStyle(
     report.primaryIdentity || report.identity?.primaryIdentity || composition.identities?.[0] || report.strategic?.focus || '',
     signals
   );
-  const rivalProfile = findKnowledgeStyle(
+  const rivalProfile = resolveKnowledgeStyle(
     report.rival?.identity
       || report.rival?.label
       || report.rivalComposition?.identity
@@ -59,7 +65,7 @@ export function buildKnowledgeV3Context(report = {}, composition = {}, signalSet
       || '',
     signals
   );
-  const matchup = findKnowledgeMatchup(primaryProfile?.label || primaryProfile?.key || '', rivalProfile?.label || rivalProfile?.key || '', signals);
+  const matchup = resolveKnowledgeMatchup(primaryProfile?.label || primaryProfile?.key || '', rivalProfile?.label || rivalProfile?.key || '', signals);
 
   const styleClaim = primaryProfile
     ? makeClaim(`Identidad ${primaryProfile.label}`, primaryProfile.summary, 'identity', 'high', [primaryProfile.label, ...(primaryProfile.aliases || [])])
