@@ -81,27 +81,20 @@ export function restoreDraftFromState(state, draft = loadDraft()) {
 
   state.activeRole = normalizeRole(draft?.activeRole);
 
-  const currentSelection = Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected?.[role] || null]));
-  const nextSelection = { ...currentSelection };
+  const nextSelection = Object.fromEntries(ROLE_ORDER.map((role) => [role, null]));
   let restoredCount = 0;
 
   for (const role of ROLE_ORDER) {
     const savedChampion = readDraftChampion(draft?.selected?.[role]);
     const savedKey = readDraftChampionKey(draft?.selectedKeys?.[role] ?? draft?.selected?.[role]);
 
-    if (!savedChampion && !savedKey) {
-      nextSelection[role] = currentSelection[role] || null;
-      continue;
-    }
+    if (!savedChampion && !savedKey) continue;
 
     const champion = findChampionInRole(state.data?.[role], savedChampion, savedKey);
     if (champion) {
       nextSelection[role] = champion;
       restoredCount += 1;
-      continue;
     }
-
-    nextSelection[role] = currentSelection[role] || null;
   }
 
   state.selected = nextSelection;
