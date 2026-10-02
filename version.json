@@ -1,6 +1,6 @@
 {
-  "version": "v76",
-  "stage": "Patch 0.52.0 / Analysis Engine v2",
+  "version": "v77",
+  "stage": "Patch 0.53.0 / Dataset Normalization",
   "date": "2026-10-02",
-  "cache": "rift-architect-v155"
+  "cache": "rift-architect-v156"
 }
