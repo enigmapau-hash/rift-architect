@@ -58,7 +58,8 @@ test('every full fixture renders a complete executive report', () => {
     renderAnalysisStory(root, story);
 
     assert.equal(report.composition.count, selectedChampions.length, `${fileName} · la composición no cuadra.`);
-    assert.ok(root.hidden === false, `${fileName} · el informe no se mostró.`);
+    assert.equal(root.hidden, false, `${fileName} · el informe no se mostró.`);
+    assert.match(root.innerHTML, /analysis-dashboard/i, `${fileName} · falta la estructura de dashboard.`);
     assert.match(root.innerHTML, /Informe ejecutivo/i, `${fileName} · falta la cabecera ejecutiva.`);
     assertSectionOrder(root.innerHTML, fileName);
     assert.ok(String(root.innerHTML).length > 0, `${fileName} · el HTML del informe quedó vacío.`);
@@ -76,6 +77,7 @@ test('empty analysis renders the placeholder states', () => {
 
   assert.equal(analysisRoot.hidden, false);
   assert.equal(lastPickRoot.hidden, false);
+  assert.match(analysisRoot.innerHTML, /analysis-dashboard__empty/i);
   assert.match(analysisRoot.innerHTML, /Selecciona cinco campeones/i);
   assert.match(lastPickRoot.innerHTML, /No hay una recomendación clara todavía/i);
 });
