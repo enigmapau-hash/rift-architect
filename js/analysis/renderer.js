@@ -25,6 +25,7 @@ export function renderAnalysisStory(root, story = {}) {
 
       <div class="analysis-hub__grid">
         ${renderIdentityCard(story)}
+        ${renderContextualCard(story)}
         ${renderListCard('Fortalezas', story.strengths || [], 'story-pill--success', 'Apoya el plan')}
         ${renderListCard('Debilidades', story.weaknesses || [], 'story-pill--danger', 'A vigilar')}
         ${renderPlanCard(story)}
@@ -66,13 +67,51 @@ function renderIdentityCard(model) {
   `;
 }
 
+function renderContextualCard(model) {
+  const contextual = model.contextual || {};
+  const rules = Array.isArray(contextual.rules) ? contextual.rules : [];
+  const signals = Array.isArray(contextual.signals) ? contextual.signals : [];
+
+  return `
+    <article class="analysis-hub__card analysis-hub__card--assessment">
+      <span class="analysis-hub__card-kicker">Lectura contextual</span>
+      <strong class="analysis-hub__card-title">${escapeHtml(contextual.headline || 'Narrativa adaptativa')}</strong>
+      <p class="analysis-hub__card-copy">${escapeHtml(contextual.lead || contextual.summary || 'La historia contextual aparecerá aquí.')}</p>
+      <div class="analysis-hub__chip-list">
+        ${signals.length
+          ? signals.slice(0, 4).map((item) => `<span class="story-pill story-pill--coach">${escapeHtml(item)}</span>`).join('')
+          : '<span class="analysis-empty">Sin señales claras</span>'}
+      </div>
+      <div class="analysis-hub__list">
+        ${rules.length
+          ? rules
+              .map(
+                (rule) => `
+                  <article class="analysis-hub__profile-row">
+                    <div class="analysis-hub__profile-head">
+                      <strong>${escapeHtml(rule.label || '')}</strong>
+                      <span>${escapeHtml(rule.kind || 'contexto')}</span>
+                    </div>
+                    <p>${escapeHtml(rule.detail || '')}</p>
+                  </article>
+                `
+              )
+              .join('')
+          : '<p class="analysis-empty">No hay reglas contextuales claras</p>'}
+      </div>
+    </article>
+  `;
+}
+
 function renderListCard(title, items, pillClass, emptyLabel) {
   return `
     <article class="analysis-hub__card">
       <span class="analysis-hub__card-kicker">${escapeHtml(title)}</span>
       <div class="analysis-hub__list">
         ${items.length
-          ? items.map((item) => `
+          ? items
+              .map(
+                (item) => `
               <article class="analysis-hub__profile-row">
                 <div class="analysis-hub__profile-head">
                   <strong>${escapeHtml(item.label || item)}</strong>
@@ -84,7 +123,9 @@ function renderListCard(title, items, pillClass, emptyLabel) {
                 <p>${escapeHtml(item.detail || '')}</p>
                 <div class="analysis-hub__chip-list"><span class="story-pill ${pillClass}">${escapeHtml(emptyLabel)}</span></div>
               </article>
-            `).join('')
+            `
+              )
+              .join('')
           : `<p class="analysis-empty">${escapeHtml(emptyLabel)}</p>`}
       </div>
     </article>
