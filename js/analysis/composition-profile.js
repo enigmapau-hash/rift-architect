@@ -1,7 +1,14 @@
 import { ROLE_ORDER, normalizeRole } from '../core/draft-state.js';
 import { cleanText, toText, uniqueValues } from './analysis-utils.js';
 
+const COMPOSITION_PROFILE_CACHE = new Map();
+const COMPOSITION_PROFILE_CACHE_LIMIT = 32;
+
 export function buildCompositionProfile(selectedChampions = []) {
+  const cacheKey = buildCompositionProfileKey(selectedChampions);
+  const cached = COMPOSITION_PROFILE_CACHE.get(cacheKey);
+  if (cached) return cached;
+
   const normalizedSlots = ROLE_ORDER.map((role, index) => {
     const champion = pickChampionForRole(selectedChampions, role, index);
     return {
@@ -20,7 +27,7 @@ export function buildCompositionProfile(selectedChampions = []) {
   const tempos = uniqueValues(selected.map((item) => item.tempo));
   const tags = uniqueValues([...names, ...identities, ...functions, ...tempos]);
 
-  return {
+  const profile = {
     slots: normalizedSlots,
     selectedChampions: selected,
     count: selected.length,
@@ -34,6 +41,28 @@ export function buildCompositionProfile(selectedChampions = []) {
     tags,
     primaryChampion: selected[0] || null,
   };
+
+  COMPOSITION_PROFILE_CACHE.set(cacheKey, profile);
+  if (COMPOSITION_PROFILE_CACHE.size > COMPOSITION_PROFILE_CACHE_LIMIT) {
+    const oldestKey = COMPOSITION_PROFILE_CACHE.keys().next().value;
+    COMPOSITION_PROFILE_CACHE.delete(oldestKey);
+  }
+
+  return profile;
+}
+
+function buildCompositionProfileKey(selectedChampions = []) {
+  return selectedChampions
+    .map((champion) => [
+      champion?.role || '',
+      champion?.champion || champion?.name || '',
+      champion?.identity || '',
+      champion?.function || '',
+      champion?.tempo || '',
+      Array.isArray(champion?.strengths) ? champion.strengths.join('|') : '',
+      Array.isArray(champion?.weaknesses) ? champion.weaknesses.join('|') : '',
+    ].join('::'))
+    .join('||');
 }
 
 function pickChampionForRole(selectedChampions, role, index) {
