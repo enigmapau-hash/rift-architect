@@ -40,6 +40,8 @@ export function createDraftState() {
     pickerOpen: false,
     loading: false,
     iconCatalog: null,
+    dataset: null,
+    datasetStats: null,
     savedDraft: { activeRole: 'top', selected: {} },
   };
 }
