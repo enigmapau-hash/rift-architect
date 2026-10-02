@@ -6,6 +6,7 @@ export function buildAnalysisStory(report = {}) {
   const score = report.score || {};
   const contextual = buildContextualNarrative(report);
   const strategic = report.strategic || contextual.reasoning || null;
+  if (strategic) contextual.reasoning = strategic;
   const confidence = clamp(score.value ?? report.confidence ?? 0, 0, 100);
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
@@ -36,7 +37,7 @@ export function buildAnalysisStory(report = {}) {
     summaryText,
     confidence,
     scoreBadge: score.badge || labelFromConfidence(confidence),
-    grade: score.grade || gradeFromScore(confidence),
+    grade: score.grade || gradeFromConfidence(confidence),
     tags: uniqueValues([
       primaryIdentity,
       tempo,
