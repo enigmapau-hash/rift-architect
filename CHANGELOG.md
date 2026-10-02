@@ -1,5 +1,14 @@
 # Changelog
 
+## v118 · Patch 0.62.28 / RC2 Contract Fix 2
+### Changed
+- Removed the duplicate `cleanText` declaration from the analysis contract so the renderer can boot without a syntax error.
+- Bumped the entrypoint chain to `v118` so the fixed report contract and renderer reload cleanly.
+- Rotated the visible build to `v118` and the application cache to `rift-architect-v196`.
+
+### Notes
+- This patch closes the parser error introduced while tightening the RC2 contract layer.
+
 ## v117 · Patch 0.62.27 / RC2 Contract Fix 1
 ### Changed
 - Fixed the analysis contract so `scoreBadge` is defined before the renderer consumes it.
@@ -38,12 +47,3 @@
 
 ### Notes
 - This patch removes the tall empty panel feeling and moves the report presentation to a cleaner dashboard layout.
-
-## v113 · Patch 0.62.23 / Report Layout 2
-### Changed
-- Reworked the executive report into a tighter dashboard-style layout with clearer card spacing and less dead space.
-- Tightened report heights, spacing, and section rhythm so the analysis reads as a compact executive overview instead of a tall empty panel.
-- Updated `analysis-visual-finesse.css` to keep the report cards aligned, balanced and responsive across desktop and mobile.
-- Rotated the visible build to `v113` and the application cache to `rift-architect-v191`.
-
-### Notes
