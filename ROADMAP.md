@@ -24,6 +24,7 @@
 - Narrativa contextual adaptativa basada en reglas.
 - Motor estratégico con razonamiento causal sobre dependencias, visión y win conditions.
 - Bans inteligentes con los 5 campeones más problemáticos para cada plan.
+- Recomendación del último pick con mejor opción y alternativas.
 - Sin crear nuevas pantallas.
 
 ### Hito 4: Base de conocimiento madura
@@ -32,6 +33,7 @@
 - Taxonomía compartida para identidades, funciones, tempos y etiquetas repetidas.
 - Playbooks explícitos para identidades y patrones.
 - Bans explícitos por identidad y patrón.
+- Último pick explícito por plan.
 - Más señales útiles por composición.
 
 ### Hito 5: Beta 1.0
@@ -63,4 +65,5 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 - La base del dataset ya usa una taxonomía compartida para reducir duplicidad.
 - La narrativa contextual y el motor estratégico ya razonan sobre la composición.
 - Los bans inteligentes ya priorizan los campeones que más rompen el plan.
+- El último pick recomendado ya propone la mejor opción y sus alternativas.
 - El siguiente trabajo debe atacar solo el Hito 3.
