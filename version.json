@@ -1,6 +1,6 @@
 {
-  "version": "v74",
-  "stage": "Patch 0.50.2 / Identity and Reset Fix",
+  "version": "v75",
+  "stage": "Patch 0.51.0 / UI Polish",
   "date": "2026-10-02",
-  "cache": "rift-architect-v153"
+  "cache": "rift-architect-v154"
 }
