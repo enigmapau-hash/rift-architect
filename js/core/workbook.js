@@ -4,16 +4,25 @@ import {
   DRAGON_CHAMPION_URL,
   DRAGON_VERSIONS_URL,
   ROLE_SHEETS,
+  WORKBOOK_FALLBACK_URLS,
   WORKBOOK_URL,
 } from './draft-state.js';
 
 export async function loadWorkbook(force = false) {
   if (!window.XLSX) return null;
 
-  const response = await fetch(WORKBOOK_URL, { cache: force ? 'reload' : 'default' });
-  if (!response.ok) return null;
+  const urls = Array.from(new Set([WORKBOOK_URL, ...WORKBOOK_FALLBACK_URLS].filter(Boolean)));
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { cache: force ? 'reload' : 'default' });
+      if (!response.ok) continue;
+      return window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+    } catch {
+      // try next URL
+    }
+  }
 
-  return window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+  return null;
 }
 
 export function parseSheet(worksheet) {
