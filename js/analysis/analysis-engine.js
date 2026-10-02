@@ -1,7 +1,7 @@
 import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
-import { buildCompositionProfile } from './composition-profile.js?v=110';
+import { buildCompositionProfile } from './composition-profile.js?v=115';
 import { uniqueValues } from './analysis-utils.js';
-import { buildStrategicReasoning } from './strategic-engine.js?v=110';
+import { buildStrategicReasoning } from './strategic-engine.js?v=115';
 import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
@@ -9,7 +9,7 @@ import { buildWeaknessReport } from './weakness-engine.js';
 import { buildGamePlanReport } from './gameplan-engine.js';
 import { buildTimelineReport } from './timeline-engine.js';
 import { buildScoreReport } from './score-engine.js';
-import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=110';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=115';
 
 const ANALYSIS_CACHE = new Map();
 const ANALYSIS_CACHE_LIMIT = 32;
@@ -24,6 +24,8 @@ export function runAnalysis(selectedChampions = []) {
 
   const identity = buildIdentityReport(baseAnalysis, composition);
   const strengthsReport = buildStrengthsReport(baseAnalysis, composition);
+  const weaknessReport = buildWeakReport(baseAnalysis, composition);
+
   const weaknessReport = buildWeaknessReport(baseAnalysis, composition);
   const gameplan = buildGamePlanReport(baseAnalysis, composition);
   const timeline = buildTimelineReport(gameplan, baseAnalysis, composition);
