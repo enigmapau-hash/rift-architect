@@ -1,6 +1,7 @@
 import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
 import { buildCompositionProfile } from './composition-profile.js';
 import { uniqueValues } from './analysis-utils.js';
+import { buildStrategicReasoning } from './strategic-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
 import { buildWeaknessReport } from './weakness-engine.js';
@@ -29,6 +30,17 @@ export function runAnalysis(selectedChampions = []) {
     ...(Array.isArray(weaknessReport.threats) ? weaknessReport.threats : []),
   ]).slice(0, 4);
 
+  const strategic = buildStrategicReasoning({
+    ...baseAnalysis,
+    composition,
+    identity,
+    strengths: strengthsReport.items,
+    weaknesses: weaknessReport.items,
+    synergies,
+    risks,
+    score,
+  });
+
   const winConditions = normalizeWinConditions(baseAnalysis);
   const tags = uniqueValues([
     ...composition.tags,
@@ -36,6 +48,8 @@ export function runAnalysis(selectedChampions = []) {
     ...score.tags,
     ...(Array.isArray(strengthsReport.highlights) ? strengthsReport.highlights : []),
     ...(Array.isArray(weaknessReport.threats) ? weaknessReport.threats : []),
+    strategic.focus,
+    ...(Array.isArray(strategic.claims) ? strategic.claims.map((claim) => claim.label) : []),
   ]).slice(0, 8);
 
   const report = {
@@ -53,6 +67,7 @@ export function runAnalysis(selectedChampions = []) {
     synergies,
     risks,
     tags,
+    strategic,
     primaryIdentity: identity.primaryIdentity,
     secondaryIdentities: identity.secondaryIdentities,
     summaryText: identity.summaryText,
