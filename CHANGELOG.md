@@ -1,5 +1,14 @@
 # Changelog
 
+## v105 · Patch 0.62.15 / Analysis Boot Cache Fix 1
+### Changed
+- Bumped the app boot chain to `v105` so the browser stops reusing the stale `analysis-failsafe` and `renderer-report` modules.
+- Pointed the entry page and the boot loader to the new cache-busted module chain.
+- Updated the visible build version to keep Pages tracking clear.
+
+### Notes
+- This patch is a cache-busting fix for the analysis boot path.
+
 ## v104 · Patch 0.62.14 / Renderer Export Fix 1
 ### Changed
 - Exported the report renderer functions so the analysis boot chain can load without a named-export syntax error.
@@ -38,10 +47,3 @@
 - This update is documentation-first and does not change the analysis flow.
 
 ## v100 · Patch 0.62.10 / RC1 Integrity Hardening 2
-### Changed
-- Fixed the stale import chain that could block boot when `composition-profile.js` was served from cache.
-- Bumped the bootstrap, app, analysis, knowledge and service worker cache chain to v100.
-- Kept the RC1 refresh and reload flow aligned with the current selected composition.
-
-### Notes
-- This patch is a cache-busting and boot-stability follow-up to the RC1 integrity pass.
