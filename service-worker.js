@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v157';
+const CACHE_NAME = 'rift-architect-v158';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -20,13 +20,13 @@ const CORE_ASSETS = [
   './css/responsive-story.css',
   './css/accordion.css',
   './css/ui-polish.css',
-  './js/bootstrap.js?v=78',
-  './js/pwa-reset.js?v=78',
-  './js/picker-a11y-fix.js?v=78',
-  './js/site-bootstrap.js?v=78',
-  './js/app-v2.js?v=78',
-  './js/composition-ia.js?v=78',
-  './js/analysis-failsafe.js?v=78',
+  './js/bootstrap.js?v=79',
+  './js/pwa-reset.js?v=79',
+  './js/picker-a11y-fix.js?v=79',
+  './js/site-bootstrap.js?v=79',
+  './js/app-v2.js?v=79',
+  './js/composition-ia.js?v=79',
+  './js/analysis-failsafe.js?v=79',
   './js/analyzer.js',
   './js/analysis/story-sync.js',
   './js/analysis/analysis-utils.js',
@@ -44,7 +44,17 @@ const CORE_ASSETS = [
   './js/core/data-loader.js',
   './js/core/draft-state.js',
   './js/core/workbook.js',
+  './js/core/dataset-normalizer.js',
   './js/ui/composition-controller.js',
+  './knowledge/index.js',
+  './knowledge/identity-relations.js',
+  './knowledge/synergies.js',
+  './knowledge/patterns.js',
+  './knowledge/dependencies.js',
+  './knowledge/conflicts.js',
+  './knowledge/win-conditions.js',
+  './knowledge/strategy-profiles.js',
+  './knowledge/validator.js',
 ];
 
 self.addEventListener('install', (event) => {
