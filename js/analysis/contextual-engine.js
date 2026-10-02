@@ -13,9 +13,7 @@ import { clamp, cleanText, toText, uniqueValues } from './analysis-utils.js';
 
 export function buildContextualNarrative(report = {}) {
   const composition = report.composition || {};
-  const primaryIdentity = cleanText(
-    report.primaryIdentity || report.identity?.primaryIdentity || composition.identities?.[0] || 'Sin definir'
-  );
+  const primaryIdentity = cleanText(report.primaryIdentity || report.identity?.primaryIdentity || composition.identities?.[0] || 'Sin definir');
   const tempo = cleanText(report.tempo || report.identity?.tempo || composition.tempos?.[0] || 'Sin definir');
   const confidence = clamp(Number(report.confidence ?? report.score?.value ?? report.score ?? 0), 0, 100);
 
@@ -33,41 +31,11 @@ export function buildContextualNarrative(report = {}) {
     .filter((rule) => rule.hits >= 2)
     .sort((a, b) => b.hits - a.hits || a.penalty - b.penalty);
 
-  const identityLine = buildIdentityLine({
-    strategicProfile,
-    identityRule,
-    dependencyRule,
-    signalSet,
-    primaryIdentity,
-  });
-  const winLine = buildWinLine({
-    strategicProfile,
-    winRule,
-    patternRule,
-    macroRule,
-    signalSet,
-    primaryIdentity,
-    tempo,
-  });
-  const conflictLine = buildConflictLine({
-    strategicProfile,
-    conflictRules,
-    signalSet,
-  });
-  const tempoLine = buildTempoLine({
-    strategicProfile,
-    tempo,
-    winRule,
-    confidence,
-    signalSet,
-  });
-  const macroLine = buildMacroLine({
-    strategicProfile,
-    macroRule,
-    patternRule,
-    dependencyRule,
-    signalSet,
-  });
+  const identityLine = buildIdentityLine({ strategicProfile, identityRule, dependencyRule, signalSet, primaryIdentity });
+  const winLine = buildWinLine({ strategicProfile, winRule, patternRule, macroRule, signalSet, primaryIdentity, tempo });
+  const conflictLine = buildConflictLine({ strategicProfile, conflictRules });
+  const tempoLine = buildTempoLine({ strategicProfile, tempo, winRule, confidence });
+  const macroLine = buildMacroLine({ strategicProfile, macroRule, patternRule, dependencyRule });
 
   const rules = uniqueRuleList([
     { label: 'Lectura de identidad', detail: identityLine, kind: 'identity' },
@@ -77,7 +45,7 @@ export function buildContextualNarrative(report = {}) {
     { label: 'Riesgo principal', detail: conflictLine, kind: 'risk' },
   ]).slice(0, 4);
 
-  const lead = uniqueSentences([identityLine, winLine, conflictLine, tempoLine, macroLine]).slice(0, 3).join(' ');
+  const lead = buildLead([identityLine, winLine, tempoLine, macroLine, conflictLine]);
   const headline = cleanText(`${primaryIdentity} · ${strategicProfile?.label || winRule?.label || patternRule?.label || 'Lectura contextual'}`);
 
   return {
@@ -86,22 +54,18 @@ export function buildContextualNarrative(report = {}) {
     summary: lead,
     rules,
     signals: signalSet.signals.slice(0, 8),
-    tags: uniqueValues([
+    tags: buildContextualTags({
       primaryIdentity,
       tempo,
-      strategicProfile?.label,
-      strategicProfile?.kind,
-      ...(Array.isArray(strategicProfile?.timings) ? strategicProfile.timings : []),
-      ...(Array.isArray(strategicProfile?.needs) ? strategicProfile.needs : []),
-      ...(Array.isArray(strategicProfile?.macro) ? strategicProfile.macro : []),
-      winRule?.label,
-      patternRule?.label,
-      macroRule?.label,
-      dependencyRule?.label,
-      identityRule?.label,
-      ...rules.map((rule) => rule.label),
-      ...signalSet.categories,
-    ]).slice(0, 10),
+      strategicProfile,
+      winRule,
+      patternRule,
+      macroRule,
+      dependencyRule,
+      identityRule,
+      rules,
+      signalSet,
+    }),
     primaryIdentity,
     tempo,
     confidence,
@@ -170,6 +134,9 @@ function resolveSignalCategories(label = '') {
   if (['splitpush', 'splitpressure', 'split'].includes(normalized)) return ['splitpush', 'mobility', 'objective'];
   if (['fronttoback', 'teamfight', 'protect', 'control'].includes(normalized)) return ['frontline', 'teamfight', 'control'];
   if (['poke', 'siege'].includes(normalized)) return ['poke', 'control', 'objective'];
+  if (['scaling', 'late'].includes(normalized)) return ['scaling'];
+  if (['early'].includes(normalized)) return ['early'];
+  if (['mid'].includes(normalized)) return ['mid'];
   return [];
 }
 
@@ -214,27 +181,27 @@ function buildIdentityLine({ strategicProfile, identityRule, dependencyRule, sig
   const key = normalizeText(primaryIdentity);
 
   if (key === 'dive') {
-    return 'Aunque eres Dive, tu backline es frágil: entra con visión y no abras de frente.';
+    return 'Si juegas Dive, no abras de frente: entra con visión, ángulo y follow-up preparado.';
   }
 
   if (key === 'splitpush') {
-    return 'La partida se abre por laterales; si la reduces a un 5v5 frontal, te quitas tu ventaja natural.';
+    return 'Si cierras el mapa en un 5v5, le regalas al rival el terreno que quería; abre laterales y fuerza respuestas.';
   }
 
   if (key === 'poke') {
-    return 'Tu plan vive en el desgaste; no cambies el asedio por una entrada corta sin haber ganado espacio primero.';
+    return 'Si el desgaste no te compra espacio, el asedio se queda corto; empuja primero, comprométete después.';
   }
 
   if (key === 'protect' || key === 'fronttoback') {
-    return 'Tu estructura necesita tiempo: ralentiza el early para alcanzar tu pico de poder con carry y peel listos.';
+    return 'Tu estructura necesita tiempo y orden: baja el ritmo temprano y llega al cierre con carry y peel listos.';
   }
 
   if (key === 'pick' || key === 'engage' || key === 'skirmish') {
-    return 'Tu mejor ventana es corta: visión, entrada limpia y objetivo antes de que la pelea se alargue.';
+    return 'Tu ventana de valor dura poco: fija una entrada limpia y convierte la primera respuesta enemiga en ventaja.';
   }
 
   if (key === 'teamfight' || key === 'control') {
-    return 'Tu valor crece cuando la pelea está ordenada; evita improvisar y fuerza el combate en terreno favorable.';
+    return 'Ganas cuando el combate está preparado: visión, espacio cerrado y una pelea limpia.';
   }
 
   if (dependencyRule?.detail) {
@@ -242,14 +209,14 @@ function buildIdentityLine({ strategicProfile, identityRule, dependencyRule, sig
   }
 
   if (identityRule?.label) {
-    return `La composición gira alrededor de ${identityRule.label}.`;
+    return `Tu eje es ${identityRule.label}; no lo disperses con peleas sueltas.`;
   }
 
   if (signalSet.categories.includes('frontline') || signalSet.categories.includes('control')) {
-    return 'La composición necesita orden y espacio para que su plan funcione.';
+    return 'La composición necesita orden y espacio para que el plan no se rompa.';
   }
 
-  return 'La composición todavía no define una narrativa dominante.';
+  return 'Aún no hay una historia dominante; decide si vas a entrar, desgastar o abrir mapa.';
 }
 
 function buildWinLine({ strategicProfile, winRule, patternRule, macroRule, signalSet, primaryIdentity, tempo }) {
@@ -259,19 +226,19 @@ function buildWinLine({ strategicProfile, winRule, patternRule, macroRule, signa
   const tempoKey = normalizeText(tempo);
 
   if (key === 'dive' || key === 'engage' || key === 'pick' || key === 'skirmish') {
-    return 'Si enfrente hay más engage, tu condición cambia: deja de abrir de frente y castiga la segunda entrada.';
+    return 'Si el rival te niega visión o follow-up, espera la siguiente ventana: tu entrada vale cuando la respuesta enemiga ya está fijada.';
   }
 
   if (key === 'splitpush') {
-    return 'Tu condición cambia si el mapa se cierra: abre laterales antes de agruparte y no regales un 5v5 sin presión.';
+    return 'Si el mapa se aprieta, abre laterales antes de agruparte; no regales el 5v5 que quieres evitar.';
   }
 
   if (key === 'poke') {
-    return 'Tu condición cambia si el rival te fuerza all-in: desgasta primero y sólo comprométete cuando hayas ganado espacio.';
+    return 'Si te fuerzan a all-in, ya llegaste tarde; desgasta primero, toma espacio y sólo entra con ventaja de rango.';
   }
 
   if (key === 'protect' || key === 'fronttoback' || tempoKey === 'late') {
-    return 'Necesitas ralentizar el early para alcanzar tu pico de poder con front line, peel y carry listos.';
+    return 'Ralentiza el early: tu pelea buena llega cuando front line, peel y carry ya están listos.';
   }
 
   if (winRule?.detail) {
@@ -287,21 +254,21 @@ function buildWinLine({ strategicProfile, winRule, patternRule, macroRule, signa
   }
 
   if (signalSet.signals.length) {
-    return `Juega alrededor de ${signalSet.signals[0].toLowerCase()} y evita improvisar en una pelea sin preparación.`;
+    return `Juega alrededor de ${signalSet.signals[0].toLowerCase()} y evita improvisar la pelea.`;
   }
 
-  return 'Juega alrededor de tu plan dominante y evita pelear sin ventaja clara.';
+  return 'Juega alrededor de tu plan dominante y no conviertas una ventaja pequeña en una pelea caótica.';
 }
 
 function buildConflictLine({ strategicProfile, conflictRules }) {
   const profileMistakes = Array.isArray(strategicProfile?.mistakes) && strategicProfile.mistakes.length
-    ? `Errores frecuentes: ${joinPhrase(strategicProfile.mistakes)}.`
+    ? `Si repites ${joinPhrase(strategicProfile.mistakes)}, pierdes orden.`
     : '';
 
   if (conflictRules.length) {
     const conflict = conflictRules[0];
     const labels = conflict.labels.join(' y ');
-    const text = `La tensión principal aparece entre ${labels}; ${conflict.detail}`;
+    const text = `Aquí chocan ${labels}: ${conflict.detail}`;
     return uniqueSentences([profileMistakes, text]).join(' ');
   }
 
@@ -312,7 +279,7 @@ function buildConflictLine({ strategicProfile, conflictRules }) {
 function buildTempoLine({ strategicProfile, tempo, confidence, winRule }) {
   if (Array.isArray(strategicProfile?.timings) && strategicProfile.timings.length) {
     const timings = joinPhrase(strategicProfile.timings);
-    return `Tu ventana principal está en ${timings}; no alargues la partida más de lo necesario.`;
+    return `Tu ventana útil está en ${timings}; si te sales de ese rango, el rival estabiliza el mapa.`;
   }
 
   const tempoKey = normalizeText(tempo);
@@ -321,7 +288,7 @@ function buildTempoLine({ strategicProfile, tempo, confidence, winRule }) {
 
   const confidenceText = confidence >= 80 ? 'alto' : confidence >= 60 ? 'medio' : 'limitado';
   if (winRule?.label) {
-    return `El ritmo adecuado es ${confidenceText}: construye la pelea alrededor de ${winRule.label.toLowerCase()}.`;
+    return `El ritmo correcto es ${confidenceText}: construye la pelea alrededor de ${winRule.label.toLowerCase()}.`;
   }
 
   return 'El ritmo adecuado es estable: evita acelerar sin una ventana clara.';
@@ -332,7 +299,7 @@ function buildMacroLine({ strategicProfile, macroRule, patternRule, dependencyRu
   const objectives = joinPhrase(Array.isArray(strategicProfile?.objectives) ? strategicProfile.objectives : []);
 
   if (macro || objectives) {
-    return [macro ? `Macro: ${macro}.` : '', objectives ? `Objetivos prioritarios: ${objectives}.` : '']
+    return [macro ? `Prioridad macro: ${macro}.` : '', objectives ? `Objetivos a buscar: ${objectives}.` : '']
       .filter(Boolean)
       .join(' ');
   }
@@ -340,7 +307,7 @@ function buildMacroLine({ strategicProfile, macroRule, patternRule, dependencyRu
   if (macroRule?.detail) return macroRule.detail;
   if (patternRule?.detail) return patternRule.detail;
   if (dependencyRule?.detail) return dependencyRule.detail;
-  return 'Tu macro debe seguir la identidad dominante y el mapa no al revés.';
+  return 'Juega el mapa desde tu identidad dominante, no al revés.';
 }
 
 function countRuleHits(rule, signalSet) {
@@ -383,6 +350,47 @@ function uniqueRuleList(rules = []) {
 
 function uniqueSentences(sentences = []) {
   return [...new Set(sentences.map((sentence) => cleanText(sentence)).filter(Boolean))];
+}
+
+function buildLead(sentences = []) {
+  return uniqueSentences(sentences).filter(Boolean).slice(0, 2).join(' ');
+}
+
+function buildContextualTags({
+  primaryIdentity,
+  tempo,
+  strategicProfile,
+  winRule,
+  patternRule,
+  macroRule,
+  dependencyRule,
+  identityRule,
+  rules,
+  signalSet,
+}) {
+  const candidates = [
+    primaryIdentity,
+    tempo,
+    strategicProfile?.label,
+    strategicProfile?.kind,
+    ...(Array.isArray(strategicProfile?.timings) ? strategicProfile.timings : []),
+    ...(Array.isArray(strategicProfile?.needs) ? strategicProfile.needs : []),
+    ...(Array.isArray(strategicProfile?.macro) ? strategicProfile.macro : []),
+    winRule?.label,
+    patternRule?.label,
+    macroRule?.label,
+    dependencyRule?.label,
+    identityRule?.label,
+    ...rules.map((rule) => rule.label),
+    ...signalSet.categories,
+  ];
+
+  return uniqueValues(candidates)
+    .filter((value) => {
+      const normalized = normalizeText(value);
+      return normalized && normalized !== 'sin definir' && normalized !== 'lectura contextual' && normalized !== 'narrativa adaptativa';
+    })
+    .slice(0, 10);
 }
 
 function joinPhrase(values = []) {
