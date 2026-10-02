@@ -22,6 +22,7 @@
 - Mejorar lo que ya existe.
 - Más claridad en las salidas del motor.
 - Narrativa contextual adaptativa basada en reglas.
+- Motor estratégico con razonamiento causal sobre dependencias, visión y win conditions.
 - Sin crear nuevas pantallas.
 
 ### Hito 4: Base de conocimiento madura
@@ -58,5 +59,5 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 - La lectura sigue centrada en la composición propia.
 - La app mantiene una jerarquía visual simple y funcional.
 - La base del dataset ya usa una taxonomía compartida para reducir duplicidad.
-- La Knowledge Layer añade playbooks explícitos para enriquecer el análisis.
+- La narrativa contextual y el motor estratégico ya razonan sobre la composición.
 - El siguiente trabajo debe atacar solo el Hito 3.
