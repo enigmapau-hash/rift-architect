@@ -1,5 +1,15 @@
 # Changelog
 
+## v109 · Patch 0.62.19 / Executive Report 1
+### Changed
+- Reworked the analysis report into a clearer executive layout with a strict reading order and less visual noise.
+- Shortened repeated copy, tightened section hierarchy, and added stronger visual priorities for identity, plan, strengths, weaknesses, bans and strategy.
+- Added `analysis-report-polish.css` to unify spacing, labels, section steps, chips and responsive behavior in the report.
+- Bumped the visible build version to `v109` and rotated the application cache to `rift-architect-v187`.
+
+### Notes
+- This patch focuses on the executive report presentation: clearer hierarchy, less duplication and better scanability.
+
 ## v108 · Patch 0.62.18 / QA Audit 1
 ### Changed
 - Aligned the analysis boot chain, the app bootstrap and the service worker to `v108`.
@@ -21,28 +31,3 @@
 - This patch focuses on visual consistency and responsive polish, not new analysis functionality.
 
 ## v106 · Patch 0.62.16 / Analysis Cache Roll 1
-### Changed
-- Bumped the visible build version to `v106` and rotated the application cache to `rift-architect-v184`.
-- Aligned the entry page, site bootstrap, app bootstrap, analysis boot chain, and service worker asset list to the new generation.
-- Kept the analysis report layout in place while forcing a clean reload path for the browser cache.
-
-### Notes
-- This patch is a cache-roll update to remove stale module copies from the presentation layer.
-
-## v105 · Patch 0.62.15 / Analysis Boot Cache Fix 1
-### Changed
-- Bumped the app boot chain to `v105` so the browser stops reusing the stale `analysis-failsafe` and `renderer-report` modules.
-- Pointed the entry page and the boot loader to the new cache-busted module chain.
-- Updated the visible build version to keep Pages tracking clear.
-
-### Notes
-- This patch is a cache-busting fix for the analysis boot path.
-
-## v104 · Patch 0.62.14 / Renderer Export Fix 1
-### Changed
-- Exported the report renderer functions so the analysis boot chain can load without a named-export syntax error.
-- Bumped the site bootstrap, app bootstrap, analysis chain, and service worker cache to the new generation.
-- Refreshed the visible build version to keep Pages tracking clear after the fix.
-
-### Notes
-- This patch fixes the boot error and forces a clean reload path.
