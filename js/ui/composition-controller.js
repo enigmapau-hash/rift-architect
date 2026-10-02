@@ -6,11 +6,10 @@ import {
   ROLE_SHEETS,
   getSelectedChampions,
   normalizeRole,
-  saveDraft,
 } from '../core/draft-state.js';
 import { syncAnalysisStory } from '../analysis/story-sync.js';
 
-export function createCompositionController({ state } = {}) {
+export function createCompositionController({ state, persistDraft = () => {} } = {}) {
   if (!state) throw new Error('Composition controller requires state');
 
   const els = {};
