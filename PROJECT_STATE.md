@@ -13,6 +13,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 5. Sugerir bans que protejan el plan.
 6. Preparar recomendaciones de pick cuando falte una pieza clave.
 7. Comparar dos composiciones para ver cuál encaja mejor con el plan.
+8. Detectar dependencias críticas, redundancias, planes incompatibles y picos de poder.
 
 ## Qué ya está hecho
 - Selector modal por rol con composición temporal.
@@ -25,6 +26,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Executive Summary estable.
 - Narrativa contextual adaptativa basada en reglas.
 - Motor estratégico que razona sobre dependencias, visión y choques de win conditions.
+- Detección de dependencias críticas, redundancias, planes incompatibles y picos de poder.
 - Bans inteligentes con los 5 campeones que más dificultan ejecutar el plan.
 - Recomendación del último pick con la mejor opción y alternativas útiles.
 - Comparador A/B para contrastar dos composiciones guardadas.
