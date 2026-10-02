@@ -77,6 +77,6 @@ test('buildAnalysisStory exposes contextual narrative inside the analysis story'
   const story = buildAnalysisStory(DIVE_REPORT);
 
   assert.ok(story.contextual);
-  assert.match(story.summaryText, /backline es frágil/i);
+  assert.match(story.contextual.lead, /backline es frágil/i);
   assert.ok(story.tags.includes('Dive'));
 });
