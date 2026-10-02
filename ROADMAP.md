@@ -40,8 +40,7 @@
 - **En curso**.
 
 ### Hito 5: Presentación del análisis
-- Un informe ejecutivo claro.
-- Tarjetas por motor y por subsistema.
+- Informe ejecutivo estructurado por tarjetas.
 - Contrato de datos estable entre motor y renderer.
 - Menos duplicidad de texto.
 - Mejor jerarquía visual.
@@ -78,11 +77,10 @@
 - Entrega estable del producto.
 
 ## Estado actual
-
 - La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
 - No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
-- El trabajo real ahora está centrado en la QA: estabilidad, cobertura de composiciones, informe homogéneo, validación del informe ejecutivo con fixtures, accesibilidad y limpieza de código.
-- Antes de Beta 1.0 todavía queda revisar consola, visual, documentación y restos de código muerto.
+- El trabajo real ahora está centrado en la QA, el contrato de datos, el informe homogéneo y la limpieza de código.
+- La build visible actual es **v117** y corrige el contrato que alimenta el renderer.
 
 ## Regla del proyecto
 
