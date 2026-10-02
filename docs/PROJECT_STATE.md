@@ -21,6 +21,7 @@ La app ya funciona con una base estable y el foco ahora está en consolidar razo
 - Mejorar la profundidad del razonamiento.
 - Ajustar la narrativa visible para que suene más a coach.
 - Pulir homogeneidad visual, modal y responsive.
+- Validar muchas composiciones y cerrar QA.
 - Seguir sincronizando README, ROADMAP y los documentos de contexto.
 
 ## Filosofía del proyecto
