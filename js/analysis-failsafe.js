@@ -1,4 +1,4 @@
-import { runAnalysis } from './analysis/analysis-engine.js?v=89';
+import { runAnalysis } from './analysis/analysis-engine.js?v=90';
 import { buildLastPickRecommendations } from './analysis/last-pick-engine.js';
 import { loadComparisonSnapshots } from './analysis/comparison-store.js';
 import { renderComparisonEmptyState, renderComparisonState } from './analysis/comparison-renderer.js';
@@ -8,7 +8,7 @@ import {
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer.js?v=89';
+} from './analysis/renderer.js?v=90';
 import { compareCompositions } from './engine/comparisonEngine.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
