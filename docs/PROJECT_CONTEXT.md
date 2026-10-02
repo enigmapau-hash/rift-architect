@@ -3,7 +3,7 @@
 ## Qué es la app
 Rift Architect es una PWA para analizar **tu propia composición** de League of Legends a partir de `Draft Pool.xlsx`.
 
-La app ya no está en fase de exploración abierta. La dirección actual es consolidar una ruta estable de análisis, razonamiento y narrativa sobre la composición propia, mientras se pule la presentación para que el informe sea homogéneo, claro y rápido de escanear.
+La dirección actual es consolidar una ruta estable de análisis, razonamiento y narrativa sobre la composición propia, mientras se pule la presentación para que el informe sea homogéneo, claro y rápido de escanear.
 
 ## Objetivo del producto
 Convertir una selección de 5 campeones en un briefing estratégico rápido de leer.
@@ -48,6 +48,12 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - Mantener la documentación sincronizada con la app real.
 - Limpiar restos de código legado.
 - Cerrar la QA con muchas composiciones reales.
+
+## Estado actual
+- La build visible actual es **v117**.
+- El contrato de datos ya quedó fijado y el renderer consume solo esa capa normalizada.
+- La selección de campeones vuelve a renderizar sin el `ReferenceError` anterior.
+- El foco ahora está en la estabilidad y el pulido, no en añadir nuevas funciones.
 
 ## Filosofía de diseño
 - Primero analizar la propia composición.
