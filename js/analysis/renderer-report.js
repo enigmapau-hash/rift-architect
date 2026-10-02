@@ -3,4 +3,4 @@ export {
   renderLastPickState,
   renderAnalysisEmptyState,
   renderLastPickEmptyState,
-} from './renderer-dashboard.js';
+} from './renderer-dashboard-rc2.js';
