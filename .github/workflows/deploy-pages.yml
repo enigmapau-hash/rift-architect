@@ -22,17 +22,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Generate JSON data from Excel
-        run: npm run generate:data
-
       - name: Prepare Pages artifact
         run: |
           mkdir -p .site
@@ -40,11 +29,11 @@ jobs:
           cp version.json .site/
           cp service-worker.js .site/
           cp manifest.webmanifest .site/
-          cp Draft\ Pool.xlsx .site/
+          cp 'Draft Pool.xlsx' .site/
           cp -R css .site/
           cp -R js .site/
           cp -R assets .site/
-          cp -R data .site/
+          cp -R knowledge .site/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
