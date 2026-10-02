@@ -13,7 +13,7 @@ PWA para analizar **tu propia composición** de League of Legends a partir de `D
 - Recomendación del último pick.
 - Comparador A/B de composiciones.
 - Banco de validación humana con drafts de referencia.
-- Tests automáticos para análisis, identidad, selección, dataset, estrategia, bans, último pick, comparación, narrativa, conocimiento y story.
+- Tests automáticos para análisis, identidad, selección, dataset, estrategia, bans, último pick, comparación, narrativa, conocimiento, story y cobertura del informe ejecutivo.
 
 ## Estado actual
 
@@ -23,7 +23,7 @@ La app ya está estable en la ruta principal de render y el trabajo actual se ce
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
-La fase actual está centrada en el **informe ejecutivo**: ordenar la lectura, quitar duplicidades, reducir texto innecesario y reforzar la jerarquía visual.
+La fase actual está centrada en el **informe ejecutivo** y la **QA funcional automatizada**: ordenar la lectura, quitar duplicidades, reducir texto innecesario y validar la salida del informe sobre toda la batería de fixtures.
 
 ## Fuente de verdad
 
