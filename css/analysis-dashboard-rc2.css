@@ -1,0 +1,13 @@
+/* RC2 dashboard responsive refinement */
+
+.analysis-dashboard__grid {
+  grid-auto-flow: dense;
+}
+
+@media (max-width: 1100px) {
+  .analysis-dashboard__card--knowledge,
+  .analysis-dashboard__card--timeline,
+  .analysis-dashboard__card--signals {
+    grid-column: span 1;
+  }
+}
