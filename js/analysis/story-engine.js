@@ -1,16 +1,18 @@
 import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
+import { buildContextualNarrative } from './contextual-engine.js';
 
 export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
   const score = report.score || {};
+  const contextual = buildContextualNarrative(report);
   const confidence = clamp(score.value ?? report.confidence ?? 0, 0, 100);
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
-  const title = cleanText(identity.title || report.executiveSummary?.title || `${primaryIdentity} · ${winLabel}`);
+  const title = cleanText(contextual.headline || identity.title || report.executiveSummary?.title || `${primaryIdentity} · ${winLabel}`);
   const summaryText = cleanText(
-    identity.summaryText || report.summaryText || report.executiveSummary?.text || 'Resumen compacto basado en la composición propia.'
+    contextual.lead || identity.summaryText || report.summaryText || report.executiveSummary?.text || 'Resumen compacto basado en la composición propia.'
   );
-  const tempo = cleanText(identity.tempo || report.tempo || 'Tempo medio');
+  const tempo = cleanText(identity.tempo || report.tempo || contextual.tempo || 'Tempo medio');
   const dominance = cleanText(identity.dominance || report.dominance || 'Sin definir');
 
   const secondaryIdentities = uniqueValues(identity.secondaryIdentities || report.secondaryIdentities || [])
@@ -35,10 +37,13 @@ export function buildAnalysisStory(report = {}) {
       winLabel,
       identity.focus,
       identity.dominance,
+      contextual.headline,
+      contextual.winCondition?.label,
       ...(Array.isArray(report.tags) ? report.tags : []),
-    ]).slice(0, 4),
+      ...(Array.isArray(contextual.tags) ? contextual.tags : []),
+    ]).slice(0, 6),
     primaryIdentity,
-    identityCopy: summaryText,
+    identityCopy: cleanText(identity.summaryText || report.summaryText || contextual.lead || summaryText),
     secondaryIdentities,
     strengths,
     weaknesses,
@@ -47,6 +52,7 @@ export function buildAnalysisStory(report = {}) {
     phases,
     tempo,
     dominance,
+    contextual,
   };
 }
 
