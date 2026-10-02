@@ -36,6 +36,44 @@ export function renderAnalysisStory(root, story = {}) {
   `;
 }
 
+export function renderLastPickState(root, story = {}) {
+  if (!root) return;
+
+  const bestPick = story.bestPick || null;
+  const alternatives = Array.isArray(story.alternatives) ? story.alternatives : [];
+
+  root.hidden = false;
+  root.innerHTML = `
+    <section class="analysis-hub__shell analysis-hub__shell--cards">
+      <header class="analysis-hub__hero">
+        <div class="analysis-hub__hero-copy">
+          <p class="eyebrow">Bloque 2 · Último pick</p>
+          <h4>${escapeHtml(story.title || 'Recomendación del último pick')}</h4>
+          <p>${escapeHtml(story.summaryText || story.summary || 'Te falta un campeón para cerrar la composición.')}</p>
+          <div class="analysis-hub__flow-mini">
+            ${(story.tags || [])
+              .map((tag, index) => `<span class="analysis-hub__flow-mini-item ${index === 0 ? 'is-active' : ''}">${escapeHtml(tag)}</span>`)
+              .join('')}
+          </div>
+        </div>
+
+        <div class="analysis-hub__score-card ${toneByScore(bestPick?.score || 0)}">
+          <span class="analysis-hub__score-kicker">Último slot</span>
+          <strong>${escapeHtml(story.targetRoleLabel || story.targetRole || 'Sin definir')}</strong>
+          <span>${escapeHtml(story.focus || 'Cerrar el draft')}
+          </span>
+        </div>
+      </header>
+
+      <div class="analysis-hub__grid">
+        ${renderBestPickCard(bestPick, story)}
+        ${renderRecommendationListCard('Alternativas', alternatives)}
+        ${renderLastPickContextCard(story)}
+      </div>
+    </section>
+  `;
+}
+
 export function renderAnalysisEmptyState(root) {
   if (!root) return;
 
@@ -45,6 +83,19 @@ export function renderAnalysisEmptyState(root) {
       <p class="eyebrow">Bloque 2 · Pantalla principal</p>
       <h4>Selecciona cinco campeones para ver el análisis</h4>
       <p>Primero verás un resumen corto. La historia completa aparecerá cuando la composición esté completa.</p>
+    </article>
+  `;
+}
+
+export function renderLastPickEmptyState(root, story = {}) {
+  if (!root) return;
+
+  root.hidden = false;
+  root.innerHTML = `
+    <article class="analysis-hub__empty">
+      <p class="eyebrow">Bloque 2 · Último pick</p>
+      <h4>No hay una recomendación clara todavía</h4>
+      <p>${escapeHtml(story.summaryText || 'Añade cuatro campeones y deja un hueco para ver el último pick recomendado.')}</p>
     </article>
   `;
 }
@@ -80,7 +131,7 @@ function renderContextualCard(model) {
       <p class="analysis-hub__card-copy">${escapeHtml(contextual.lead || contextual.summary || 'La historia contextual aparecerá aquí.')}</p>
       <div class="analysis-hub__chip-list">
         ${signals.length
-          ? signals.slice(0, 4).map((item) => `<span class="story-pill story-pill--coach">${escapeHtml(item)}</span>`).join('')}
+          ? signals.slice(0, 4).map((item) => `<span class="story-pill story-pill--coach">${escapeHtml(item)}</span>`).join('')
           : '<span class="analysis-empty">Sin señales claras</span>'}
       </div>
       <div class="analysis-hub__list">
@@ -104,39 +155,76 @@ function renderContextualCard(model) {
   `;
 }
 
-function renderBanCard(model) {
-  const bans = Array.isArray(model.bans) ? model.bans : [];
+function renderBestPickCard(bestPick, story) {
+  if (!bestPick) {
+    return `
+      <article class="analysis-hub__card analysis-hub__card--assessment">
+        <span class="analysis-hub__card-kicker">Mejor pick</span>
+        <p class="analysis-empty">No hay una recomendación clara para cerrar el draft.</p>
+      </article>
+    `;
+  }
 
   return `
     <article class="analysis-hub__card analysis-hub__card--assessment">
-      <span class="analysis-hub__card-kicker">Bans inteligentes</span>
-      <strong class="analysis-hub__card-title">${escapeHtml(model.banFocus || 'Quita lo que rompe el plan')}</strong>
-      <p class="analysis-hub__card-copy">${escapeHtml(model.banSummary || 'Los mejores bans son los que cortan la entrada, la visión o la respuesta global del rival.')}</p>
+      <span class="analysis-hub__card-kicker">Mejor último pick</span>
+      <strong class="analysis-hub__card-title">${escapeHtml(bestPick.champion || 'Sin definir')}</strong>
+      <p class="analysis-hub__card-copy">${escapeHtml(bestPick.problem || 'Cierra el hueco más evidente del draft.')}</p>
+      <div class="analysis-hub__chip-list">
+        ${(bestPick.solves || []).length
+          ? bestPick.solves.map((item) => `<span class="story-pill story-pill--success">${escapeHtml(item)}</span>`).join('')
+          : '<span class="analysis-empty">Problema resuelto</span>'}
+      </div>
+      <div class="analysis-hub__profile-bar" aria-hidden="true">
+        <div class="analysis-hub__profile-fill" style="--meter:${clamp(bestPick.score, 0, 100)}%"></div>
+      </div>
+      <p class="analysis-hub__card-foot">${escapeHtml(bestPick.reason || story.focus || '')}</p>
+    </article>
+  `;
+}
+
+function renderRecommendationListCard(title, items) {
+  return `
+    <article class="analysis-hub__card">
+      <span class="analysis-hub__card-kicker">${escapeHtml(title)}</span>
       <div class="analysis-hub__list">
-        ${bans.length
-          ? bans
+        ${(Array.isArray(items) ? items : [])
+          .length
+          ? items
               .map(
                 (item) => `
                   <article class="analysis-hub__profile-row">
                     <div class="analysis-hub__profile-head">
                       <strong>${escapeHtml(item.champion || '')}</strong>
-                      <span>${escapeHtml(item.priority || 'ban')} · ${escapeHtml(String(item.score ?? 0))}%</span>
+                      <span>${escapeHtml(item.role || 'último slot')} · ${escapeHtml(String(item.score ?? 0))}%</span>
                     </div>
-                    <div class="analysis-hub__profile-bar" aria-hidden="true">
-                      <div class="analysis-hub__profile-fill" style="--meter:${clamp(item.score, 0, 100)}%"></div>
-                    </div>
-                    <p>${escapeHtml(item.reason || '')}</p>
+                    <p>${escapeHtml(item.reason || item.problem || '')}</p>
                     <div class="analysis-hub__chip-list">
-                      ${(item.tags || []).length
-                        ? item.tags.map((tag) => `<span class="story-pill story-pill--danger">${escapeHtml(tag)}</span>`).join('')
-                        : '<span class="analysis-empty">Impacto directo</span>'}
+                      ${(item.solves || []).length
+                        ? item.solves.map((solve) => `<span class="story-pill story-pill--info">${escapeHtml(solve)}</span>`).join('')
+                        : '<span class="analysis-empty">Alternativa</span>'}
                     </div>
                   </article>
                 `
               )
               .join('')
-          : '<p class="analysis-empty">Sin bans calculados</p>'}
+          : '<p class="analysis-empty">Sin alternativas claras</p>'}
       </div>
+    </article>
+  `;
+}
+
+function renderLastPickContextCard(model) {
+  const profile = model.profile || {};
+  return `
+    <article class="analysis-hub__card analysis-hub__card--assessment">
+      <span class="analysis-hub__card-kicker">Qué resuelve</span>
+      <strong class="analysis-hub__card-title">${escapeHtml(profile.focus || model.focus || 'Cerrar el hueco del draft')}</strong>
+      <p class="analysis-hub__card-copy">${escapeHtml(profile.summary || model.summary || 'La recomendación prioriza la pieza que más estabiliza la composición.')}</p>
+      <div class="analysis-hub__chip-list">
+        ${(profile.needs || []).slice(0, 4).map((item) => `<span class="story-pill story-pill--coach">${escapeHtml(item)}</span>`).join('') || '<span class="analysis-empty">Sin necesidades claras</span>'}
+      </div>
+      <p class="analysis-hub__card-foot">Último slot: ${escapeHtml(model.targetRoleLabel || model.targetRole || 'Sin definir')}</p>
     </article>
   `;
 }
