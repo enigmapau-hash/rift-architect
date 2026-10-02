@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v166';
+const CACHE_NAME = 'rift-architect-v167';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -7,18 +7,7 @@ const CORE_ASSETS = [
   './Draft%20Pool.xlsx',
   './assets/icon.svg',
   './css/main.css',
-  './css/v2.css',
-  './css/v2_patch.css',
-  './css/fixes.css',
-  './css/analysis.css',
-  './css/analysis-v2.css',
   './css/design-tokens.css',
-  './css/components.css',
-  './css/design-system.css',
-  './css/analysis-modal.css',
-  './css/composition-story.css',
-  './css/responsive-story.css',
-  './css/accordion.css',
   './css/ui-polish.css',
   './js/bootstrap.js?v=87',
   './js/pwa-reset.js?v=87',
