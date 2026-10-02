@@ -225,6 +225,7 @@ export function createCompositionController({ state, persistDraft = () => {} } =
     syncAnalysisStory({
       selectedChampions: getSelectedChampions(state),
       activeRole: state.activeRole,
+      rolePools: state.data,
     });
   }
 
