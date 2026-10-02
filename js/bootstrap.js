@@ -1,15 +1,7 @@
-import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js';
-import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDraftChange } from './analyzer.js';
+import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=70';
+import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDraftChange } from './analyzer.js?v=70';
 
 (() => {
-  const keysToClear = ['rift-architect:draft-v2', 'rift-architect:draft'];
-
-  try {
-    keysToClear.forEach((key) => localStorage.removeItem(key));
-  } catch {
-    // ignore storage errors
-  }
-
   try {
     const report = validateKnowledgeLayer();
     window.__RIFT_ARCHITECT_KNOWLEDGE__ = report;
