@@ -1,6 +1,6 @@
 {
-  "version": "v72",
-  "stage": "Patch 0.50.0 / Analysis Engine Split",
+  "version": "v73",
+  "stage": "Patch 0.50.1 / UI Reset Fix",
   "date": "2026-10-02",
-  "cache": "rift-architect-v151"
+  "cache": "rift-architect-v152"
 }
