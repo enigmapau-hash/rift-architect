@@ -8,7 +8,7 @@ import {
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer-report.js?v=117';
+} from './analysis/renderer-report.js?v=118';
 import { compareCompositions } from './engine/comparisonEngine.js?v=115';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
