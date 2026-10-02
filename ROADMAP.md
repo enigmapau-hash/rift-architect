@@ -47,18 +47,27 @@
 - Modal de selección más homogéneo.
 - **En curso**.
 
-### Hito 6: Beta 1.0
+### Hito 6: QA de estabilidad
+- Probar decenas de composiciones.
+- Revisar consola.
+- Verificar refresh del Excel.
+- Validar todas las secciones del informe.
+- Eliminar código muerto.
+- Revisar documentación.
+- **En curso**.
+
+### Hito 7: Beta 1.0
 - Experiencia estable.
 - Lectura clara en móvil, tablet y escritorio.
 - Sin regresiones conocidas.
 - Documentación cerrada.
 
-### Hito 7: Release Candidate
+### Hito 8: Release Candidate
 - Congelar funciones.
 - Corregir bugs.
 - Pulir rendimiento y accesibilidad.
 
-### Hito 8: Versión 1.0
+### Hito 9: Versión 1.0
 - Revisión final.
 - Entrega estable del producto.
 
@@ -66,8 +75,8 @@
 
 - La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
 - No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
-- El trabajo real ahora está centrado en la presentación del análisis: menos duplicidades, mejor jerarquía, tarjetas homogéneas y modal más claro.
-- Antes de Beta 1.0 todavía queda revisar limpieza de código, estabilidad visual y sincronía total entre docs y app.
+- El trabajo real ahora está centrado en la QA: estabilidad, cobertura de composiciones, informe homogéneo y limpieza de código.
+- Antes de Beta 1.0 todavía queda revisar consola, visual, documentación y restos de código muerto.
 
 ## Regla del proyecto
 
