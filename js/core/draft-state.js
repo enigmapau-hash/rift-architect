@@ -1,4 +1,8 @@
 export const WORKBOOK_URL = './Draft%20Pool.xlsx';
+export const WORKBOOK_FALLBACK_URLS = [
+  './Draft%20Pool.xlsx',
+  'https://raw.githubusercontent.com/enigmapau-hash/rift-architect/main/Draft%20Pool.xlsx',
+];
 export const STORAGE_KEY = 'rift-architect:draft-v2';
 export const DRAGON_VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json';
 export const DEFAULT_DRAGON_VERSION = '15.16.1';
