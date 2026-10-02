@@ -1,0 +1,313 @@
+/* Analysis presentation polish overrides for Rift Architect */
+
+.analysis-report,
+.analysis-hub__shell,
+.composition-story-shell {
+  width: 100%;
+}
+
+.analysis-report__hero,
+.analysis-report__body,
+.analysis-report__split,
+.analysis-hub__grid {
+  align-items: stretch;
+}
+
+.analysis-report__hero {
+  grid-template-columns: minmax(0, 1fr) minmax(230px, 300px);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.analysis-report__hero-copy,
+.analysis-hub__hero-copy {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.analysis-report__hero-copy p,
+.analysis-report__lede,
+.analysis-report__copy,
+.analysis-hub__card-copy,
+.analysis-hub__profile-row p,
+.analysis-hub__timeline-row p,
+.analysis-hub__evidence-text,
+.analysis-hub__card-foot {
+  line-height: 1.65;
+}
+
+.analysis-report__score,
+.analysis-hub__score-card {
+  display: grid;
+  align-content: center;
+  justify-items: start;
+  min-height: 100%;
+}
+
+.analysis-report__score strong,
+.analysis-hub__score-card strong {
+  letter-spacing: var(--letter-tight);
+}
+
+.analysis-report__body,
+.analysis-report__split,
+.analysis-hub__grid,
+.analysis-hub__list,
+.analysis-hub__timeline-grid,
+.analysis-hub__evidence-grid {
+  gap: 14px;
+}
+
+.analysis-report__body > *,
+.analysis-report__split > *,
+.analysis-hub__grid > * {
+  min-width: 0;
+}
+
+.analysis-report__panel,
+.analysis-hub__card,
+.analysis-report__empty,
+.analysis-hub__empty {
+  height: 100%;
+  align-content: start;
+  border-radius: 20px;
+}
+
+.analysis-report__panel,
+.analysis-hub__card {
+  padding: clamp(16px, 1.6vw, 22px);
+}
+
+.analysis-report__empty,
+.analysis-hub__empty {
+  padding: clamp(16px, 1.6vw, 22px);
+}
+
+.analysis-report__section-title,
+.analysis-report__item-head,
+.analysis-hub__profile-head {
+  gap: 10px;
+  min-width: 0;
+}
+
+.analysis-report__section-title strong,
+.analysis-report__item-head strong,
+.analysis-hub__profile-head strong {
+  min-width: 0;
+}
+
+.analysis-report__section-title span,
+.analysis-report__item-head span,
+.analysis-hub__profile-head span {
+  text-wrap: balance;
+}
+
+.analysis-report__facts {
+  gap: 12px;
+}
+
+.analysis-report__fact,
+.analysis-report__item,
+.analysis-report__timeline-row,
+.analysis-hub__profile-row,
+.analysis-hub__evidence-card {
+  padding: 14px 15px;
+  border-radius: 16px;
+}
+
+.analysis-report__chips,
+.analysis-hub__chip-list,
+.analysis-hub__flow-mini {
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.analysis-report__chip,
+.story-pill,
+.analysis-hub__flow-mini-item,
+.champion-pill {
+  min-height: 30px;
+  padding: 6px 10px;
+  line-height: 1.2;
+}
+
+.analysis-report__chip,
+.story-pill {
+  border-radius: 999px;
+}
+
+.analysis-report__bar,
+.analysis-hub__profile-bar {
+  height: 8px;
+}
+
+.analysis-report__empty-inline {
+  padding: 8px 0 2px;
+}
+
+.picker-backdrop {
+  padding: clamp(12px, 2vw, 24px);
+}
+
+.picker-modal {
+  width: min(1080px, 100%);
+  max-height: min(88vh, 920px);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  gap: 14px;
+  padding: clamp(18px, 2vw, 26px);
+}
+
+.picker-header {
+  margin-bottom: 0;
+  align-items: flex-start;
+}
+
+.search input {
+  min-height: 50px;
+  padding: 12px 14px;
+}
+
+.champion-list {
+  display: grid;
+  gap: 10px;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+.champion-item {
+  grid-template-columns: 56px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+}
+
+.champion-item__body {
+  min-width: 0;
+  gap: 6px;
+}
+
+.champion-item__head {
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.champion-item__head strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.champion-item__sub {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  white-space: normal;
+}
+
+.champion-pill {
+  justify-self: end;
+}
+
+.avatar {
+  flex: 0 0 auto;
+}
+
+.avatar--lg {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+}
+
+.avatar--sm {
+  width: 40px;
+  height: 40px;
+  border-radius: 13px;
+}
+
+.avatar img {
+  object-position: center;
+}
+
+@media (min-width: 980px) {
+  .analysis-hub__grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+
+  .analysis-report__split {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .analysis-report__hero,
+  .analysis-report__split,
+  .analysis-report__facts,
+  .analysis-hub__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analysis-report__score,
+  .analysis-hub__score-card {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .analysis-report__hero,
+  .analysis-hub__hero {
+    gap: 12px;
+  }
+
+  .analysis-report__section-title,
+  .analysis-report__item-head,
+  .analysis-hub__profile-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .analysis-report__section-title span,
+  .analysis-report__item-head span,
+  .analysis-hub__profile-head span {
+    text-align: left;
+  }
+
+  .analysis-report__panel,
+  .analysis-hub__card,
+  .analysis-report__empty,
+  .analysis-hub__empty {
+    padding: 15px;
+  }
+
+  .champion-item {
+    grid-template-columns: 48px minmax(0, 1fr);
+  }
+
+  .champion-pill {
+    justify-self: start;
+  }
+
+  .picker-modal {
+    max-height: calc(100vh - 24px);
+  }
+}
+
+@media (max-width: 560px) {
+  .analysis-report__hero-copy h4,
+  .analysis-hub__hero-copy h4 {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .analysis-report__score strong,
+  .analysis-hub__score-card strong {
+    font-size: clamp(1.65rem, 6vw, 2rem);
+  }
+
+  .champion-item {
+    padding: 12px;
+  }
+}
