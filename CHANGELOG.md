@@ -1,5 +1,15 @@
 # Changelog
 
+## v115 · Patch 0.62.25 / RC2 Structured Analysis 1
+### Changed
+- Rebuilt the executive analysis as a structured dashboard where each motor is represented in its own card.
+- Added `renderer-dashboard.js` and routed the report wrapper through it.
+- Reworked the dashboard so the engine outputs are easier to scan: Executive Summary, Identidad, Plan, Knowledge Layer, Fortalezas, Debilidades, Bans, Dependencias, Señales, Riesgos and Último pick.
+- Rotated the visible build to `v115` and the application cache to `rift-architect-v193`.
+
+### Notes
+- This patch starts the RC2 report UI rewrite: inventory of outputs, card mapping per module and a cleaner dashboard presentation.
+
 ## v114 · Patch 0.62.24 / RC2 Report UI Rewrite 1
 ### Changed
 - Rebuilt the executive report renderer as a compact dashboard-style layout.
@@ -29,12 +39,3 @@
 
 ### Notes
 - This patch focuses on keyboard focus, contrast, keyboard navigation and missing ARIA hooks.
-
-## v111 · Patch 0.62.21 / Visual Finish 2
-### Changed
-- Added a final visual finesse layer for the analysis report and picker with tighter alignment, consistent chip icons, better heights, cleaner spacing and smoother microinteractions.
-- Added `analysis-visual-finesse.css` and loaded it after the existing polish layers.
-- Bumped the visible build version to `v111` and rotated the application cache to `rift-architect-v189`.
-- Aligned the entry page and service worker with the new generation.
-
-### Notes
