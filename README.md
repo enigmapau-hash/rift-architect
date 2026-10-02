@@ -1,6 +1,6 @@
 # Rift Architect
 
-PWA para analizar **tu propia composición** de League of Legends a partir de `Draft Pool.xlsx`.
+PWA para analizar **tu propia composición** de League of Legends a partir de `Draft Pool.xlsx`. El flujo real es directo: el Excel alimenta al motor de análisis e IA; no hay una capa JSON intermedia ni necesaria.
 
 ## Qué hace ahora
 
@@ -27,6 +27,8 @@ La app ya está estable en la ruta principal de render y el trabajo actual se ce
 
 - `Draft Pool.xlsx` es la única fuente editable.
 - La app lee el Excel en tiempo de ejecución.
+- El motor IA analiza directamente esa composición en memoria.
+- No existe una capa JSON intermedia para sincronizar datos.
 - Los datos repetidos se normalizan en memoria.
 - La Knowledge Layer y el motor estratégico añaden reglas y deducciones sin mover la lógica a la UI.
 
