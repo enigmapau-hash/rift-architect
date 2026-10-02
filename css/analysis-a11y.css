@@ -1,0 +1,214 @@
+/* Accessibility refinements for Rift Architect */
+
+:root {
+  color-scheme: dark;
+}
+
+.ghost-btn,
+.slot,
+.champion-item,
+.search input,
+.analysis-report__chip,
+.analysis-report__priority-chip,
+.champion-pill,
+.summary-chip {
+  transition:
+    transform 160ms var(--ease-standard),
+    box-shadow 160ms var(--ease-standard),
+    border-color 160ms var(--ease-standard),
+    background-color 160ms var(--ease-standard),
+    color 160ms var(--ease-standard);
+}
+
+.ghost-btn:focus-visible,
+.slot:focus-visible,
+.champion-item:focus-visible,
+.search input:focus-visible,
+.analysis-report__chip:focus-visible,
+.analysis-report__priority-chip:focus-visible,
+.champion-pill:focus-visible,
+.summary-chip:focus-visible {
+  outline: 2px solid rgba(70, 211, 161, 0.92);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(70, 211, 161, 0.16);
+}
+
+.slot:focus-visible,
+.champion-item:focus-visible,
+.ghost-btn:focus-visible,
+.search input:focus-visible {
+  border-color: rgba(70, 211, 161, 0.62);
+}
+
+.search input:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.picker-backdrop[aria-hidden='true'] {
+  pointer-events: none;
+}
+
+.picker-modal {
+  isolation: isolate;
+}
+
+.picker-modal:focus-within {
+  box-shadow: var(--shadow-lift);
+}
+
+.champion-item[aria-pressed='true'] {
+  border-color: rgba(70, 211, 161, 0.58);
+  background: rgba(70, 211, 161, 0.12);
+}
+
+.champion-item[aria-pressed='true'] .champion-pill {
+  border-color: rgba(70, 211, 161, 0.42);
+  background: rgba(70, 211, 161, 0.12);
+}
+
+.slot[aria-expanded='true'] {
+  border-color: rgba(70, 211, 161, 0.55);
+  box-shadow: 0 0 0 1px rgba(70, 211, 161, 0.14), var(--shadow-lift);
+}
+
+.analysis-report__chip,
+.analysis-report__priority-chip,
+.champion-pill,
+.summary-chip {
+  color: var(--text);
+}
+
+.analysis-report__chip--success,
+.analysis-report__chip--danger,
+.analysis-report__chip--coach,
+.analysis-report__chip--info,
+.analysis-report__chip--muted {
+  font-weight: 700;
+}
+
+.analysis-report__chip--success {
+  border-color: rgba(70, 211, 161, 0.28);
+  background: rgba(70, 211, 161, 0.1);
+}
+
+.analysis-report__chip--danger {
+  border-color: rgba(255, 119, 119, 0.32);
+  background: rgba(255, 119, 119, 0.1);
+}
+
+.analysis-report__chip--coach {
+  border-color: rgba(124, 140, 255, 0.28);
+  background: rgba(124, 140, 255, 0.1);
+}
+
+.analysis-report__chip--info {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.analysis-report__priority-chip {
+  border-color: rgba(124, 140, 255, 0.22);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.analysis-report__score,
+.analysis-report__panel,
+.analysis-report__item,
+.analysis-report__mini-panel,
+.analysis-hub__card,
+.analysis-hub__score-card,
+.analysis-hub__empty,
+.summary-card,
+.panel,
+.slot,
+.champion-item {
+  transform-origin: center;
+}
+
+.analysis-report__hero-copy h4,
+.analysis-report__section-title strong,
+.analysis-report__score strong,
+.analysis-hub__hero-copy h4,
+.picker-header h2,
+.panel-title-row h2 {
+  text-wrap: balance;
+}
+
+@media (prefers-contrast: more) {
+  .analysis-report__panel,
+  .analysis-report__item,
+  .analysis-report__mini-panel,
+  .analysis-hub__card,
+  .analysis-hub__score-card,
+  .analysis-hub__empty,
+  .summary-card,
+  .panel,
+  .slot,
+  .champion-item,
+  .ghost-btn,
+  .search input {
+    border-color: rgba(255, 255, 255, 0.4);
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .analysis-report__score,
+  .analysis-hub__score-card {
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+
+  .analysis-report__chip,
+  .analysis-report__priority-chip,
+  .champion-pill,
+  .summary-chip {
+    border-color: rgba(255, 255, 255, 0.45);
+  }
+}
+
+@media (forced-colors: active) {
+  .ghost-btn,
+  .slot,
+  .champion-item,
+  .search input,
+  .analysis-report__chip,
+  .analysis-report__priority-chip,
+  .champion-pill,
+  .summary-chip,
+  .analysis-report__panel,
+  .analysis-report__item,
+  .analysis-report__mini-panel,
+  .analysis-hub__card,
+  .analysis-hub__score-card,
+  .analysis-hub__empty,
+  .summary-card,
+  .panel {
+    forced-color-adjust: auto;
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .ghost-btn:focus-visible,
+  .slot:focus-visible,
+  .champion-item:focus-visible,
+  .search input:focus-visible,
+  .analysis-report__chip:focus-visible,
+  .analysis-report__priority-chip:focus-visible,
+  .champion-pill:focus-visible,
+  .summary-chip:focus-visible {
+    outline-color: Highlight;
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost-btn,
+  .slot,
+  .champion-item,
+  .search input,
+  .analysis-report__chip,
+  .analysis-report__priority-chip,
+  .champion-pill,
+  .summary-chip {
+    transition: none !important;
+  }
+}
