@@ -23,6 +23,9 @@ const state = {
   scheduled: false,
   selectedChampions: [],
   rolePools: {},
+  snapshotKey: '',
+  report: null,
+  story: null,
 };
 
 globalThis.renderAnalysisStory = renderStory;
@@ -106,15 +109,27 @@ function scheduleRender() {
 function renderStory() {
   const snapshot = captureCompositionSnapshot();
   if (!snapshot.length) {
+    state.snapshotKey = '';
+    state.report = null;
+    state.story = null;
     renderAnalysisEmptyState(state.root);
     renderComparisonEmptyState(state.comparisonRoot);
     return;
   }
 
-  const report = runAnalysis(snapshot);
-  const story = buildAnalysisStory(report);
-  renderAnalysisStory(state.root, story);
+  const snapshotKey = buildSnapshotKey(snapshot);
+  let report = state.snapshotKey === snapshotKey ? state.report : null;
+  let story = state.snapshotKey === snapshotKey ? state.story : null;
 
+  if (!report || !story) {
+    report = runAnalysis(snapshot);
+    story = buildAnalysisStory(report);
+    state.snapshotKey = snapshotKey;
+    state.report = report;
+    state.story = story;
+  }
+
+  renderAnalysisStory(state.root, story);
   renderSecondaryPanel(snapshot, report, story);
 }
 
@@ -160,6 +175,20 @@ function captureCompositionSnapshot() {
   }
 
   return [];
+}
+
+function buildSnapshotKey(snapshot = []) {
+  return snapshot
+    .map((item) => [
+      item.role,
+      item.champion,
+      item.identity,
+      item.function,
+      item.tempo,
+      Array.isArray(item.strengths) ? item.strengths.join('|') : '',
+      Array.isArray(item.weaknesses) ? item.weaknesses.join('|') : '',
+    ].join('::'))
+    .join('||');
 }
 
 function extractChampionFromSlot(slot) {
