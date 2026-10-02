@@ -32,11 +32,12 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Bans inteligentes con los 5 campeones que más dificultan ejecutar el plan.
 - Recomendación del último pick con la mejor opción y alternativas útiles.
 - Comparador A/B para contrastar dos composiciones guardadas.
+- Contrato de datos del análisis para que el renderer solo consuma una capa estable.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 - Suite de tests automáticos para evitar regresiones.
 
 ## En qué punto está ahora
-La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo estructurado, la reconstrucción RC2 del dashboard por módulos, el último pulido visual, la accesibilidad y la QA funcional automatizada. Cada motor debe reflejar su salida en una tarjeta clara y la lectura debe ser compacta y coherente.
+La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo estructurado, el contrato de datos, la reconstrucción RC2 del dashboard por módulos, el último pulido visual, la accesibilidad y la QA funcional automatizada. Cada motor debe reflejar su salida en una tarjeta clara y la lectura debe ser compacta y coherente.
 
 ## Siguiente bloque de trabajo
 El siguiente paso es una auditoría completa de estabilidad y limpieza:
