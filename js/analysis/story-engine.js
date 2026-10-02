@@ -7,6 +7,7 @@ export function buildAnalysisStory(report = {}) {
   const contextual = buildContextualNarrative(report);
   const strategic = report.strategic || contextual.reasoning || null;
   if (strategic) contextual.reasoning = strategic;
+  const banRecommendations = report.banRecommendations || report.bans || null;
   const confidence = clamp(score.value ?? report.confidence ?? 0, 0, 100);
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
@@ -31,6 +32,7 @@ export function buildAnalysisStory(report = {}) {
   const risks = uniqueValues([...(Array.isArray(report.risks) ? report.risks : []), ...(Array.isArray(report.threats) ? report.threats : [])]).slice(0, 3);
   const phases = normalizePhases(report.timeline || report.gameplan?.phases || []);
   const strategicClaims = Array.isArray(strategic?.claims) ? strategic.claims : [];
+  const bans = normalizeBans(banRecommendations);
 
   return {
     title,
@@ -49,7 +51,9 @@ export function buildAnalysisStory(report = {}) {
       contextual.strategyProfile?.label,
       contextual.strategyProfile?.kind,
       strategic?.focus,
+      banRecommendations?.focus,
       ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
+      ...(Array.isArray(bans) ? bans.map((ban) => ban.champion) : []),
       ...(Array.isArray(report.tags) ? report.tags : []),
       ...(Array.isArray(contextual.tags) ? contextual.tags : []),
     ]).slice(0, 8),
@@ -65,7 +69,29 @@ export function buildAnalysisStory(report = {}) {
     dominance,
     contextual,
     strategic,
+    bans,
+    banFocus: cleanText(banRecommendations?.focus || strategic?.focus || ''),
+    banSummary: cleanText(banRecommendations?.summary || ''),
   };
+}
+
+function normalizeBans(banRecommendations) {
+  const source = Array.isArray(banRecommendations?.bans)
+    ? banRecommendations.bans
+    : Array.isArray(banRecommendations)
+      ? banRecommendations
+      : [];
+
+  return source
+    .slice(0, 5)
+    .map((item, index) => ({
+      champion: cleanText(item.champion || item.name || item.label || 'Sin definir'),
+      reason: cleanText(item.reason || item.detail || item.summary || ''),
+      priority: cleanText(item.priority || (index === 0 ? 'critical' : 'high')),
+      score: clamp(Number(item.score ?? item.weight ?? 0), 0, 100),
+      tags: uniqueValues(Array.isArray(item.tags) ? item.tags : []),
+    }))
+    .filter((item) => item.champion);
 }
 
 function normalizePhases(phases = []) {
