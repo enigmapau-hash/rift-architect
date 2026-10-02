@@ -1,12 +1,14 @@
 import { analyzeComposition } from './analyzer.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
-const SELECTOR = '#compositionGrid .slot.is-filled';
+const GRID_SELECTOR = '#compositionGrid';
+const SLOT_SELECTOR = '#compositionGrid .slot.is-filled';
 
 const state = {
   root: null,
   observer: null,
   scheduled: false,
+  selectedChampions: [],
 };
 
 globalThis.renderAnalysisStory = renderStory;
@@ -21,6 +23,7 @@ async function init() {
   mountRoot(storyView);
   observeComposition(compositionGrid);
 
+  window.addEventListener('rift-architect:composition-changed', handleCompositionChanged);
   window.addEventListener('storage', scheduleRender);
   window.addEventListener('resize', scheduleRender, { passive: true });
   window.setInterval(scheduleRender, 350);
@@ -39,7 +42,6 @@ function mountRoot(storyView) {
   root.id = ROOT_ID;
   root.className = 'analysis-hub analysis-hub--cards analysis-hub--main-story';
   root.setAttribute('aria-live', 'polite');
-
   storyView.replaceChildren(root);
   state.root = root;
 }
@@ -49,6 +51,14 @@ function observeComposition(node) {
 
   state.observer = new MutationObserver(scheduleRender);
   state.observer.observe(node, { childList: true, subtree: true, characterData: true });
+}
+
+function handleCompositionChanged(event) {
+  const selectedChampions = Array.isArray(event?.detail?.selectedChampions) ? event.detail.selectedChampions : [];
+  if (selectedChampions.length) {
+    state.selectedChampions = selectedChampions;
+  }
+  scheduleRender();
 }
 
 function scheduleRender() {
@@ -63,14 +73,16 @@ function scheduleRender() {
 function renderStory() {
   if (!state.root) return;
 
-  const selectedChampions = collectSelectedChampions();
+  const selectedChampions = getSelectedChampions();
+  state.selectedChampions = selectedChampions;
+
   if (selectedChampions.length < 5) {
     state.root.hidden = false;
     state.root.innerHTML = `
       <article class="analysis-hub__empty">
         <p class="eyebrow">Bloque 2 · Pantalla principal</p>
-        <h4>Completa los cinco campeones para ver el análisis</h4>
-        <p>La pantalla resume identidad, fortalezas, debilidades, plan, sinergias y riesgos de tu propia composición.</p>
+        <h4>Selecciona cinco campeones para ver el análisis</h4>
+        <p>Primero verás un resumen corto. La historia completa aparecerá cuando la composición esté completa.</p>
       </article>
     `;
     return;
@@ -78,6 +90,7 @@ function renderStory() {
 
   const analysis = analyzeComposition(selectedChampions);
   const model = buildModel(analysis);
+
   state.root.hidden = false;
   state.root.innerHTML = `
     <section class="analysis-hub__shell analysis-hub__shell--cards">
@@ -310,18 +323,8 @@ function formatEntry(value) {
   return cleanText(String(value));
 }
 
-function collectSelectedChampions() {
-  return [...document.querySelectorAll(SELECTOR)]
-    .map((slot) => ({
-      role: String(slot.dataset.role || 'top'),
-      champion: slot.querySelector('.slot__name')?.textContent?.trim() || '',
-      identity: slot.querySelector('.slot__meta')?.textContent?.trim() || '',
-      function: slot.querySelector('.champion-item__sub')?.textContent?.trim() || '',
-      tempo: slot.querySelector('.slot__tempo')?.textContent?.trim() || '',
-      strengths: [],
-      weaknesses: [],
-    }))
-    .filter((champion) => champion.champion);
+function getSelectedChampions() {
+  return ROLE_ORDER.filter((role) => state.selected[role]).map((role) => ({ role, ...state.selected[role] }));
 }
 
 function uniqueValues(values = []) {
