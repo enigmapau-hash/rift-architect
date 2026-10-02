@@ -5,6 +5,7 @@ import { PATTERN_RULES } from './patterns.js';
 import { DEPENDENCY_RULES } from './dependencies.js';
 import { CONFLICT_RULES } from './conflicts.js';
 import { WIN_CONDITION_RULES } from './win-conditions.js';
+import { STRATEGIC_PROFILES_V2 } from './strategy-profiles.js';
 
 const VALID_CATEGORIES = new Set(Object.keys(CATEGORY_TERMS));
 const KNOWN_IDENTITY_LABELS = new Set(IDENTITY_RELATIONS.map((rule) => normalizeText(rule.label)));
@@ -87,6 +88,62 @@ function validateIdentityRelations(issues) {
 
   if (hasDuplicates(keys)) pushIssue(issues, 'error', 'identity-relations', 'Hay claves de identidad duplicadas.', 'IDENTITY_RELATIONS');
   if (hasDuplicates(labels)) pushIssue(issues, 'warning', 'identity-relations', 'Hay etiquetas de identidad duplicadas.', 'IDENTITY_RELATIONS');
+}
+
+function validateStrategicProfiles(issues) {
+  if (!Array.isArray(STRATEGIC_PROFILES_V2) || !STRATEGIC_PROFILES_V2.length) {
+    pushIssue(issues, 'error', 'strategic-profiles', 'No hay perfiles estratégicos definidos.', 'STRATEGIC_PROFILES_V2');
+    return;
+  }
+
+  const keys = [];
+  const labels = [];
+  let identityProfiles = 0;
+  let patternProfiles = 0;
+
+  STRATEGIC_PROFILES_V2.forEach((profile, index) => {
+    const path = `STRATEGIC_PROFILES_V2[${index}]`;
+    const kind = String(profile?.kind || '').trim();
+
+    if (!profile?.key) pushIssue(issues, 'error', 'strategic-profiles', 'Falta la clave del perfil estratégico.', `${path}.key`);
+    if (!profile?.label) pushIssue(issues, 'error', 'strategic-profiles', 'Falta la etiqueta del perfil estratégico.', `${path}.label`);
+    if (!kind) pushIssue(issues, 'error', 'strategic-profiles', 'Falta el tipo del perfil estratégico.', `${path}.kind`);
+    if (!profile?.summary) pushIssue(issues, 'error', 'strategic-profiles', 'Falta el resumen narrativo del perfil.', `${path}.summary`);
+    if (!profile?.condition) pushIssue(issues, 'warning', 'strategic-profiles', 'El perfil no define condición de cambio.', `${path}.condition`);
+
+    keys.push(profile?.key);
+    labels.push(profile?.label);
+
+    if (kind === 'identity') identityProfiles += 1;
+    if (kind === 'pattern') patternProfiles += 1;
+
+    if (!['identity', 'pattern'].includes(kind)) {
+      pushIssue(issues, 'error', 'strategic-profiles', 'kind debe ser identity o pattern.', `${path}.kind`);
+    }
+
+    validateCategories(issues, 'strategic-profiles', `${path}.categories`, profile?.categories);
+    validateTextList(issues, 'strategic-profiles', `${path}.winsAgainst`, profile?.winsAgainst, true);
+    validateTextList(issues, 'strategic-profiles', `${path}.losesAgainst`, profile?.losesAgainst, true);
+    validateTextList(issues, 'strategic-profiles', `${path}.needs`, profile?.needs, true);
+    validateTextList(issues, 'strategic-profiles', `${path}.avoids`, profile?.avoids, true);
+    validateTextList(issues, 'strategic-profiles', `${path}.timings`, profile?.timings, true);
+    validateTextList(issues, 'strategic-profiles', `${path}.macro`, profile?.macro, true);
+    validateTextList(issues, 'strategic-profiles', `${path}.objectives`, profile?.objectives, true);
+    validateTextList(issues, 'strategic-profiles', `${path}.mistakes`, profile?.mistakes, true);
+
+    if (kind === 'identity' && !KNOWN_IDENTITY_LABELS.has(normalizeText(profile?.label))) {
+      pushIssue(issues, 'warning', 'strategic-profiles', `La identidad no está reconocida en la taxonomía base: ${profile?.label}`, `${path}.label`);
+    }
+
+    if (kind === 'pattern' && !KNOWN_PATTERN_LABELS.has(normalizeText(profile?.label))) {
+      pushIssue(issues, 'warning', 'strategic-profiles', `El patrón no está reconocido en la taxonomía base: ${profile?.label}`, `${path}.label`);
+    }
+  });
+
+  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'strategic-profiles', 'Hay claves de perfil estratégico duplicadas.', 'STRATEGIC_PROFILES_V2');
+  if (hasDuplicates(labels)) pushIssue(issues, 'warning', 'strategic-profiles', 'Hay etiquetas de perfil estratégico duplicadas.', 'STRATEGIC_PROFILES_V2');
+  if (!identityProfiles) pushIssue(issues, 'error', 'strategic-profiles', 'Debe existir al menos un perfil de identidad.', 'STRATEGIC_PROFILES_V2');
+  if (!patternProfiles) pushIssue(issues, 'error', 'strategic-profiles', 'Debe existir al menos un perfil de patrón.', 'STRATEGIC_PROFILES_V2');
 }
 
 function validateSynergyRules(issues) {
@@ -252,6 +309,7 @@ export function validateKnowledgeLayer() {
   const issues = [];
 
   validateIdentityRelations(issues);
+  validateStrategicProfiles(issues);
   validateSynergyRules(issues);
   validatePatterns(issues);
   validateDependencies(issues);
@@ -268,6 +326,7 @@ export function validateKnowledgeLayer() {
     issues,
     summary: {
       identities: IDENTITY_RELATIONS.length,
+      strategicProfiles: STRATEGIC_PROFILES_V2.length,
       directSynergies: DIRECT_SYNERGY_RULES.length,
       macroSynergies: MACRO_SYNERGY_RULES.length,
       patterns: PATTERN_RULES.length,
@@ -285,6 +344,7 @@ export function formatKnowledgeReport(report) {
     `Knowledge layer: ${report.valid ? 'OK' : 'Con incidencias'}`,
     `Errors: ${report.errors ?? 0}`,
     `Warnings: ${report.warnings ?? 0}`,
+    `Strategic profiles: ${report.summary?.strategicProfiles ?? 0}`,
   ];
 
   return lines.join(' · ');
