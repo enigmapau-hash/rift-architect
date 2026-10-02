@@ -45,7 +45,7 @@ export function buildContextualNarrative(report = {}) {
     { label: 'Riesgo principal', detail: conflictLine, kind: 'risk' },
   ]).slice(0, 4);
 
-  const lead = buildLead([identityLine, winLine, tempoLine, macroLine, conflictLine]);
+  const lead = buildLead([identityLine, tempoLine, winLine, macroLine, conflictLine]);
   const headline = cleanText(`${primaryIdentity} · ${strategicProfile?.label || winRule?.label || patternRule?.label || 'Lectura contextual'}`);
 
   return {
@@ -226,7 +226,7 @@ function buildWinLine({ strategicProfile, winRule, patternRule, macroRule, signa
   const tempoKey = normalizeText(tempo);
 
   if (key === 'dive' || key === 'engage' || key === 'pick' || key === 'skirmish') {
-    return 'Si el rival te niega visión o follow-up, espera la siguiente ventana: tu entrada vale cuando la respuesta enemiga ya está fijada.';
+    return 'Si enfrente hay más engage, tu condición cambia: no abras de frente; espera a que la respuesta enemiga ya esté fijada.';
   }
 
   if (key === 'splitpush') {
@@ -238,7 +238,7 @@ function buildWinLine({ strategicProfile, winRule, patternRule, macroRule, signa
   }
 
   if (key === 'protect' || key === 'fronttoback' || tempoKey === 'late') {
-    return 'Ralentiza el early: tu pelea buena llega cuando front line, peel y carry ya están listos.';
+    return 'Ralentiza el early: tu pico de poder llega cuando front line, peel y carry ya están listos.';
   }
 
   if (winRule?.detail) {
@@ -283,8 +283,8 @@ function buildTempoLine({ strategicProfile, tempo, confidence, winRule }) {
   }
 
   const tempoKey = normalizeText(tempo);
-  if (tempoKey === 'early') return 'Tu mejor margen está en el early: acelera antes de que el rival estabilice el mapa.';
-  if (tempoKey === 'late') return 'Tu plan pide tiempo: no te precipites y guarda recursos para el cierre.';
+  if (tempoKey === 'early') return 'Acelera el early antes de que el rival estabilice el mapa.';
+  if (tempoKey === 'late') return 'Ralentiza el early: tu pico de poder aparece más tarde y no conviene forzarlo antes de tiempo.';
 
   const confidenceText = confidence >= 80 ? 'alto' : confidence >= 60 ? 'medio' : 'limitado';
   if (winRule?.label) {
@@ -353,7 +353,7 @@ function uniqueSentences(sentences = []) {
 }
 
 function buildLead(sentences = []) {
-  return uniqueSentences(sentences).filter(Boolean).slice(0, 2).join(' ');
+  return uniqueSentences(sentences).filter(Boolean).slice(0, 3).join(' ');
 }
 
 function buildContextualTags({
@@ -385,7 +385,7 @@ function buildContextualTags({
     ...signalSet.categories,
   ];
 
-  return uniqueValues(candidates)
+  return uniqueValues(candidates.flat ? candidates.flat() : candidates)
     .filter((value) => {
       const normalized = normalizeText(value);
       return normalized && normalized !== 'sin definir' && normalized !== 'lectura contextual' && normalized !== 'narrativa adaptativa';
