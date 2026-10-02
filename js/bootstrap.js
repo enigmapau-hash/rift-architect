@@ -1,4 +1,4 @@
-import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=100';
+import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=102';
 
 const ENABLE_SIMULATION = new URLSearchParams(window.location.search).has('debug');
 
@@ -43,6 +43,8 @@ async function loadBuildInfo() {
     if (!response.ok) throw new Error('version.json unavailable');
 
     const build = await response.json();
+    globalThis.__RIFT_ARCHITECT_BUILD__ = build;
+
     const version = String(build?.version || 'Build').trim();
     const stage = String(build?.stage || '').trim();
     const date = String(build?.date || '').trim();
