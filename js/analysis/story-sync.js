@@ -1,5 +1,6 @@
-export function syncAnalysisStory({ selectedChampions = [], activeRole = 'top' } = {}) {
+export function syncAnalysisStory({ selectedChampions = [], activeRole = 'top', rolePools = {} } = {}) {
   globalThis.__RIFT_ARCHITECT_SELECTED__ = selectedChampions;
+  globalThis.__RIFT_ARCHITECT_ROLE_POOLS__ = rolePools;
 
   try {
     window.dispatchEvent(
@@ -8,6 +9,7 @@ export function syncAnalysisStory({ selectedChampions = [], activeRole = 'top' }
           selectedChampions,
           selectedCount: selectedChampions.length,
           activeRole,
+          rolePools,
         },
       })
     );
