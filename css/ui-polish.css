@@ -1,0 +1,167 @@
+/* Visual polish overrides for Rift Architect */
+
+.composition-grid {
+  gap: 14px;
+}
+
+.slot {
+  min-height: 168px;
+  padding: 14px 14px 15px;
+  align-content: center;
+  justify-items: center;
+  gap: 7px;
+  text-align: center;
+}
+
+.slot.is-filled {
+  border-color: rgba(70, 211, 161, 0.44);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.025));
+}
+
+.slot.is-empty {
+  border-style: dashed;
+}
+
+.slot__role {
+  width: 100%;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  opacity: 0.92;
+}
+
+.slot__name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.slot__meta {
+  font-size: 0.84rem;
+  font-weight: 600;
+  line-height: 1.15;
+  color: rgba(237, 243, 255, 0.94);
+}
+
+.slot__submeta {
+  font-size: 0.78rem;
+  line-height: 1.2;
+  color: var(--muted);
+}
+
+.slot__action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(124, 140, 255, 0.25);
+  background: rgba(124, 140, 255, 0.08);
+  color: var(--text);
+  font-size: 0.73rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.slot:hover .slot__action {
+  border-color: rgba(70, 211, 161, 0.42);
+  background: rgba(70, 211, 161, 0.08);
+}
+
+.avatar--lg {
+  width: 58px;
+  height: 58px;
+  border-radius: 16px;
+}
+
+.avatar--sm {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+
+.champion-item {
+  padding: 11px 12px;
+  border-radius: 14px;
+}
+
+.champion-item.is-selected {
+  border-color: rgba(70, 211, 161, 0.46);
+  background: rgba(70, 211, 161, 0.09);
+}
+
+.champion-item__body {
+  gap: 4px;
+}
+
+.champion-item__head strong {
+  font-size: 0.94rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.champion-item__sub {
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.champion-pill {
+  font-size: 0.69rem;
+  padding: 4px 8px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.analysis-hub {
+  letter-spacing: 0;
+}
+
+.analysis-hub__hero-copy h4,
+.analysis-hub__card-title {
+  font-size: 1.08rem;
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+
+.analysis-hub__hero-copy p,
+.analysis-hub__card-copy,
+.analysis-hub__profile-row p,
+.analysis-hub__timeline-row p {
+  line-height: 1.45;
+}
+
+.analysis-hub__card-kicker,
+.analysis-hub__score-kicker {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.analysis-hub__profile-head strong {
+  font-size: 0.94rem;
+  font-weight: 700;
+}
+
+.analysis-hub__profile-head span {
+  font-size: 0.75rem;
+}
+
+.analysis-hub .story-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.analysis-hub__flow-mini-item,
+.analysis-hub__card-foot,
+.analysis-hub__score-card span {
+  font-size: 0.76rem;
+}
