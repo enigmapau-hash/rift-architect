@@ -24,6 +24,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Executive Summary estable.
 - Narrativa contextual adaptativa basada en reglas.
 - Motor estratégico que razona sobre dependencias, visión y choques de win conditions.
+- Bans inteligentes con los 5 campeones que más dificultan ejecutar el plan.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 
 ## En qué punto está ahora
