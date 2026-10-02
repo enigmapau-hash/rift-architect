@@ -1,6 +1,6 @@
 {
-  "version": "v68",
-  "stage": "Patch 0.47.0 / Cache Refresh",
+  "version": "v69",
+  "stage": "Patch 0.48.0 / Analysis Pipeline Fix",
   "date": "2026-10-02",
-  "cache": "rift-architect-v146"
+  "cache": "rift-architect-v147"
 }
