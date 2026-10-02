@@ -2,21 +2,35 @@
 
 The knowledge layer stores strategic rules outside the core engine code.
 
-## What lives here
+## What lives here now
 
-- Identity relations
-- Synergies
-- Patterns
-- Strategic dependencies
-- Conflicts
-- Win conditions
+- Identity relations.
+- Synergies.
+- Patterns.
+- Strategic dependencies.
+- Conflicts.
+- Win conditions.
+- Knowledge Layer v3 playbooks.
 
 ## Why it exists
 
 - The Draft Pool stays focused on champion data.
 - Strategic rules can evolve without editing the engine logic.
-- The IA can explain decisions from a clear knowledge base.
-- The test bank can validate pattern and dependency coverage.
+- The app can explain decisions from a clear knowledge base.
+- The test bank can validate pattern, dependency and profile coverage.
+
+## Knowledge Layer v3
+
+The current v3 layer adds explicit rules for:
+
+- identities;
+- matchups between styles;
+- macro rules;
+- objective priorities;
+- vision patterns;
+- tempo windows;
+- common mistakes;
+- victory and defeat conditions.
 
 ## Validation
 
@@ -40,5 +54,7 @@ The validator checks for:
 - `knowledge/dependencies.js`
 - `knowledge/conflicts.js`
 - `knowledge/win-conditions.js`
+- `knowledge/knowledge-v3.js`
+- `knowledge/knowledge-v3-context.js`
 - `knowledge/validator.js`
 - `knowledge/index.js`
