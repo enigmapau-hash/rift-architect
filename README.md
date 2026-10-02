@@ -25,7 +25,7 @@ La app ya está estable en la ruta principal de render. El trabajo actual se cen
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
-La fase actual está centrada en el **informe ejecutivo estructurado**, el **contrato de datos**, la **reconstrucción RC2 del dashboard por módulos**, la **QA funcional automatizada**, el **último pulido visual** y la **accesibilidad**. El objetivo es que cada motor alimente una tarjeta clara y que la lectura sea compacta y coherente.
+La fase actual está centrada en el **informe ejecutivo estructurado**, el **contrato de datos**, la **reconstrucción RC2 del dashboard por módulos**, la **QA funcional automatizada**, el **último pulido visual** y la **accesibilidad**. La build publicada actual es **v117** y ya corrige el contrato que alimenta el renderer para que no vuelva a romper al seleccionar campeones. El objetivo es que cada motor alimente una tarjeta clara y que la lectura sea compacta y coherente.
 
 ## Fuente de verdad
 
