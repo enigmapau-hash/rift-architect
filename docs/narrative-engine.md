@@ -1,45 +1,36 @@
 # Narrative Engine
 
-## Objective
+The narrative engine turns the analysis into the visible story the user reads first.
 
-Convert the current composition into a short story the user can read in seconds.
+## What it does now
 
-## Design rules
+- Uses the output of the strategic engine.
+- Uses Knowledge Layer v3 when it can add a clearer explanation.
+- Reduces repetition and avoids generic phrases.
+- Keeps the tone closer to a coach than to a flat list of labels.
+- Compresses the analysis into a short title, summary and supporting tags.
 
-- The motor keeps deciding.
-- The narrative layer only explains.
-- No new gameplay data is added.
-- The result must be shorter than the raw analysis.
-- The UI should lead with the story, then reveal details only if needed.
-- The story must include the reason behind the main need.
+## Rules
 
-## Story flow
+- Prefer concrete language over generic summaries.
+- Prefer one clear implication over multiple similar phrases.
+- Prefer continuity with the current composition identity.
+- Do not inflate the text just to sound fuller.
 
-`Winning plan` → `What it needs` → `Why it needs it` → `Best fix` → `What to avoid`
+## Current output
 
-## Output contract
+The visible story now leans on:
 
-```ts
-Narrative {
-  title,
-  summary,
-  winLine,
-  needLine,
-  becauseLine,
-  solutionLine,
-  warningLine,
-  focus
-}
-```
+- primary identity;
+- strategic focus;
+- tempo;
+- win condition;
+- execution risk;
+- contingency;
+- adaptation;
+- Knowledge Layer v3 context;
+- bans when relevant.
 
-## Example
+## Goal
 
-- `title`: Tu composición quiere ganar por Front to Back.
-- `summary`: Ahora mismo necesita frontline y peel para ejecutar bien su plan.
-- `becauseLine`: Necesita frontline porque el plan depende de pelear largo y hoy nadie absorbe la primera entrada.
-- `solutionLine`: La mejor forma de resolverlo es buscar un perfil de frontline resistente.
-- `warningLine`: Ten cuidado con el splitpush y el poke que alarga el mapa.
-
-## UI rule
-
-Show only the story first. The detailed needs, profiles, picks and bans remain available below as supporting evidence.
+The visible narration should feel like a coach explaining the plan, not like a debug list.
