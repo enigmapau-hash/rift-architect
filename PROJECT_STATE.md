@@ -22,6 +22,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Coach con `StrategicPlan` único.
 - Executive Summary estable.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
+- Capa de normalización del dataset en memoria para compartir identidades, funciones, tempos y etiquetas repetidas.
 
 ## En qué punto está ahora
 La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es auditar, limpiar y simplificar la base de código antes de volver a crecer.
