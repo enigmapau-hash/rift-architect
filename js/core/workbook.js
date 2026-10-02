@@ -93,7 +93,8 @@ export function parseSheet(worksheet) {
   if (!Array.isArray(rows) || !rows.length) return [];
 
   const headerMap = buildHeaderMap(rows[0]);
-  const dataRows = rows.slice(1).filter((row) => Array.isArray(row) && row.some((cell) => String(cell ?? '').trim()));
+  const hasRecognizedHeader = Object.values(headerMap).some((index) => index !== null && index !== undefined);
+  const dataRows = (hasRecognizedHeader ? rows.slice(1) : rows).filter((row) => Array.isArray(row) && row.some((cell) => String(cell ?? '').trim()));
 
   return dataRows.map((row) => ({
     champion: readCell(row, headerMap.champion, 0),
