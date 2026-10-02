@@ -1,16 +1,27 @@
 import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=94';
-import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDraftChange } from './analyzer.js?v=94';
 
-(() => {
+const ENABLE_SIMULATION = new URLSearchParams(window.location.search).has('debug');
+
+(async () => {
   try {
     const report = validateKnowledgeLayer();
     window.__RIFT_ARCHITECT_KNOWLEDGE__ = report;
-    window.__RIFT_ARCHITECT_SIMULATION__ = {
-      simulateChampionSwap,
-      simulateDraftChange,
-      compareAnalyses,
-      compareCompositions,
-    };
+
+    if (ENABLE_SIMULATION) {
+      const {
+        compareAnalyses,
+        compareCompositions,
+        simulateChampionSwap,
+        simulateDraftChange,
+      } = await import('../analyzer.js');
+
+      window.__RIFT_ARCHITECT_SIMULATION__ = {
+        simulateChampionSwap,
+        simulateDraftChange,
+        compareAnalyses,
+        compareCompositions,
+      };
+    }
 
     if (!report.valid) {
       console.warn('[Rift Architect] Knowledge layer validation failed');
