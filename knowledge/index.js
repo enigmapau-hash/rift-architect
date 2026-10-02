@@ -25,4 +25,11 @@ export {
   findPickProfile,
   summarizePickProfile,
 } from './pick-profiles.js';
+export {
+  STYLE_KNOWLEDGE_V3,
+  buildKnowledgeV3Context,
+  summarizeKnowledgeV3Context,
+  findKnowledgeStyle,
+  findKnowledgeMatchup,
+} from './knowledge-v3.js';
 export { validateKnowledgeLayer, formatKnowledgeReport } from './validator.js';
