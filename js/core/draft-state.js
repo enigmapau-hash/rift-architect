@@ -39,7 +39,7 @@ export function createDraftState() {
   return {
     data: Object.fromEntries(ROLE_ORDER.map((role) => [role, []])),
     selected: { ...DEFAULT_SELECTED },
-    activeRole: ROLE_ORDER.includes(savedDraft.activeRole) ? savedDraft.activeRole : 'top',
+    activeRole: 'top',
     search: '',
     pickerOpen: false,
     loading: false,
