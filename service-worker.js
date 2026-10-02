@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v154';
+const CACHE_NAME = 'rift-architect-v155';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -29,6 +29,14 @@ const CORE_ASSETS = [
   './js/analysis-failsafe.js',
   './js/analyzer.js',
   './js/analysis/story-sync.js',
+  './js/analysis/analysis-utils.js',
+  './js/analysis/composition-profile.js',
+  './js/analysis/identity-engine.js',
+  './js/analysis/strengths-engine.js',
+  './js/analysis/weakness-engine.js',
+  './js/analysis/gameplan-engine.js',
+  './js/analysis/timeline-engine.js',
+  './js/analysis/score-engine.js',
   './js/analysis/analysis-engine.js',
   './js/analysis/story-engine.js',
   './js/analysis/renderer.js',
