@@ -1,6 +1,6 @@
 {
-  "version": "v81",
-  "stage": "Patch 0.57.0 / Intelligent Bans",
+  "version": "v82",
+  "stage": "Patch 0.58.0 / Last Pick Recommendation",
   "date": "2026-10-02",
-  "cache": "rift-architect-v160"
+  "cache": "rift-architect-v161"
 }
