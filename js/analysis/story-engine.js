@@ -19,6 +19,9 @@ export function buildAnalysisStory(report = {}) {
   const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
   const summaryText = buildNarrativeSummary([
     strategic?.summary,
+    strategic?.execution?.detail,
+    strategic?.contingency?.detail,
+    strategic?.adaptation?.detail,
     strategic?.claims?.[0]?.detail,
     contextual.lead,
     contextual.summary,
@@ -145,6 +148,13 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     contextual?.strategyProfile?.label,
     contextual?.strategyProfile?.kind,
     strategic?.focus,
+    strategic?.execution?.label,
+    strategic?.robustnessSummary?.label,
+    strategic?.flexibilitySummary?.label,
+    strategic?.contingency?.label,
+    strategic?.adaptation?.label,
+    strategic?.metrics?.dominantWindow,
+    strategic?.metrics?.executionRisk >= 70 ? 'Riesgo alto' : null,
     banLabelList(bans),
     ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
     ...(Array.isArray(report.tags) ? report.tags : []),
@@ -156,7 +166,7 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
       const normalized = normalizeText(value);
       return normalized && !['sin definir', 'resumen', 'narrativa contextual', 'lectura contextual', 'narrativa adaptativa'].includes(normalized);
     })
-    .slice(0, 8);
+    .slice(0, 10);
 }
 
 function banLabelList(bans = []) {
