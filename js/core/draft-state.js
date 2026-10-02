@@ -1,5 +1,3 @@
-import { normalizeText } from '../analyzer.js';
-
 export const WORKBOOK_URL = './Draft%20Pool.xlsx';
 export const STORAGE_KEY = 'rift-architect:draft-v2';
 export const DRAGON_VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json';
@@ -34,8 +32,6 @@ export const ICON_ALIASES = {
 };
 
 export function createDraftState() {
-  const savedDraft = loadDraft();
-
   return {
     data: Object.fromEntries(ROLE_ORDER.map((role) => [role, []])),
     selected: { ...DEFAULT_SELECTED },
@@ -44,7 +40,7 @@ export function createDraftState() {
     pickerOpen: false,
     loading: false,
     iconCatalog: null,
-    savedDraft,
+    savedDraft: { activeRole: 'top', selected: {} },
   };
 }
 
@@ -53,34 +49,12 @@ export function normalizeRole(role) {
 }
 
 export function loadDraft() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return { activeRole: 'top', selected: {} };
-
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return { activeRole: 'top', selected: {} };
-
-    return {
-      activeRole: normalizeRole(parsed.activeRole) || 'top',
-      selected: parsed.selected && typeof parsed.selected === 'object' ? parsed.selected : {},
-    };
-  } catch {
-    return { activeRole: 'top', selected: {} };
-  }
+  return { activeRole: 'top', selected: {} };
 }
 
 export function restoreDraftFromState(state) {
-  const restored = {};
-
-  ROLE_ORDER.forEach((role) => {
-    const savedChampion = state.savedDraft.selected?.[role];
-    restored[role] = savedChampion
-      ? (state.data?.[role] || []).find((item) => normalizeText(item.champion) === normalizeText(savedChampion)) || null
-      : null;
-  });
-
-  state.activeRole = ROLE_ORDER.includes(state.savedDraft.activeRole) ? state.savedDraft.activeRole : state.activeRole;
-  state.selected = restored;
+  state.activeRole = 'top';
+  state.selected = { ...DEFAULT_SELECTED };
 }
 
 export function saveDraft(state) {
