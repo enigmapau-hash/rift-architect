@@ -7,8 +7,8 @@ const ENGAGE_REPORT = {
   composition: {
     selectedChampions: [
       { role: 'jungle', champion: 'Sejuani', identity: 'Engage', function: 'Tank', tempo: 'Early' },
-      { role: 'mid', champion: 'Ahri', identity: 'Pick', function: 'Mage', tempo: 'Mid' },
-      { role: 'top', champion: 'Aatrox', identity: 'Dive', function: 'Bruiser AD', tempo: 'Mid' },
+      { role: 'mid', champion: 'Orianna', identity: 'Control', function: 'Mage', tempo: 'Mid' },
+      { role: 'top', champion: 'Aatrox', identity: 'Bruiser AD', function: 'Bruiser AD', tempo: 'Mid' },
       { role: 'botline', champion: 'Jinx', identity: 'Front to Back', function: 'Marksman ADC', tempo: 'Late' },
       { role: 'support', champion: 'Taric', identity: 'Protect', function: 'Support', tempo: 'Late' },
     ],
@@ -50,7 +50,7 @@ test('buildStrategicReasoning identifies critical engage dependency and vision p
 
   assert.ok(Array.isArray(reasoning.claims));
   assert.match(reasoning.claims[0].detail, /Sejuani/i);
-  assert.match(reasoning.claims.some((claim) => /Nashor/i.test(claim.detail)), /true/i);
+  assert.equal(reasoning.claims.some((claim) => /Nashor/i.test(claim.detail)), true);
   assert.ok(reasoning.anchors.engage.includes('Sejuani'));
 });
 
