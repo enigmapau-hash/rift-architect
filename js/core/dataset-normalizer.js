@@ -1,4 +1,4 @@
-import { normalizeText } from '../analyzer.js';
+import { normalizeText } from '../engine/utils.js';
 import { ROLE_ORDER } from './draft-state.js';
 
 export function normalizeWorkbookDataset(roleRows = {}) {
