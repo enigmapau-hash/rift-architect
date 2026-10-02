@@ -5,12 +5,17 @@ export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
   const score = report.score || {};
   const contextual = buildContextualNarrative(report);
+  const strategic = report.strategic || contextual.reasoning || null;
   const confidence = clamp(score.value ?? report.confidence ?? 0, 0, 100);
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
-  const title = cleanText(contextual.headline || identity.title || report.executiveSummary?.title || `${primaryIdentity} · ${winLabel}`);
+  const title = cleanText(
+    strategic?.focus
+      ? `${primaryIdentity} · ${strategic.focus}`
+      : contextual.headline || identity.title || report.executiveSummary?.title || `${primaryIdentity} · ${winLabel}`
+  );
   const summaryText = cleanText(
-    contextual.lead || identity.summaryText || report.summaryText || report.executiveSummary?.text || 'Resumen compacto basado en la composición propia.'
+    strategic?.summary || strategic?.claims?.[0]?.detail || contextual.lead || identity.summaryText || report.summaryText || report.executiveSummary?.text || 'Resumen compacto basado en la composición propia.'
   );
   const tempo = cleanText(identity.tempo || report.tempo || contextual.tempo || 'Tempo medio');
   const dominance = cleanText(identity.dominance || report.dominance || 'Sin definir');
@@ -24,6 +29,7 @@ export function buildAnalysisStory(report = {}) {
   const synergies = uniqueValues(report.synergies || []).slice(0, 3);
   const risks = uniqueValues([...(Array.isArray(report.risks) ? report.risks : []), ...(Array.isArray(report.threats) ? report.threats : [])]).slice(0, 3);
   const phases = normalizePhases(report.timeline || report.gameplan?.phases || []);
+  const strategicClaims = Array.isArray(strategic?.claims) ? strategic.claims : [];
 
   return {
     title,
@@ -41,11 +47,13 @@ export function buildAnalysisStory(report = {}) {
       contextual.winCondition?.label,
       contextual.strategyProfile?.label,
       contextual.strategyProfile?.kind,
+      strategic?.focus,
+      ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
       ...(Array.isArray(report.tags) ? report.tags : []),
       ...(Array.isArray(contextual.tags) ? contextual.tags : []),
-    ]).slice(0, 6),
+    ]).slice(0, 8),
     primaryIdentity,
-    identityCopy: cleanText(identity.summaryText || report.summaryText || contextual.lead || summaryText),
+    identityCopy: cleanText(identity.summaryText || report.summaryText || strategic?.summary || contextual.lead || summaryText),
     secondaryIdentities,
     strengths,
     weaknesses,
@@ -55,6 +63,7 @@ export function buildAnalysisStory(report = {}) {
     tempo,
     dominance,
     contextual,
+    strategic,
   };
 }
 
