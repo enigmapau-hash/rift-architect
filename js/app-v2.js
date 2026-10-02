@@ -1,9 +1,12 @@
-import { createDraftState, restoreDraftFromState, ROLE_SHEETS } from './core/draft-state.js';
+import { createDraftState, restoreDraftFromState, saveDraft, ROLE_SHEETS } from './core/draft-state.js';
 import { loadChampionCatalog, loadWorkbook, parseSheet } from './core/workbook.js';
 import { createCompositionController } from './ui/composition-controller.js';
 
 const state = createDraftState();
-const controller = createCompositionController({ state });
+const controller = createCompositionController({
+  state,
+  persistDraft: () => saveDraft(state),
+});
 
 init().catch((error) => console.error(error));
 
