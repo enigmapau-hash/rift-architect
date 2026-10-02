@@ -3,21 +3,26 @@ import { matchesCategory, normalizeText } from '../engine/utils.js';
 import { cleanText, toText, uniqueValues } from './analysis-utils.js';
 
 const PRIORITY_WEIGHT = {
-  critical: 400,
-  high: 300,
-  medium: 200,
-  low: 100,
+  critical: 500,
+  high: 400,
+  medium: 300,
+  low: 200,
 };
 
 const KIND_ORDER = {
   dependency: 0,
-  conflict: 1,
-  'power-spike': 2,
-  redundancy: 3,
-  objective: 4,
-  condition: 5,
-  profile: 6,
-  tempo: 7,
+  cascade: 1,
+  conflict: 2,
+  risk: 3,
+  'power-spike': 4,
+  redundancy: 5,
+  flexibility: 6,
+  contingency: 7,
+  adaptation: 8,
+  objective: 9,
+  condition: 10,
+  profile: 11,
+  tempo: 12,
 };
 
 export function buildStrategicReasoning(report = {}) {
@@ -25,20 +30,79 @@ export function buildStrategicReasoning(report = {}) {
   const champions = collectChampions(report, composition).map(describeChampion);
   const teamProfile = resolveTeamProfile(report, champions);
   const anchors = buildAnchors(champions);
+  const windows = buildTimingWindows(champions, teamProfile);
+  const dominantWindow = determineDominantWindow(windows, teamProfile);
   const signalSet = buildSignalSet(report, composition, champions, teamProfile);
 
+  const profileClaims = buildProfileClaims(teamProfile, anchors);
+  const dependencyClaims = buildDependencyClaims(teamProfile, anchors);
+  const cascadeClaims = buildCascadeClaims(teamProfile, anchors, dominantWindow);
+  const objectiveClaims = buildObjectiveClaims(champions, anchors, teamProfile);
+  const conflictClaims = buildConflictClaims(champions, teamProfile, anchors);
+  const redundancyClaims = buildRedundancyClaims(champions);
+  const powerSpikeClaims = buildPowerSpikeClaims(champions, teamProfile);
+  const tempoClaims = buildTempoClaims(champions, teamProfile);
+  const executionClaims = buildExecutionRiskClaims({
+    champions,
+    teamProfile,
+    anchors,
+    conflictClaims,
+    cascadeClaims,
+    redundancyClaims,
+    dominantWindow,
+  });
+  const robustnessClaims = buildRobustnessClaims({
+    champions,
+    teamProfile,
+    anchors,
+    dependencyClaims,
+    conflictClaims,
+    redundancyClaims,
+    executionClaims,
+  });
+  const flexibilityClaims = buildFlexibilityClaims({
+    champions,
+    teamProfile,
+    anchors,
+    conflictClaims,
+    redundancyClaims,
+  });
+  const contingencyClaims = buildContingencyClaims({
+    teamProfile,
+    anchors,
+    cascadeClaims,
+    conflictClaims,
+    executionClaims,
+    flexibilityClaims,
+  });
+  const adaptationClaims = buildAdaptationClaims({
+    report,
+    teamProfile,
+    anchors,
+    champions,
+    signalSet,
+    flexibilityClaims,
+    contingencyClaims,
+  });
+
   const claims = uniqueClaims([
-    ...buildProfileClaims(teamProfile),
-    ...buildDependencyClaims(teamProfile, anchors),
-    ...buildObjectiveClaims(champions, anchors, teamProfile),
-    ...buildConflictClaims(champions, teamProfile, anchors, report, composition),
-    ...buildRedundancyClaims(champions),
-    ...buildPowerSpikeClaims(champions, teamProfile),
-    ...buildTempoClaims(champions, teamProfile),
+    ...profileClaims,
+    ...dependencyClaims,
+    ...cascadeClaims,
+    ...objectiveClaims,
+    ...conflictClaims,
+    ...executionClaims,
+    ...robustnessClaims,
+    ...flexibilityClaims,
+    ...contingencyClaims,
+    ...adaptationClaims,
+    ...redundancyClaims,
+    ...powerSpikeClaims,
+    ...tempoClaims,
   ]).sort(compareClaims);
 
   const focus = claims[0]?.label || teamProfile?.label || 'Lectura estratégica';
-  const summary = claims[0]?.detail || teamProfile?.summary || 'La composición todavía no define una razón estratégica dominante.';
+  const summary = buildStrategicSummary({ claims, teamProfile, executionClaims, robustnessClaims, flexibilityClaims, contingencyClaims, adaptationClaims });
 
   return {
     focus,
@@ -46,25 +110,43 @@ export function buildStrategicReasoning(report = {}) {
     summary,
     claims,
     dependencies: claims.filter((claim) => claim.kind === 'dependency'),
+    cascades: claims.filter((claim) => claim.kind === 'cascade'),
     redundancies: claims.filter((claim) => claim.kind === 'redundancy'),
     powerSpikes: claims.filter((claim) => claim.kind === 'power-spike'),
     conflicts: claims.filter((claim) => claim.kind === 'conflict'),
+    risks: claims.filter((claim) => claim.kind === 'risk'),
+    robustness: claims.filter((claim) => claim.kind === 'robustness'),
+    flexibility: claims.filter((claim) => claim.kind === 'flexibility'),
+    contingencies: claims.filter((claim) => claim.kind === 'contingency'),
+    adaptations: claims.filter((claim) => claim.kind === 'adaptation'),
     profiles: champions.map((champion) => champion.profile).filter(Boolean).map(summarizeStrategicProfile),
     anchors,
+    windows,
+    dominantWindow,
     signals: signalSet.signals.slice(0, 12),
     profile: teamProfile ? summarizeStrategicProfile(teamProfile) : null,
+    metrics: buildStrategicMetrics({
+      executionClaims,
+      robustnessClaims,
+      flexibilityClaims,
+      contingencyClaims,
+      adaptationClaims,
+      cascadeClaims,
+      redundancyClaims,
+      conflictClaims,
+      dominantWindow,
+    }),
+    execution: executionClaims[0] || null,
+    robustnessSummary: robustnessClaims[0] || null,
+    flexibilitySummary: flexibilityClaims[0] || null,
+    contingency: contingencyClaims[0] || null,
+    adaptation: adaptationClaims[0] || null,
   };
 }
 
 function collectChampions(report, composition) {
-  if (Array.isArray(composition.selectedChampions) && composition.selectedChampions.length) {
-    return composition.selectedChampions.filter(Boolean);
-  }
-
-  if (Array.isArray(report.selectedChampions) && report.selectedChampions.length) {
-    return report.selectedChampions.filter(Boolean);
-  }
-
+  if (Array.isArray(composition.selectedChampions) && composition.selectedChampions.length) return composition.selectedChampions.filter(Boolean);
+  if (Array.isArray(report.selectedChampions) && report.selectedChampions.length) return report.selectedChampions.filter(Boolean);
   return [];
 }
 
@@ -127,29 +209,12 @@ function buildChampionCategories(name, identity, functionLabel, tempo, strengths
     'pick',
   ].filter((category) => matchesCategory(text, category));
 
-  if (matchesCategory(text, 'frontline') || matchesCategory(text, 'control') || matchesCategory(text, 'teamfight')) {
-    categories.push('frontline');
-  }
-
-  if (matchesCategory(text, 'engage') || matchesCategory(text, 'pick') || matchesCategory(text, 'mobility')) {
-    categories.push('engage');
-  }
-
-  if (matchesCategory(text, 'poke') || matchesCategory(text, 'objective')) {
-    categories.push('poke');
-  }
-
-  if (matchesCategory(text, 'splitpush')) {
-    categories.push('splitpush');
-  }
-
-  if (matchesCategory(text, 'damage') || matchesCategory(text, 'scaling')) {
-    categories.push('carry');
-  }
-
-  if (normalizeText(identity).includes('protect') || normalizeText(identity).includes('fronttoback')) {
-    categories.push('protect');
-  }
+  if (matchesCategory(text, 'frontline') || matchesCategory(text, 'control') || matchesCategory(text, 'teamfight')) categories.push('frontline');
+  if (matchesCategory(text, 'engage') || matchesCategory(text, 'pick') || matchesCategory(text, 'mobility')) categories.push('engage');
+  if (matchesCategory(text, 'poke') || matchesCategory(text, 'objective')) categories.push('poke');
+  if (matchesCategory(text, 'splitpush')) categories.push('splitpush');
+  if (matchesCategory(text, 'damage') || matchesCategory(text, 'scaling')) categories.push('carry');
+  if (normalizeText(identity).includes('protect') || normalizeText(identity).includes('fronttoback')) categories.push('protect');
 
   return uniqueValues(categories);
 }
@@ -161,10 +226,11 @@ function buildAnchors(champions) {
     objective: champions.filter((champion) => champion.categories.some((category) => category === 'objective' || category === 'control' || category === 'poke')).map((champion) => champion.name),
     splitpush: champions.filter((champion) => champion.categories.includes('splitpush')).map((champion) => champion.name),
     carry: champions.filter((champion) => champion.categories.includes('carry')).map((champion) => champion.name),
+    poke: champions.filter((champion) => champion.categories.includes('poke')).map((champion) => champion.name),
   };
 }
 
-function buildProfileClaims(teamProfile) {
+function buildProfileClaims(teamProfile, anchors) {
   const claims = [];
   if (!teamProfile) return claims;
 
@@ -185,6 +251,26 @@ function buildProfileClaims(teamProfile) {
       kind: 'condition',
       priority: 'medium',
       evidence: uniqueValues([teamProfile.label, teamProfile.key, ...(Array.isArray(teamProfile.needs) ? teamProfile.needs : [])]).slice(0, 4),
+    });
+  }
+
+  if (Array.isArray(teamProfile.winsAgainst) && teamProfile.winsAgainst.length) {
+    claims.push({
+      label: 'Donde gana esta composición',
+      detail: `La composición suele castigar ${joinPhrase(teamProfile.winsAgainst)}.`,
+      kind: 'profile',
+      priority: 'low',
+      evidence: teamProfile.winsAgainst.slice(0, 4),
+    });
+  }
+
+  if (Array.isArray(teamProfile.losesAgainst) && teamProfile.losesAgainst.length) {
+    claims.push({
+      label: 'Donde sufre esta composición',
+      detail: `La composición sufre contra ${joinPhrase(teamProfile.losesAgainst)}.`,
+      kind: 'profile',
+      priority: 'low',
+      evidence: teamProfile.losesAgainst.slice(0, 4),
     });
   }
 
@@ -215,6 +301,18 @@ function buildProfileClaims(teamProfile) {
       kind: 'profile',
       priority: 'low',
       evidence: teamProfile.avoids.slice(0, 4),
+    });
+  }
+
+  if (anchors?.carry?.length) {
+    claims.push({
+      label: 'Motor de daño',
+      detail: anchors.carry.length === 1
+        ? `El daño real se apoya en ${joinNames(anchors.carry)}. Si cae, la composición se queda sin cierre.`
+        : `El daño real se reparte entre ${joinNames(anchors.carry)}. La pelea necesita coordinar su ventana final.`,
+      kind: 'profile',
+      priority: 'low',
+      evidence: anchors.carry.slice(0, 3),
     });
   }
 
@@ -263,6 +361,57 @@ function buildDependencyClaims(teamProfile, anchors) {
   return claims;
 }
 
+function buildCascadeClaims(teamProfile, anchors, dominantWindow) {
+  const claims = [];
+  const carry = anchors.carry?.[0] || null;
+  const engage = anchors.engage?.[0] || null;
+  const frontline = anchors.frontline?.[0] || null;
+  const objective = anchors.objective?.[0] || null;
+  const splitpush = anchors.splitpush?.[0] || null;
+
+  if (engage && objective) {
+    claims.push({
+      label: 'Dependencia en cascada',
+      detail: `Si cae ${engage}, no sólo pierdes engage: también se retrasa la conversión en objetivo y la ventana de castigo se estrecha.`,
+      kind: 'cascade',
+      priority: 'critical',
+      evidence: uniqueValues([engage, objective]),
+    });
+  }
+
+  if (frontline && carry) {
+    claims.push({
+      label: 'Dependencia en cascada',
+      detail: `Si cae ${frontline}, ${carry} pierde protección, la pelea se rompe y la composición se queda sin segunda línea.`,
+      kind: 'cascade',
+      priority: 'critical',
+      evidence: uniqueValues([frontline, carry]),
+    });
+  }
+
+  if (splitpush && (engage || frontline)) {
+    claims.push({
+      label: 'Dependencia en cascada',
+      detail: `Si niegan ${splitpush}, el plan lateral cae sobre el 5v5; en ese momento necesitas otra forma de abrir mapa o pierdes presión.`,
+      kind: 'cascade',
+      priority: 'high',
+      evidence: uniqueValues([splitpush, engage, frontline]),
+    });
+  }
+
+  if (!claims.length && teamProfile?.condition) {
+    claims.push({
+      label: 'Dependencia en cascada',
+      detail: `${teamProfile.condition} Si esta ventana falla, tu plan necesita reordenarse antes de volver a pelear.`,
+      kind: 'cascade',
+      priority: dominantWindow === 'early' ? 'high' : 'medium',
+      evidence: uniqueValues([teamProfile.label, teamProfile.key]),
+    });
+  }
+
+  return claims;
+}
+
 function buildObjectiveClaims(champions, anchors, teamProfile) {
   const objectiveNames = uniqueValues(anchors.objective || []).slice(0, 3);
   const engageNames = uniqueValues(anchors.engage || []).slice(0, 3);
@@ -282,7 +431,7 @@ function buildObjectiveClaims(champions, anchors, teamProfile) {
   }];
 }
 
-function buildConflictClaims(champions, teamProfile, anchors, report, composition) {
+function buildConflictClaims(champions, teamProfile, anchors) {
   const claims = [];
   const splitpush = anchors.splitpush.length > 0 || champions.some((champion) => champion.categories.includes('splitpush'));
   const teamfight = anchors.frontline.length > 0 || champions.some((champion) => champion.categories.includes('frontline'));
@@ -466,6 +615,191 @@ function buildTempoClaims(champions, teamProfile) {
   return [];
 }
 
+function buildExecutionRiskClaims({ champions, teamProfile, anchors, conflictClaims, cascadeClaims, redundancyClaims, dominantWindow }) {
+  const riskScore = clampScore(
+    28
+      + (anchors.engage.length ? (anchors.engage.length === 1 ? 18 : 8) : 0)
+      + (anchors.frontline.length ? (anchors.frontline.length === 1 ? 14 : 7) : 0)
+      + (conflictClaims.length ? 20 : 0)
+      + (cascadeClaims.length ? 16 : 0)
+      + (redundancyClaims.length ? Math.max(0, 8 - redundancyClaims.length * 2) : 10)
+      + (dominantWindow === 'late' && anchors.engage.length === 0 ? 8 : 0)
+      + (dominantWindow === 'early' && anchors.poke.length === 0 ? 6 : 0)
+  );
+
+  const band = riskScore >= 75 ? 'critical' : riskScore >= 55 ? 'high' : riskScore >= 35 ? 'medium' : 'low';
+  const lead = anchors.engage[0] || anchors.frontline[0] || teamProfile?.label || 'la composición';
+  const backup = anchors.carry[0] || anchors.objective[0] || teamProfile?.condition || 'su ventana principal';
+  const detailByBand = {
+    critical: `El riesgo de ejecución es muy alto: ${lead} sostiene la entrada y ${backup} sostiene la conversión; si una de esas piezas falla, el plan se desarma.`,
+    high: `El riesgo de ejecución es alto: ${lead} marca la ventana principal y ${backup} marca el cierre; necesitas orden y sincronía para que la composición funcione.`,
+    medium: `El riesgo de ejecución es medio: el plan tiene ventanas claras, pero requiere disciplina para no forzar peleas fuera de tiempo.`,
+    low: `El riesgo de ejecución es bajo: la composición tiene una lectura limpia y pocas piezas críticas se pisan entre sí.`,
+  };
+
+  return [{
+    label: 'Riesgo de ejecución',
+    detail: detailByBand[band],
+    kind: 'risk',
+    priority: band === 'critical' ? 'critical' : band === 'high' ? 'high' : 'medium',
+    evidence: uniqueValues([lead, backup, ...(anchors.engage || []), ...(anchors.frontline || [])]).slice(0, 4),
+    score: riskScore,
+  }];
+}
+
+function buildRobustnessClaims({ champions, teamProfile, anchors, dependencyClaims, conflictClaims, redundancyClaims, executionClaims }) {
+  const score = clampScore(
+    30
+      + (redundancyClaims.length * 12)
+      + (conflictClaims.length ? -18 * conflictClaims.length : 12)
+      + (dependencyClaims.length > 2 ? -10 : 8)
+      + (anchors.engage.length > 1 ? 8 : 0)
+      + (anchors.frontline.length > 1 ? 8 : 0)
+      + (anchors.carry.length > 1 ? 6 : 0)
+      + (teamProfile?.timings?.length > 1 ? 4 : 0)
+      - (executionClaims[0]?.score >= 70 ? 8 : 0)
+  );
+
+  const band = score >= 75 ? 'robust' : score >= 50 ? 'stable' : 'fragile';
+  const detailByBand = {
+    robust: 'La composición es robusta: si te quitan una pieza, aún te queda otra forma razonable de cerrar la pelea.',
+    stable: 'La composición es razonablemente estable: aguanta alguna pérdida, pero no conviene que te obliguen a improvisar demasiado.',
+    fragile: 'La composición es frágil: si te rompen la primera pieza, el resto del plan pierde coherencia muy rápido.',
+  };
+
+  return [{
+    label: 'Robustez del draft',
+    detail: detailByBand[band],
+    kind: 'robustness',
+    priority: band === 'fragile' ? 'high' : 'medium',
+    evidence: uniqueValues([...(anchors.engage || []), ...(anchors.frontline || []), ...(anchors.carry || []), ...(anchors.objective || [])]).slice(0, 4),
+    score,
+  }];
+}
+
+function buildFlexibilityClaims({ champions, teamProfile, anchors, conflictClaims, redundancyClaims }) {
+  const families = uniqueValues([
+    ...(anchors.engage.length ? ['engage'] : []),
+    ...(anchors.frontline.length ? ['frontline'] : []),
+    ...(anchors.poke.length ? ['poke'] : []),
+    ...(anchors.splitpush.length ? ['splitpush'] : []),
+    ...(anchors.objective.length ? ['control'] : []),
+  ]);
+  const score = clampScore(
+    20
+      + (families.length * 16)
+      + (redundancyClaims.length * 6)
+      - (conflictClaims.length * 12)
+      + (teamProfile?.key === 'control' ? 8 : 0)
+      + (teamProfile?.key === 'poke' ? 4 : 0)
+  );
+
+  const band = score >= 70 ? 'high' : score >= 45 ? 'medium' : 'low';
+  const detailByBand = {
+    high: `La flexibilidad es alta: puedes pivotar entre ${joinPhrase(families)} según la respuesta rival sin perder identidad.`,
+    medium: `La flexibilidad es media: tienes alguna ruta alternativa, pero no tantas como para improvisar el plan completo.`,
+    low: 'La flexibilidad es baja: el draft pide una sola lectura y castiga los cambios de última hora.',
+  };
+
+  return [{
+    label: 'Flexibilidad del draft',
+    detail: detailByBand[band],
+    kind: 'flexibility',
+    priority: band === 'low' ? 'high' : 'medium',
+    evidence: families.slice(0, 4),
+    score,
+  }];
+}
+
+function buildContingencyClaims({ teamProfile, anchors, cascadeClaims, conflictClaims, executionClaims, flexibilityClaims }) {
+  const fallback = teamProfile?.condition || 'reordena la pelea y vuelve a tu ventana';
+  const primaryThreat = cascadeClaims[0]?.evidence?.[0] || anchors.engage[0] || anchors.frontline[0] || anchors.splitpush[0] || 'tu pieza clave';
+  const flexBand = flexibilityClaims[0]?.score >= 70 ? 'high' : flexibilityClaims[0]?.score >= 45 ? 'medium' : 'low';
+  const riskBand = executionClaims[0]?.score >= 75 ? 'critical' : executionClaims[0]?.score >= 55 ? 'high' : 'medium';
+
+  const detailByBand = {
+    high: `Plan de contingencia: si ${primaryThreat} no puede ejecutar su función, pivota a ${fallback.toLowerCase()} y evita forzar una pelea frontal sin ventaja.`,
+    medium: `Plan de contingencia: si la entrada principal falla, baja el ritmo, gana visión y vuelve a ${fallback.toLowerCase()} antes de comprometerte.`,
+    low: `Plan de contingencia: la estructura es tan rígida que cualquier error te obliga a jugar sólo a ${fallback.toLowerCase()}.`,
+  };
+
+  const priority = riskBand === 'critical' ? 'critical' : riskBand === 'high' ? 'high' : 'medium';
+  return [{
+    label: 'Plan de contingencia',
+    detail: detailByBand[flexBand],
+    kind: 'contingency',
+    priority,
+    evidence: uniqueValues([primaryThreat, fallback, ...(anchors.engage || []), ...(anchors.frontline || [])]).slice(0, 4),
+  }];
+}
+
+function buildAdaptationClaims({ report, teamProfile, anchors, champions, signalSet, flexibilityClaims, contingencyClaims }) {
+  const rivalSignals = extractRivalSignals(report);
+  const rivalThreats = uniqueValues([
+    ...rivalSignals.categories,
+    ...rivalSignals.labels,
+    ...(Array.isArray(teamProfile?.losesAgainst) ? teamProfile.losesAgainst : []),
+  ]).slice(0, 4);
+  const allyPlan = uniqueValues([
+    ...(Array.isArray(teamProfile?.needs) ? teamProfile.needs : []),
+    ...(Array.isArray(teamProfile?.avoids) ? teamProfile.avoids : []),
+  ]).slice(0, 4);
+
+  const hasRival = rivalSignals.labels.length > 0 || rivalSignals.categories.length > 0;
+  const detail = hasRival
+    ? `Adaptación según rival: contra ${joinPhrase(rivalThreats)}, cambia el ritmo y apóyate en ${joinPhrase(allyPlan) || 'tu ventana principal'}.`
+    : `Adaptación según rival: si enfrente aparece ${joinPhrase(teamProfile?.losesAgainst || []) || 'más presión de engage/disengage'}, cambia el ritmo y apóyate en ${joinPhrase(allyPlan) || 'tu ventana principal'}.`;
+
+  const score = clampScore(
+    35
+      + (flexibilityClaims[0]?.score || 0) * 0.4
+      + (contingencyClaims[0]?.priority === 'critical' ? -10 : 8)
+      + (rivalThreats.length ? 10 : 0)
+  );
+
+  return [{
+    label: 'Adaptación según rival',
+    detail,
+    kind: 'adaptation',
+    priority: score >= 70 ? 'high' : 'medium',
+    evidence: uniqueValues([...rivalThreats, ...allyPlan, ...(anchors.objective || []), ...(signalSet.categories || [])]).slice(0, 5),
+    score,
+  }];
+}
+
+function buildStrategicSummary({ claims, teamProfile, executionClaims, robustnessClaims, flexibilityClaims, contingencyClaims, adaptationClaims }) {
+  const primary = claims[0]?.detail || teamProfile?.summary || 'La composición todavía no define una razón estratégica dominante.';
+  const secondary = uniqueValues([
+    executionClaims[0]?.detail,
+    robustnessClaims[0]?.detail,
+    flexibilityClaims[0]?.detail,
+    contingencyClaims[0]?.detail,
+    adaptationClaims[0]?.detail,
+  ]).slice(0, 2);
+  return secondary.length ? `${primary} ${secondary.join(' ')}` : primary;
+}
+
+function buildStrategicMetrics({ executionClaims, robustnessClaims, flexibilityClaims, contingencyClaims, adaptationClaims, cascadeClaims, redundancyClaims, conflictClaims, dominantWindow }) {
+  const executionRisk = executionClaims[0]?.score ?? 0;
+  const robustness = robustnessClaims[0]?.score ?? 0;
+  const flexibility = flexibilityClaims[0]?.score ?? 0;
+  const contingency = clampScore(robustness + flexibility - executionRisk + (contingencyClaims.length ? 8 : 0));
+  const adaptation = adaptationClaims[0]?.score ?? 0;
+  const resilience = clampScore(robustness + flexibility - Math.max(executionRisk, conflictClaims.length * 8));
+  const cascadeDepth = cascadeClaims.length + (dominantWindow ? 1 : 0) + Math.min(2, redundancyClaims.length);
+
+  return {
+    executionRisk,
+    robustness,
+    flexibility,
+    contingency,
+    adaptation,
+    resilience,
+    cascadeDepth,
+    dominantWindow: dominantWindow || 'mixed',
+  };
+}
+
 function countCategoryCoverage(champions) {
   const counts = Object.fromEntries([
     ['engage', []],
@@ -544,6 +878,8 @@ function buildSignalSet(report, composition, champions, teamProfile) {
     report.identity?.dominance,
     report.identity?.focus,
     report.identity?.summaryText,
+    report.strategic?.focus,
+    report.strategic?.summary,
     ...(Array.isArray(report.tags) ? report.tags : []),
     ...(Array.isArray(composition.tags) ? composition.tags : []),
     ...(Array.isArray(champions) ? champions.flatMap((champion) => champion.bundle) : []),
@@ -551,11 +887,13 @@ function buildSignalSet(report, composition, champions, teamProfile) {
     ...(Array.isArray(teamProfile?.timings) ? teamProfile.timings : []),
     ...(Array.isArray(teamProfile?.needs) ? teamProfile.needs : []),
     ...(Array.isArray(teamProfile?.objectives) ? teamProfile.objectives : []),
+    ...(Array.isArray(report.strategic?.claims) ? report.strategic.claims.map((claim) => claim?.label) : []),
   ].map(toText));
 
   const categories = uniqueValues([
     ...labels.flatMap((label) => resolveSignalCategories(label)),
     ...champions.flatMap((champion) => champion.categories),
+    ...uniqueValues(Array.isArray(report.strategic?.signals) ? report.strategic.signals : []),
   ]);
 
   return {
@@ -577,6 +915,45 @@ function resolveSignalCategories(label = '') {
   if (['early'].includes(normalized)) return ['early'];
   if (['mid'].includes(normalized)) return ['mid'];
   return [];
+}
+
+function extractRivalSignals(report) {
+  const source = [
+    report.rival,
+    report.rivalComposition,
+    report.opponent,
+    report.enemyComposition,
+    report.matchup,
+    report.enemy,
+    report.opposition,
+  ];
+
+  const labels = uniqueValues(source.flatMap((item) => flattenSignals(item)));
+  const categories = uniqueValues(labels.flatMap((label) => resolveSignalCategories(label)));
+  return { labels, categories };
+}
+
+function flattenSignals(value) {
+  if (value == null) return [];
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap((item) => flattenSignals(item));
+  if (typeof value === 'object') {
+    return [
+      value.label,
+      value.name,
+      value.title,
+      value.identity,
+      value.primaryIdentity,
+      value.focus,
+      value.summary,
+      value.description,
+      value.detail,
+      value.type,
+      value.tags,
+      value.categories,
+    ].flatMap((item) => flattenSignals(item));
+  }
+  return [String(value)];
 }
 
 function uniqueClaims(items = []) {
@@ -614,4 +991,8 @@ function joinPhrase(values = []) {
   if (items.length === 1) return items[0];
   if (items.length === 2) return `${items[0]} y ${items[1]}`;
   return `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}`;
+}
+
+function clampScore(value) {
+  return Math.max(0, Math.min(100, Math.round(Number(value) || 0)));
 }
