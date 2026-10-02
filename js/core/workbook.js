@@ -15,6 +15,15 @@ let championCatalogCache = null;
 let championCatalogPromise = null;
 let xlsxPromise = null;
 
+const HEADER_ALIASES = {
+  champion: ['champion', 'campeon', 'campeón', 'name', 'nombre'],
+  identity: ['identity', 'identidad', 'identity label', 'label'],
+  function: ['function', 'funcion', 'función', 'role function', 'rol', 'archetype'],
+  tempo: ['tempo', 'ritmo', 'speed'],
+  strengths: ['strengths', 'strength', 'fortalezas', 'fuerzas', 'pros'],
+  weaknesses: ['weaknesses', 'weakness', 'debilidades', 'cons', 'contras'],
+};
+
 async function ensureXlsx() {
   if (window.XLSX) return window.XLSX;
   if (xlsxPromise) return xlsxPromise;
@@ -81,17 +90,19 @@ export function parseSheet(worksheet) {
     defval: '',
   });
 
-  return rows
-    .slice(1)
-    .filter((row) => row[0])
-    .map((row) => ({
-      champion: String(row[0]).trim(),
-      identity: String(row[1] || '').trim() || 'Sin definir',
-      function: String(row[2] || '').trim() || 'Sin definir',
-      tempo: String(row[3] || '').trim() || 'Sin definir',
-      strengths: splitTags(row[4]),
-      weaknesses: splitTags(row[5]),
-    }));
+  if (!Array.isArray(rows) || !rows.length) return [];
+
+  const headerMap = buildHeaderMap(rows[0]);
+  const dataRows = rows.slice(1).filter((row) => Array.isArray(row) && row.some((cell) => String(cell ?? '').trim()));
+
+  return dataRows.map((row) => ({
+    champion: readCell(row, headerMap.champion, 0),
+    identity: readCell(row, headerMap.identity, 1) || 'Sin definir',
+    function: readCell(row, headerMap.function, 2) || 'Sin definir',
+    tempo: readCell(row, headerMap.tempo, 3) || 'Sin definir',
+    strengths: splitTags(readCell(row, headerMap.strengths, 4)),
+    weaknesses: splitTags(readCell(row, headerMap.weaknesses, 5)),
+  }));
 }
 
 export function splitTags(value) {
@@ -153,4 +164,35 @@ export function invalidateWorkbookCache() {
 export function invalidateChampionCatalogCache() {
   championCatalogCache = null;
   championCatalogPromise = null;
+}
+
+function buildHeaderMap(headerRow = []) {
+  const normalized = Array.isArray(headerRow) ? headerRow.map((value) => normalizeHeader(value)) : [];
+  const indexes = {};
+
+  for (const field of Object.keys(HEADER_ALIASES)) {
+    indexes[field] = findHeaderIndex(normalized, HEADER_ALIASES[field]);
+  }
+
+  return indexes;
+}
+
+function findHeaderIndex(normalizedHeaders = [], aliases = []) {
+  for (const alias of aliases) {
+    const index = normalizedHeaders.findIndex((header) => header === normalizeHeader(alias));
+    if (index >= 0) return index;
+  }
+
+  return null;
+}
+
+function normalizeHeader(value) {
+  return normalizeText(String(value ?? '').replace(/\s+/g, ' '));
+}
+
+function readCell(row = [], index, fallbackIndex) {
+  const direct = index !== null && index !== undefined ? row[index] : undefined;
+  const fallback = fallbackIndex !== null && fallbackIndex !== undefined ? row[fallbackIndex] : undefined;
+  const value = direct !== undefined && String(direct).trim() ? direct : fallback;
+  return String(value ?? '').trim();
 }
