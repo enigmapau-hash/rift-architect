@@ -34,10 +34,12 @@ export function createCompositionController({ state, persistDraft = () => {} } =
 
   function bindEvents({ onRefreshData } = {}) {
     els.refreshBtn?.addEventListener('click', async () => {
-      clearSelection({ render: false });
+      const draftSnapshot = snapshotCurrentDraft();
+
       if (typeof onRefreshData === 'function') {
-        await onRefreshData();
+        await onRefreshData(draftSnapshot);
       }
+
       renderAll();
     });
 
@@ -92,6 +94,13 @@ export function createCompositionController({ state, persistDraft = () => {} } =
     renderCompositionGrid();
     renderModal();
     syncStory();
+  }
+
+  function snapshotCurrentDraft() {
+    return {
+      activeRole: state.activeRole,
+      selected: Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])),
+    };
   }
 
   function clearSelection({ render = true } = {}) {
