@@ -46,6 +46,7 @@
 - Más legibilidad en desktop y móvil.
 - Modal de selección más homogéneo.
 - Último pulido visual.
+- Accesibilidad.
 - **En curso**.
 
 ### Hito 6: QA de estabilidad
@@ -76,7 +77,7 @@
 
 - La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
 - No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
-- El trabajo real ahora está centrado en la QA: estabilidad, cobertura de composiciones, informe homogéneo, validación del informe ejecutivo con fixtures y limpieza de código.
+- El trabajo real ahora está centrado en la QA: estabilidad, cobertura de composiciones, informe homogéneo, validación del informe ejecutivo con fixtures, accesibilidad y limpieza de código.
 - Antes de Beta 1.0 todavía queda revisar consola, visual, documentación y restos de código muerto.
 
 ## Regla del proyecto
