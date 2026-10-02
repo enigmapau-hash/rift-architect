@@ -17,7 +17,7 @@ export function runAnalysis(selectedChampions = []) {
 
   const identity = buildIdentityReport(baseAnalysis, composition);
   const strengthsReport = buildStrengthsReport(baseAnalysis, composition);
-  const weaknessReport = buildWeakReport(baseAnalysis, composition);
+  const weaknessReport = buildWeaknessReport(baseAnalysis, composition);
   const gameplan = buildGamePlanReport(baseAnalysis, composition);
   const timeline = buildTimelineReport(gameplan, baseAnalysis, composition);
   const score = buildScoreReport(baseAnalysis, composition);
