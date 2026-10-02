@@ -1,7 +1,7 @@
 import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
 import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
-import { buildKnowledgeV3Context } from '../../knowledge/index.js?v=91';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=91';
 
 export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
@@ -168,44 +168,41 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     ...(Array.isArray(knowledgeV3?.tags) ? knowledgeV3.tags : []),
   ];
 
-  return uniqueValues(candidates.flat ? candidates.flat() : candidates)
-    .filter((value) => {
-      const normalized = normalizeText(value);
-      return normalized && !['sin definir', 'resumen', 'narrativa contextual', 'lectura contextual', 'narrativa adaptativa'].includes(normalized);
-    })
-    .slice(0, 10);
-}
-
-function banLabelList(bans = []) {
-  return Array.isArray(bans) ? bans.map((ban) => ban?.champion).filter(Boolean) : [];
-}
-
-function normalizeBans(banRecommendations) {
-  const source = Array.isArray(banRecommendations?.bans)
-    ? banRecommendations.bans
-    : Array.isArray(banRecommendations)
-      ? banRecommendations
-      : [];
-
-  return source
-    .slice(0, 5)
-    .map((item, index) => ({
-      champion: cleanText(item.champion || item.name || item.label || 'Sin definir'),
-      reason: cleanText(item.reason || item.detail || item.summary || ''),
-      priority: cleanText(item.priority || (index === 0 ? 'critical' : 'high')),
-      score: clamp(Number(item.score ?? item.weight ?? 0), 0, 100),
-      tags: uniqueValues(Array.isArray(item.tags) ? item.tags : []),
-    }))
-    .filter((item) => item.champion);
+  return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 12);
 }
 
 function normalizePhases(phases = []) {
-  return (Array.isArray(phases) ? phases : [])
-    .slice(0, 3)
-    .map((phase, index) => ({
-      phase: cleanText(phase.phase || phase.window || ['EARLY (0–10)', 'MID (10–20)', 'LATE (20+)'][index]),
-      title: cleanText(phase.title || phase.label || 'Ajusta tu plan'),
-      detail: cleanText(phase.detail || 'Sigue la condición de victoria principal.'),
-      actions: uniqueValues(Array.isArray(phase.actions) ? phase.actions : []).slice(0, 3),
-    }));
+  if (!Array.isArray(phases)) return [];
+  return phases
+    .map((phase) => {
+      if (!phase) return null;
+      if (typeof phase === 'string') return { label: phase, detail: '' };
+      return {
+        label: cleanText(phase.label || phase.name || phase.title || ''),
+        detail: cleanText(phase.detail || phase.description || phase.summary || ''),
+      };
+    })
+    .filter(Boolean);
+}
+
+function normalizeBans(bans = null) {
+  if (!bans) return [];
+  const list = Array.isArray(bans) ? bans : (Array.isArray(bans.bans) ? bans.bans : []);
+  return list
+    .map((entry) => {
+      if (!entry) return null;
+      if (typeof entry === 'string') return { champion: cleanText(entry), reason: '' };
+      return {
+        champion: cleanText(entry.champion || entry.name || ''),
+        reason: cleanText(entry.reason || entry.detail || ''),
+      };
+    })
+    .filter((entry) => entry && entry.champion);
+}
+
+function banLabelList(bans = []) {
+  return (Array.isArray(bans) ? bans : [])
+    .map((ban) => cleanText(ban?.champion || ban?.name || ban))
+    .filter(Boolean)
+    .join(', ');
 }
