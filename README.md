@@ -1,58 +1,50 @@
 # Rift Architect
 
-PWA para analizar **mi propia composición** de League of Legends a partir de `Draft Pool.xlsx`.
+PWA para analizar **tu propia composición** de League of Legends a partir de `Draft Pool.xlsx`.
 
-## Qué hace la app
+## Qué hace ahora
 
-- Selector de campeones por rol.
-- Resumen ejecutivo.
-- Identidad de la composición.
-- Fortalezas y debilidades.
-- Plan de partida por fases.
-- Sinergias y riesgos.
-- Narrativa contextual adaptativa.
-- Knowledge Layer v2 con playbooks explícitos.
-- Motor estratégico que razona sobre dependencias, visión y choques de win conditions.
-- Detección de dependencias críticas, redundancias, planes incompatibles y picos de poder.
-- Bans inteligentes que señalan los 5 campeones que más dificultan ejecutar el plan.
-- Recomendación del último pick para cerrar composiciones de cuatro campeones.
-- Comparador A/B de composiciones para ver cuál encaja mejor con el plan.
-- Banco de validación humana con drafts reales y notas de calibración para detectar drift entre motor y analista.
+- Selector por rol con composición temporal.
+- Executive Summary y Composition Story como vista principal.
+- Knowledge Layer v3 con reglas explícitas de identidad, macro, visión, tempo, objetivos, victoria y derrota.
+- Motor estratégico con razonamiento sobre dependencias críticas, redundancias, planes incompatibles, riesgos y picos de poder.
+- Narrativa contextual con tono de coach.
+- Bans inteligentes.
+- Recomendación del último pick.
+- Comparador A/B de composiciones.
+- Banco de validación humana con drafts de referencia.
+- Tests automáticos para análisis, identidad, selección, dataset, estrategia, bans, último pick, comparación, narrativa, conocimiento y story.
+
+## Estado actual
+
+La app ya está estable en la ruta principal de render y el trabajo actual se centra en tres cosas:
+
+1. consolidar la calidad del razonamiento;
+2. mantener limpia la base de código;
+3. mantener la documentación sincronizada con la app real.
 
 ## Fuente de verdad
 
 - `Draft Pool.xlsx` es la única fuente editable.
-- La app lee el Excel directamente en tiempo de ejecución.
-- Los datos repetidos del Excel se normalizan en memoria para compartir identidades, funciones, tempos y etiquetas.
-- La Knowledge Layer añade reglas explícitas para profundizar el análisis sin duplicar la lógica en la UI.
-- El motor estratégico añade deducciones causales sobre la composición.
-- La capa de bans inteligentes prioriza los campeones que más rompen el plan.
-- La capa de último pick sugiere la pieza que cierra mejor el draft.
-- El comparador A/B permite guardar dos composiciones y contrastar su encaje.
-- El banco de validación humana conserva drafts canónicos y sus ajustes esperados.
-- No hay una capa generada de JSON en `data/`.
+- La app lee el Excel en tiempo de ejecución.
+- Los datos repetidos se normalizan en memoria.
+- La Knowledge Layer y el motor estratégico añaden reglas y deducciones sin mover la lógica a la UI.
 
-## Estado actual
+## Cómo usarla
 
-- La app ya está centrada en una única ruta de render.
-- La selección, la persistencia y el análisis funcionan sobre la composición propia.
-- La UI prioriza lectura rápida y bloques compactos.
-- El dataset vive en una taxonomía compartida para reducir duplicidad.
-- La narrativa contextual sale de reglas explícitas además de la lectura del Excel.
-- El motor estratégico añade razonamiento sobre dependencias críticas, redundancias, planes incompatibles y picos de poder.
-- Los bans inteligentes priorizan los campeones que más rompen el plan.
-- El último pick recomendado explica qué problema resuelve cada alternativa.
-- El comparador A/B muestra cuál de dos composiciones encaja mejor con el plan.
-- La validación humana compara drafts reales con guías de calibración para señalar dónde conviene ajustar el lenguaje del motor.
-
-## GitHub Pages
+La app se despliega como sitio estático en GitHub Pages:
 
 - `https://enigmapau-hash.github.io/rift-architect/`
+
+También puede abrirse con cualquier servidor estático local que sirva `index.html`.
+
+## Documentación principal
+
+- [`ROADMAP.md`](./ROADMAP.md)
+- [`CHANGELOG.md`](./CHANGELOG.md)
+- [`PROJECT_STATE.md`](./PROJECT_STATE.md)
+- [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
 
 ## Regla de trabajo
 
 No se abre un bloque nuevo hasta cerrar el anterior.
-
-## Roadmap
-
-Ver [`ROADMAP.md`](./ROADMAP.md) para la hoja de ruta completa.
