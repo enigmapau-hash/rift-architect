@@ -72,6 +72,8 @@ export function runAnalysis(selectedChampions = []) {
   return report;
 }
 
+export const analyze = runAnalysis;
+
 function normalizeWinConditions(baseAnalysis = {}) {
   const current = baseAnalysis?.winConditions || baseAnalysis?.winCondition;
   const items = Array.isArray(current) ? current : current ? [current] : [];
