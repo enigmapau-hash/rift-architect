@@ -1,7 +1,7 @@
 import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
 import { buildCompositionProfile } from './composition-profile.js';
 import { uniqueValues } from './analysis-utils.js';
-import { buildStrategicReasoning } from './strategic-engine.js';
+import { buildStrategicReasoning } from './strategic-engine.js?v=86';
 import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
