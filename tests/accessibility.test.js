@@ -36,9 +36,10 @@ test('accessibility stylesheet improves focus and contrast', () => {
   assert.match(css, /prefers-reduced-motion: reduce/);
 });
 
-test('entry page loads the accessibility stylesheet', () => {
+test('final visual stylesheet is loaded by the entry page', () => {
   const html = readRepoFile('index.html');
 
+  assert.match(html, /analysis-visual-finesse\.css/);
   assert.match(html, /analysis-a11y\.css/);
   assert.match(html, /site-bootstrap\.js\?v=112/);
 });
