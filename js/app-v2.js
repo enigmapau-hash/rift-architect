@@ -1,8 +1,8 @@
-import { createDraftState, loadDraft, restoreDraftFromState, saveDraft, clearDraft } from './core/draft-state.js?v=102';
-import { loadDraftData, loadChampionCatalogData } from './core/data-loader.js?v=102';
-import { loadWorkbook } from './core/workbook.js?v=102';
-import { clearComparisonSnapshots } from './analysis/comparison-store.js?v=102';
-import { createCompositionController } from './ui/composition-controller.js?v=102';
+import { createDraftState, loadDraft, restoreDraftFromState, saveDraft, clearDraft } from './core/draft-state.js?v=103';
+import { loadDraftData, loadChampionCatalogData } from './core/data-loader.js?v=103';
+import { loadWorkbook } from './core/workbook.js?v=103';
+import { clearComparisonSnapshots } from './analysis/comparison-store.js?v=103';
+import { createCompositionController } from './ui/composition-controller.js?v=103';
 
 const state = createDraftState();
 const controller = createCompositionController({
