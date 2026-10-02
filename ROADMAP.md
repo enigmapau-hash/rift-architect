@@ -47,6 +47,7 @@
 - Modal de selección más homogéneo.
 - Último pulido visual.
 - Accesibilidad.
+- Dashboard compacto sin huecos muertos.
 - **En curso**.
 
 ### Hito 6: QA de estabilidad
