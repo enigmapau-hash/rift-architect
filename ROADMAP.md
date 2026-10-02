@@ -48,6 +48,7 @@
 - Último pulido visual.
 - Accesibilidad.
 - Dashboard compacto sin huecos muertos.
+- RC2: reconstrucción completa del renderer del informe.
 - **En curso**.
 
 ### Hito 6: QA de estabilidad
