@@ -1,7 +1,7 @@
 import { analyzeComposition } from './analyzer.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
-const GRID_SELECTOR = '#compositionGrid';
+const ROLE_ORDER = ['top', 'jungle', 'mid', 'botline', 'support'];
 const SLOT_SELECTOR = '#compositionGrid .slot.is-filled';
 
 const state = {
@@ -326,17 +326,26 @@ function getSelectedChampions() {
     return state.selectedChampions;
   }
 
+  if (Array.isArray(globalThis.__RIFT_ARCHITECT_SELECTED__) && globalThis.__RIFT_ARCHITECT_SELECTED__.length) {
+    return globalThis.__RIFT_ARCHITECT_SELECTED__;
+  }
+
   return [...document.querySelectorAll(SLOT_SELECTOR)]
-    .map((slot) => ({
-      role: String(slot.dataset.role || 'top'),
-      champion: slot.querySelector('.slot__name')?.textContent?.trim() || '',
-      identity: slot.querySelector('.slot__meta')?.textContent?.trim() || '',
-      function: '',
-      tempo: '',
-      strengths: [],
-      weaknesses: [],
-    }))
-    .filter((champion) => champion.champion);
+    .map((slot, index) => {
+      const champion = slot.querySelector('.slot__name')?.textContent?.trim() || '';
+      if (!champion) return null;
+
+      return {
+        role: String(slot.dataset.role || ROLE_ORDER[index] || 'top'),
+        champion,
+        identity: slot.querySelector('.slot__meta')?.textContent?.trim() || '',
+        function: '',
+        tempo: '',
+        strengths: [],
+        weaknesses: [],
+      };
+    })
+    .filter(Boolean);
 }
 
 function uniqueValues(values = []) {
