@@ -28,6 +28,7 @@
 - Excel más completo.
 - Normalización y validación más estrictas.
 - Taxonomía compartida para identidades, funciones, tempos y etiquetas repetidas.
+- Playbooks explícitos para identidades y patrones.
 - Más señales útiles por composición.
 
 ### Hito 5: Beta 1.0
@@ -57,4 +58,5 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 - La lectura sigue centrada en la composición propia.
 - La app mantiene una jerarquía visual simple y funcional.
 - La base del dataset ya usa una taxonomía compartida para reducir duplicidad.
+- La Knowledge Layer añade playbooks explícitos para enriquecer el análisis.
 - El siguiente trabajo debe atacar solo el Hito 3.
