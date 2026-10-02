@@ -1,5 +1,15 @@
 # Changelog
 
+## v112 · Patch 0.62.22 / Accessibility 1
+### Changed
+- Added the `analysis-a11y.css` layer to improve focus visibility, contrast, keyboard affordance and forced-color support across the report and picker.
+- Introduced an accessibility-enhanced composition controller to restore focus, trap keyboard navigation inside the picker and improve ARIA labels.
+- Loaded the accessibility build through `site-bootstrap.js?v=112` and `app-v2.js?v=112`.
+- Rotated the application cache to `rift-architect-v190`.
+
+### Notes
+- This patch focuses on keyboard focus, contrast, keyboard navigation and missing ARIA hooks.
+
 ## v111 · Patch 0.62.21 / Visual Finish 2
 ### Changed
 - Added a final visual finesse layer for the analysis report and picker with tighter alignment, consistent chip icons, better heights, cleaner spacing and smoother microinteractions.
