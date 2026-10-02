@@ -17,6 +17,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - Bans inteligentes que señalan los 5 campeones que más dificultan ejecutar el plan.
 - Recomendación del último pick para cerrar composiciones de cuatro campeones.
 - Comparador A/B de composiciones para ver cuál encaja mejor con el plan.
+- Banco de validación humana con drafts reales y notas de calibración para detectar drift entre motor y analista.
 
 ## Fuente de verdad
 
@@ -28,6 +29,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - La capa de bans inteligentes prioriza los campeones que más rompen el plan.
 - La capa de último pick sugiere la pieza que cierra mejor el draft.
 - El comparador A/B permite guardar dos composiciones y contrastar su encaje.
+- El banco de validación humana conserva drafts canónicos y sus ajustes esperados.
 - No hay una capa generada de JSON en `data/`.
 
 ## Estado actual
@@ -41,6 +43,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - Los bans inteligentes priorizan los campeones que más rompen el plan.
 - El último pick recomendado explica qué problema resuelve cada alternativa.
 - El comparador A/B muestra cuál de dos composiciones encaja mejor con el plan.
+- La validación humana compara drafts reales con guías de calibración para señalar dónde conviene ajustar el lenguaje del motor.
 
 ## GitHub Pages
 
