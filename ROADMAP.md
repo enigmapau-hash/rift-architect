@@ -42,6 +42,7 @@
 ### Hito 5: Presentación del análisis
 - Un informe ejecutivo claro.
 - Tarjetas por motor y por subsistema.
+- Contrato de datos estable entre motor y renderer.
 - Menos duplicidad de texto.
 - Mejor jerarquía visual.
 - Más legibilidad en desktop y móvil.
