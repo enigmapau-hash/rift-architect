@@ -1,4 +1,4 @@
-import { createDraftState, saveDraft } from './core/draft-state.js';
+import { createDraftState, loadDraft, restoreDraftFromState, saveDraft } from './core/draft-state.js';
 import { loadDraftData, loadChampionCatalogData } from './core/data-loader.js';
 import { loadWorkbook } from './core/workbook.js';
 import { createCompositionController } from './ui/composition-controller.js';
@@ -16,7 +16,7 @@ async function init() {
   wireEvents();
 
   await Promise.allSettled([loadDraftData(state), loadChampionCatalogData(state)]);
-  controller.clearSelection({ render: false });
+  restoreDraftFromState(state, loadDraft());
   controller.renderAll();
 
   if ('serviceWorker' in navigator) {
@@ -28,7 +28,7 @@ function wireEvents() {
   controller.bindEvents({
     onRefreshData: async () => {
       await loadDraftData(state, true);
-      controller.clearSelection({ render: false });
+      restoreDraftFromState(state, loadDraft());
       controller.renderAll();
     },
   });
