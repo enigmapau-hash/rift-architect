@@ -27,7 +27,7 @@ test('buildCompositionProfile normalizes role order and completes the draft', ()
   assert.equal(profile.primaryChampion.champion, 'Aatrox');
 });
 
-test('restoreDraftFromState maps saved champions back into the live selection', () => {
+test('restoreDraftFromState leaves the draft empty and resets the active role', () => {
   const state = createDraftState();
   state.data = {
     top: [{ champion: 'Aatrox', identity: 'Dive', function: 'Bruiser AD', tempo: 'Mid' }],
@@ -36,6 +36,9 @@ test('restoreDraftFromState maps saved champions back into the live selection', 
     botline: [],
     support: [],
   };
+  state.activeRole = 'jungle';
+  state.selected.top = state.data.top[0];
+  state.selected.jungle = state.data.jungle[0];
   state.savedDraft = {
     activeRole: 'jungle',
     selected: {
@@ -47,8 +50,8 @@ test('restoreDraftFromState maps saved champions back into the live selection', 
   restoreDraftFromState(state);
 
   const selected = getSelectedChampions(state);
-  assert.equal(state.activeRole, 'jungle');
-  assert.equal(state.selected.top?.champion, 'Aatrox');
-  assert.equal(state.selected.jungle?.champion, 'Amumu');
-  assert.equal(selected.length, 2);
+  assert.equal(state.activeRole, 'top');
+  assert.equal(state.selected.top, null);
+  assert.equal(state.selected.jungle, null);
+  assert.equal(selected.length, 0);
 });
