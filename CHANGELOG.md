@@ -1,5 +1,15 @@
 # Changelog
 
+## v108 · Patch 0.62.18 / QA Audit 1
+### Changed
+- Aligned the analysis boot chain, the app bootstrap and the service worker to `v108`.
+- Unified the cache-busted imports across the analysis, knowledge and data-loading layers.
+- Removed stale visual/bootstrap leftovers from the tree.
+- Added QA coverage for report rendering across the full fixture set.
+
+### Notes
+- This patch is the QA audit pass: stability, report coverage and dead-code cleanup.
+
 ## v107 · Patch 0.62.17 / Visual Polish 1
 ### Changed
 - Added a new `analysis-polish.css` layer to unify card spacing, padding, typography rhythm and responsive behavior across the analysis view.
