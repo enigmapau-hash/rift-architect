@@ -1,5 +1,14 @@
 # Changelog
 
+## v100 · Patch 0.62.10 / RC1 Integrity Hardening 2
+### Changed
+- Fixed the stale import chain that could block boot when `composition-profile.js` was served from cache.
+- Bumped the bootstrap, app, analysis, knowledge and service worker cache chain to v100.
+- Kept the RC1 refresh and reload flow aligned with the current selected composition.
+
+### Notes
+- This patch is a cache-busting and boot-stability follow-up to the RC1 integrity pass.
+
 ## v99 · Patch 0.62.9 / RC1 Integrity Hardening 1
 ### Changed
 - Preserved the selected composition across workbook refreshes using normalized champion matching and saved keys.
