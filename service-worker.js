@@ -27,6 +27,8 @@ const CORE_ASSETS = [
   './js/analysis/renderer-report.js?v=115',
   './js/analysis/renderer-dashboard.js',
   './js/analysis/analysis-engine.js?v=115',
+  './js/analysis/composition-profile.js?v=115',
+  './js/analysis/strategic-engine.js?v=115',
   './js/analysis/story-engine.js?v=115',
   './js/analysis/last-pick-engine.js?v=115',
   './js/analysis/comparison-store.js?v=115',
