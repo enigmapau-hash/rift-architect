@@ -26,9 +26,10 @@ async function init() {
 
 function wireEvents() {
   controller.bindEvents({
-    onRefreshData: async () => {
+    onRefreshData: async (draftSnapshot) => {
       await loadDraftData(state, true);
-      restoreDraftFromState(state, loadDraft());
+      restoreDraftFromState(state, draftSnapshot || loadDraft());
+      saveDraft(state);
       controller.renderAll();
     },
   });
