@@ -38,13 +38,22 @@
         <section class='panel panel--main'>
           <div class='panel-title-row'>
             <h2>Tu composición</h2>
-            <button id='clearBtn' class='ghost-btn' type='button'>Limpiar</button>
+            <div class='panel-actions' style='display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;'>
+              <button id='saveCompareABtn' class='ghost-btn' type='button'>Guardar A</button>
+              <button id='saveCompareBBtn' class='ghost-btn' type='button'>Guardar B</button>
+              <button id='clearCompareBtn' class='ghost-btn' type='button'>Borrar comparación</button>
+              <button id='clearBtn' class='ghost-btn' type='button'>Limpiar</button>
+            </div>
           </div>
 
           <div id='compositionGrid' class='composition-grid'></div>
 
           <div class='summary-card'>
             <div id='storyView' class='composition-story-shell' aria-live='polite'></div>
+          </div>
+
+          <div class='summary-card'>
+            <div id='comparisonView' class='composition-story-shell' aria-live='polite'></div>
           </div>
         </section>
       </main>
@@ -70,6 +79,6 @@
       </section>
     </div>
 
-    <script type='module' src='./js/site-bootstrap.js?v=83'></script>
+    <script type='module' src='./js/site-bootstrap.js?v=84'></script>
   </body>
 </html>
