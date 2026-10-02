@@ -30,6 +30,7 @@ export function createCompositionController({ state, persistDraft = () => {} } =
 
   function bindEvents({ onRefreshData } = {}) {
     els.refreshBtn?.addEventListener('click', async () => {
+      clearSelection({ render: false });
       if (typeof onRefreshData === 'function') {
         await onRefreshData();
       }
@@ -76,13 +77,13 @@ export function createCompositionController({ state, persistDraft = () => {} } =
     syncStory();
   }
 
-  function clearSelection() {
+  function clearSelection({ render = true } = {}) {
     state.selected = Object.fromEntries(ROLE_ORDER.map((role) => [role, null]));
     state.activeRole = 'top';
     state.search = '';
     closePicker(false);
     persistDraft();
-    renderAll();
+    if (render) renderAll();
   }
 
   function openPicker(role) {
@@ -121,6 +122,9 @@ export function createCompositionController({ state, persistDraft = () => {} } =
 
     ROLE_SHEETS.forEach(({ key, label }) => {
       const champion = state.selected[key];
+      const identity = escapeHtml(champion?.identity || 'Sin definir');
+      const roleInfo = escapeHtml(champion?.function || 'Sin definir');
+      const tempoInfo = escapeHtml(champion?.tempo || 'Sin definir');
       const button = document.createElement('button');
       button.type = 'button';
       button.dataset.role = key;
@@ -130,13 +134,16 @@ export function createCompositionController({ state, persistDraft = () => {} } =
           <span class="slot__role">${label}</span>
           ${renderAvatarMarkup(champion.champion, 'avatar--lg')}
           <strong class="slot__name">${escapeHtml(champion.champion)}</strong>
-          <span class="slot__meta">Cambiar</span>
+          <span class="slot__meta">${identity}</span>
+          <span class="slot__submeta">${roleInfo} · ${tempoInfo}</span>
+          <span class="slot__action">Cambiar</span>
         `
         : `
           <span class="slot__role">${label}</span>
           <span class="avatar avatar--lg avatar--empty" aria-hidden="true">+</span>
           <strong class="slot__name">Vacío</strong>
-          <span class="slot__meta">Seleccionar</span>
+          <span class="slot__meta">Sin campeón</span>
+          <span class="slot__submeta">Seleccionar</span>
         `;
       els.compositionGrid.appendChild(button);
     });
@@ -205,9 +212,9 @@ export function createCompositionController({ state, persistDraft = () => {} } =
         <span class="champion-item__body">
           <span class="champion-item__head">
             <strong>${escapeHtml(champion.champion)}</strong>
-            <span class="champion-pill">${escapeHtml(champion.tempo)}</span>
+            <span class="champion-pill">${escapeHtml(champion.tempo || 'Sin definir')}</span>
           </span>
-          <span class="champion-item__sub">${escapeHtml(champion.function)}</span>
+          <span class="champion-item__sub">${escapeHtml(champion.identity || 'Sin definir')} · ${escapeHtml(champion.function || 'Sin definir')}</span>
         </span>
       `;
       els.championList.appendChild(row);
