@@ -11,12 +11,14 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - Plan de partida por fases.
 - Sinergias y riesgos.
 - Narrativa contextual adaptativa.
+- Knowledge Layer v2 con playbooks explícitos.
 
 ## Fuente de verdad
 
 - `Draft Pool.xlsx` es la única fuente editable.
 - La app lee el Excel directamente en tiempo de ejecución.
 - Los datos repetidos del Excel se normalizan en memoria para compartir identidades, funciones, tempos y etiquetas.
+- La Knowledge Layer añade reglas explícitas para profundizar el análisis sin duplicar la lógica en la UI.
 - No hay una capa generada de JSON en `data/`.
 
 ## Estado actual
@@ -25,6 +27,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - La selección, la persistencia y el análisis funcionan sobre la composición propia.
 - La UI prioriza lectura rápida y bloques compactos.
 - El dataset vive en una taxonomía compartida para reducir duplicidad.
+- La narrativa contextual sale de reglas explícitas además de la lectura del Excel.
 
 ## GitHub Pages
 
