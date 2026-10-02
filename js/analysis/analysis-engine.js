@@ -1,7 +1,7 @@
 import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
 import { buildCompositionProfile } from './composition-profile.js';
 import { uniqueValues } from './analysis-utils.js';
-import { buildStrategicReasoning } from './strategic-engine.js?v=89';
+import { buildStrategicReasoning } from './strategic-engine.js?v=90';
 import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
@@ -86,7 +86,7 @@ export function runAnalysis(selectedChampions = []) {
     ...(Array.isArray(banRecommendations.bans) ? banRecommendations.bans.map((ban) => ban.champion) : []),
   ]).slice(0, 12);
 
-  const report = {
+  return {
     composition,
     rawAnalysis: baseAnalysis,
     identity,
@@ -120,8 +120,6 @@ export function runAnalysis(selectedChampions = []) {
     gamePlan: gameplan.phases.map((phase) => phase.title),
     threats: weaknessReport.threats,
   };
-
-  return report;
 }
 
 export const analyze = runAnalysis;
