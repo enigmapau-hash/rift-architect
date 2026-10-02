@@ -1,15 +1,22 @@
-/* Final visual finesse for Rift Architect */
+/* Final report dashboard polish for Rift Architect */
 
 .analysis-report {
   display: grid;
   gap: 16px;
+  align-items: start;
 }
 
 .analysis-report__hero,
 .analysis-report__split,
 .analysis-report__mini-grid,
-.analysis-hub__grid {
-  align-items: stretch;
+.analysis-report__facts {
+  align-items: start;
+}
+
+.analysis-report__hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
+  gap: 14px;
 }
 
 .analysis-report__hero-copy,
@@ -18,8 +25,32 @@
 .analysis-report__item,
 .analysis-report__mini-panel,
 .analysis-hub__card,
-.champion-item {
+.champion-item,
+.summary-card,
+.slot {
   min-width: 0;
+}
+
+.analysis-report__body {
+  display: grid;
+  gap: 14px;
+  align-items: start;
+}
+
+.analysis-report__body > * {
+  min-width: 0;
+}
+
+.analysis-report__split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+
+.analysis-report__split > *,
+.analysis-report__mini-grid > * {
+  align-self: start;
 }
 
 .analysis-report__score,
@@ -29,7 +60,19 @@
 .analysis-hub__card,
 .champion-item,
 .slot,
-.ghost-btn,
+.summary-card,
+.analysis-hub__empty {
+  height: auto;
+}
+
+.analysis-report__score,
+.analysis-report__panel,
+.analysis-hub__card,
+.analysis-hub__empty,
+.analysis-report__mini-panel,
+.analysis-report__item,
+.champion-item,
+.slot,
 .summary-card {
   transition:
     transform 180ms var(--ease-standard),
@@ -40,13 +83,14 @@
 }
 
 .analysis-report__hero {
-  gap: 14px;
+  margin-bottom: 2px;
 }
 
 .analysis-report__score {
+  display: grid;
+  gap: 8px;
   align-content: start;
   justify-items: start;
-  gap: 8px;
   min-height: 100%;
   padding: 16px 18px;
   border-radius: 18px;
@@ -114,33 +158,21 @@
   content: '•';
 }
 
-.analysis-report__body {
-  gap: 14px;
-}
-
-.analysis-report__split {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-  align-items: stretch;
-  grid-auto-rows: 1fr;
-}
-
-.analysis-report__split > *,
-.analysis-report__mini-grid > * {
-  height: 100%;
-}
-
 .analysis-report__panel,
 .analysis-hub__card {
   display: grid;
   align-content: start;
   gap: 12px;
-  height: 100%;
+  height: auto;
   border-radius: 20px;
   border: 1px solid var(--line);
   background: var(--surface);
   box-shadow: none;
+  overflow: hidden;
+}
+
+.analysis-report__panel {
+  padding: 18px;
 }
 
 .analysis-report__panel--featured {
@@ -154,8 +186,10 @@
 }
 
 .analysis-report__section-header {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 10px;
-  align-items: start;
+  align-items: center;
 }
 
 .analysis-report__section-step {
@@ -194,11 +228,32 @@
 }
 
 .analysis-report__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   align-items: stretch;
 }
 
 .analysis-report__fact {
+  display: grid;
+  gap: 4px;
   min-height: 100%;
+  padding: 12px 13px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.analysis-report__fact span {
+  color: var(--accent-2);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.analysis-report__fact strong {
+  line-height: 1.35;
 }
 
 .analysis-report__list,
@@ -207,17 +262,26 @@
 .analysis-hub__list,
 .analysis-hub__timeline-grid,
 .analysis-hub__evidence-grid {
+  display: grid;
   gap: 10px;
 }
 
 .analysis-report__item,
 .analysis-report__mini-panel {
+  display: grid;
+  gap: 8px;
   min-height: 100%;
   padding: 13px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .analysis-report__item-head {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 .analysis-report__item-head strong {
@@ -228,32 +292,48 @@
 .analysis-hub__profile-head span,
 .analysis-hub__flow-mini-item,
 .analysis-hub__card-foot {
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 
 .analysis-report__bar,
 .analysis-hub__profile-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
   overflow: hidden;
 }
 
 .analysis-report__bar-fill,
 .analysis-hub__profile-fill {
+  height: 100%;
+  width: var(--meter, 0%);
+  border-radius: inherit;
   background: linear-gradient(90deg, rgba(70, 211, 161, 0.95), rgba(124, 140, 255, 0.98));
 }
 
 .analysis-report__chips,
 .analysis-report__priority-strip,
+.analysis-report__mini-grid,
 .analysis-hub__flow-mini,
 .analysis-hub__chip-list,
 .summary-chips {
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .analysis-report__mini-title,
 .analysis-report__card-kicker,
 .analysis-hub__card-kicker,
 .analysis-hub__score-kicker {
+  color: var(--accent-2);
+  font-size: 0.68rem;
+  font-weight: 800;
   letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .analysis-report__empty-note,
@@ -266,11 +346,15 @@
   padding: 6px 0 2px;
 }
 
+.analysis-report__hero-copy,
+.analysis-report__score,
+.analysis-report__panel,
+.analysis-report__item,
+.analysis-report__mini-panel,
 .analysis-hub__card,
 .analysis-hub__score-card,
 .analysis-hub__empty,
 .summary-card,
-.panel,
 .slot,
 .champion-item {
   will-change: transform;
@@ -283,7 +367,9 @@
 .slot:hover,
 .champion-item:hover,
 .analysis-report__panel:hover,
-.analysis-report__score:hover {
+.analysis-report__score:hover,
+.analysis-report__item:hover,
+.analysis-report__mini-panel:hover {
   transform: translateY(-2px);
 }
 
@@ -295,15 +381,11 @@
   transform: translateY(-1px);
 }
 
-.analysis-report__chip:focus-visible,
-.analysis-report__priority-chip:focus-visible,
-.summary-chip:focus-visible,
-.champion-pill:focus-visible,
-.ghost-btn:focus-visible,
-.slot:focus-visible,
-.champion-item:focus-visible {
-  outline: 2px solid rgba(70, 211, 161, 0.55);
-  outline-offset: 2px;
+.analysis-report__panel:focus-within,
+.analysis-report__mini-panel:focus-within,
+.analysis-hub__card:focus-within,
+.summary-card:focus-within {
+  border-color: rgba(70, 211, 161, 0.32);
 }
 
 .picker-modal {
@@ -410,7 +492,7 @@
 @media (max-width: 1024px) {
   .analysis-report__hero,
   .analysis-report__split,
-  .analysis-report__mini-grid {
+  .analysis-report__facts {
     grid-template-columns: 1fr;
   }
 
