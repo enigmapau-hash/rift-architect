@@ -1,6 +1,12 @@
 import { runAnalysis } from './analysis/analysis-engine.js';
+import { buildLastPickRecommendations } from './analysis/last-pick-engine.js';
 import { buildAnalysisStory } from './analysis/story-engine.js';
-import { renderAnalysisEmptyState, renderAnalysisStory } from './analysis/renderer.js';
+import {
+  renderAnalysisEmptyState,
+  renderAnalysisStory,
+  renderLastPickEmptyState,
+  renderLastPickState,
+} from './analysis/renderer.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
 const ROLE_ORDER = ['top', 'jungle', 'mid', 'botline', 'support'];
@@ -11,6 +17,7 @@ const state = {
   observer: null,
   scheduled: false,
   selectedChampions: [],
+  rolePools: {},
 };
 
 globalThis.renderAnalysisStory = renderStory;
@@ -57,6 +64,7 @@ function observeComposition(node) {
 function handleCompositionChanged(event) {
   const selectedChampions = Array.isArray(event?.detail?.selectedChampions) ? event.detail.selectedChampions : [];
   state.selectedChampions = selectedChampions;
+  state.rolePools = event?.detail?.rolePools || state.rolePools || globalThis.__RIFT_ARCHITECT_ROLE_POOLS__ || {};
   scheduleRender();
 }
 
@@ -74,15 +82,35 @@ function renderStory() {
   if (!state.root) return;
 
   const selectedChampions = getSelectedChampions();
+  const rolePools = state.rolePools || globalThis.__RIFT_ARCHITECT_ROLE_POOLS__ || {};
   state.selectedChampions = selectedChampions;
 
-  if (selectedChampions.length < 5) {
+  if (selectedChampions.length < 4) {
     renderAnalysisEmptyState(state.root);
     return;
   }
 
   const analysis = runAnalysis(selectedChampions);
   const story = buildAnalysisStory(analysis);
+
+  if (selectedChampions.length === 4) {
+    const recommendation = buildLastPickRecommendations({
+      ...analysis,
+      selectedChampions,
+    }, rolePools);
+
+    if (!recommendation) {
+      renderLastPickEmptyState(state.root, story);
+      return;
+    }
+
+    renderLastPickState(state.root, {
+      ...story,
+      ...recommendation,
+    });
+    return;
+  }
+
   renderAnalysisStory(state.root, story);
 }
 
