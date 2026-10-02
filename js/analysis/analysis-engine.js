@@ -9,7 +9,7 @@ import { buildWeaknessReport } from './weakness-engine.js';
 import { buildGamePlanReport } from './gameplan-engine.js';
 import { buildTimelineReport } from './timeline-engine.js';
 import { buildScoreReport } from './score-engine.js';
-import { buildKnowledgeV3Context } from '../../knowledge/index.js?v=91';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=91';
 
 export function runAnalysis(selectedChampions = []) {
   const composition = buildCompositionProfile(selectedChampions);
@@ -40,40 +40,35 @@ export function runAnalysis(selectedChampions = []) {
     weaknesses: weaknessReport.items,
     synergies,
     risks,
+    gameplan,
     timeline,
     score,
   });
-
-  const knowledgeV3 = buildKnowledgeV3Context(
-    {
-      ...baseAnalysis,
-      composition,
-      identity,
-      strengths: strengthsReport.items,
-      weaknesses: weaknessReport.items,
-      synergies,
-      risks,
-      timeline,
-      score,
-      strategic,
-    },
+  const knowledgeV3 = buildKnowledgeV3Context({
+    ...baseAnalysis,
     composition,
+    identity,
     strategic,
-  );
-
-  const banRecommendations = buildBanRecommendations(baseAnalysis, composition, strategic);
+    score,
+    strengths: strengthsReport.items,
+    weaknesses: weaknessReport.items,
+    synergies,
+    risks,
+  }, composition, strategic);
 
   return {
     ...baseAnalysis,
     composition,
     identity,
-    strengths: strengthsReport,
-    weaknesses: weaknessReport,
+    strengths: strengthsReport.items,
+    weaknesses: weaknessReport.items,
     gameplan,
     timeline,
     score,
     strategic,
     knowledgeV3,
-    banRecommendations,
+    synergyHighlights: synergies,
+    riskHighlights: risks,
+    banRecommendations: buildBanRecommendations(baseAnalysis, composition),
   };
 }
