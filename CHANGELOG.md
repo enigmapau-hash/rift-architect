@@ -1,5 +1,14 @@
 # Changelog
 
+## v117 · Patch 0.62.27 / RC2 Contract Fix 1
+### Changed
+- Fixed the analysis contract so `scoreBadge` is defined before the renderer consumes it.
+- Bumped the entrypoint chain to `v117` so the updated report contract and renderer reload cleanly.
+- Rotated the visible build to `v117` and the application cache to `rift-architect-v195`.
+
+### Notes
+- This patch closes the contract bug that was throwing a `ReferenceError` when selecting champions.
+
 ## v116 · Patch 0.62.26 / RC2 Data Contract 1
 ### Changed
 - Added a structured analysis contract so the renderer consumes a single normalized layer instead of reading engine outputs directly.
@@ -38,14 +47,3 @@
 - Rotated the visible build to `v113` and the application cache to `rift-architect-v191`.
 
 ### Notes
-- This patch focuses on the report presentation layer: compact dashboard layout, no blank voids, and cleaner reading flow.
-
-## v112 · Patch 0.62.22 / Accessibility 1
-### Changed
-- Added the `analysis-a11y.css` layer to improve focus visibility, contrast, keyboard affordance and forced-color support across the report and picker.
-- Introduced an accessibility-enhanced composition controller to restore focus, trap keyboard navigation inside the picker and improve ARIA labels.
-- Loaded the accessibility build through `site-bootstrap.js?v=112` and `app-v2.js?v=112`.
-- Rotated the application cache to `rift-architect-v190`.
-
-### Notes
-- This patch focuses on keyboard focus, contrast, keyboard navigation and missing ARIA hooks.
