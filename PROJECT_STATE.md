@@ -36,7 +36,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Suite de tests automáticos para evitar regresiones.
 
 ## En qué punto está ahora
-La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo y la QA funcional automatizada: ordenar la lectura, quitar duplicidades, reducir texto innecesario y validar la salida del informe sobre toda la batería de fixtures.
+La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo, el último pulido visual y la QA funcional automatizada: ordenar la lectura, quitar duplicidades, reducir texto innecesario, afinar iconos y microinteracciones, y validar la salida del informe sobre toda la batería de fixtures.
 
 ## Siguiente bloque de trabajo
 El siguiente paso es una auditoría completa de estabilidad y limpieza:
