@@ -81,12 +81,23 @@ function buildStoryTitle(primaryIdentity, focus, winLabel) {
   const identity = cleanText(primaryIdentity);
   const strategicFocus = cleanText(focus);
   const win = cleanText(winLabel);
+  const identityKey = normalizeText(identity);
+  const focusKey = normalizeText(strategicFocus);
 
   if (!identity && !strategicFocus) return win || 'Análisis de composición';
   if (!strategicFocus) return identity || win || 'Análisis de composición';
 
-  if (normalizeText(strategicFocus).includes(normalizeText(identity)) || normalizeText(identity) === normalizeText(strategicFocus)) {
+  if (focusKey === identityKey) return identity || strategicFocus;
+
+  if (identityKey && focusKey.startsWith(`${identityKey} `)) {
     return strategicFocus;
+  }
+
+  if (identityKey && strategicFocus.includes('·')) {
+    const parts = strategicFocus.split('·').map((part) => cleanText(part)).filter(Boolean);
+    if (parts.length === 2 && normalizeText(parts[0]) === identityKey && normalizeText(parts[1]) === identityKey) {
+      return identity;
+    }
   }
 
   return identity ? `${identity} · ${strategicFocus}` : strategicFocus;
