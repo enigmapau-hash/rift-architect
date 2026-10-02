@@ -1,6 +1,6 @@
 import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
-import { cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
+import { clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
 import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=115';
 
 export const ANALYSIS_CONTRACT_SPECS = {
@@ -405,49 +405,19 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
 
 function buildRankedList(items = [], badge = '', fallbackDetail = '', score = null) {
   if (!Array.isArray(items)) return [];
-  return items
-    .map((item, index) => {
-      if (!item) return null;
-      if (typeof item === 'string') {
-        const text = cleanText(item);
-        return text ? { label: text, detail: fallbackDetail, badge, score: score != null ? score : null } : null;
-      }
-      return {
-        label: cleanText(item.label || item.title || item.name || `Elemento ${index + 1}`),
-        detail: cleanText(item.detail || item.summary || item.text || item.reason || fallbackDetail),
-        badge: cleanText(item.badge || item.priority || item.kind || badge),
-        score: Number.isFinite(Number(item.score ?? item.value ?? item.weight))
-          ? Number(item.score ?? item.value ?? item.weight)
-          : score,
-        tags: uniqueValues(Array.isArray(item.tags) ? item.tags : []),
-      };
-    })
-    .filter(Boolean);
-}
-
-function normalizePhases(items = []) {
-  if (!Array.isArray(items)) return [];
   return items.map((item, index) => {
     if (!item) return null;
     if (typeof item === 'string') {
-      const text = cleanText(item);
-      return text ? { label: text, detail: '', title: '', actions: [] } : null;
+      const label = cleanText(item);
+      return label ? { label, detail: '', badge, score, tags: [] } : null;
     }
     return {
-      label: cleanText(item.label || item.phase || item.title || `Fase ${index + 1}`),
-      title: cleanText(item.title || item.name || ''),
-      detail: cleanText(item.detail || item.description || item.summary || ''),
-      actions: uniqueValues(Array.isArray(item.actions) ? item.actions : []),
+      label: cleanText(item.label || item.title || item.name || `${badge} ${index + 1}`),
+      detail: cleanText(item.detail || item.summary || item.text || item.reason || fallbackDetail),
+      badge: cleanText(item.badge || item.priority || item.kind || badge),
+      score: Number.isFinite(Number(item.score ?? item.value ?? item.weight)) ? Number(item.score ?? item.value ?? item.weight) : score,
+      tags: uniqueValues([...(Array.isArray(item.tags) ? item.tags : []), ...(Array.isArray(item.evidence) ? item.evidence : [])]),
     };
-  }).filter(Boolean);
-}
-
-function normalizeBans(input = []) {
-  const list = Array.isArray(input) ? input : input?.bans || [];
-  return list.map((item, index) => {
-    if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { champion: cleanText(item), reason: '' } : null;
-    return { champion: cleanText(item.champion || item.name || `Ban ${index + 1}`), reason: cleanText(item.reason || item.detail || item.summary || '') };
   }).filter(Boolean);
 }
 
@@ -472,6 +442,21 @@ function normalizeClaims(items = []) {
   }).filter(Boolean);
 }
 
+function normalizeBans(items = []) {
+  if (!Array.isArray(items)) return [];
+  return items.map((item, index) => {
+    if (!item) return null;
+    if (typeof item === 'string') {
+      const champion = cleanText(item);
+      return champion ? { champion, reason: '' } : null;
+    }
+    return {
+      champion: cleanText(item.champion || item.name || `Ban ${index + 1}`),
+      reason: cleanText(item.reason || item.detail || item.summary || ''),
+    };
+  }).filter(Boolean);
+}
+
 function normalizeBestPick(item = null) {
   if (!item || typeof item !== 'object') return {};
   return {
@@ -490,29 +475,16 @@ function normalizeAlternatives(items = []) {
   if (!Array.isArray(items)) return [];
   return items.map((item) => {
     if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', score: null } : null;
+    if (typeof item === 'string') {
+      const label = cleanText(item);
+      return label ? { label, detail: '', score: null } : null;
+    }
     return {
       label: cleanText(item.label || item.name || item.champion || ''),
       detail: cleanText(item.detail || item.reason || item.summary || ''),
       score: Number.isFinite(Number(item.score)) ? Number(item.score) : null,
     };
   }).filter(Boolean);
-}
-
-function scoreTone(score = 0) {
-  const value = Number(score) || 0;
-  if (value >= 80) return 'analysis-dashboard__score--high';
-  if (value >= 65) return 'analysis-dashboard__score--medium';
-  if (value >= 50) return 'analysis-dashboard__score--low';
-  return 'analysis-dashboard__score--critical';
-}
-
-function pick(...values) {
-  for (const value of values) {
-    const text = stringify(value);
-    if (text) return text;
-  }
-  return '';
 }
 
 function stringify(value) {
