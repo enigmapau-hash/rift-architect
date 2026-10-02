@@ -103,6 +103,8 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
   const strategicFocus = cleanText(strategic?.focus || contextual.headline || identity.title || report.executiveSummary?.title || winLabel);
+  const targetRole = mode === 'last-pick' ? cleanText(report.targetRole || report.targetRoleLabel || '') : '';
+  const targetRoleLabel = mode === 'last-pick' ? cleanText(report.targetRoleLabel || report.targetRole || '') : '';
 
   const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
   const summaryText = buildNarrativeSummary([
@@ -140,6 +142,9 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
     mode,
     title,
     summaryText,
+    focus: strategicFocus,
+    targetRole,
+    targetRoleLabel,
     confidence,
     scoreBadge: score.badge || labelFromConfidence(confidence),
     grade: score.grade || gradeFromScore(confidence),
@@ -165,6 +170,7 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
     phases,
     tempo,
     dominance,
+    winLabel,
     contextual,
     strategic,
     knowledgeV3,
@@ -179,7 +185,7 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
     summaryTokens: uniqueValues([primaryIdentity, tempo, strategicFocus, winLabel, scoreBadge, ...(Array.isArray(report.tags) ? report.tags : [])]).slice(0, 5),
     heroMetrics: mode === 'last-pick'
       ? [
-          { label: 'Rol', value: cleanText(report.targetRoleLabel || report.targetRole || 'Por cerrar') },
+          { label: 'Rol', value: cleanText(targetRoleLabel || targetRole || 'Por cerrar') },
           { label: 'Objetivo', value: cleanText(report.focus || strategicFocus || 'Cierre') },
           { label: 'Score', value: `${String(confidence)}%` },
         ]
