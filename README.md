@@ -12,6 +12,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - Sinergias y riesgos.
 - Narrativa contextual adaptativa.
 - Knowledge Layer v2 con playbooks explícitos.
+- Motor estratégico que razona sobre dependencias, visión y choques de win conditions.
 
 ## Fuente de verdad
 
@@ -19,6 +20,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - La app lee el Excel directamente en tiempo de ejecución.
 - Los datos repetidos del Excel se normalizan en memoria para compartir identidades, funciones, tempos y etiquetas.
 - La Knowledge Layer añade reglas explícitas para profundizar el análisis sin duplicar la lógica en la UI.
+- El motor estratégico añade deducciones causales sobre la composición.
 - No hay una capa generada de JSON en `data/`.
 
 ## Estado actual
@@ -28,6 +30,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - La UI prioriza lectura rápida y bloques compactos.
 - El dataset vive en una taxonomía compartida para reducir duplicidad.
 - La narrativa contextual sale de reglas explícitas además de la lectura del Excel.
+- El motor estratégico añade razonamiento sobre dependencias críticas y compatibilidad de planes.
 
 ## GitHub Pages
 
