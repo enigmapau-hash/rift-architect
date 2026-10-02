@@ -5,7 +5,10 @@ import {
   MACRO_SYNERGY_RULES,
   PATTERN_RULES,
   WIN_CONDITION_RULES,
+  findStrategicProfile,
+  summarizeStrategicProfile,
 } from '../../knowledge/index.js';
+import { CATEGORY_TERMS, matchesCategory, normalizeText } from '../engine/utils.js';
 import { clamp, cleanText, toText, uniqueValues } from './analysis-utils.js';
 
 export function buildContextualNarrative(report = {}) {
@@ -17,6 +20,7 @@ export function buildContextualNarrative(report = {}) {
   const confidence = clamp(Number(report.confidence ?? report.score?.value ?? report.score ?? 0), 0, 100);
 
   const signalSet = buildSignalSet(report, composition, primaryIdentity, tempo);
+  const strategicProfile = findStrategicProfile(primaryIdentity, signalSet);
   const identityRule = findIdentityRule(primaryIdentity, signalSet);
   const winRule = pickBestRule(WIN_CONDITION_RULES, signalSet) || fallbackWinRule(report);
   const dependencyRule = pickBestRule(DEPENDENCY_RULES, signalSet);
@@ -30,33 +34,35 @@ export function buildContextualNarrative(report = {}) {
     .sort((a, b) => b.hits - a.hits || a.penalty - b.penalty);
 
   const identityLine = buildIdentityLine({
-    primaryIdentity,
+    strategicProfile,
     identityRule,
     dependencyRule,
     signalSet,
+    primaryIdentity,
   });
   const winLine = buildWinLine({
-    primaryIdentity,
-    tempo,
+    strategicProfile,
     winRule,
     patternRule,
     macroRule,
     signalSet,
+    primaryIdentity,
+    tempo,
   });
   const conflictLine = buildConflictLine({
-    primaryIdentity,
+    strategicProfile,
     conflictRules,
     signalSet,
-    report,
   });
   const tempoLine = buildTempoLine({
-    primaryIdentity,
+    strategicProfile,
     tempo,
     winRule,
     confidence,
     signalSet,
   });
   const macroLine = buildMacroLine({
+    strategicProfile,
     macroRule,
     patternRule,
     dependencyRule,
@@ -64,15 +70,15 @@ export function buildContextualNarrative(report = {}) {
   });
 
   const rules = uniqueRuleList([
-    { label: 'Condición de victoria', detail: winLine, kind: 'win' },
-    { label: 'Tensión del plan', detail: conflictLine, kind: 'risk' },
-    { label: 'Ritmo recomendado', detail: tempoLine, kind: 'tempo' },
-    { label: 'Acelerador', detail: macroLine, kind: 'opportunity' },
     { label: 'Lectura de identidad', detail: identityLine, kind: 'identity' },
+    { label: 'Condición de victoria', detail: winLine, kind: 'win' },
+    { label: 'Ritmo recomendado', detail: tempoLine, kind: 'tempo' },
+    { label: 'Plan macro', detail: macroLine, kind: 'macro' },
+    { label: 'Riesgo principal', detail: conflictLine, kind: 'risk' },
   ]).slice(0, 4);
 
-  const lead = uniqueSentences([winLine, identityLine, conflictLine, tempoLine]).slice(0, 3).join(' ');
-  const headline = cleanText(`${primaryIdentity} · ${winRule?.label || patternRule?.label || 'Lectura contextual'}`);
+  const lead = uniqueSentences([identityLine, winLine, conflictLine, tempoLine, macroLine]).slice(0, 3).join(' ');
+  const headline = cleanText(`${primaryIdentity} · ${strategicProfile?.label || winRule?.label || patternRule?.label || 'Lectura contextual'}`);
 
   return {
     headline,
@@ -83,6 +89,13 @@ export function buildContextualNarrative(report = {}) {
     tags: uniqueValues([
       primaryIdentity,
       tempo,
+      strategicProfile?.label,
+      strategicProfile?.kind,
+      strategicProfile?.summary,
+      strategicProfile?.condition,
+      ...(Array.isArray(strategicProfile?.timings) ? strategicProfile.timings : []),
+      ...(Array.isArray(strategicProfile?.needs) ? strategicProfile.needs : []),
+      ...(Array.isArray(strategicProfile?.macro) ? strategicProfile.macro : []),
       winRule?.label,
       patternRule?.label,
       macroRule?.label,
@@ -90,7 +103,7 @@ export function buildContextualNarrative(report = {}) {
       identityRule?.label,
       ...rules.map((rule) => rule.label),
       ...signalSet.signals,
-    ]).slice(0, 8),
+    ]).slice(0, 10),
     primaryIdentity,
     tempo,
     confidence,
@@ -99,6 +112,7 @@ export function buildContextualNarrative(report = {}) {
     pattern: patternRule ? { label: patternRule.label, detail: patternRule.detail } : null,
     macro: macroRule ? { label: macroRule.label, detail: macroRule.detail } : null,
     conflicts: conflictRules.map((rule) => rule.label),
+    strategyProfile: summarizeStrategicProfile(strategicProfile),
   };
 }
 
@@ -129,7 +143,10 @@ function buildSignalSet(report, composition, primaryIdentity, tempo) {
   ];
 
   const labels = uniqueValues(rawSignals.map((value) => toText(value)));
-  const categories = uniqueValues(labels.flatMap((label) => resolveIdentityCategories(label)));
+  const categories = uniqueValues([
+    ...labels.flatMap((label) => resolveIdentityCategories(label)),
+    ...labels.flatMap((label) => resolveSignalCategories(label)),
+  ]);
 
   return {
     labels,
@@ -138,14 +155,34 @@ function buildSignalSet(report, composition, primaryIdentity, tempo) {
   };
 }
 
+function resolveIdentityCategories(label = '') {
+  const normalized = normalizeText(label);
+  if (!normalized) return [];
+
+  return Object.entries(CATEGORY_TERMS)
+    .filter(([, terms]) => terms.some((term) => normalizeText(term) === normalized || normalized.includes(normalizeText(term))))
+    .map(([category]) => category);
+}
+
+function resolveSignalCategories(label = '') {
+  const normalized = normalizeText(label);
+  if (!normalized) return [];
+
+  if (['dive', 'pick', 'skirmish', 'engage'].includes(normalized)) return ['engage', 'pick', 'mobility'];
+  if (['splitpush', 'splitpressure', 'split'].includes(normalized)) return ['splitpush', 'mobility', 'objective'];
+  if (['fronttoback', 'teamfight', 'protect', 'control'].includes(normalized)) return ['frontline', 'teamfight', 'control'];
+  if (['poke', 'siege'].includes(normalized)) return ['poke', 'control', 'objective'];
+  return [];
+}
+
 function findIdentityRule(primaryIdentity, signalSet) {
-  const target = normalizeKey(primaryIdentity);
+  const target = normalizeText(primaryIdentity);
   if (!target) return null;
 
   return IDENTITY_RELATIONS.find((rule) => {
-    const key = normalizeKey(rule.key || rule.label);
+    const key = normalizeText(rule.key || rule.label);
     if (key === target) return true;
-    return signalSet.signals.some((signal) => normalizeKey(signal) === key);
+    return signalSet.signals.some((signal) => normalizeText(signal) === key);
   }) || null;
 }
 
@@ -173,11 +210,13 @@ function fallbackWinRule(report) {
   };
 }
 
-function buildIdentityLine({ primaryIdentity, identityRule, dependencyRule, signalSet }) {
-  const key = normalizeKey(primaryIdentity);
+function buildIdentityLine({ strategicProfile, identityRule, dependencyRule, signalSet, primaryIdentity }) {
+  if (strategicProfile?.summary) return strategicProfile.summary;
+
+  const key = normalizeText(primaryIdentity);
 
   if (key === 'dive') {
-    return 'Aunque eres Dive, tu backline es frágil: entra con visión y no abras de frente si todavía no has fijado la respuesta del rival.';
+    return 'Aunque eres Dive, tu backline es frágil: entra con visión y no abras de frente.';
   }
 
   if (key === 'splitpush') {
@@ -215,9 +254,11 @@ function buildIdentityLine({ primaryIdentity, identityRule, dependencyRule, sign
   return 'La composición todavía no define una narrativa dominante.';
 }
 
-function buildWinLine({ primaryIdentity, tempo, winRule, patternRule, macroRule, signalSet }) {
-  const key = normalizeKey(primaryIdentity);
-  const tempoKey = normalizeKey(tempo);
+function buildWinLine({ strategicProfile, winRule, patternRule, macroRule, signalSet, primaryIdentity, tempo }) {
+  if (strategicProfile?.condition) return strategicProfile.condition;
+
+  const key = normalizeText(primaryIdentity);
+  const tempoKey = normalizeText(tempo);
 
   if (key === 'dive' || key === 'engage' || key === 'pick' || key === 'skirmish') {
     return 'Si enfrente hay más engage, tu condición cambia: deja de abrir de frente y castiga la segunda entrada.';
@@ -254,132 +295,98 @@ function buildWinLine({ primaryIdentity, tempo, winRule, patternRule, macroRule,
   return 'Juega alrededor de tu plan dominante y evita pelear sin ventaja clara.';
 }
 
-function buildConflictLine({ primaryIdentity, conflictRules, signalSet, report }) {
+function buildConflictLine({ strategicProfile, conflictRules }) {
+  const profileMistakes = Array.isArray(strategicProfile?.mistakes) && strategicProfile.mistakes.length
+    ? `Errores frecuentes: ${joinPhrase(strategicProfile.mistakes)}.`
+    : '';
+
   if (conflictRules.length) {
     const conflict = conflictRules[0];
     const labels = conflict.labels.join(' y ');
-    return `${conflict.detail} En esta composición, ${labels.toLowerCase()} compiten por el mismo espacio.`;
+    const text = `La tensión principal aparece entre ${labels}; ${conflict.detail}`;
+    return uniqueSentences([profileMistakes, text]).join(' ');
   }
 
-  const key = normalizeKey(primaryIdentity);
-  if ((key === 'dive' || key === 'pick' || key === 'engage') && !signalSet.categories.includes('frontline') && !signalSet.categories.includes('protect')) {
-    return 'Aunque eres Dive, tu backline es frágil: no abras primero y fuerza el contraengage con visión.';
-  }
-
-  if (key === 'splitpush' && signalSet.categories.includes('teamfight')) {
-    return 'La presión lateral y el 5v5 frontal no deberían pedirse al mismo tiempo; elige una sola prioridad por ventana.';
-  }
-
-  if (Array.isArray(report.weaknesses) && report.weaknesses.length) {
-    return `La primera alerta sigue siendo ${toText(report.weaknesses[0])}.`;
-  }
-
-  return 'No hay una tensión mayor que rompa el plan, pero conviene no forzar peleas largas sin preparación.';
+  if (profileMistakes) return profileMistakes;
+  return 'No hay una tensión estratégica dominante visible.';
 }
 
-function buildTempoLine({ primaryIdentity, tempo, winRule, confidence, signalSet }) {
-  const key = normalizeKey(primaryIdentity);
-  const tempoKey = normalizeKey(tempo);
-  const winLabel = normalizeKey(winRule?.label || '');
-
-  if (tempoKey === 'late' || winLabel.includes('escalar') || key === 'protect' || key === 'fronttoback') {
-    return 'Necesitas ralentizar el early para alcanzar tu pico de poder.';
+function buildTempoLine({ strategicProfile, tempo, confidence, winRule }) {
+  if (Array.isArray(strategicProfile?.timings) && strategicProfile.timings.length) {
+    const timings = joinPhrase(strategicProfile.timings);
+    return `Tu ventana principal está en ${timings}; no alargues la partida más de lo necesario.`;
   }
 
-  if (tempoKey === 'early' && (key === 'dive' || key === 'pick' || key === 'engage' || key === 'skirmish')) {
-    return 'Tu mejor ventana está al principio: acelera el mapa antes de que el rival ordene la pelea.';
+  const tempoKey = normalizeText(tempo);
+  if (tempoKey === 'early') return 'Tu mejor margen está en el early: acelera antes de que el rival estabilice el mapa.';
+  if (tempoKey === 'late') return 'Tu plan pide tiempo: no te precipites y guarda recursos para el cierre.';
+
+  const confidenceText = confidence >= 80 ? 'alto' : confidence >= 60 ? 'medio' : 'limitado';
+  if (winRule?.label) {
+    return `El ritmo adecuado es ${confidenceText}: construye la pelea alrededor de ${winRule.label.toLowerCase()}.`;
   }
 
-  if (tempoKey === 'mid') {
-    return 'El punto de inflexión aparece en mid game: convierte rotaciones en objetivo y no en ruido.';
-  }
-
-  if (confidence < 60) {
-    return 'La estructura aún necesita disciplina: reduce improvisación y busca una ventana limpia.';
-  }
-
-  if (signalSet.categories.includes('control')) {
-    return 'Tu ritmo óptimo pasa por controlar espacios y traducir visión en objetivos.';
-  }
-
-  return 'Tu ritmo óptimo está en ejecutar limpio la ventana principal sin alargar la decisión.';
+  return 'El ritmo adecuado es estable: evita acelerar sin una ventana clara.';
 }
 
-function buildMacroLine({ macroRule, patternRule, dependencyRule, signalSet }) {
-  if (macroRule?.detail) {
-    return macroRule.detail;
+function buildMacroLine({ strategicProfile, macroRule, patternRule, dependencyRule }) {
+  const macro = joinPhrase(Array.isArray(strategicProfile?.macro) ? strategicProfile.macro : []);
+  const objectives = joinPhrase(Array.isArray(strategicProfile?.objectives) ? strategicProfile.objectives : []);
+
+  if (macro || objectives) {
+    return [macro ? `Macro: ${macro}.` : '', objectives ? `Objetivos prioritarios: ${objectives}.` : '']
+      .filter(Boolean)
+      .join(' ');
   }
 
-  if (patternRule?.detail) {
-    return patternRule.detail;
-  }
-
-  if (dependencyRule?.detail) {
-    return dependencyRule.detail;
-  }
-
-  if (signalSet.categories.includes('control') || signalSet.categories.includes('objective')) {
-    return 'La prioridad es controlar zonas y convertir espacio en objetivos.';
-  }
-
-  return 'No hay un acelerador dominante; juega limpio y evita forzar un plan todavía incompleto.';
+  if (macroRule?.detail) return macroRule.detail;
+  if (patternRule?.detail) return patternRule.detail;
+  if (dependencyRule?.detail) return dependencyRule.detail;
+  return 'Tu macro debe seguir la identidad dominante y el mapa no al revés.';
 }
 
 function countRuleHits(rule, signalSet) {
-  const tokens = collectRuleTokens(rule);
-  return tokens.reduce((count, token) => {
-    return signalSet.signals.some((signal) => matchesToken(signal, token)) ? count + 1 : count;
-  }, 0);
-}
+  const tokens = uniqueValues([
+    rule?.key,
+    rule?.label,
+    ...(Array.isArray(rule?.labels) ? rule.labels : []),
+    ...(Array.isArray(rule?.categories) ? rule.categories : []),
+    ...(Array.isArray(rule?.match) ? rule.match : []),
+    ...(Array.isArray(rule?.needs) ? rule.needs : []),
+    ...(Array.isArray(rule?.wants) ? rule.wants : []),
+    ...(Array.isArray(rule?.avoids) ? rule.avoids : []),
+    ...(Array.isArray(rule?.evidence) ? rule.evidence : []),
+    ...(Array.isArray(rule?.priorities) ? rule.priorities : []),
+    rule?.detail,
+  ]).map((value) => normalizeText(value));
 
-function collectRuleTokens(rule = {}) {
-  return uniqueValues([
-    rule.key,
-    rule.label,
-    ...(Array.isArray(rule.labels) ? rule.labels : []),
-    ...(Array.isArray(rule.match) ? rule.match : []),
-    ...(Array.isArray(rule.categories) ? rule.categories : []),
-    ...(Array.isArray(rule.needs) ? rule.needs : []),
-    ...(Array.isArray(rule.wants) ? rule.wants : []),
-    ...(Array.isArray(rule.avoids) ? rule.avoids : []),
-    ...(Array.isArray(rule.avoid) ? rule.avoid : []),
-  ]);
-}
-
-function resolveIdentityCategories(label) {
-  const key = normalizeKey(label);
-  if (!key) return [];
-
-  return IDENTITY_RELATIONS.filter((relation) => normalizeKey(relation.key) === key || normalizeKey(relation.label) === key)
-    .flatMap((relation) => relation.categories || []);
+  let hits = 0;
+  for (const token of tokens) {
+    if (!token) continue;
+    if (signalSet.signals.some((signal) => {
+      const normalizedSignal = normalizeText(signal);
+      return normalizedSignal === token || normalizedSignal.includes(token) || token.includes(normalizedSignal);
+    })) {
+      hits += 1;
+    }
+  }
+  return hits;
 }
 
 function uniqueRuleList(rules = []) {
   const seen = new Set();
   return rules.filter((rule) => {
-    if (!rule || !rule.label) return false;
-    const key = `${normalizeKey(rule.label)}::${normalizeKey(rule.detail)}`;
+    const key = `${normalizeText(rule.label)}::${normalizeText(rule.detail)}`;
     if (seen.has(key)) return false;
     seen.add(key);
-    return true;
+    return Boolean(rule.label || rule.detail);
   });
 }
 
-function uniqueSentences(values = []) {
-  return uniqueValues(values.map((value) => cleanText(value)).filter(Boolean));
+function uniqueSentences(sentences = []) {
+  return [...new Set(sentences.map((sentence) => cleanText(sentence)).filter(Boolean))];
 }
 
-function matchesToken(signal, token) {
-  const signalKey = normalizeKey(signal);
-  const tokenKey = normalizeKey(token);
-  if (!signalKey || !tokenKey) return false;
-  return signalKey === tokenKey || signalKey.includes(tokenKey) || tokenKey.includes(signalKey);
-}
-
-function normalizeKey(value) {
-  return cleanText(toText(value))
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, '')
-    .toLowerCase();
+function joinPhrase(values = []) {
+  return uniqueValues(Array.isArray(values) ? values : [values]).join(' · ');
 }
