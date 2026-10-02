@@ -1,6 +1,6 @@
 {
-  "version": "v101",
-  "stage": "Patch 0.62.11 / Data Flow Clarification 1",
+  "version": "v102",
+  "stage": "Patch 0.62.12 / Build Reset + Picker Polish 1",
   "date": "2026-10-02",
-  "cache": "rift-architect-v179"
+  "cache": "rift-architect-v180"
 }
