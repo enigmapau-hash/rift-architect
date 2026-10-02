@@ -1,28 +1,26 @@
 import { normalizeText } from './analyzer.js';
 
 const WORKBOOK_URL = './Draft%20Pool.xlsx';
-const DATA_MANIFEST_URL = './data/index.json';
-const STORAGE_KEYS = { draft: 'rift-architect:draft-v2' };
-
+const STORAGE_KEY = 'rift-architect:draft-v2';
 const DRAGON_VERSIONS_URL = 'https://ddragon.leagueoflegends.com/api/versions.json';
 const DEFAULT_DRAGON_VERSION = '15.16.1';
 const DRAGON_CHAMPION_URL = (version) => `https://ddragon.leagueoflegends.com/cdn/${version}/data/en_US/champion.json`;
 const DRAGON_ICON_URL = (version, id) => `https://ddragon.leagueoflegends.com/cdn/${version}/img/champion/${id}.png`;
 
-const ROLE_SOURCES = [
-  { key: 'top', label: 'Top', file: './data/top.json', sheet: 'Tabla Top' },
-  { key: 'jungle', label: 'Jungla', file: './data/jungle.json', sheet: 'Tabla Jungla' },
-  { key: 'mid', label: 'Mid', file: './data/mid.json', sheet: 'Tabla Mid' },
-  { key: 'botline', label: 'Botline', file: './data/bot.json', sheet: 'Tabla Botline' },
-  { key: 'support', label: 'Support', file: './data/support.json', sheet: 'Tabla Support' },
+const ROLE_SHEETS = [
+  { key: 'top', label: 'Top', sheet: 'Tabla Top' },
+  { key: 'jungle', label: 'Jungla', sheet: 'Tabla Jungla' },
+  { key: 'mid', label: 'Mid', sheet: 'Tabla Mid' },
+  { key: 'botline', label: 'Botline', sheet: 'Tabla Botline' },
+  { key: 'support', label: 'Support', sheet: 'Tabla Support' },
 ];
 
-const ROLE_LABELS = Object.fromEntries(ROLE_SOURCES.map(({ key, label }) => [key, label]));
-const ROLE_ORDER = ROLE_SOURCES.map(({ key }) => key);
-const DEFAULT_SELECTED = { top: null, jungle: null, mid: null, botline: null, support: null };
+const ROLE_LABELS = Object.fromEntries(ROLE_SHEETS.map(({ key, label }) => [key, label]));
+const ROLE_ORDER = ROLE_SHEETS.map(({ key }) => key);
+const DEFAULT_SELECTED = Object.fromEntries(ROLE_ORDER.map((role) => [role, null]));
 const SAVED_DRAFT = loadDraft();
 
-const CHAMPION_ICON_ALIASES = {
+const ICON_ALIASES = {
   shacoad: 'Shaco',
   shacoap: 'Shaco',
   varusonhit: 'Varus',
@@ -37,15 +35,14 @@ const CHAMPION_ICON_ALIASES = {
 };
 
 const state = {
-  data: null,
-  loading: false,
-  dataSource: 'excel',
+  data: Object.fromEntries(ROLE_ORDER.map((role) => [role, []])),
   selected: { ...DEFAULT_SELECTED },
-  activeRole: SAVED_DRAFT.activeRole && ROLE_ORDER.includes(SAVED_DRAFT.activeRole) ? SAVED_DRAFT.activeRole : 'top',
+  activeRole: ROLE_ORDER.includes(SAVED_DRAFT.activeRole) ? SAVED_DRAFT.activeRole : 'top',
   search: '',
   pickerOpen: false,
-  savedDraft: SAVED_DRAFT,
+  loading: false,
   iconCatalog: null,
+  savedDraft: SAVED_DRAFT,
 };
 
 const els = {};
@@ -57,7 +54,7 @@ async function init() {
   bindEvents();
 
   await Promise.allSettled([loadData(), loadChampionCatalog()]);
-  restoreDraftFromStorage();
+  restoreDraft();
   renderAll();
 
   if ('serviceWorker' in navigator) {
@@ -66,12 +63,10 @@ async function init() {
 }
 
 function cacheElements() {
-  els.statusBadge = document.getElementById('statusBadge');
+  els.buildBadge = document.getElementById('buildBadge');
   els.refreshBtn = document.getElementById('refreshBtn');
   els.clearBtn = document.getElementById('clearBtn');
   els.compositionGrid = document.getElementById('compositionGrid');
-  els.analysisSummary = document.getElementById('analysisSummary');
-  els.recommendations = document.getElementById('recommendations');
   els.pickerBackdrop = document.getElementById('pickerBackdrop');
   els.pickerRoleLabel = document.getElementById('pickerRoleLabel');
   els.pickerTitle = document.getElementById('pickerTitle');
@@ -82,12 +77,12 @@ function cacheElements() {
 }
 
 function bindEvents() {
-  els.refreshBtn.addEventListener('click', async () => {
+  els.refreshBtn?.addEventListener('click', async () => {
     await loadData(true);
     renderAll();
   });
 
-  els.clearBtn.addEventListener('click', () => {
+  els.clearBtn?.addEventListener('click', () => {
     state.selected = { ...DEFAULT_SELECTED };
     state.activeRole = 'top';
     state.search = '';
@@ -96,25 +91,25 @@ function bindEvents() {
     renderAll();
   });
 
-  els.closePickerBtn.addEventListener('click', closePicker);
+  els.closePickerBtn?.addEventListener('click', closePicker);
 
-  els.pickerBackdrop.addEventListener('click', (event) => {
+  els.pickerBackdrop?.addEventListener('click', (event) => {
     if (event.target === els.pickerBackdrop) closePicker();
   });
 
-  els.searchInput.addEventListener('input', (event) => {
-    state.search = event.target.value.trim().toLowerCase();
+  els.searchInput?.addEventListener('input', (event) => {
+    state.search = String(event.target.value || '').trim().toLowerCase();
     renderChampionList();
   });
 
-  els.compositionGrid.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-role]');
+  els.compositionGrid?.addEventListener('click', (event) => {
+    const button = event.target instanceof Element ? event.target.closest('button[data-role]') : null;
     if (!button) return;
     openPicker(button.dataset.role);
   });
 
-  els.championList.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-action="select"]');
+  els.championList?.addEventListener('click', (event) => {
+    const button = event.target instanceof Element ? event.target.closest('button[data-action="select"]') : null;
     if (!button) return;
     const { role, champion } = button.dataset;
     if (!role || !champion) return;
@@ -153,74 +148,35 @@ async function loadChampionCatalog() {
 
 async function loadData(force = false) {
   if (state.loading) return;
-  if (state.data && !force) return;
+  if (Object.values(state.data).some((rows) => rows.length) && !force) return;
 
+  state.loading = true;
   try {
-    state.loading = true;
-    setStatus('Cargando datos…');
+    const workbook = await loadWorkbook(force);
+    if (!workbook) return;
 
-    const jsonDataset = await loadJsonDataset(force);
-    if (jsonDataset) {
-      state.data = jsonDataset;
-      state.dataSource = 'json';
-      restoreDraftFromStorage();
-      setStatus('Datos JSON listos');
-      return;
-    }
-
-    state.data = await loadWorkbookDataset(force);
-    state.dataSource = 'excel';
-    restoreDraftFromStorage();
-    setStatus('Datos del Excel listos');
+    ROLE_SHEETS.forEach(({ key, sheet }) => {
+      state.data[key] = parseSheet(workbook.Sheets[sheet]);
+    });
+    restoreDraft();
   } catch (error) {
     console.error(error);
-    setStatus('Error al cargar');
-    if (els.analysisSummary) {
-      els.analysisSummary.innerHTML = '<p class="analysis-note">No se pudieron cargar los datos. Revisa el Excel o la carpeta <code>data/</code>.</p>';
-    }
   } finally {
     state.loading = false;
   }
 }
 
-async function loadJsonDataset(force = false) {
-  try {
-    const manifestResponse = await fetch(DATA_MANIFEST_URL, { cache: force ? 'reload' : 'default' });
-    if (!manifestResponse.ok) return null;
-
-    const manifest = await manifestResponse.json();
-    if (!Array.isArray(manifest?.files) || !manifest.files.length) return null;
-
-    const loaded = await Promise.all(
-      ROLE_SOURCES.map(async ({ key, file }) => {
-        const response = await fetch(file, { cache: force ? 'reload' : 'default' });
-        if (!response.ok) throw new Error(`No se pudo leer ${file}`);
-        return [key, await response.json()];
-      })
-    );
-
-    return Object.fromEntries(loaded);
-  } catch {
-    return null;
-  }
-}
-
-async function loadWorkbookDataset(force = false) {
-  if (!window.XLSX) throw new Error('XLSX no está disponible');
+async function loadWorkbook(force = false) {
+  if (!window.XLSX) return null;
 
   const response = await fetch(WORKBOOK_URL, { cache: force ? 'reload' : 'default' });
-  if (!response.ok) throw new Error(`No se pudo leer ${WORKBOOK_URL}`);
+  if (!response.ok) return null;
 
-  const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
-  const dataset = {};
-  ROLE_SOURCES.forEach(({ key, sheet }) => {
-    dataset[key] = worksheetToRows(workbook.Sheets[sheet]);
-  });
-  return dataset;
+  return window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
 }
 
-function worksheetToRows(worksheet) {
-  if (!worksheet) return [];
+function parseSheet(worksheet) {
+  if (!worksheet || !window.XLSX) return [];
 
   const rows = window.XLSX.utils.sheet_to_json(worksheet, {
     header: 1,
@@ -233,9 +189,9 @@ function worksheetToRows(worksheet) {
     .filter((row) => row[0])
     .map((row) => ({
       champion: String(row[0]).trim(),
-      identity: String(row[1] || '').trim(),
-      function: String(row[2] || '').trim(),
-      tempo: String(row[3] || '').trim(),
+      identity: String(row[1] || '').trim() || 'Sin definir',
+      function: String(row[2] || '').trim() || 'Sin definir',
+      tempo: String(row[3] || '').trim() || 'Sin definir',
       strengths: splitTags(row[4]),
       weaknesses: splitTags(row[5]),
     }));
@@ -246,10 +202,37 @@ function splitTags(value) {
   return String(value).split('·').map((part) => part.trim()).filter(Boolean);
 }
 
+function restoreDraft() {
+  const restored = {};
+  ROLE_ORDER.forEach((role) => {
+    const savedChampion = state.savedDraft.selected?.[role];
+    restored[role] = savedChampion
+      ? (state.data?.[role] || []).find((item) => normalizeText(item.champion) === normalizeText(savedChampion)) || null
+      : null;
+  });
+
+  state.activeRole = ROLE_ORDER.includes(state.savedDraft.activeRole) ? state.savedDraft.activeRole : state.activeRole;
+  state.selected = restored;
+}
+
+function saveDraft() {
+  const payload = {
+    activeRole: state.activeRole,
+    selected: Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])),
+  };
+
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    state.savedDraft = payload;
+  } catch {
+    // ignore storage errors
+  }
+}
+
 function renderAll() {
   renderCompositionGrid();
   renderModal();
-  syncStatusBadge();
+  syncAnalysisStory();
 }
 
 function renderCompositionGrid() {
@@ -257,7 +240,7 @@ function renderCompositionGrid() {
 
   els.compositionGrid.innerHTML = '';
 
-  ROLE_SOURCES.forEach(({ key, label }) => {
+  ROLE_SHEETS.forEach(({ key, label }) => {
     const champion = state.selected[key];
     const button = document.createElement('button');
     button.type = 'button';
@@ -282,25 +265,30 @@ function renderCompositionGrid() {
 
 function renderModal() {
   const isOpen = state.pickerOpen;
-  els.pickerBackdrop.classList.toggle('is-hidden', !isOpen);
-  els.pickerBackdrop.setAttribute('aria-hidden', String(!isOpen));
+  els.pickerBackdrop?.classList.toggle('is-hidden', !isOpen);
+  els.pickerBackdrop?.setAttribute('aria-hidden', String(!isOpen));
   document.body.classList.toggle('modal-open', isOpen);
   if (!isOpen) return;
 
-  els.pickerRoleLabel.textContent = ROLE_LABELS[state.activeRole] || '';
-  els.pickerTitle.textContent = state.selected[state.activeRole]?.champion
-    ? `Cambiar ${ROLE_LABELS[state.activeRole]}`
-    : `Seleccionar ${ROLE_LABELS[state.activeRole]}`;
-  els.pickerHint.textContent = 'Busca y elige. Cierra con ESC o tocando fuera.';
+  if (els.pickerRoleLabel) els.pickerRoleLabel.textContent = ROLE_LABELS[state.activeRole] || '';
+  if (els.pickerTitle) {
+    els.pickerTitle.textContent = state.selected[state.activeRole]?.champion
+      ? `Cambiar ${ROLE_LABELS[state.activeRole]}`
+      : `Seleccionar ${ROLE_LABELS[state.activeRole]}`;
+  }
+  if (els.pickerHint) els.pickerHint.textContent = 'Busca y elige. Cierra con ESC o tocando fuera.';
+
   renderChampionList();
 
   window.requestAnimationFrame(() => {
-    els.searchInput.focus();
-    els.searchInput.select();
+    els.searchInput?.focus();
+    els.searchInput?.select();
   });
 }
 
 function renderChampionList() {
+  if (!els.championList) return;
+
   const role = state.activeRole;
   const currentChampion = state.selected[role]?.champion || null;
   const usedElsewhere = new Set(
@@ -350,7 +338,7 @@ function renderChampionList() {
 function openPicker(role) {
   state.activeRole = normalizeRole(role);
   state.search = '';
-  els.searchInput.value = '';
+  if (els.searchInput) els.searchInput.value = '';
   state.pickerOpen = true;
   saveDraft();
   renderAll();
@@ -359,7 +347,7 @@ function openPicker(role) {
 function closePicker() {
   state.pickerOpen = false;
   state.search = '';
-  els.searchInput.value = '';
+  if (els.searchInput) els.searchInput.value = '';
   renderAll();
 }
 
@@ -380,8 +368,38 @@ function getSelectedChampions() {
   return ROLE_ORDER.filter((role) => state.selected[role]).map((role) => ({ role, ...state.selected[role] }));
 }
 
+function syncAnalysisStory() {
+  const selectedChampions = getSelectedChampions();
+  globalThis.__RIFT_ARCHITECT_SELECTED__ = selectedChampions;
+
+  try {
+    window.dispatchEvent(
+      new CustomEvent('rift-architect:composition-changed', {
+        detail: {
+          selectedChampions,
+          selectedCount: selectedChampions.length,
+          activeRole: state.activeRole,
+        },
+      })
+    );
+  } catch {
+    // ignore dispatch errors
+  }
+
+  if (typeof globalThis.renderAnalysisStory === 'function') {
+    window.requestAnimationFrame(() => {
+      try {
+        globalThis.renderAnalysisStory();
+      } catch (error) {
+        console.error('[Rift Architect] renderAnalysisStory failed', error);
+      }
+    });
+  }
+}
+
 function matchesSearch(champion, search) {
   if (!search) return true;
+
   return [
     champion.champion,
     champion.identity,
@@ -401,7 +419,7 @@ function normalizeRole(role) {
 
 function loadDraft() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.draft);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return { activeRole: 'top', selected: {} };
 
     const parsed = JSON.parse(raw);
@@ -416,62 +434,18 @@ function loadDraft() {
   }
 }
 
-function restoreDraftFromStorage() {
-  const saved = state.savedDraft || { activeRole: 'top', selected: {} };
-  state.activeRole = normalizeRole(saved.activeRole) || state.activeRole;
-
-  const restored = {};
-  ROLE_ORDER.forEach((role) => {
-    const savedChampion = saved.selected?.[role];
-    if (!savedChampion) {
-      restored[role] = null;
-      return;
-    }
-
-    const champion = (state.data?.[role] || []).find(
-      (item) => item.champion.toLowerCase() === String(savedChampion).toLowerCase()
-    );
-    restored[role] = champion || null;
-  });
-
-  state.selected = restored;
-}
-
-function saveDraft() {
-  try {
-    const payload = {
-      activeRole: state.activeRole,
-      selected: Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])),
-    };
-    localStorage.setItem(STORAGE_KEYS.draft, JSON.stringify(payload));
-    state.savedDraft = payload;
-  } catch {
-    // ignore storage errors
-  }
-}
-
-function setStatus(text) {
-  if (els.statusBadge) els.statusBadge.textContent = text;
-}
-
-function syncStatusBadge() {
-  if (!state.data) return;
-  const selectedCount = getSelectedChampions().length;
-  setStatus(`${state.dataSource.toUpperCase()} · ${selectedCount}/5`);
-}
-
 function renderAvatarMarkup(name, size = 'avatar--md') {
   const iconUrl = getChampionIconUrl(name);
-  const fallback = escapeHtml(getChampionInitials(name));
+  const initials = escapeHtml(getChampionInitials(name));
 
   if (!iconUrl) {
-    return `<span class="avatar ${size} avatar--fallback">${fallback}</span>`;
+    return `<span class="avatar ${size} avatar--fallback">${initials}</span>`;
   }
 
   return `
     <span class="avatar ${size}" data-loaded="0">
       <img src="${escapeHtml(iconUrl)}" alt="" loading="lazy" onload="this.parentElement.dataset.loaded='1'" onerror="this.remove(); this.parentElement.dataset.error='1'" />
-      <span class="avatar__fallback">${fallback}</span>
+      <span class="avatar__fallback">${initials}</span>
     </span>
   `;
 }
@@ -484,22 +458,24 @@ function getChampionIconUrl(name) {
 
 function getChampionIconId(name) {
   const normalizedName = normalizeText(name);
-  const canonicalName = CHAMPION_ICON_ALIASES[normalizedName] || name;
+  const canonicalName = ICON_ALIASES[normalizedName] || name;
   const normalizedCanonical = normalizeText(canonicalName);
   return state.iconCatalog?.map?.[normalizedCanonical] || state.iconCatalog?.map?.[normalizedName] || null;
 }
 
 function getChampionInitials(name) {
-  return String(name)
-    .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0].toUpperCase())
-    .join('') || '?';
+  return (
+    String(name)
+      .split(/[^A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9]+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0].toUpperCase())
+      .join('') || '?'
+  );
 }
 
 function escapeHtml(value) {
-  return String(value)
+  return String(value ?? '')
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
