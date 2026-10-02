@@ -6,16 +6,17 @@ import { DEPENDENCY_RULES } from './dependencies.js';
 import { CONFLICT_RULES } from './conflicts.js';
 import { WIN_CONDITION_RULES } from './win-conditions.js';
 import { STRATEGIC_PROFILES_V2 } from './strategy-profiles.js';
+import { BAN_PROFILE_RULES } from './ban-profiles.js';
+import { PICK_PROFILE_RULES } from './pick-profiles.js';
+import { STYLE_KNOWLEDGE_V3 } from './knowledge-v3.js';
 
 const VALID_CATEGORIES = new Set(Object.keys(CATEGORY_TERMS));
-const KNOWN_IDENTITY_LABELS = new Set(IDENTITY_RELATIONS.map((rule) => normalizeText(rule.label)));
-const KNOWN_PATTERN_LABELS = new Set(PATTERN_RULES.map((rule) => normalizeText(rule.label)));
 
 function pushIssue(issues, severity, scope, message, path = '') {
   issues.push({ severity, scope, path, message });
 }
 
-function hasDuplicates(values) {
+function hasDuplicates(values = []) {
   const seen = new Set();
   for (const value of values) {
     const normalized = normalizeText(value);
@@ -38,7 +39,6 @@ function validateCategories(issues, scope, path, categories = []) {
       pushIssue(issues, 'error', scope, 'La categoría no puede estar vacía.', `${path}[${index}]`);
       return;
     }
-
     if (!VALID_CATEGORIES.has(normalized)) {
       pushIssue(issues, 'warning', scope, `Categoría no reconocida: ${category}`, `${path}[${index}]`);
     }
@@ -64,11 +64,6 @@ function validateTextList(issues, scope, path, values = [], required = true) {
 }
 
 function validateIdentityRelations(issues) {
-  if (!Array.isArray(IDENTITY_RELATIONS) || !IDENTITY_RELATIONS.length) {
-    pushIssue(issues, 'error', 'identity-relations', 'No hay identidades definidas.', 'IDENTITY_RELATIONS');
-    return;
-  }
-
   const keys = [];
   const labels = [];
 
@@ -76,14 +71,10 @@ function validateIdentityRelations(issues) {
     const path = `IDENTITY_RELATIONS[${index}]`;
     if (!rule?.key) pushIssue(issues, 'error', 'identity-relations', 'Falta la clave de identidad.', `${path}.key`);
     if (!rule?.label) pushIssue(issues, 'error', 'identity-relations', 'Falta la etiqueta de identidad.', `${path}.label`);
-
     keys.push(rule?.key);
     labels.push(rule?.label);
-
     validateCategories(issues, 'identity-relations', `${path}.categories`, rule?.categories);
-    if (!Array.isArray(rule?.tempoBias) || !rule.tempoBias.length) {
-      pushIssue(issues, 'warning', 'identity-relations', 'La identidad no declara sesgo de tempo.', `${path}.tempoBias`);
-    }
+    validateTextList(issues, 'identity-relations', `${path}.tempoBias`, rule?.tempoBias, true);
   });
 
   if (hasDuplicates(keys)) pushIssue(issues, 'error', 'identity-relations', 'Hay claves de identidad duplicadas.', 'IDENTITY_RELATIONS');
@@ -91,11 +82,6 @@ function validateIdentityRelations(issues) {
 }
 
 function validateStrategicProfiles(issues) {
-  if (!Array.isArray(STRATEGIC_PROFILES_V2) || !STRATEGIC_PROFILES_V2.length) {
-    pushIssue(issues, 'error', 'strategic-profiles', 'No hay perfiles estratégicos definidos.', 'STRATEGIC_PROFILES_V2');
-    return;
-  }
-
   const keys = [];
   const labels = [];
   let identityProfiles = 0;
@@ -104,23 +90,14 @@ function validateStrategicProfiles(issues) {
   STRATEGIC_PROFILES_V2.forEach((profile, index) => {
     const path = `STRATEGIC_PROFILES_V2[${index}]`;
     const kind = String(profile?.kind || '').trim();
-
     if (!profile?.key) pushIssue(issues, 'error', 'strategic-profiles', 'Falta la clave del perfil estratégico.', `${path}.key`);
     if (!profile?.label) pushIssue(issues, 'error', 'strategic-profiles', 'Falta la etiqueta del perfil estratégico.', `${path}.label`);
     if (!kind) pushIssue(issues, 'error', 'strategic-profiles', 'Falta el tipo del perfil estratégico.', `${path}.kind`);
     if (!profile?.summary) pushIssue(issues, 'error', 'strategic-profiles', 'Falta el resumen narrativo del perfil.', `${path}.summary`);
-    if (!profile?.condition) pushIssue(issues, 'warning', 'strategic-profiles', 'El perfil no define condición de cambio.', `${path}.condition`);
-
     keys.push(profile?.key);
     labels.push(profile?.label);
-
     if (kind === 'identity') identityProfiles += 1;
     if (kind === 'pattern') patternProfiles += 1;
-
-    if (!['identity', 'pattern'].includes(kind)) {
-      pushIssue(issues, 'error', 'strategic-profiles', 'kind debe ser identity o pattern.', `${path}.kind`);
-    }
-
     validateCategories(issues, 'strategic-profiles', `${path}.categories`, profile?.categories);
     validateTextList(issues, 'strategic-profiles', `${path}.winsAgainst`, profile?.winsAgainst, true);
     validateTextList(issues, 'strategic-profiles', `${path}.losesAgainst`, profile?.losesAgainst, true);
@@ -130,10 +107,6 @@ function validateStrategicProfiles(issues) {
     validateTextList(issues, 'strategic-profiles', `${path}.macro`, profile?.macro, true);
     validateTextList(issues, 'strategic-profiles', `${path}.objectives`, profile?.objectives, true);
     validateTextList(issues, 'strategic-profiles', `${path}.mistakes`, profile?.mistakes, true);
-
-    if (kind === 'identity' && !KNOWN_IDENTITY_LABELS.has(normalizeText(profile?.label))) {
-      pushIssue(issues, 'warning', 'strategic-profiles', `La identidad no está reconocida en la taxonomía base: ${profile?.label}`, `${path}.label`);
-    }
   });
 
   if (hasDuplicates(keys)) pushIssue(issues, 'error', 'strategic-profiles', 'Hay claves de perfil estratégico duplicadas.', 'STRATEGIC_PROFILES_V2');
@@ -142,163 +115,87 @@ function validateStrategicProfiles(issues) {
   if (!patternProfiles) pushIssue(issues, 'error', 'strategic-profiles', 'Debe existir al menos un perfil de patrón.', 'STRATEGIC_PROFILES_V2');
 }
 
+function validateKnowledgeV3(issues) {
+  const keys = [];
+  STYLE_KNOWLEDGE_V3.forEach((profile, index) => {
+    const path = `STYLE_KNOWLEDGE_V3[${index}]`;
+    if (!profile?.key) pushIssue(issues, 'error', 'knowledge-v3', 'Falta la clave de conocimiento.', `${path}.key`);
+    if (!profile?.label) pushIssue(issues, 'error', 'knowledge-v3', 'Falta la etiqueta de conocimiento.', `${path}.label`);
+    if (!profile?.summary) pushIssue(issues, 'error', 'knowledge-v3', 'Falta el resumen del estilo.', `${path}.summary`);
+    keys.push(profile?.key);
+    validateTextList(issues, 'knowledge-v3', `${path}.macro`, profile?.macro, true);
+    validateTextList(issues, 'knowledge-v3', `${path}.vision`, profile?.vision, true);
+    validateTextList(issues, 'knowledge-v3', `${path}.objectives`, profile?.objectives, true);
+    validateTextList(issues, 'knowledge-v3', `${path}.tempo`, profile?.tempo, true);
+    validateTextList(issues, 'knowledge-v3', `${path}.mistakes`, profile?.mistakes, true);
+    validateTextList(issues, 'knowledge-v3', `${path}.matchups`, profile?.matchups?.map((item) => item?.label), true);
+    profile?.matchups?.forEach((matchup, matchupIndex) => {
+      const matchupPath = `${path}.matchups[${matchupIndex}]`;
+      if (!matchup?.against) pushIssue(issues, 'error', 'knowledge-v3', 'Cada matchup debe indicar el estilo contrario.', `${matchupPath}.against`);
+      if (!matchup?.label) pushIssue(issues, 'error', 'knowledge-v3', 'Cada matchup debe tener etiqueta.', `${matchupPath}.label`);
+      if (!matchup?.detail) pushIssue(issues, 'warning', 'knowledge-v3', 'Cada matchup debería tener detalle.', `${matchupPath}.detail`);
+    });
+  });
+  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'knowledge-v3', 'Hay claves duplicadas en Knowledge Layer v3.', 'STYLE_KNOWLEDGE_V3');
+}
+
+function validateSimpleRuleSet(issues, scope, rules, requiredFields = []) {
+  if (!Array.isArray(rules) || !rules.length) {
+    pushIssue(issues, 'error', scope, 'No hay reglas definidas.', scope.toUpperCase());
+    return;
+  }
+
+  const keys = [];
+  rules.forEach((rule, index) => {
+    const path = `${scope}[${index}]`;
+    keys.push(rule?.key);
+    requiredFields.forEach((field) => {
+      if (!rule?.[field]) {
+        pushIssue(issues, 'error', scope, `Falta ${field}.`, `${path}.${field}`);
+      }
+    });
+  });
+  if (hasDuplicates(keys)) pushIssue(issues, 'error', scope, 'Hay claves duplicadas.', scope.toUpperCase());
+}
+
 function validateSynergyRules(issues) {
-  const allKeys = new Set();
-
-  DIRECT_SYNERGY_RULES.forEach((rule, index) => {
-    const path = `DIRECT_SYNERGY_RULES[${index}]`;
-    if (!rule?.key) pushIssue(issues, 'error', 'synergies', 'Falta la clave de sinergia directa.', `${path}.key`);
-    if (!rule?.label) pushIssue(issues, 'error', 'synergies', 'Falta la etiqueta de sinergia directa.', `${path}.label`);
-    if (!rule?.detail) pushIssue(issues, 'warning', 'synergies', 'La sinergia directa no tiene detalle.', `${path}.detail`);
-
-    if (allKeys.has(rule?.key)) pushIssue(issues, 'error', 'synergies', `Clave de sinergia duplicada: ${rule?.key}`, `${path}.key`);
-    allKeys.add(rule?.key);
-
-    if (!Array.isArray(rule?.champions) || !rule.champions.length) {
-      pushIssue(issues, 'error', 'synergies', 'La sinergia directa debe declarar campeones.', `${path}.champions`);
-    } else {
-      rule.champions.forEach((group, groupIndex) => {
-        if (!Array.isArray(group) || !group.length) {
-          pushIssue(issues, 'error', 'synergies', 'Cada grupo de campeones debe tener al menos un término.', `${path}.champions[${groupIndex}]`);
-        }
-      });
-    }
-
-    validateCategories(issues, 'synergies', `${path}.categories`, rule?.categories);
-  });
-
-  MACRO_SYNERGY_RULES.forEach((rule, index) => {
-    const path = `MACRO_SYNERGY_RULES[${index}]`;
-    if (!rule?.key) pushIssue(issues, 'error', 'synergies', 'Falta la clave de sinergia macro.', `${path}.key`);
-    if (!rule?.label) pushIssue(issues, 'error', 'synergies', 'Falta la etiqueta de sinergia macro.', `${path}.label`);
-    if (!rule?.detail) pushIssue(issues, 'warning', 'synergies', 'La sinergia macro no tiene detalle.', `${path}.detail`);
-
-    if (allKeys.has(rule?.key)) pushIssue(issues, 'error', 'synergies', `Clave de sinergia duplicada: ${rule?.key}`, `${path}.key`);
-    allKeys.add(rule?.key);
-
-    if (!Number.isInteger(rule?.minHits) || rule.minHits < 1) {
-      pushIssue(issues, 'error', 'synergies', 'minHits debe ser un entero positivo.', `${path}.minHits`);
-    }
-
-    validateCategories(issues, 'synergies', `${path}.categories`, rule?.categories);
-  });
+  validateSimpleRuleSet(issues, 'synergies.direct', DIRECT_SYNERGY_RULES, ['key', 'label', 'detail']);
+  validateSimpleRuleSet(issues, 'synergies.macro', MACRO_SYNERGY_RULES, ['key', 'label', 'detail']);
+  DIRECT_SYNERGY_RULES.forEach((rule, index) => validateCategories(issues, 'synergies', `DIRECT_SYNERGY_RULES[${index}].categories`, rule?.categories));
+  MACRO_SYNERGY_RULES.forEach((rule, index) => validateCategories(issues, 'synergies', `MACRO_SYNERGY_RULES[${index}].categories`, rule?.categories));
 }
 
 function validatePatterns(issues) {
-  const keys = [];
-
-  PATTERN_RULES.forEach((rule, index) => {
-    const path = `PATTERN_RULES[${index}]`;
-    if (!rule?.key) pushIssue(issues, 'error', 'patterns', 'Falta la clave del patrón.', `${path}.key`);
-    if (!rule?.label) pushIssue(issues, 'error', 'patterns', 'Falta la etiqueta del patrón.', `${path}.label`);
-    if (!rule?.detail) pushIssue(issues, 'warning', 'patterns', 'El patrón no tiene detalle.', `${path}.detail`);
-
-    keys.push(rule?.key);
-
-    if (!Number.isInteger(rule?.minHits) || rule.minHits < 1) {
-      pushIssue(issues, 'error', 'patterns', 'minHits debe ser un entero positivo.', `${path}.minHits`);
-    }
-
-    validateCategories(issues, 'patterns', `${path}.categories`, rule?.categories);
-  });
-
-  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'patterns', 'Hay claves de patrón duplicadas.', 'PATTERN_RULES');
+  validateSimpleRuleSet(issues, 'patterns', PATTERN_RULES, ['key', 'label', 'detail']);
+  PATTERN_RULES.forEach((rule, index) => validateCategories(issues, 'patterns', `PATTERN_RULES[${index}].categories`, rule?.categories));
 }
 
 function validateDependencies(issues) {
-  const keys = [];
-
-  DEPENDENCY_RULES.forEach((rule, index) => {
-    const path = `DEPENDENCY_RULES[${index}]`;
-    if (!rule?.key) pushIssue(issues, 'error', 'dependencies', 'Falta la clave de dependencia.', `${path}.key`);
-    if (!rule?.label) pushIssue(issues, 'error', 'dependencies', 'Falta la etiqueta de dependencia.', `${path}.label`);
-    if (!rule?.kind) pushIssue(issues, 'error', 'dependencies', 'Falta el tipo de dependencia.', `${path}.kind`);
-    if (!rule?.detail) pushIssue(issues, 'warning', 'dependencies', 'La dependencia no tiene detalle.', `${path}.detail`);
-
-    keys.push(rule?.key);
-
-    if (!['identity', 'pattern'].includes(rule?.kind)) {
-      pushIssue(issues, 'error', 'dependencies', 'kind debe ser identity o pattern.', `${path}.kind`);
-    }
-
-    validateCategories(issues, 'dependencies', `${path}.match`, rule?.match);
-    validateTextList(issues, 'dependencies', `${path}.needs`, rule?.needs, true);
-    validateTextList(issues, 'dependencies', `${path}.wants`, rule?.wants, false);
-    validateTextList(issues, 'dependencies', `${path}.avoids`, rule?.avoids, false);
-    validateTextList(issues, 'dependencies', `${path}.evidence`, rule?.evidence, false);
-
-    if (rule?.kind === 'pattern' && !KNOWN_PATTERN_LABELS.has(normalizeText(rule?.label))) {
-      pushIssue(issues, 'warning', 'dependencies', `El patrón no está reconocido: ${rule?.label}`, `${path}.label`);
-    }
-  });
-
-  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'dependencies', 'Hay claves de dependencia duplicadas.', 'DEPENDENCY_RULES');
+  validateSimpleRuleSet(issues, 'dependencies', DEPENDENCY_RULES, ['key', 'label', 'kind', 'detail']);
+  DEPENDENCY_RULES.forEach((rule, index) => validateCategories(issues, 'dependencies', `DEPENDENCY_RULES[${index}].match`, rule?.match));
 }
 
 function validateConflicts(issues) {
-  const keys = [];
-
+  validateSimpleRuleSet(issues, 'conflicts', CONFLICT_RULES, ['key', 'detail']);
   CONFLICT_RULES.forEach((rule, index) => {
     const path = `CONFLICT_RULES[${index}]`;
-    if (!rule?.key) pushIssue(issues, 'error', 'conflicts', 'Falta la clave de conflicto.', `${path}.key`);
-    if (!rule?.detail) pushIssue(issues, 'warning', 'conflicts', 'El conflicto no tiene detalle.', `${path}.detail`);
-
-    keys.push(rule?.key);
-
     if (!Array.isArray(rule?.labels) || rule.labels.length !== 2) {
       pushIssue(issues, 'error', 'conflicts', 'Cada conflicto debe comparar exactamente dos identidades.', `${path}.labels`);
-      return;
-    }
-
-    rule.labels.forEach((label, labelIndex) => {
-      const normalized = normalizeText(label);
-      if (!normalized) {
-        pushIssue(issues, 'error', 'conflicts', 'La identidad del conflicto no puede estar vacía.', `${path}.labels[${labelIndex}]`);
-      }
-      if (!KNOWN_IDENTITY_LABELS.has(normalized)) {
-        pushIssue(issues, 'warning', 'conflicts', `Identidad no reconocida en conflicto: ${label}`, `${path}.labels[${labelIndex}]`);
-      }
-    });
-
-    if (!Number.isInteger(rule?.penalty) || rule.penalty <= 0) {
-      pushIssue(issues, 'error', 'conflicts', 'La penalización debe ser un entero positivo.', `${path}.penalty`);
     }
   });
-
-  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'conflicts', 'Hay claves de conflicto duplicadas.', 'CONFLICT_RULES');
 }
 
 function validateWinConditions(issues) {
-  const keys = [];
-  let fallbackCount = 0;
+  validateSimpleRuleSet(issues, 'win-conditions', WIN_CONDITION_RULES, ['key', 'label', 'detail']);
+}
 
-  WIN_CONDITION_RULES.forEach((rule, index) => {
-    const path = `WIN_CONDITION_RULES[${index}]`;
-    if (!rule?.key) pushIssue(issues, 'error', 'win-conditions', 'Falta la clave de win condition.', `${path}.key`);
-    if (!rule?.label) pushIssue(issues, 'error', 'win-conditions', 'Falta la etiqueta de win condition.', `${path}.label`);
-    if (!rule?.detail) pushIssue(issues, 'warning', 'win-conditions', 'La win condition no tiene detalle.', `${path}.detail`);
+function validateBanProfiles(issues) {
+  validateSimpleRuleSet(issues, 'ban-profiles', BAN_PROFILE_RULES, ['key', 'label']);
+  BAN_PROFILE_RULES.forEach((rule, index) => validateTextList(issues, 'ban-profiles', `BAN_PROFILE_RULES[${index}].bans`, rule?.bans, true));
+}
 
-    keys.push(rule?.key);
-
-    if (rule?.key === 'fallback') fallbackCount += 1;
-
-    if (!Array.isArray(rule?.match)) {
-      pushIssue(issues, 'error', 'win-conditions', 'match debe ser un array.', `${path}.match`);
-    } else if (rule.key !== 'fallback' && !rule.match.length) {
-      pushIssue(issues, 'error', 'win-conditions', 'Las win conditions principales deben tener al menos una coincidencia.', `${path}.match`);
-    }
-
-    if (!Array.isArray(rule?.priorities) || !rule.priorities.length) {
-      pushIssue(issues, 'error', 'win-conditions', 'Debe incluir prioridades.', `${path}.priorities`);
-    }
-
-    if (!Array.isArray(rule?.avoid) || !rule.avoid.length) {
-      pushIssue(issues, 'warning', 'win-conditions', 'Conviene declarar qué evitar.', `${path}.avoid`);
-    }
-  });
-
-  if (hasDuplicates(keys)) pushIssue(issues, 'error', 'win-conditions', 'Hay claves de win condition duplicadas.', 'WIN_CONDITION_RULES');
-  if (fallbackCount !== 1) pushIssue(issues, 'error', 'win-conditions', 'Debe existir exactamente una win condition de fallback.', 'WIN_CONDITION_RULES');
+function validatePickProfiles(issues) {
+  validateSimpleRuleSet(issues, 'pick-profiles', PICK_PROFILE_RULES, ['key', 'label']);
 }
 
 export function validateKnowledgeLayer() {
@@ -306,42 +203,36 @@ export function validateKnowledgeLayer() {
 
   validateIdentityRelations(issues);
   validateStrategicProfiles(issues);
+  validateKnowledgeV3(issues);
   validateSynergyRules(issues);
   validatePatterns(issues);
   validateDependencies(issues);
   validateConflicts(issues);
   validateWinConditions(issues);
-
-  const errors = issues.filter((item) => item.severity === 'error').length;
-  const warnings = issues.length - errors;
+  validateBanProfiles(issues);
+  validatePickProfiles(issues);
 
   return {
-    valid: errors === 0,
-    errors,
-    warnings,
+    valid: !issues.some((issue) => issue.severity === 'error'),
     issues,
     summary: {
       identities: IDENTITY_RELATIONS.length,
       strategicProfiles: STRATEGIC_PROFILES_V2.length,
+      knowledgeV3Styles: STYLE_KNOWLEDGE_V3.length,
       directSynergies: DIRECT_SYNERGY_RULES.length,
       macroSynergies: MACRO_SYNERGY_RULES.length,
       patterns: PATTERN_RULES.length,
       dependencies: DEPENDENCY_RULES.length,
       conflicts: CONFLICT_RULES.length,
       winConditions: WIN_CONDITION_RULES.length,
+      bans: BAN_PROFILE_RULES.length,
+      picks: PICK_PROFILE_RULES.length,
     },
   };
 }
 
 export function formatKnowledgeReport(report) {
-  if (!report) return 'Knowledge layer no disponible.';
-
-  const lines = [
-    `Knowledge layer: ${report.valid ? 'OK' : 'Con incidencias'}`,
-    `Errors: ${report.errors ?? 0}`,
-    `Warnings: ${report.warnings ?? 0}`,
-    `Strategic profiles: ${report.summary?.strategicProfiles ?? 0}`,
-  ];
-
-  return lines.join(' · ');
+  const summary = report?.summary || {};
+  const totalIssues = Array.isArray(report?.issues) ? report.issues.length : 0;
+  return `Knowledge layer ${report?.valid ? 'OK' : 'CHECK'} · ${summary.strategicProfiles || 0} perfiles · ${summary.knowledgeV3Styles || 0} estilos v3 · ${totalIssues} incidencias`;
 }
