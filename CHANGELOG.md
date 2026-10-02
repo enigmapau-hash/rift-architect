@@ -1,5 +1,15 @@
 # Changelog
 
+## v110 · Patch 0.62.20 / QA Functional 1
+### Changed
+- Rotated the public build to `v110` and the application cache to `rift-architect-v188`.
+- Aligned the boot chain, analysis chain and service worker to the new generation.
+- Expanded the executive report QA with fixture-wide order and placeholder checks.
+- Kept the report focused on identity, plan, strengths, weaknesses, bans and strategy.
+
+### Notes
+- This patch strengthens functional QA for the report view and keeps the documentation in sync with the new build.
+
 ## v109 · Patch 0.62.19 / Executive Report 1
 ### Changed
 - Reworked the analysis report into a clearer executive layout with a strict reading order and less visual noise.
@@ -18,16 +28,3 @@
 - Added QA coverage for report rendering across the full fixture set.
 
 ### Notes
-- This patch is the QA audit pass: stability, report coverage and dead-code cleanup.
-
-## v107 · Patch 0.62.17 / Visual Polish 1
-### Changed
-- Added a new `analysis-polish.css` layer to unify card spacing, padding, typography rhythm and responsive behavior across the analysis view.
-- Tightened the picker modal layout, avatar sizing, champion rows and list spacing for a more consistent selection experience.
-- Bumped the visible build version to `v107` and rotated the application cache to `rift-architect-v185`.
-- Aligned the entry page, site bootstrap, app bootstrap, analysis boot chain, and service worker asset list to the new generation.
-
-### Notes
-- This patch focuses on visual consistency and responsive polish, not new analysis functionality.
-
-## v106 · Patch 0.62.16 / Analysis Cache Roll 1
