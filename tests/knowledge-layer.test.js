@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 
 import {
   STRATEGIC_PROFILES_V2,
+  BAN_PROFILE_RULES,
   findStrategicProfile,
+  findBanProfile,
   validateKnowledgeLayer,
 } from '../knowledge/index.js';
 
@@ -14,6 +16,8 @@ test('knowledge layer v2 exposes strategic profiles and validates cleanly', () =
   assert.ok(report.summary.strategicProfiles >= 10);
   assert.ok(Array.isArray(STRATEGIC_PROFILES_V2));
   assert.ok(STRATEGIC_PROFILES_V2.length >= 10);
+  assert.ok(Array.isArray(BAN_PROFILE_RULES));
+  assert.ok(BAN_PROFILE_RULES.length >= 8);
 });
 
 test('findStrategicProfile resolves identity and pattern profiles', () => {
@@ -27,4 +31,15 @@ test('findStrategicProfile resolves identity and pattern profiles', () => {
   assert.ok(Array.isArray(splitPush?.needs) && splitPush.needs.length > 0);
   assert.equal(splitPressure?.kind, 'pattern');
   assert.match(splitPressure?.condition || '', /5v5/i);
+});
+
+test('findBanProfile resolves the best ban package', () => {
+  const dive = findBanProfile('Dive');
+  const splitpush = findBanProfile('Splitpush');
+
+  assert.equal(dive?.key, 'dive');
+  assert.ok(Array.isArray(dive?.bans) && dive.bans.length >= 5);
+  assert.equal(dive?.bans?.[0]?.champion, 'Poppy');
+  assert.equal(splitpush?.key, 'splitpush');
+  assert.equal(splitpush?.bans?.[0]?.champion, 'Twisted Fate');
 });
