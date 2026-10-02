@@ -1,4 +1,4 @@
-import { normalizeText } from '../analyzer.js';
+import { normalizeText } from '../engine/utils.js';
 import {
   ICON_ALIASES,
   ROLE_LABELS,
