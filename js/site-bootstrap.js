@@ -1,4 +1,4 @@
-const CORE_MODULES = ['./bootstrap.js?v=111', './pwa-reset.js?v=111', './app-v2.js?v=115', './analysis-failsafe.js?v=117'];
+const CORE_MODULES = ['./bootstrap.js?v=111', './pwa-reset.js?v=111', './app-v2.js?v=115', './analysis-failsafe.js?v=118'];
 const OPTIONAL_MODULES = ['./picker-a11y-fix.js?v=111'];
 
 function isLikelyExternalError(error) {
