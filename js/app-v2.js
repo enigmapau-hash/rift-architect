@@ -1,5 +1,6 @@
-import { createDraftState, restoreDraftFromState, saveDraft, ROLE_SHEETS } from './core/draft-state.js';
-import { loadChampionCatalog, loadWorkbook, parseSheet } from './core/workbook.js';
+import { createDraftState, saveDraft } from './core/draft-state.js';
+import { loadDraftData, loadChampionCatalogData } from './core/data-loader.js';
+import { loadWorkbook } from './core/workbook.js';
 import { createCompositionController } from './ui/composition-controller.js';
 
 const state = createDraftState();
@@ -14,8 +15,7 @@ async function init() {
   controller.cacheElements();
   wireEvents();
 
-  await Promise.allSettled([loadData(), loadChampionCatalogIntoState()]);
-  restoreDraftFromState(state);
+  await Promise.allSettled([loadDraftData(state), loadChampionCatalogData(state)]);
   controller.renderAll();
 
   if ('serviceWorker' in navigator) {
@@ -26,33 +26,10 @@ async function init() {
 function wireEvents() {
   controller.bindEvents({
     onRefreshData: async () => {
-      await loadData(true);
+      await loadDraftData(state, true);
       controller.renderAll();
     },
   });
 }
 
-async function loadData(force = false) {
-  if (state.loading) return;
-  if (Object.values(state.data).some((rows) => rows.length) && !force) return;
-
-  state.loading = true;
-  try {
-    const workbook = await loadWorkbook(force);
-    if (!workbook) return;
-
-    ROLE_SHEETS.forEach(({ key, sheet }) => {
-      state.data[key] = parseSheet(workbook.Sheets[sheet]);
-    });
-
-    restoreDraftFromState(state);
-  } catch (error) {
-    console.error(error);
-  } finally {
-    state.loading = false;
-  }
-}
-
-async function loadChampionCatalogIntoState() {
-  state.iconCatalog = await loadChampionCatalog();
-}
+export { loadWorkbook };
