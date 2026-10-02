@@ -18,6 +18,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Composition Story como vista principal.
 - Analysis Hub unificado.
 - Knowledge Layer separada del motor.
+- Knowledge Layer v2 con playbooks explícitos para identidades y patrones.
 - Motor de análisis con identidad, tempo, coherencia, win condition, fortalezas y debilidades.
 - Coach con `StrategicPlan` único.
 - Executive Summary estable.
