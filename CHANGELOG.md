@@ -1,50 +1,51 @@
 # Changelog
 
-## v68 · Patch 0.46.1 / Guarded Boot Startup
+## v94 · Patch 0.62.4 / Knowledge V3 Cache Refresh 2
+### Changed
+- Closed the knowledge-layer loading chain so the app stops mixing old and new exports.
+- Unified the Knowledge Layer v3 context path.
+- Bumped the boot chain to v94.
+
+### Notes
+- This patch is about stability and continuity, not new features.
+
+## v93 · Patch 0.62.3 / Knowledge V3 Cache Refresh
+### Changed
+- Re-pointed the boot chain to the Knowledge Layer v3 context module.
+- Kept the strategic reasoning and story engine on the new knowledge flow.
+
+## v92 · Patch 0.62.2 / Knowledge V3 Cache Refresh
+### Changed
+- Re-routed the analysis story and analysis engine to the Knowledge Layer v3 context.
+- Refreshed the service worker cache and bootstrap versions.
+
+## v91 · Patch 0.62.1 / Knowledge Layer V3 Fix
+### Changed
+- Moved the Knowledge Layer v3 context export into the canonical path.
+- Repaired the first round of V3 import/export mismatches.
+
+## v90 · Patch 0.62.0 / Knowledge Layer v3
 ### Added
-- A guarded bootloader that loads the app modules in sequence.
-- A visible startup overlay when a module fails to load.
-- Filters for external `contentscript.js` noise so browser extensions do not masquerade as app failures.
+- Knowledge Layer v3 with explicit identity, macro, vision, tempo, objective, victory and defeat rules.
+- Story engine and analysis engine integration with the new knowledge context.
 
-### Changed
-- The page now boots through a single entrypoint instead of multiple isolated module tags.
-- Startup failures are surfaced in the UI instead of leaving the app silent.
-
-### Notes
-- The underlying analysis logic is unchanged.
-- This patch is about making real startup failures easier to see and debug on GitHub Pages.
-
-## v67 · Patch 0.46.0 / Render Simplification
-### Changed
-- The analysis story now uses a single simplified visible path.
-- The render path has been consolidated to reduce interference between experimental modules.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
-
-### Notes
-- The analysis still comes from the same motor; the visible surface is simpler and more predictable.
-
-## v66 · Patch 0.45.2 / Analysis Failsafe Renderer
+## v89 · Patch 0.61.5 / Strategic Reasoning Depth
 ### Added
-- A failsafe analysis renderer that keeps the main story visible even if the render bridge misses a change event.
+- Deeper causal reasoning for dependencies, redundancy, conflicts, contingencies and adaptation.
 
+## v88 · Patch 0.61.0 / Lean CSS Load
 ### Changed
-- The main screen render is now backed by a direct failsafe path.
-- The beta continues as a normal web app while the UI stabilizes.
-- The top-right Update button stays hidden.
+- Removed old CSS inclusion from the boot path.
+- Reduced the initial style payload.
 
-### Notes
-- The visible analysis still comes from the same motor; the new path only makes the render more resilient.
-
-## v65 · Patch 0.45.1 / Analysis Render Bridge
-### Added
-- A render bridge that forces the main analysis story to repaint when the composition changes.
-- A small safety layer so the core story stays in sync with the selected champions.
-
+## v87 · Patch 0.60.2 / Strategic Depth Refresh
 ### Changed
-- The main story render is now explicitly re-triggered after composition updates.
-- The visible flow stays focused on the core composition story.
-- The top-right Update button stays hidden.
+- Refreshed the strategic engine loading chain and cache names.
 
-### Notes
-- The analysis still comes from the same motor; this patch only tightens the render path.
+## v86 · Patch 0.60.1 / Strategic Engine Cleanup
+### Changed
+- Removed the syntax break in the strategic engine and restored startup.
+
+## Earlier history
+
+The initial beta history remains in the repository for reference. The current top priority is stability, documentation and small defect fixes instead of adding new surface area.
