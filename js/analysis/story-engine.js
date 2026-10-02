@@ -111,7 +111,7 @@ function uniqueValues(values = []) {
 }
 
 function cleanText(value = '') {
-  return formatEntry(value).replace(/\s+/g, ' ').trim();
+  return String(value).replace(/\s+/g, ' ').trim();
 }
 
 function gradeFromScore(score) {
