@@ -1,3 +1,5 @@
+import { normalizeText } from '../engine/utils.js';
+
 export const WORKBOOK_URL = './Draft%20Pool.xlsx';
 export const WORKBOOK_FALLBACK_URLS = [
   './Draft%20Pool.xlsx',
@@ -57,17 +59,20 @@ export function normalizeRole(role) {
 export function loadDraft(storage = globalThis.localStorage) {
   try {
     const raw = storage?.getItem(STORAGE_KEY);
-    if (!raw) return { activeRole: 'top', selected: {} };
+    if (!raw) return { activeRole: 'top', selected: {}, selectedKeys: {} };
 
     const parsed = JSON.parse(raw);
     const activeRole = normalizeRole(parsed?.activeRole);
     const selected = Object.fromEntries(
-      ROLE_ORDER.map((role) => [role, typeof parsed?.selected?.[role] === 'string' ? parsed.selected[role] : null])
+      ROLE_ORDER.map((role) => [role, readDraftChampion(parsed?.selected?.[role])])
+    );
+    const selectedKeys = Object.fromEntries(
+      ROLE_ORDER.map((role) => [role, readDraftChampionKey(parsed?.selectedKeys?.[role] ?? parsed?.selected?.[role])])
     );
 
-    return { activeRole, selected };
+    return { activeRole, selected, selectedKeys };
   } catch {
-    return { activeRole: 'top', selected: {} };
+    return { activeRole: 'top', selected: {}, selectedKeys: {} };
   }
 }
 
@@ -75,39 +80,38 @@ export function restoreDraftFromState(state, draft = loadDraft()) {
   if (!state) return false;
 
   state.activeRole = normalizeRole(draft?.activeRole);
-  state.selected = Object.fromEntries(ROLE_ORDER.map((role) => [role, null]));
 
-  const selected = Object.fromEntries(ROLE_ORDER.map((role) => [role, null]));
+  const currentSelection = Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected?.[role] || null]));
+  const nextSelection = { ...currentSelection };
   let restoredCount = 0;
 
   for (const role of ROLE_ORDER) {
-    const championName = String(draft?.selected?.[role] || '').trim();
-    if (!championName) continue;
+    const savedChampion = readDraftChampion(draft?.selected?.[role]);
+    const savedKey = readDraftChampionKey(draft?.selectedKeys?.[role] ?? draft?.selected?.[role]);
 
-    const champion = Array.isArray(state.data?.[role])
-      ? state.data[role].find((item) => item && item.champion === championName)
-      : null;
-
-    if (champion) {
-      selected[role] = champion;
-      restoredCount += 1;
+    if (!savedChampion && !savedKey) {
+      nextSelection[role] = currentSelection[role] || null;
+      continue;
     }
+
+    const champion = findChampionInRole(state.data?.[role], savedChampion, savedKey);
+    if (champion) {
+      nextSelection[role] = champion;
+      restoredCount += 1;
+      continue;
+    }
+
+    nextSelection[role] = currentSelection[role] || null;
   }
 
-  state.selected = selected;
-  state.savedDraft = {
-    activeRole: state.activeRole,
-    selected: Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])),
-  };
+  state.selected = nextSelection;
+  state.savedDraft = buildSavedDraftPayload(state);
 
   return restoredCount > 0;
 }
 
 export function saveDraft(state) {
-  const payload = {
-    activeRole: state.activeRole,
-    selected: Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null])),
-  };
+  const payload = buildSavedDraftPayload(state);
 
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -119,4 +123,55 @@ export function saveDraft(state) {
 
 export function getSelectedChampions(state) {
   return ROLE_ORDER.filter((role) => state.selected[role]).map((role) => ({ role, ...state.selected[role] }));
+}
+
+function buildSavedDraftPayload(state) {
+  const selected = Object.fromEntries(ROLE_ORDER.map((role) => [role, state.selected[role]?.champion || null]));
+  const selectedKeys = Object.fromEntries(
+    ROLE_ORDER.map((role) => [role, state.selected[role]?.championKey || normalizeText(state.selected[role]?.champion || '') || null])
+  );
+
+  return {
+    activeRole: normalizeRole(state.activeRole),
+    selected,
+    selectedKeys,
+  };
+}
+
+function readDraftChampion(value) {
+  if (typeof value === 'string') return String(value).trim();
+  if (value && typeof value === 'object') {
+    return String(value.champion || value.name || value.label || value.title || '').trim();
+  }
+  return '';
+}
+
+function readDraftChampionKey(value) {
+  if (typeof value === 'string') return normalizeText(String(value).trim());
+  if (value && typeof value === 'object') {
+    return normalizeText(value.key || value.championKey || value.name || value.label || value.title || value.champion || '');
+  }
+  return '';
+}
+
+function findChampionInRole(rows, savedChampion, savedKey) {
+  if (!Array.isArray(rows) || (!savedChampion && !savedKey)) return null;
+
+  const normalizedChampion = normalizeText(savedChampion || '');
+  const normalizedKey = normalizeText(savedKey || savedChampion || '');
+
+  return (
+    rows.find((item) => {
+      if (!item) return false;
+
+      const candidateName = normalizeText(item.champion || item.name || item.displayName || '');
+      const candidateKey = normalizeText(item.championKey || candidateName || '');
+
+      return (
+        (savedChampion && item.champion === savedChampion) ||
+        (normalizedChampion && candidateName === normalizedChampion) ||
+        (normalizedKey && candidateKey === normalizedKey)
+      );
+    }) || null
+  );
 }
