@@ -1,14 +1,14 @@
-import { runAnalysis } from './analysis/analysis-engine.js?v=103';
+import { runAnalysis } from './analysis/analysis-engine.js?v=104';
 import { buildLastPickRecommendations } from './analysis/last-pick-engine.js';
 import { loadComparisonSnapshots } from './analysis/comparison-store.js';
 import { renderComparisonEmptyState, renderComparisonState } from './analysis/comparison-renderer.js';
-import { buildAnalysisStory } from './analysis/story-engine.js?v=103';
+import { buildAnalysisStory } from './analysis/story-engine.js?v=104';
 import {
   renderAnalysisEmptyState,
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer-report.js?v=103';
+} from './analysis/renderer-report.js?v=104';
 import { compareCompositions } from './engine/comparisonEngine.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
