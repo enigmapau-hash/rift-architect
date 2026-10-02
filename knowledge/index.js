@@ -18,4 +18,11 @@ export {
   findBanProfile,
   summarizeBanProfile,
 } from './ban-profiles.js';
+export {
+  PICK_PROFILE_RULES,
+  PICK_PROFILE_INDEX,
+  buildPickProfileIndex,
+  findPickProfile,
+  summarizePickProfile,
+} from './pick-profiles.js';
 export { validateKnowledgeLayer, formatKnowledgeReport } from './validator.js';
