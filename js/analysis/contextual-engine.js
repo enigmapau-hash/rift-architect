@@ -100,7 +100,7 @@ export function buildContextualNarrative(report = {}) {
       dependencyRule?.label,
       identityRule?.label,
       ...rules.map((rule) => rule.label),
-      ...signalSet.signals,
+      ...signalSet.categories,
     ]).slice(0, 10),
     primaryIdentity,
     tempo,
