@@ -108,6 +108,9 @@ The contract object also includes these normalized fields for the dashboard:
 - `mode`
 - `title`
 - `summaryText`
+- `focus`
+- `targetRole`
+- `targetRoleLabel`
 - `confidence`
 - `scoreBadge`
 - `grade`
@@ -122,6 +125,7 @@ The contract object also includes these normalized fields for the dashboard:
 - `phases`
 - `tempo`
 - `dominance`
+- `winLabel`
 - `contextual`
 - `strategic`
 - `knowledge`
