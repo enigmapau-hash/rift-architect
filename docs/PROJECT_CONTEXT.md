@@ -43,6 +43,7 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - Pulir homogeneidad visual, modal y responsive.
 - Mantener la documentación sincronizada con la app real.
 - Limpiar restos de código legado.
+- Cerrar la QA con muchas composiciones reales.
 
 ## Filosofía de diseño
 - Primero analizar la propia composición.
