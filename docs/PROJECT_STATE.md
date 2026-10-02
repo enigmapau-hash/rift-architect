@@ -1,7 +1,7 @@
 # Rift Architect — Estado del proyecto
 
 ## Resumen actual
-La app ya funciona con una base estable y el foco ahora está en consolidar razonamiento, afinar el informe ejecutivo, cerrar la reconstrucción RC2 del dashboard, cerrar el último pulido visual, cerrar la accesibilidad, limpiar código residual y mantener la documentación alineada con el estado real del producto.
+La app ya funciona con una base estable y el foco ahora está en consolidar razonamiento, afinar el informe ejecutivo, cerrar la reconstrucción RC2 del dashboard por módulos, cerrar el contrato de datos, cerrar el último pulido visual, cerrar la accesibilidad, limpiar código residual y mantener la documentación alineada con el estado real del producto.
 
 ## Lo que ya está consolidado
 - Selector modal por rol.
@@ -14,6 +14,7 @@ La app ya funciona con una base estable y el foco ahora está en consolidar razo
 - Comparador A/B.
 - Banco de validación humana.
 - Tests automáticos.
+- Contrato de datos estable entre motor y renderer.
 
 ## Qué viene después
 - Revisar limpieza de código legado.
