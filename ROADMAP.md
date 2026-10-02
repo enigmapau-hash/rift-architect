@@ -23,6 +23,7 @@
 - Más claridad en las salidas del motor.
 - Narrativa contextual adaptativa basada en reglas.
 - Motor estratégico con razonamiento causal sobre dependencias, visión y win conditions.
+- Detección de dependencias críticas, redundancias, planes incompatibles y picos de poder.
 - Bans inteligentes con los 5 campeones más problemáticos para cada plan.
 - Recomendación del último pick con mejor opción y alternativas.
 - Comparador A/B de composiciones para ver qué draft encaja mejor con el plan.
