@@ -41,6 +41,7 @@ const CORE_ASSETS = [
   './js/analysis/story-sync.js?v=115',
   './knowledge/index.js?v=111',
   './knowledge/knowledge-v3.js?v=115',
+  './knowledge/knowledge-v3.js?v=110',
   './knowledge/knowledge-v3-context.js?v=115',
   './knowledge/identity-relations.js',
   './knowledge/synergies.js',
