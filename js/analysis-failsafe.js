@@ -55,9 +55,7 @@ function observeComposition(node) {
 
 function handleCompositionChanged(event) {
   const selectedChampions = Array.isArray(event?.detail?.selectedChampions) ? event.detail.selectedChampions : [];
-  if (selectedChampions.length) {
-    state.selectedChampions = selectedChampions;
-  }
+  state.selectedChampions = selectedChampions;
   scheduleRender();
 }
 
@@ -324,7 +322,21 @@ function formatEntry(value) {
 }
 
 function getSelectedChampions() {
-  return ROLE_ORDER.filter((role) => state.selected[role]).map((role) => ({ role, ...state.selected[role] }));
+  if (Array.isArray(state.selectedChampions) && state.selectedChampions.length) {
+    return state.selectedChampions;
+  }
+
+  return [...document.querySelectorAll(SLOT_SELECTOR)]
+    .map((slot) => ({
+      role: String(slot.dataset.role || 'top'),
+      champion: slot.querySelector('.slot__name')?.textContent?.trim() || '',
+      identity: slot.querySelector('.slot__meta')?.textContent?.trim() || '',
+      function: '',
+      tempo: '',
+      strengths: [],
+      weaknesses: [],
+    }))
+    .filter((champion) => champion.champion);
 }
 
 function uniqueValues(values = []) {
