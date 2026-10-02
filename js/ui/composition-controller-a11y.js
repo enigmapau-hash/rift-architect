@@ -1,5 +1,5 @@
-import { ROLE_LABELS, normalizeRole } from '../core/draft-state.js?v=112';
-import { createCompositionController as createBaseCompositionController } from './composition-controller.js?v=112';
+import { ROLE_LABELS, normalizeRole } from '../core/draft-state.js?v=111';
+import { createCompositionController as createBaseCompositionController } from './composition-controller.js?v=111';
 
 export function createCompositionController(options = {}) {
   const base = createBaseCompositionController(options);
