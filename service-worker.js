@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v147';
+const CACHE_NAME = 'rift-architect-v149';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -27,6 +27,10 @@ const CORE_ASSETS = [
   './js/composition-ia.js',
   './js/analysis-failsafe.js',
   './js/analyzer.js',
+  './js/core/draft-state.js',
+  './js/core/workbook.js',
+  './js/analysis/story-sync.js',
+  './js/ui/composition-controller.js',
 ];
 
 self.addEventListener('install', (event) => {
