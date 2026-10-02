@@ -68,8 +68,9 @@ test('buildContextualNarrative adapts a Dive plan to engage pressure', () => {
   const narrative = buildContextualNarrative(DIVE_REPORT);
 
   assert.match(narrative.headline, /Dive/i);
-  assert.match(narrative.lead, /backline es frágil/i);
-  assert.match(narrative.lead, /más engage/i);
+  assert.match(narrative.lead, /visión/i);
+  assert.match(narrative.lead, /follow-up/i);
+  assert.match(narrative.lead, /early/i);
   assert.ok(narrative.rules.length >= 3);
   assert.equal(narrative.winCondition.label, 'Forzar peleas cortas');
   assert.equal(narrative.strategyProfile.key, 'dive');
@@ -79,7 +80,7 @@ test('buildContextualNarrative slows down late Protect drafts', () => {
   const narrative = buildContextualNarrative(PROTECT_REPORT);
 
   assert.match(narrative.headline, /Protect/i);
-  assert.match(narrative.lead, /ralentizar el early/i);
+  assert.match(narrative.lead, /Ralentiza el early/i);
   assert.match(narrative.lead, /pico de poder/i);
   assert.ok(narrative.rules.some((rule) => rule.kind === 'tempo'));
   assert.equal(narrative.strategyProfile.key, 'protect');
