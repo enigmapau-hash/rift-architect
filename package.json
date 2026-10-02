@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/analysis.test.js tests/identity.test.js tests/champion-selection.test.js tests/dataset-normalization.test.js tests/strategic-engine.test.js tests/ban-engine.test.js tests/last-pick-engine.test.js tests/contextual-story.test.js tests/knowledge-layer.test.js tests/story.test.js"
+    "test": "node --test tests/analysis.test.js tests/identity.test.js tests/champion-selection.test.js tests/dataset-normalization.test.js tests/strategic-engine.test.js tests/ban-engine.test.js tests/last-pick-engine.test.js tests/comparison-engine.test.js tests/contextual-story.test.js tests/knowledge-layer.test.js tests/story.test.js"
   }
 }
