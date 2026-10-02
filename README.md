@@ -23,7 +23,7 @@ La app ya está estable en la ruta principal de render y el trabajo actual se ce
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
-La fase actual está centrada en la **auditoría de QA**: validar muchas composiciones, revisar consola, comprobar refresh del Excel, homogeneizar la presentación y eliminar restos de código muerto.
+La fase actual está centrada en el **informe ejecutivo**: ordenar la lectura, quitar duplicidades, reducir texto innecesario y reforzar la jerarquía visual.
 
 ## Fuente de verdad
 
