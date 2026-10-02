@@ -155,6 +155,43 @@ function renderContextualCard(model) {
   `;
 }
 
+function renderBanCard(model) {
+  const bans = Array.isArray(model.bans) ? model.bans : [];
+
+  return `
+    <article class="analysis-hub__card analysis-hub__card--assessment">
+      <span class="analysis-hub__card-kicker">Bans inteligentes</span>
+      <strong class="analysis-hub__card-title">${escapeHtml(model.banFocus || 'Quita lo que rompe el plan')}</strong>
+      <p class="analysis-hub__card-copy">${escapeHtml(model.banSummary || 'Los mejores bans son los que cortan la entrada, la visión o la respuesta global del rival.')}</p>
+      <div class="analysis-hub__list">
+        ${bans.length
+          ? bans
+              .map(
+                (item) => `
+                  <article class="analysis-hub__profile-row">
+                    <div class="analysis-hub__profile-head">
+                      <strong>${escapeHtml(item.champion || '')}</strong>
+                      <span>${escapeHtml(item.priority || 'ban')} · ${escapeHtml(String(item.score ?? 0))}%</span>
+                    </div>
+                    <div class="analysis-hub__profile-bar" aria-hidden="true">
+                      <div class="analysis-hub__profile-fill" style="--meter:${clamp(item.score, 0, 100)}%"></div>
+                    </div>
+                    <p>${escapeHtml(item.reason || '')}</p>
+                    <div class="analysis-hub__chip-list">
+                      ${(item.tags || []).length
+                        ? item.tags.map((tag) => `<span class="story-pill story-pill--danger">${escapeHtml(tag)}</span>`).join('')
+                        : '<span class="analysis-empty">Impacto directo</span>'}
+                    </div>
+                  </article>
+                `
+              )
+              .join('')
+          : '<p class="analysis-empty">Sin bans calculados</p>'}
+      </div>
+    </article>
+  `;
+}
+
 function renderBestPickCard(bestPick, story) {
   if (!bestPick) {
     return `
