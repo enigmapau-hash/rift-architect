@@ -1,8 +1,0 @@
-{
-  "name": "rift-architect",
-  "private": true,
-  "type": "module",
-  "dependencies": {
-    "xlsx": "^0.18.5"
-  }
-}
