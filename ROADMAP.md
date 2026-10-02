@@ -15,33 +15,35 @@
 - Fortalezas.
 - Debilidades.
 - Plan de partida.
-- Sinergias y Riesgos.
+- Sinergias y riesgos.
 - **Cerrado**.
 
-### Hito 3: IA refinada
-- Mejorar lo que ya existe.
-- Más claridad en las salidas del motor.
-- Narrativa contextual adaptativa basada en reglas.
-- Motor estratégico con razonamiento causal sobre dependencias, visión y win conditions.
-- Detección de dependencias críticas, redundancias, planes incompatibles y picos de poder.
-- Bans inteligentes con los 5 campeones más problemáticos para cada plan.
-- Recomendación del último pick con mejor opción y alternativas.
-- Comparador A/B de composiciones para ver qué draft encaja mejor con el plan.
-- Sin crear nuevas pantallas.
+### Hito 3: Profundidad del razonamiento
+- Dependencias en cascada.
+- Riesgo de ejecución.
+- Robustez de la composición.
+- Flexibilidad del draft.
+- Condiciones de derrota.
+- Planes de contingencia.
+- Adaptación según rival.
+- **En curso**.
 
-### Hito 4: Base de conocimiento madura
-- Excel más completo.
-- Normalización y validación más estrictas.
-- Taxonomía compartida para identidades, funciones, tempos y etiquetas repetidas.
-- Playbooks explícitos para identidades y patrones.
-- Bans explícitos por identidad y patrón.
-- Último pick explícito por plan.
-- Más señales útiles por composición.
+### Hito 4: Knowledge Layer v3
+- Identidades explícitas.
+- Matchups entre estilos.
+- Reglas macro.
+- Prioridades de objetivos.
+- Patrones de visión.
+- Ventanas de tempo.
+- Errores habituales.
+- Condiciones de victoria y derrota.
+- **En curso**.
 
 ### Hito 5: Beta 1.0
 - Experiencia estable.
 - Lectura clara en móvil, tablet y escritorio.
 - Sin regresiones conocidas.
+- Documentación cerrada.
 
 ### Hito 6: Release Candidate
 - Congelar funciones.
@@ -50,23 +52,14 @@
 
 ### Hito 7: Versión 1.0
 - Revisión final.
-- Documentación cerrada.
 - Entrega estable del producto.
+
+## Estado actual
+
+- La app ya funciona con la cadena actualizada hasta v94.
+- El siguiente trabajo real no es añadir más pantallas, sino seguir cerrando razonamiento, calidad y documentación.
+- Antes de Beta 1.0 todavía queda revisar limpieza de código, estabilidad visual y sincronía total entre docs y app.
 
 ## Regla del proyecto
 
 No se abre un nuevo bloque hasta cerrar el anterior.
-
-## Estado actual
-
-- El Hito 1 queda cerrado.
-- El Hito 2 queda cerrado.
-- La pantalla principal ya está terminada.
-- La lectura sigue centrada en la composición propia.
-- La app mantiene una jerarquía visual simple y funcional.
-- La base del dataset ya usa una taxonomía compartida para reducir duplicidad.
-- La narrativa contextual y el motor estratégico ya razonan sobre la composición.
-- Los bans inteligentes ya priorizan los campeones que más rompen el plan.
-- El último pick recomendado ya propone la mejor opción y sus alternativas.
-- El comparador A/B ya muestra qué composición encaja mejor con el plan.
-- El siguiente trabajo debe atacar solo el Hito 3.
