@@ -36,6 +36,7 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - Comparador A/B.
 - Banco de validación humana.
 - Tests automáticos.
+- Contrato de datos del análisis para que el renderer no consulte motores directos.
 
 ### En curso
 - Mejorar la profundidad del razonamiento.
