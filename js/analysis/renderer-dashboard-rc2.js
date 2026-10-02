@@ -1,4 +1,4 @@
-import { buildAnalysisReportContract } from './report-contract.js';
+import { buildAnalysisReportContract } from './report-contract.js?v=117';
 
 const DEFAULT_TITLE = 'Informe ejecutivo';
 const DEFAULT_PICK_TITLE = 'Recomendación del último pick';
@@ -90,27 +90,27 @@ function buildAnalysisCards(model) {
       <div class="analysis-dashboard__metric-grid">
         ${renderMetric({ label: 'Tempo', value: model.tempo })}
         ${renderMetric({ label: 'Dominancia', value: model.dominance })}
-        ${renderMetric({ label: 'Lectura', value: model.contextual?.headline || model.strategic?.focus || 'Por cerrar' })}
+        ${renderMetric({ label: 'Lectura', value: model.focus })}
       </div>
       <div class="analysis-dashboard__tokens">${renderTokens(model.identityTokens, 'muted')}</div>
     `),
     renderCard(2, 'plan', 'Plan de partida', 'Qué hace cada fase y cuándo debe jugar', 4, `
-      ${model.phases.length ? renderStack(model.phases.map(renderPhaseItem)) : renderNote('Todavía no hay un plan detallado.')}
+      ${model.phases.length ? renderStack(model.phases.map(renderPhaseItem), 'coach') : renderNote('Todavía no hay un plan detallado.')}
     `),
     renderCard(3, 'knowledge', 'Knowledge Layer', 'Identidad, macro, visión y condición de victoria', 4, `
-      <p class="analysis-dashboard__lead">${escapeHtml(pick(model.knowledge?.lead, model.knowledge?.summary, 'La capa de conocimiento todavía no tiene una lectura dominante.'))}</p>
+      <p class="analysis-dashboard__lead">${escapeHtml(pick(model.knowledge.lead, model.knowledge.summary, 'La capa de conocimiento todavía no tiene una lectura dominante.'))}</p>
       <div class="analysis-dashboard__metric-grid">
-        ${renderMetric({ label: 'Estilo', value: pick(model.knowledge?.primaryStyle?.label, model.knowledge?.style?.label, 'Por cerrar') })}
-        ${renderMetric({ label: 'Matchup', value: pick(model.knowledge?.matchup?.label, 'Por cerrar') })}
-        ${renderMetric({ label: 'Victoria', value: pick(model.knowledge?.victory?.label, 'Por cerrar') })}
+        ${renderMetric({ label: 'Estilo', value: pick(model.knowledge.primaryStyle?.label, model.knowledge.style?.label, 'Por cerrar') })}
+        ${renderMetric({ label: 'Matchup', value: pick(model.knowledge.matchup?.label, 'Por cerrar') })}
+        ${renderMetric({ label: 'Victoria', value: pick(model.knowledge.victory?.label, 'Por cerrar') })}
       </div>
       <div class="analysis-dashboard__tokens">${renderTokens(model.knowledgeTokens, 'info')}</div>
-      ${model.knowledge?.claims?.length ? renderStack(model.knowledge.claims.map((claim) => renderClaim(claim, 'muted'))) : renderNote('Sin reglas explícitas por ahora.')}
+      ${model.knowledgeClaims.length ? renderStack(model.knowledgeClaims.map((claim) => renderClaim(claim, 'muted')), 'muted') : renderNote('Sin reglas explícitas por ahora.')}
     `),
     renderCard(4, 'strengths', 'Fortalezas', 'A favor del plan', 4, renderRankedStack(model.strengths, 'success', 'Sin fortalezas claras')),
     renderCard(5, 'weaknesses', 'Debilidades', 'A vigilar', 4, renderRankedStack(model.weaknesses, 'danger', 'Sin debilidades claras')),
-    renderCard(6, 'bans', 'Bans prioritarios', 'Lo que más rompe el plan', 4, model.bans.length ? renderStack(model.bans.map(renderBan)) : renderNote('Sin bans calculados.')),
-    renderCard(7, 'timeline', 'Plan por fases', 'Early · Mid · Late', 6, model.phases.length ? renderStack(model.phases.map(renderPhaseItem)) : renderNote('Todavía no hay un plan por fases.')),
+    renderCard(6, 'bans', 'Bans prioritarios', 'Lo que más rompe el plan', 4, model.bans.length ? renderStack(model.bans.map(renderBan), 'danger') : renderNote('Sin bans calculados.')),
+    renderCard(7, 'timeline', 'Plan por fases', 'Early · Mid · Late', 6, model.phases.length ? renderStack(model.phases.map(renderPhaseItem), 'coach') : renderNote('Todavía no hay un plan por fases.')),
     renderCard(8, 'signals', 'Lectura estratégica', 'Dependencias, señales, sinergias y riesgos', 6, `
       <div class="analysis-dashboard__mini-grid">
         ${renderMiniPanel('Dependencias', model.dependencyClaims, 'Sin dependencias claras.')}
@@ -136,7 +136,7 @@ function buildLastPickCards(model) {
         ${renderMetric({ label: 'Encaje', value: pick(model.bestPick.fit, 'Por cerrar') })}
       </div>
     `),
-    renderCard(2, 'alternatives', 'Alternativas', 'Opciones útiles si el pick principal no sale', 4, model.alternatives.length ? renderStack(model.alternatives.map(renderAlternative)) : renderNote('Sin alternativas claras todavía.')),
+    renderCard(2, 'alternatives', 'Alternativas', 'Opciones útiles si el pick principal no sale', 4, model.alternatives.length ? renderStack(model.alternatives.map(renderAlternative), 'muted') : renderNote('Sin alternativas claras todavía.')),
     renderCard(3, 'focus', 'Necesidades', 'Qué le falta a la composición para cerrarse', 4, `
       <div class="analysis-dashboard__metric-grid">
         ${renderMetric({ label: 'Objetivo', value: pick(model.focus, 'Por cerrar') })}
@@ -146,9 +146,9 @@ function buildLastPickCards(model) {
       <div class="analysis-dashboard__tokens">${renderTokens(model.needs, 'coach')}</div>
     `),
     renderCard(4, 'strategy', 'Apoyo estratégico', 'La lectura del motor para cerrar el draft', 12, `
-      <p class="analysis-dashboard__lead">${escapeHtml(pick(model.strategic?.summary, model.strategic?.focus, 'Lectura estratégica todavía en desarrollo.'))}</p>
+      <p class="analysis-dashboard__lead">${escapeHtml(pick(model.strategic.summary, model.strategic.focus, 'Lectura estratégica todavía en desarrollo.'))}</p>
       ${model.strategicTokens.length ? `<div class="analysis-dashboard__tokens">${renderTokens(model.strategicTokens, 'info')}</div>` : ''}
-      ${model.strategic?.claims?.length ? renderStack(model.strategic.claims.map((claim) => renderClaim(claim, 'coach'))) : renderNote('Sin soporte estratégico claro.')}
+      ${model.strategicClaims.length ? renderStack(model.strategicClaims.map((claim) => renderClaim(claim, 'coach')), 'coach') : renderNote('Sin soporte estratégico claro.')}
     `),
   ];
 }
@@ -270,6 +270,93 @@ function renderAlternative(item = {}) {
   `;
 }
 
+function normalizeRanked(items = [], fallbackLabel = 'Elemento') {
+  if (!Array.isArray(items)) return [];
+  return items.map((item, index) => {
+    if (!item) return null;
+    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', badge: '', score: null } : null;
+    const score = Number.isFinite(Number(item.score ?? item.value ?? item.weight)) ? Number(item.score ?? item.value ?? item.weight) : null;
+    return {
+      label: pick(item.label, item.title, item.name, `${fallbackLabel} ${index + 1}`),
+      detail: pick(item.detail, item.summary, item.text, item.reason, ''),
+      badge: pick(item.badge, item.priority, item.kind, ''),
+      score,
+      tags: uniqueText([...(Array.isArray(item.tags) ? item.tags : []), ...(Array.isArray(item.evidence) ? item.evidence : [])]),
+    };
+  }).filter(Boolean);
+}
+
+function normalizePhases(items = []) {
+  if (!Array.isArray(items)) return [];
+  return items.map((item, index) => {
+    if (!item) return null;
+    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', title: '', actions: [] } : null;
+    return {
+      label: pick(item.label, item.phase, item.title, `Fase ${index + 1}`),
+      title: pick(item.title, item.name, ''),
+      detail: pick(item.detail, item.description, item.summary, ''),
+      actions: uniqueText(Array.isArray(item.actions) ? item.actions : []),
+    };
+  }).filter(Boolean);
+}
+
+function normalizeBans(items = []) {
+  if (!Array.isArray(items)) return [];
+  return items.map((item, index) => {
+    if (!item) return null;
+    if (typeof item === 'string') return cleanText(item) ? { champion: cleanText(item), reason: '' } : null;
+    return { champion: pick(item.champion, item.name, `Ban ${index + 1}`), reason: pick(item.reason, item.detail, item.summary, '') };
+  }).filter(Boolean);
+}
+
+function normalizeClaims(items = []) {
+  if (!Array.isArray(items)) return [];
+  return items.map((item) => {
+    if (!item) return null;
+    if (typeof item === 'string') {
+      const text = cleanText(item);
+      return text ? { label: text, detail: text, kind: '', priority: '', evidence: [] } : null;
+    }
+    const label = pick(item.label, item.title, item.name, '');
+    const detail = pick(item.detail, item.summary, item.text, item.reason, '');
+    if (!label && !detail) return null;
+    return {
+      label: label || detail,
+      detail: detail || label,
+      kind: pick(item.kind, ''),
+      priority: pick(item.priority, ''),
+      evidence: uniqueText(Array.isArray(item.evidence) ? item.evidence : []),
+    };
+  }).filter(Boolean);
+}
+
+function normalizeBestPick(item = null) {
+  if (!item || typeof item !== 'object') return {};
+  return {
+    champion: pick(item.champion, item.name, ''),
+    name: pick(item.name, item.champion, ''),
+    role: pick(item.role, item.roleLabel, ''),
+    roleLabel: pick(item.roleLabel, item.role, ''),
+    reason: pick(item.reason, item.detail, item.summary, ''),
+    detail: pick(item.detail, item.reason, ''),
+    fit: pick(item.fit, item.tags?.[0], ''),
+    score: Number.isFinite(Number(item.score)) ? Number(item.score) : null,
+  };
+}
+
+function normalizeAlternatives(items = []) {
+  if (!Array.isArray(items)) return [];
+  return items.map((item) => {
+    if (!item) return null;
+    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', score: null } : null;
+    return {
+      label: cleanText(item.label || item.name || item.champion || ''),
+      detail: cleanText(item.detail || item.reason || item.summary || ''),
+      score: Number.isFinite(Number(item.score)) ? Number(item.score) : null,
+    };
+  }).filter(Boolean);
+}
+
 function scoreTone(score = 0) {
   const value = Number(score) || 0;
   if (value >= 80) return 'analysis-dashboard__score--high';
@@ -338,4 +425,8 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
+}
+
+function banLabelList(bans = []) {
+  return uniqueValues((Array.isArray(bans) ? bans : []).map((ban) => ban?.champion || ban?.name || ban?.label || ''));
 }
