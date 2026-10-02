@@ -56,7 +56,8 @@
 
 ## Estado actual
 
-- La app ya funciona con la cadena actualizada hasta v94.
+- La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
+- No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
 - El siguiente trabajo real no es añadir más pantallas, sino seguir cerrando razonamiento, calidad y documentación.
 - Antes de Beta 1.0 todavía queda revisar limpieza de código, estabilidad visual y sincronía total entre docs y app.
 
