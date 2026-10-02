@@ -10,7 +10,7 @@ export function buildAnalysisStory(report = {}) {
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
   const title = cleanText(contextual.headline || identity.title || report.executiveSummary?.title || `${primaryIdentity} · ${winLabel}`);
   const summaryText = cleanText(
-    identity.summaryText || report.summaryText || report.executiveSummary?.text || contextual.lead || 'Resumen compacto basado en la composición propia.'
+    contextual.lead || identity.summaryText || report.summaryText || report.executiveSummary?.text || 'Resumen compacto basado en la composición propia.'
   );
   const tempo = cleanText(identity.tempo || report.tempo || contextual.tempo || 'Tempo medio');
   const dominance = cleanText(identity.dominance || report.dominance || 'Sin definir');
@@ -39,6 +39,8 @@ export function buildAnalysisStory(report = {}) {
       identity.dominance,
       contextual.headline,
       contextual.winCondition?.label,
+      contextual.strategyProfile?.label,
+      contextual.strategyProfile?.kind,
       ...(Array.isArray(report.tags) ? report.tags : []),
       ...(Array.isArray(contextual.tags) ? contextual.tags : []),
     ]).slice(0, 6),
