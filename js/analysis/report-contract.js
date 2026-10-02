@@ -1,6 +1,6 @@
 import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
-import { clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
+import { cleanText, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
 import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=115';
 
 export const ANALYSIS_CONTRACT_SPECS = {
@@ -65,15 +65,7 @@ export const ANALYSIS_CONTRACT_SPECS = {
     'tags',
     'signals',
   ],
-  banEngine: [
-    'title',
-    'summary',
-    'focus',
-    'profile',
-    'bans',
-    'tags',
-    'signals',
-  ],
+  banEngine: ['title', 'summary', 'focus', 'profile', 'bans', 'tags', 'signals'],
   lastPick: [
     'title',
     'summary',
@@ -107,7 +99,6 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
   const targetRole = mode === 'last-pick' ? cleanText(report.targetRole || report.targetRoleLabel || '') : '';
   const targetRoleLabel = mode === 'last-pick' ? cleanText(report.targetRoleLabel || report.targetRole || '') : '';
 
-  const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
   const summaryText = buildNarrativeSummary([
     strategic?.summary,
     knowledgeV3?.summary,
@@ -123,6 +114,7 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
     report.executiveSummary?.text,
     'Resumen compacto basado en la composición propia.',
   ]);
+  const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
   const tempo = cleanText(identity.tempo || report.tempo || contextual.tempo || 'Tempo medio');
   const dominance = cleanText(identity.dominance || report.dominance || 'Sin definir');
 
@@ -137,7 +129,6 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
   const phases = normalizePhases(report.timeline || report.gameplan?.phases || []);
   const strategicClaims = Array.isArray(strategic?.claims) ? strategic.claims : [];
   const bans = normalizeBans(banRecommendations);
-  const knowledge = knowledgeV3;
 
   const contract = {
     mode,
@@ -172,7 +163,7 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
     contextual,
     strategic,
     knowledgeV3,
-    knowledge,
+    knowledge: knowledgeV3,
     bans,
     banFocus: cleanText(banRecommendations?.focus || strategic?.focus || ''),
     banSummary: cleanText(banRecommendations?.summary || ''),
@@ -245,76 +236,21 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
 function buildContractSections(contract) {
   if (contract.mode === 'last-pick') {
     return [
-      {
-        id: 'summary',
-        title: 'Executive Summary',
-        source: 'Composition Profile + Last Pick Engine',
-        fields: ['title', 'summaryText', 'scoreBadge', 'confidence', 'grade'],
-      },
-      {
-        id: 'best-pick',
-        title: 'Último pick',
-        source: 'Last Pick Engine',
-        fields: ['bestPick', 'alternatives', 'needs'],
-      },
-      {
-        id: 'strategy',
-        title: 'Lectura estratégica',
-        source: 'Strategic Engine + Knowledge Layer',
-        fields: ['strategic', 'knowledgeV3', 'strategicTokens', 'knowledgeTokens', 'dependencyClaims', 'riskClaims'],
-      },
+      { id: 'summary', title: 'Executive Summary', source: 'Composition Profile + Last Pick Engine', fields: ['title', 'summaryText', 'scoreBadge', 'confidence', 'grade'] },
+      { id: 'best-pick', title: 'Último pick', source: 'Last Pick Engine', fields: ['bestPick', 'alternatives', 'needs'] },
+      { id: 'strategy', title: 'Lectura estratégica', source: 'Strategic Engine + Knowledge Layer', fields: ['strategic', 'knowledgeV3', 'strategicTokens', 'knowledgeTokens', 'dependencyClaims', 'riskClaims'] },
     ];
   }
 
   return [
-    {
-      id: 'summary',
-      title: 'Executive Summary',
-      source: 'Composition Profile + Strategic Engine',
-      fields: ['title', 'summaryText', 'scoreBadge', 'confidence', 'grade'],
-    },
-    {
-      id: 'identity',
-      title: 'Identidad',
-      source: 'Composition Profile',
-      fields: ['primaryIdentity', 'tempo', 'dominance', 'identityTokens'],
-    },
-    {
-      id: 'plan',
-      title: 'Plan de partida',
-      source: 'Strategic Engine',
-      fields: ['phases', 'strategicClaims'],
-    },
-    {
-      id: 'knowledge',
-      title: 'Knowledge Layer',
-      source: 'Knowledge Layer',
-      fields: ['knowledgeV3', 'knowledgeTokens'],
-    },
-    {
-      id: 'strengths',
-      title: 'Fortalezas',
-      source: 'Strategic Engine',
-      fields: ['strengths', 'synergies'],
-    },
-    {
-      id: 'weaknesses',
-      title: 'Debilidades',
-      source: 'Strategic Engine',
-      fields: ['weaknesses', 'risks'],
-    },
-    {
-      id: 'bans',
-      title: 'Bans prioritarios',
-      source: 'Ban Engine',
-      fields: ['bans', 'banFocus', 'banSummary'],
-    },
-    {
-      id: 'timeline',
-      title: 'Lectura estratégica',
-      source: 'Strategic Engine + Knowledge Layer',
-      fields: ['strategicTokens', 'knowledgeTokens', 'dependencyClaims', 'riskClaims', 'signalTokens'],
-    },
+    { id: 'summary', title: 'Executive Summary', source: 'Composition Profile + Strategic Engine', fields: ['title', 'summaryText', 'scoreBadge', 'confidence', 'grade'] },
+    { id: 'identity', title: 'Identidad', source: 'Composition Profile', fields: ['primaryIdentity', 'tempo', 'dominance', 'identityTokens'] },
+    { id: 'plan', title: 'Plan de partida', source: 'Strategic Engine', fields: ['phases', 'strategicClaims'] },
+    { id: 'knowledge', title: 'Knowledge Layer', source: 'Knowledge Layer', fields: ['knowledgeV3', 'knowledgeTokens'] },
+    { id: 'strengths', title: 'Fortalezas', source: 'Strategic Engine', fields: ['strengths', 'synergies'] },
+    { id: 'weaknesses', title: 'Debilidades', source: 'Strategic Engine', fields: ['weaknesses', 'risks'] },
+    { id: 'bans', title: 'Bans prioritarios', source: 'Ban Engine', fields: ['bans', 'banFocus', 'banSummary'] },
+    { id: 'timeline', title: 'Lectura estratégica', source: 'Strategic Engine + Knowledge Layer', fields: ['strategicTokens', 'knowledgeTokens', 'dependencyClaims', 'riskClaims', 'signalTokens'] },
   ];
 }
 
@@ -360,7 +296,6 @@ function buildNarrativeSummary(parts = []) {
 function isNarrativeNoise(text) {
   const normalized = normalizeText(text);
   if (!normalized) return true;
-
   return [
     'resumen compacto basado en la composicion propia',
     'la composicion todavia no define una narrativa dominante',
@@ -399,25 +334,52 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     ...(Array.isArray(contextual?.tags) ? contextual.tags : []),
     ...(Array.isArray(knowledgeV3?.tags) ? knowledgeV3.tags : []),
   ];
-
   return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 12);
 }
 
 function buildRankedList(items = [], badge = '', fallbackDetail = '', score = null) {
   if (!Array.isArray(items)) return [];
+  return items
+    .map((item, index) => {
+      if (!item) return null;
+      if (typeof item === 'string') {
+        const text = cleanText(item);
+        return text ? { label: text, detail: fallbackDetail, badge, score: score != null ? score : null } : null;
+      }
+      return {
+        label: cleanText(item.label || item.title || item.name || `Elemento ${index + 1}`),
+        detail: cleanText(item.detail || item.summary || item.text || item.reason || fallbackDetail),
+        badge: cleanText(item.badge || item.priority || item.kind || badge),
+        score: Number.isFinite(Number(item.score ?? item.value ?? item.weight)) ? Number(item.score ?? item.value ?? item.weight) : score,
+        tags: uniqueValues(Array.isArray(item.tags) ? item.tags : []),
+      };
+    })
+    .filter(Boolean);
+}
+
+function normalizePhases(items = []) {
+  if (!Array.isArray(items)) return [];
   return items.map((item, index) => {
     if (!item) return null;
     if (typeof item === 'string') {
-      const label = cleanText(item);
-      return label ? { label, detail: '', badge, score, tags: [] } : null;
+      const text = cleanText(item);
+      return text ? { label: text, title: '', detail: '', actions: [] } : null;
     }
     return {
-      label: cleanText(item.label || item.title || item.name || `${badge} ${index + 1}`),
-      detail: cleanText(item.detail || item.summary || item.text || item.reason || fallbackDetail),
-      badge: cleanText(item.badge || item.priority || item.kind || badge),
-      score: Number.isFinite(Number(item.score ?? item.value ?? item.weight)) ? Number(item.score ?? item.value ?? item.weight) : score,
-      tags: uniqueValues([...(Array.isArray(item.tags) ? item.tags : []), ...(Array.isArray(item.evidence) ? item.evidence : [])]),
+      label: cleanText(item.label || item.phase || item.title || `Fase ${index + 1}`),
+      title: cleanText(item.title || item.name || ''),
+      detail: cleanText(item.detail || item.description || item.summary || ''),
+      actions: uniqueValues(Array.isArray(item.actions) ? item.actions : []),
     };
+  }).filter(Boolean);
+}
+
+function normalizeBans(input = []) {
+  const list = Array.isArray(input) ? input : input?.bans || [];
+  return list.map((item, index) => {
+    if (!item) return null;
+    if (typeof item === 'string') return cleanText(item) ? { champion: cleanText(item), reason: '' } : null;
+    return { champion: cleanText(item.champion || item.name || `Ban ${index + 1}`), reason: cleanText(item.reason || item.detail || item.summary || '') };
   }).filter(Boolean);
 }
 
@@ -442,21 +404,6 @@ function normalizeClaims(items = []) {
   }).filter(Boolean);
 }
 
-function normalizeBans(items = []) {
-  if (!Array.isArray(items)) return [];
-  return items.map((item, index) => {
-    if (!item) return null;
-    if (typeof item === 'string') {
-      const champion = cleanText(item);
-      return champion ? { champion, reason: '' } : null;
-    }
-    return {
-      champion: cleanText(item.champion || item.name || `Ban ${index + 1}`),
-      reason: cleanText(item.reason || item.detail || item.summary || ''),
-    };
-  }).filter(Boolean);
-}
-
 function normalizeBestPick(item = null) {
   if (!item || typeof item !== 'object') return {};
   return {
@@ -475,16 +422,27 @@ function normalizeAlternatives(items = []) {
   if (!Array.isArray(items)) return [];
   return items.map((item) => {
     if (!item) return null;
-    if (typeof item === 'string') {
-      const label = cleanText(item);
-      return label ? { label, detail: '', score: null } : null;
-    }
+    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', score: null } : null;
     return {
       label: cleanText(item.label || item.name || item.champion || ''),
       detail: cleanText(item.detail || item.reason || item.summary || ''),
       score: Number.isFinite(Number(item.score)) ? Number(item.score) : null,
     };
   }).filter(Boolean);
+}
+
+function clamp(value, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return min;
+  return Math.min(max, Math.max(min, number));
+}
+
+function pick(...values) {
+  for (const value of values) {
+    const text = stringify(value);
+    if (text) return text;
+  }
+  return '';
 }
 
 function stringify(value) {
@@ -514,31 +472,6 @@ function uniqueText(values = []) {
 
 function normalize(value) {
   return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
-}
-
-function cleanText(value) {
-  return String(value ?? '').trim().replace(/\s+/g, ' ');
-}
-
-function summarize(value, limit = 160) {
-  const text = cleanText(value);
-  if (!text) return '';
-  return text.length <= limit ? text : `${text.slice(0, limit - 1).trimEnd()}…`;
-}
-
-function clamp(value, min, max) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return min;
-  return Math.min(max, Math.max(min, number));
-}
-
-function escapeHtml(value) {
-  return String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
 }
 
 function banLabelList(bans = []) {
