@@ -1,15 +1,15 @@
-import { runAnalysis } from './analysis/analysis-engine.js?v=114';
-import { buildLastPickRecommendations } from './analysis/last-pick-engine.js?v=114';
-import { loadComparisonSnapshots } from './analysis/comparison-store.js?v=114';
-import { renderComparisonEmptyState, renderComparisonState } from './analysis/comparison-renderer.js?v=114';
-import { buildAnalysisStory } from './analysis/story-engine.js?v=114';
+import { runAnalysis } from './analysis/analysis-engine.js?v=115';
+import { buildLastPickRecommendations } from './analysis/last-pick-engine.js?v=115';
+import { loadComparisonSnapshots } from './analysis/comparison-store.js?v=115';
+import { renderComparisonEmptyState, renderComparisonState } from './analysis/comparison-renderer.js?v=115';
+import { buildAnalysisStory } from './analysis/story-engine.js?v=115';
 import {
   renderAnalysisEmptyState,
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer-report.js?v=114';
-import { compareCompositions } from './engine/comparisonEngine.js?v=114';
+} from './analysis/renderer-report.js?v=115';
+import { compareCompositions } from './engine/comparisonEngine.js?v=115';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
 const COMPARISON_ROOT_ID = 'analysisHubComparison';
@@ -140,7 +140,7 @@ function renderSecondaryPanel(snapshot, report, story) {
     }
   }
 
-  if (snapshot.length >= 4) {
+  if (snapshot.length === 4) {
     const recommendations = buildLastPickRecommendations({ report, story, comparison: null, snapshot });
     if (recommendations?.bestPick) {
       renderLastPickState(state.comparisonRoot, recommendations);
