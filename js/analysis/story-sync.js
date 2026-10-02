@@ -16,14 +16,4 @@ export function syncAnalysisStory({ selectedChampions = [], activeRole = 'top', 
   } catch {
     // ignore dispatch errors
   }
-
-  if (typeof globalThis.renderAnalysisStory !== 'function') return;
-
-  window.requestAnimationFrame(() => {
-    try {
-      globalThis.renderAnalysisStory();
-    } catch (error) {
-      console.error('[Rift Architect] renderAnalysisStory failed', error);
-    }
-  });
 }
