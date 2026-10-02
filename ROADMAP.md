@@ -45,6 +45,7 @@
 - Mejor jerarquía visual.
 - Más legibilidad en desktop y móvil.
 - Modal de selección más homogéneo.
+- Último pulido visual.
 - **En curso**.
 
 ### Hito 6: QA de estabilidad
