@@ -1,30 +1,36 @@
 # Testing
 
-Rift Architect now includes a small validation layer for the Core Engine and the Knowledge Layer.
+Rift Architect includes an automated validation layer for the core engine and the knowledge layer.
 
-## What it does
+## What it covers now
 
-- Loads canonical composition fixtures from `tests/compositions/`.
-- Includes edge-case fixtures for empty and single-champion drafts.
-- Runs `analyzeComposition()` against each fixture.
-- Compares the result with the expected identity, tempo, win condition, coherence, synergies and dependencies.
-- Checks explainability coverage.
-- Checks coach guidance coverage.
-- Checks strategic advisor coverage, including objective priority, game windows and lose conditions.
-- Checks simulation coverage on the reference protect-carry swap.
-- Checks knowledge-pattern coverage.
-- Checks dependency coverage.
-- Tracks basic validation timing.
-- Reads the boot-time knowledge report exposed by `knowledge/validator.js`.
+- Canonical composition fixtures.
+- Edge cases for empty and partial drafts.
+- Core analysis output.
+- Identity, tempo, win condition, coherence, synergies and dependencies.
+- Strategic reasoning coverage.
+- Ban recommendations.
+- Last-pick recommendations.
+- Comparison engine coverage.
+- Narrative engine coverage.
+- Knowledge layer validation at boot.
+- Human draft calibration fixtures for real-world references.
 
-## Files
+## Test entry points
 
-- `tests/index.html`
-- `tests/engineValidation.js`
-- `tests/compositions/*.json`
+- `tests/analysis.test.js`
+- `tests/identity.test.js`
+- `tests/champion-selection.test.js`
+- `tests/dataset-normalization.test.js`
+- `tests/strategic-engine.test.js`
+- `tests/ban-engine.test.js`
+- `tests/last-pick-engine.test.js`
+- `tests/comparison-engine.test.js`
+- `tests/contextual-story.test.js`
+- `tests/real-draft-validation.test.js`
+- `tests/knowledge-layer.test.js`
+- `tests/story.test.js`
 
-## How to use it
-
-Open `tests/index.html` in the browser to see the current validation report.
+## Goal
 
 The goal is not to replace the engine. The goal is to catch regressions before they reach the main UI.
