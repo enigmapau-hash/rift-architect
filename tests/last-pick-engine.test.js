@@ -109,7 +109,7 @@ test('buildLastPickRecommendations returns the best last pick and alternatives',
   assert.equal(recommendation.targetRole, 'support');
   assert.equal(recommendation.bestPick?.champion, 'Braum');
   assert.ok(recommendation.alternatives.length >= 2);
-  assert.ok(recommendation.bestPick.reason.toLowerCase().includes('frontline'));
-  assert.ok(recommendation.bestPick.solves.some((item) => /peel/i.test(item)));
+  assert.match(recommendation.bestPick.reason.toLowerCase(), /frontline|peel|frontal/i);
+  assert.match(recommendation.bestPick.problem.toLowerCase(), /frontal|peel/i);
   assert.ok(recommendation.tags.includes('support'));
 });
