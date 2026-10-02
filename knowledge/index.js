@@ -1,3 +1,11 @@
+import { normalizeText } from '../js/engine/utils.js';
+import {
+  STYLE_KNOWLEDGE_V3,
+  summarizeKnowledgeV3Context,
+  findKnowledgeStyle,
+  findKnowledgeMatchup,
+} from './knowledge-v3.js?v=93';
+
 export { IDENTITY_RELATIONS } from './identity-relations.js';
 export { DIRECT_SYNERGY_RULES, MACRO_SYNERGY_RULES } from './synergies.js';
 export { PATTERN_RULES } from './patterns.js';
@@ -31,5 +39,5 @@ export {
   findKnowledgeStyle,
   findKnowledgeMatchup,
 } from './knowledge-v3.js?v=93';
-export { buildKnowledgeV3Context, summarizeKnowledgeV3Context as summarizeKnowledgeV3ContextV3, findKnowledgeStyle as findKnowledgeStyleV3, findKnowledgeMatchup as findKnowledgeMatchupV3 } from './knowledge-v3-context.js?v=93';
+export { buildKnowledgeV3Context, summarizeKnowledgeV3Context as summarizeKnowledgeV3ContextV3 } from './knowledge-v3-context.js?v=93';
 export { validateKnowledgeLayer, formatKnowledgeReport } from './validator.js';
