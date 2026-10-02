@@ -10,6 +10,7 @@ PWA para analizar **mi propia composición** de League of Legends a partir de `D
 - Fortalezas y debilidades.
 - Plan de partida por fases.
 - Sinergias y riesgos.
+- Narrativa contextual adaptativa.
 
 ## Fuente de verdad
 
