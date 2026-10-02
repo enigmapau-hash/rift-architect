@@ -11,4 +11,11 @@ export {
   findStrategicProfile,
   summarizeStrategicProfile,
 } from './strategy-profiles.js';
+export {
+  BAN_PROFILE_RULES,
+  BAN_PROFILE_INDEX,
+  buildBanProfileIndex,
+  findBanProfile,
+  summarizeBanProfile,
+} from './ban-profiles.js';
 export { validateKnowledgeLayer, formatKnowledgeReport } from './validator.js';
