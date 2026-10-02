@@ -2,44 +2,30 @@
 
 PWA para analizar **mi propia composición** de League of Legends a partir de `Draft Pool.xlsx`.
 
-## Lo que muestra la app
+## Qué hace la app
 
 - Selector de campeones por rol.
-- Resumen ejecutivo corto.
+- Resumen ejecutivo.
 - Identidad de la composición.
-- Fortalezas y debilidades visuales.
+- Fortalezas y debilidades.
 - Plan de partida por fases.
-- Sinergias clave y riesgos.
+- Sinergias y riesgos.
 
 ## Fuente de verdad
 
 - `Draft Pool.xlsx` es la única fuente editable.
-- Un GitHub Action convierte el Excel a JSON en cada push a `main`.
-- La PWA consume `data/index.json` y los ficheros generados en `data/`.
-- GitHub Pages publica la versión visible del proyecto.
+- La app lee el Excel directamente en tiempo de ejecución.
+- No hay una capa generada de JSON en `data/`.
 
 ## Estado actual
 
-- **Hito 1 cerrado**: una sola ruta de render, consola limpia y sin módulos experimentales visibles.
-- **Hito 2 cerrado**: la pantalla principal ya muestra Executive Summary, Identidad, Fortalezas, Debilidades, Plan, Sinergias y Riesgos.
-- La lectura sigue centrada en la composición propia.
-- La UI prioriza claridad, bloques compactos y lectura rápida.
-- El resumen principal se mantiene simple, tangible y funcional.
-- El render del análisis se ha consolidado en una única ruta simplificada con respaldo.
+- La app ya está centrada en una única ruta de render.
+- La selección, la persistencia y el análisis funcionan sobre la composición propia.
+- La UI prioriza lectura rápida y bloques compactos.
 
 ## GitHub Pages
 
 - `https://enigmapau-hash.github.io/rift-architect/`
-
-## Hoja de ruta
-
-1. **Hito 1: Base estable** — cerrado.
-2. **Hito 2: Pantalla principal terminada** — cerrado.
-3. **Hito 3: IA refinada**.
-4. **Hito 4: Base de conocimiento madura**.
-5. **Hito 5: Beta 1.0**.
-6. **Hito 6: Release Candidate**.
-7. **Hito 7: Versión 1.0**.
 
 ## Regla de trabajo
 
