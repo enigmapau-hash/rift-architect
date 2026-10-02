@@ -41,6 +41,7 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - Mejorar la profundidad del razonamiento.
 - Ajustar la narrativa para que suene más a coach.
 - Ordenar mejor el informe ejecutivo para que se lea de un vistazo.
+- Cerrar la reconstrucción RC2 del dashboard.
 - Cerrar el último pulido visual.
 - Afinar foco, contraste y navegación por teclado.
 - Mantener la documentación sincronizada con la app real.
