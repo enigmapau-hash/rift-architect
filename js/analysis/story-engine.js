@@ -107,11 +107,11 @@ function formatEntry(value) {
 }
 
 function uniqueValues(values = []) {
-  return [...new Set(values.map(cleanText).filter(Boolean))];
+  return [...new Set(values.map(formatEntry).filter(Boolean))];
 }
 
 function cleanText(value = '') {
-  return String(value).replace(/\s+/g, ' ').trim();
+  return formatEntry(value).replace(/\s+/g, ' ').trim();
 }
 
 function gradeFromScore(score) {
