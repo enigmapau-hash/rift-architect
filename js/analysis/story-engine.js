@@ -37,7 +37,7 @@ export function buildAnalysisStory(report = {}) {
     summaryText,
     confidence,
     scoreBadge: score.badge || labelFromConfidence(confidence),
-    grade: score.grade || gradeFromConfidence(confidence),
+    grade: score.grade || gradeFromScore(confidence),
     tags: uniqueValues([
       primaryIdentity,
       tempo,
