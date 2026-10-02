@@ -114,13 +114,13 @@ test('parseSheet accepts reordered translated headers', () => {
   ]);
 });
 
-test('parseSheet falls back to positional columns when headers are incomplete', () => {
+test('parseSheet falls back to positional columns when headers are unknown', () => {
   const worksheet = { '!ref': 'A1:F2' };
   const mockXlsx = {
     utils: {
       sheet_to_json() {
         return [
-          ['Campeón', 'Identidad', 'Función', 'Tempo', 'Fortalezas', 'Debilidades'],
+          ['A', 'B', 'C', 'D', 'E', 'F'],
           ['Leona', 'Engage', 'Frontline', 'Early', 'Lockdown · Setup', 'Low range'],
         ];
       },
