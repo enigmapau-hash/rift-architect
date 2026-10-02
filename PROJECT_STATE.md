@@ -23,6 +23,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Coach con `StrategicPlan` único.
 - Executive Summary estable.
 - Narrativa contextual adaptativa basada en reglas.
+- Motor estratégico que razona sobre dependencias, visión y choques de win conditions.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 
 ## En qué punto está ahora
