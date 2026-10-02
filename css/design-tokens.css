@@ -21,6 +21,7 @@
   --ds-neutral: #8b96ad;
   --ds-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
   --ds-shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.16);
+  --ds-shadow-lift: 0 20px 44px rgba(0, 0, 0, 0.28);
   --ds-radius-xl: 20px;
   --ds-radius-lg: 16px;
   --ds-radius-md: 12px;
@@ -49,6 +50,12 @@
   --ds-line-relaxed: 1.6;
   --ds-letter-tight: -0.02em;
   --ds-letter-wide: 0.08em;
+  --ds-motion-fast: 120ms;
+  --ds-motion-normal: 180ms;
+  --ds-motion-slow: 280ms;
+  --ds-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ds-ease-emphasized: cubic-bezier(0.2, 0, 0, 1.1);
+  --ds-ease-decelerate: cubic-bezier(0, 0, 0, 1);
 }
 
 :root {
@@ -79,4 +86,11 @@
   --line-relaxed: var(--ds-line-relaxed);
   --letter-tight: var(--ds-letter-tight);
   --letter-wide: var(--ds-letter-wide);
+  --motion-fast: var(--ds-motion-fast);
+  --motion-normal: var(--ds-motion-normal);
+  --motion-slow: var(--ds-motion-slow);
+  --ease-standard: var(--ds-ease-standard);
+  --ease-emphasized: var(--ds-ease-emphasized);
+  --ease-decelerate: var(--ds-ease-decelerate);
+  --shadow-lift: var(--ds-shadow-lift);
 }
