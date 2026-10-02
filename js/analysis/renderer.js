@@ -26,6 +26,7 @@ export function renderAnalysisStory(root, story = {}) {
       <div class="analysis-hub__grid">
         ${renderIdentityCard(story)}
         ${renderContextualCard(story)}
+        ${renderBanCard(story)}
         ${renderListCard('Fortalezas', story.strengths || [], 'story-pill--success', 'Apoya el plan')}
         ${renderListCard('Debilidades', story.weaknesses || [], 'story-pill--danger', 'A vigilar')}
         ${renderPlanCard(story)}
@@ -79,7 +80,7 @@ function renderContextualCard(model) {
       <p class="analysis-hub__card-copy">${escapeHtml(contextual.lead || contextual.summary || 'La historia contextual aparecerá aquí.')}</p>
       <div class="analysis-hub__chip-list">
         ${signals.length
-          ? signals.slice(0, 4).map((item) => `<span class="story-pill story-pill--coach">${escapeHtml(item)}</span>`).join('')
+          ? signals.slice(0, 4).map((item) => `<span class="story-pill story-pill--coach">${escapeHtml(item)}</span>`).join('')}
           : '<span class="analysis-empty">Sin señales claras</span>'}
       </div>
       <div class="analysis-hub__list">
@@ -98,6 +99,43 @@ function renderContextualCard(model) {
               )
               .join('')
           : '<p class="analysis-empty">No hay reglas contextuales claras</p>'}
+      </div>
+    </article>
+  `;
+}
+
+function renderBanCard(model) {
+  const bans = Array.isArray(model.bans) ? model.bans : [];
+
+  return `
+    <article class="analysis-hub__card analysis-hub__card--assessment">
+      <span class="analysis-hub__card-kicker">Bans inteligentes</span>
+      <strong class="analysis-hub__card-title">${escapeHtml(model.banFocus || 'Quita lo que rompe el plan')}</strong>
+      <p class="analysis-hub__card-copy">${escapeHtml(model.banSummary || 'Los mejores bans son los que cortan la entrada, la visión o la respuesta global del rival.')}</p>
+      <div class="analysis-hub__list">
+        ${bans.length
+          ? bans
+              .map(
+                (item) => `
+                  <article class="analysis-hub__profile-row">
+                    <div class="analysis-hub__profile-head">
+                      <strong>${escapeHtml(item.champion || '')}</strong>
+                      <span>${escapeHtml(item.priority || 'ban')} · ${escapeHtml(String(item.score ?? 0))}%</span>
+                    </div>
+                    <div class="analysis-hub__profile-bar" aria-hidden="true">
+                      <div class="analysis-hub__profile-fill" style="--meter:${clamp(item.score, 0, 100)}%"></div>
+                    </div>
+                    <p>${escapeHtml(item.reason || '')}</p>
+                    <div class="analysis-hub__chip-list">
+                      ${(item.tags || []).length
+                        ? item.tags.map((tag) => `<span class="story-pill story-pill--danger">${escapeHtml(tag)}</span>`).join('')
+                        : '<span class="analysis-empty">Impacto directo</span>'}
+                    </div>
+                  </article>
+                `
+              )
+              .join('')
+          : '<p class="analysis-empty">Sin bans calculados</p>'}
       </div>
     </article>
   `;
