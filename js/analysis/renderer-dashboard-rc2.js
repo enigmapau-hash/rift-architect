@@ -1,4 +1,4 @@
-import { buildAnalysisReportContract } from './report-contract.js?v=117';
+import { buildAnalysisReportContract } from './report-contract.js?v=118';
 
 const DEFAULT_TITLE = 'Informe ejecutivo';
 const DEFAULT_PICK_TITLE = 'Recomendación del último pick';
@@ -274,14 +274,16 @@ function normalizeRanked(items = [], fallbackLabel = 'Elemento') {
   if (!Array.isArray(items)) return [];
   return items.map((item, index) => {
     if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', badge: '', score: null } : null;
-    const score = Number.isFinite(Number(item.score ?? item.value ?? item.weight)) ? Number(item.score ?? item.value ?? item.weight) : null;
+    if (typeof item === 'string') {
+      const label = cleanText(item);
+      return label ? { label, detail: '', badge: fallbackLabel, score: null, tags: [] } : null;
+    }
     return {
-      label: pick(item.label, item.title, item.name, `${fallbackLabel} ${index + 1}`),
-      detail: pick(item.detail, item.summary, item.text, item.reason, ''),
-      badge: pick(item.badge, item.priority, item.kind, ''),
-      score,
-      tags: uniqueText([...(Array.isArray(item.tags) ? item.tags : []), ...(Array.isArray(item.evidence) ? item.evidence : [])]),
+      label: cleanText(item.label || item.title || item.name || `${fallbackLabel} ${index + 1}`),
+      detail: cleanText(item.detail || item.summary || item.text || item.reason || ''),
+      badge: cleanText(item.badge || item.priority || item.kind || fallbackLabel),
+      score: Number.isFinite(Number(item.score ?? item.value ?? item.weight)) ? Number(item.score ?? item.value ?? item.weight) : null,
+      tags: uniqueValues([...(Array.isArray(item.tags) ? item.tags : []), ...(Array.isArray(item.evidence) ? item.evidence : [])]),
     };
   }).filter(Boolean);
 }
@@ -290,12 +292,15 @@ function normalizePhases(items = []) {
   if (!Array.isArray(items)) return [];
   return items.map((item, index) => {
     if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', title: '', actions: [] } : null;
+    if (typeof item === 'string') {
+      const label = cleanText(item);
+      return label ? { label, detail: '', title: '', actions: [] } : null;
+    }
     return {
-      label: pick(item.label, item.phase, item.title, `Fase ${index + 1}`),
-      title: pick(item.title, item.name, ''),
-      detail: pick(item.detail, item.description, item.summary, ''),
-      actions: uniqueText(Array.isArray(item.actions) ? item.actions : []),
+      label: cleanText(item.label || item.phase || item.title || `Fase ${index + 1}`),
+      title: cleanText(item.title || item.name || ''),
+      detail: cleanText(item.detail || item.description || item.summary || ''),
+      actions: uniqueValues(Array.isArray(item.actions) ? item.actions : []),
     };
   }).filter(Boolean);
 }
@@ -304,8 +309,14 @@ function normalizeBans(items = []) {
   if (!Array.isArray(items)) return [];
   return items.map((item, index) => {
     if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { champion: cleanText(item), reason: '' } : null;
-    return { champion: pick(item.champion, item.name, `Ban ${index + 1}`), reason: pick(item.reason, item.detail, item.summary, '') };
+    if (typeof item === 'string') {
+      const champion = cleanText(item);
+      return champion ? { champion, reason: '' } : null;
+    }
+    return {
+      champion: cleanText(item.champion || item.name || `Ban ${index + 1}`),
+      reason: cleanText(item.reason || item.detail || item.summary || ''),
+    };
   }).filter(Boolean);
 }
 
@@ -317,15 +328,15 @@ function normalizeClaims(items = []) {
       const text = cleanText(item);
       return text ? { label: text, detail: text, kind: '', priority: '', evidence: [] } : null;
     }
-    const label = pick(item.label, item.title, item.name, '');
-    const detail = pick(item.detail, item.summary, item.text, item.reason, '');
+    const label = cleanText(item.label || item.title || item.name || '');
+    const detail = cleanText(item.detail || item.summary || item.text || item.reason || '');
     if (!label && !detail) return null;
     return {
       label: label || detail,
       detail: detail || label,
-      kind: pick(item.kind, ''),
-      priority: pick(item.priority, ''),
-      evidence: uniqueText(Array.isArray(item.evidence) ? item.evidence : []),
+      kind: cleanText(item.kind || ''),
+      priority: cleanText(item.priority || ''),
+      evidence: uniqueValues(Array.isArray(item.evidence) ? item.evidence : []),
     };
   }).filter(Boolean);
 }
@@ -333,13 +344,13 @@ function normalizeClaims(items = []) {
 function normalizeBestPick(item = null) {
   if (!item || typeof item !== 'object') return {};
   return {
-    champion: pick(item.champion, item.name, ''),
-    name: pick(item.name, item.champion, ''),
-    role: pick(item.role, item.roleLabel, ''),
-    roleLabel: pick(item.roleLabel, item.role, ''),
-    reason: pick(item.reason, item.detail, item.summary, ''),
-    detail: pick(item.detail, item.reason, ''),
-    fit: pick(item.fit, item.tags?.[0], ''),
+    champion: cleanText(item.champion || item.name || ''),
+    name: cleanText(item.name || item.champion || ''),
+    role: cleanText(item.role || item.roleLabel || ''),
+    roleLabel: cleanText(item.roleLabel || item.role || ''),
+    reason: cleanText(item.reason || item.detail || item.summary || ''),
+    detail: cleanText(item.detail || item.reason || ''),
+    fit: cleanText(item.fit || item.tags?.[0] || ''),
     score: Number.isFinite(Number(item.score)) ? Number(item.score) : null,
   };
 }
@@ -348,7 +359,10 @@ function normalizeAlternatives(items = []) {
   if (!Array.isArray(items)) return [];
   return items.map((item) => {
     if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', score: null } : null;
+    if (typeof item === 'string') {
+      const label = cleanText(item);
+      return label ? { label, detail: '', score: null } : null;
+    }
     return {
       label: cleanText(item.label || item.name || item.champion || ''),
       detail: cleanText(item.detail || item.reason || item.summary || ''),
