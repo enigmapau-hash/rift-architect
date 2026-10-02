@@ -1,4 +1,4 @@
-import { restoreDraftFromState, ROLE_SHEETS } from './draft-state.js';
+import { ROLE_SHEETS } from './draft-state.js';
 import { loadChampionCatalog, loadWorkbook, parseSheet } from './workbook.js';
 
 export async function loadDraftData(state, force = false) {
@@ -14,7 +14,6 @@ export async function loadDraftData(state, force = false) {
       state.data[key] = parseSheet(workbook.Sheets[sheet]);
     });
 
-    restoreDraftFromState(state);
     return true;
   } catch (error) {
     console.error(error);
