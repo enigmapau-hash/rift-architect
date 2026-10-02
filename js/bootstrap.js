@@ -1,5 +1,5 @@
-import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=70';
-import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDraftChange } from './analyzer.js?v=70';
+import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=89';
+import { compareAnalyses, compareCompositions, simulateChampionSwap, simulateDraftChange } from './analyzer.js?v=89';
 
 (() => {
   try {
