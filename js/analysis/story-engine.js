@@ -1,7 +1,7 @@
 import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
 import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
-import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=93';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3-context.js?v=94';
 
 export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
