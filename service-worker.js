@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v194';
+const CACHE_NAME = 'rift-architect-v195';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -20,14 +20,14 @@ const CORE_ASSETS = [
   './js/bootstrap.js?v=111',
   './js/pwa-reset.js?v=111',
   './js/picker-a11y-fix.js?v=111',
-  './js/site-bootstrap.js?v=116',
+  './js/site-bootstrap.js?v=117',
   './js/app-v2.js?v=115',
-  './js/analysis-failsafe.js?v=116',
+  './js/analysis-failsafe.js?v=117',
   './js/ui/composition-controller-a11y.js?v=115',
   './js/ui/composition-controller.js?v=111',
-  './js/analysis/renderer-report.js?v=116',
-  './js/analysis/renderer-dashboard-rc2.js',
-  './js/analysis/report-contract.js',
+  './js/analysis/renderer-report.js?v=117',
+  './js/analysis/renderer-dashboard-rc2.js?v=117',
+  './js/analysis/report-contract.js?v=117',
   './js/analysis/analysis-engine.js?v=115',
   './js/analysis/composition-profile.js?v=115',
   './js/analysis/strategic-engine.js?v=115',
