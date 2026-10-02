@@ -1,3 +1,4 @@
+import { normalizeWorkbookDataset } from './dataset-normalizer.js';
 import { ROLE_SHEETS } from './draft-state.js';
 import { loadChampionCatalog, loadWorkbook, parseSheet } from './workbook.js';
 
@@ -10,9 +11,15 @@ export async function loadDraftData(state, force = false) {
     const workbook = await loadWorkbook(force);
     if (!workbook) return false;
 
+    const rawRows = {};
     ROLE_SHEETS.forEach(({ key, sheet }) => {
-      state.data[key] = parseSheet(workbook.Sheets[sheet]);
+      rawRows[key] = parseSheet(workbook.Sheets[sheet]);
     });
+
+    const normalized = normalizeWorkbookDataset(rawRows);
+    state.data = normalized.data;
+    state.dataset = normalized.taxonomy;
+    state.datasetStats = normalized.stats;
 
     return true;
   } catch (error) {
