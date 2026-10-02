@@ -14,6 +14,7 @@ It is intentionally separate from the champion data exported from the Excel file
 - `win-conditions.js`
 - `strategy-profiles.js`
 - `ban-profiles.js`
+- `pick-profiles.js`
 - `validator.js`
 - `index.js`
 
@@ -30,13 +31,11 @@ It is intentionally separate from the champion data exported from the Excel file
 - its objectives;
 - its common mistakes.
 
-`ban-profiles.js` adds intelligent ban packages:
+`ban-profiles.js` adds explicit ban packages for each plan.
 
-- the 5 champions that most disrupt each plan;
-- the reason each ban hurts the composition;
-- the pressure type each ban addresses.
+`pick-profiles.js` adds explicit last-pick guidance for each plan.
 
-That layer feeds the contextual narrative, the strategic engine and the ban recommendations without duplicating the logic in the UI.
+That layer feeds the contextual narrative, the strategic engine, the ban recommendations and the last-pick recommendations without duplicating the logic in the UI.
 
 ## Validation
 
