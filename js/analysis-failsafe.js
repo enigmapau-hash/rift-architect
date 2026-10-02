@@ -115,12 +115,32 @@ function renderStory() {
   const story = buildAnalysisStory(report);
   renderAnalysisStory(state.root, story);
 
-  const comparison = buildComparisonReport(report, story, snapshot);
-  if (snapshot.length >= 4 && comparison?.bestPick) {
-    renderLastPickState(state.comparisonRoot, comparison);
-  } else {
-    renderLastPickEmptyState(state.comparisonRoot, comparison || {});
+  renderSecondaryPanel(snapshot, report, story);
+}
+
+function renderSecondaryPanel(snapshot, report, story) {
+  const saved = loadComparisonSnapshots();
+  const hasSavedComparison = Boolean(saved?.a?.champions?.length || saved?.b?.champions?.length);
+
+  if (hasSavedComparison) {
+    const comparison = compareCompositions(snapshot, saved.a?.champions || [], saved.b?.champions || []);
+    if (comparison) {
+      renderComparisonState(state.comparisonRoot, comparison);
+      return;
+    }
   }
+
+  if (snapshot.length >= 4) {
+    const recommendations = buildLastPickRecommendations({ report, story, comparison: null, snapshot });
+    if (recommendations?.bestPick) {
+      renderLastPickState(state.comparisonRoot, recommendations);
+      return;
+    }
+    renderLastPickEmptyState(state.comparisonRoot, recommendations || {});
+    return;
+  }
+
+  renderComparisonEmptyState(state.comparisonRoot);
 }
 
 function captureCompositionSnapshot() {
@@ -163,22 +183,4 @@ function safeList(value) {
     .split('|')
     .map((part) => part.trim())
     .filter(Boolean);
-}
-
-function buildComparisonReport(report, story, snapshot) {
-  const snapshots = loadComparisonSnapshots();
-  const comparison = compareCompositions(snapshot, snapshots.a?.champions || [], snapshots.b?.champions || []);
-  if (!comparison) return { ...story, bestPick: null, alternatives: [] };
-
-  const bestPick = buildLastPickRecommendations({ report, story, comparison, snapshot });
-  return {
-    ...story,
-    ...comparison,
-    bestPick: bestPick.bestPick || null,
-    alternatives: bestPick.alternatives || [],
-    summaryText: bestPick.summaryText || story.summaryText,
-    focus: bestPick.focus || story.focus,
-    targetRole: bestPick.targetRole || story.targetRole,
-    targetRoleLabel: bestPick.targetRoleLabel || story.targetRoleLabel,
-  };
 }
