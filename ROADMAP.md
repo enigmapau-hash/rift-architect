@@ -25,6 +25,7 @@
 - Motor estratégico con razonamiento causal sobre dependencias, visión y win conditions.
 - Bans inteligentes con los 5 campeones más problemáticos para cada plan.
 - Recomendación del último pick con mejor opción y alternativas.
+- Comparador A/B de composiciones para ver qué draft encaja mejor con el plan.
 - Sin crear nuevas pantallas.
 
 ### Hito 4: Base de conocimiento madura
@@ -66,4 +67,5 @@ No se abre un nuevo bloque hasta cerrar el anterior.
 - La narrativa contextual y el motor estratégico ya razonan sobre la composición.
 - Los bans inteligentes ya priorizan los campeones que más rompen el plan.
 - El último pick recomendado ya propone la mejor opción y sus alternativas.
+- El comparador A/B ya muestra qué composición encaja mejor con el plan.
 - El siguiente trabajo debe atacar solo el Hito 3.
