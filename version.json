@@ -1,6 +1,6 @@
 {
-  "version": "v94",
-  "stage": "Patch 0.62.4 / Knowledge V3 Cache Refresh 2",
+  "version": "v95",
+  "stage": "Patch 0.62.5 / Performance Cleanup 1",
   "date": "2026-10-02",
-  "cache": "rift-architect-v173"
+  "cache": "rift-architect-v174"
 }
