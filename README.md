@@ -14,6 +14,7 @@ PWA para analizar **tu propia composición** de League of Legends a partir de `D
 - Recomendación del último pick.
 - Comparador A/B de composiciones.
 - Banco de validación humana con drafts de referencia.
+- Contrato de datos del análisis documentado y consumido por el renderer.
 - Tests automáticos para análisis, identidad, selección, dataset, estrategia, bans, último pick, comparación, narrativa, conocimiento, story, cobertura del informe ejecutivo y accesibilidad.
 
 ## Estado actual
@@ -24,7 +25,7 @@ La app ya está estable en la ruta principal de render. El trabajo actual se cen
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
-La fase actual está centrada en el **informe ejecutivo estructurado**, la **reconstrucción RC2 del dashboard por módulos**, la **QA funcional automatizada**, el **último pulido visual** y la **accesibilidad**. El objetivo es que cada motor alimente una tarjeta clara: Executive Summary, Identidad, Plan de partida, Knowledge Layer, Fortalezas, Debilidades, Bans, Dependencias, Señales, Riesgos y Último pick.
+La fase actual está centrada en el **informe ejecutivo estructurado**, el **contrato de datos**, la **reconstrucción RC2 del dashboard por módulos**, la **QA funcional automatizada**, el **último pulido visual** y la **accesibilidad**. El objetivo es que cada motor alimente una tarjeta clara y que la lectura sea compacta y coherente.
 
 ## Fuente de verdad
 
@@ -48,6 +49,7 @@ También puede abrirse con cualquier servidor estático local que sirva `index.h
 - [`ROADMAP.md`](./ROADMAP.md)
 - [`CHANGELOG.md`](./CHANGELOG.md)
 - [`PROJECT_STATE.md`](./PROJECT_STATE.md)
+- [`ANALYSIS_CONTRACT.md`](./docs/ANALYSIS_CONTRACT.md)
 - [`DESIGN_SYSTEM.md`](./DESIGN_SYSTEM.md)
 
 ## Regla de trabajo
