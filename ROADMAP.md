@@ -39,18 +39,25 @@
 - Condiciones de victoria y derrota.
 - **En curso**.
 
-### Hito 5: Beta 1.0
+### Hito 5: Presentación del análisis
+- Un informe ejecutivo claro.
+- Menos duplicidad de texto.
+- Mejor jerarquía visual.
+- Más legibilidad en desktop y móvil.
+- **En curso**.
+
+### Hito 6: Beta 1.0
 - Experiencia estable.
 - Lectura clara en móvil, tablet y escritorio.
 - Sin regresiones conocidas.
 - Documentación cerrada.
 
-### Hito 6: Release Candidate
+### Hito 7: Release Candidate
 - Congelar funciones.
 - Corregir bugs.
 - Pulir rendimiento y accesibilidad.
 
-### Hito 7: Versión 1.0
+### Hito 8: Versión 1.0
 - Revisión final.
 - Entrega estable del producto.
 
@@ -58,7 +65,7 @@
 
 - La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
 - No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
-- El siguiente trabajo real no es añadir más pantallas, sino seguir cerrando razonamiento, calidad y documentación.
+- El trabajo real ahora está centrado en la presentación del análisis: menos duplicidades, mejor jerarquía y un informe más ejecutivo.
 - Antes de Beta 1.0 todavía queda revisar limpieza de código, estabilidad visual y sincronía total entre docs y app.
 
 ## Regla del proyecto
