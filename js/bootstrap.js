@@ -1,4 +1,4 @@
-import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=98';
+import { formatKnowledgeReport, validateKnowledgeLayer } from '../knowledge/index.js?v=99';
 
 const ENABLE_SIMULATION = new URLSearchParams(window.location.search).has('debug');
 
