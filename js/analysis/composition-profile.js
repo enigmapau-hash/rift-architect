@@ -51,6 +51,10 @@ export function buildCompositionProfile(selectedChampions = []) {
   return profile;
 }
 
+export function invalidateCompositionProfileCache() {
+  COMPOSITION_PROFILE_CACHE.clear();
+}
+
 function buildCompositionProfileKey(selectedChampions = []) {
   return selectedChampions
     .map((champion) => [
