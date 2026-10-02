@@ -1,5 +1,15 @@
 # Changelog
 
+## v98 · Patch 0.62.8 / Stability Audit 2
+### Changed
+- Aligned the boot chain, analysis chain, and knowledge chain to v98.
+- Fixed the service worker precache so it no longer references removed or stale assets.
+- Preserved the selected composition across refresh and dataset reloads.
+- Kept the workbook parser tolerant to reordered or translated headers.
+
+### Notes
+- This patch closes the stability audit pass and removes the last stale cache chain from the app.
+
 ## v97 · Patch 0.62.7 / Refresh Preservation 1
 ### Changed
 - Preserved the current draft when refreshing the workbook instead of clearing it first.
