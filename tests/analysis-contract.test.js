@@ -47,6 +47,7 @@ test('analysis contract includes source mapping and ordered dashboard sections',
   assert.equal(contract.sourceMap.knowledgeLayer, 'Knowledge Layer');
   assert.equal(contract.sourceMap.banEngine, 'Ban Engine');
   assert.equal(contract.sourceMap.lastPick, 'Last Pick Engine');
+  assert.ok(contract.scoreBadge, 'The contract must expose a readable score badge.');
 
   assert.ok(Array.isArray(contract.sections), 'The contract must include section metadata.');
   assert.ok(contract.sections.length >= 7, 'The analysis contract must expose the main dashboard sections.');
