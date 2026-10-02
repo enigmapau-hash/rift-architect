@@ -46,7 +46,7 @@ export function buildContextualNarrative(report = {}) {
   ]).slice(0, 4);
 
   const lead = buildLead([identityLine, tempoLine, winLine, macroLine, conflictLine]);
-  const headline = cleanText(`${primaryIdentity} · ${strategicProfile?.label || winRule?.label || patternRule?.label || 'Lectura contextual'}`);
+  const headline = buildContextualHeadline(primaryIdentity, strategicProfile?.label || winRule?.label || patternRule?.label || 'Lectura contextual');
 
   return {
     headline,
@@ -354,6 +354,31 @@ function uniqueSentences(sentences = []) {
 
 function buildLead(sentences = []) {
   return uniqueSentences(sentences).filter(Boolean).slice(0, 3).join(' ');
+}
+
+function buildContextualHeadline(primaryIdentity, focus) {
+  const identity = cleanText(primaryIdentity);
+  const strategicFocus = cleanText(focus);
+  const identityKey = normalizeText(identity);
+  const focusKey = normalizeText(strategicFocus);
+
+  if (!identity && !strategicFocus) return 'Lectura contextual';
+  if (!strategicFocus) return identity || 'Lectura contextual';
+
+  if (focusKey === identityKey) return identity || strategicFocus;
+
+  if (identityKey && focusKey.startsWith(`${identityKey} `)) {
+    return strategicFocus;
+  }
+
+  if (identityKey && strategicFocus.includes('·')) {
+    const parts = strategicFocus.split('·').map((part) => cleanText(part)).filter(Boolean);
+    if (parts.length === 2 && normalizeText(parts[0]) === identityKey && normalizeText(parts[1]) === identityKey) {
+      return identity;
+    }
+  }
+
+  return identity ? `${identity} · ${strategicFocus}` : strategicFocus;
 }
 
 function buildContextualTags({
