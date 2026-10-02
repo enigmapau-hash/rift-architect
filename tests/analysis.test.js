@@ -69,4 +69,7 @@ test('runAnalysis returns a complete report for five champions', () => {
   assert.ok(Array.isArray(report.threats));
   assert.ok(Array.isArray(report.strengths));
   assert.ok(Array.isArray(report.weaknesses));
+  assert.ok(report.strategic);
+  assert.ok(Array.isArray(report.strategic.claims));
+  assert.ok(report.strategic.summary.length > 0);
 });
