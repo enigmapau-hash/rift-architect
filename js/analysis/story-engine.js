@@ -1,24 +1,32 @@
-import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
+import { normalizeText } from '../engine/utils.js';
 import { buildContextualNarrative } from './contextual-engine.js';
+import { buildRankedList, cleanText, clamp, gradeFromScore, labelFromConfidence, uniqueValues } from './analysis-utils.js';
 
 export function buildAnalysisStory(report = {}) {
   const identity = report.identity || {};
   const score = report.score || {};
   const contextual = buildContextualNarrative(report);
   const strategic = report.strategic || contextual.reasoning || null;
+
   if (strategic) contextual.reasoning = strategic;
+
   const banRecommendations = report.banRecommendations || report.bans || null;
   const confidence = clamp(score.value ?? report.confidence ?? 0, 0, 100);
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
-  const title = cleanText(
-    strategic?.focus
-      ? `${primaryIdentity} · ${strategic.focus}`
-      : contextual.headline || identity.title || report.executiveSummary?.title || `${primaryIdentity} · ${winLabel}`
-  );
-  const summaryText = cleanText(
-    strategic?.summary || strategic?.claims?.[0]?.detail || contextual.lead || identity.summaryText || report.summaryText || report.executiveSummary?.text || 'Resumen compacto basado en la composición propia.'
-  );
+  const strategicFocus = cleanText(strategic?.focus || contextual.headline || identity.title || report.executiveSummary?.title || winLabel);
+
+  const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
+  const summaryText = buildNarrativeSummary([
+    strategic?.summary,
+    strategic?.claims?.[0]?.detail,
+    contextual.lead,
+    contextual.summary,
+    identity.summaryText,
+    report.summaryText,
+    report.executiveSummary?.text,
+    'Resumen compacto basado en la composición propia.',
+  ]);
   const tempo = cleanText(identity.tempo || report.tempo || contextual.tempo || 'Tempo medio');
   const dominance = cleanText(identity.dominance || report.dominance || 'Sin definir');
 
@@ -26,8 +34,8 @@ export function buildAnalysisStory(report = {}) {
     .filter((value) => value !== primaryIdentity)
     .slice(0, 3);
 
-  const strengths = buildRankedList(report.strengths || [], 'Apoya el plan', 'Apoya la condición principal.', 92);
-  const weaknesses = buildRankedList(report.weaknesses || [], 'A vigilar', 'Te expone si lo fuerzas mal.', 72);
+  const strengths = buildRankedList(report.strengths || [], 'Apoya el plan', 'Suma valor cuando juegas alrededor de esta pieza.', 92);
+  const weaknesses = buildRankedList(report.weaknesses || [], 'A vigilar', 'Si lo fuerzas, te expone antes de tiempo.', 72);
   const synergies = uniqueValues(report.synergies || []).slice(0, 3);
   const risks = uniqueValues([...(Array.isArray(report.risks) ? report.risks : []), ...(Array.isArray(report.threats) ? report.threats : [])]).slice(0, 3);
   const phases = normalizePhases(report.timeline || report.gameplan?.phases || []);
@@ -40,25 +48,19 @@ export function buildAnalysisStory(report = {}) {
     confidence,
     scoreBadge: score.badge || labelFromConfidence(confidence),
     grade: score.grade || gradeFromScore(confidence),
-    tags: uniqueValues([
+    tags: buildStoryTags({
       primaryIdentity,
       tempo,
       winLabel,
-      identity.focus,
-      identity.dominance,
-      contextual.headline,
-      contextual.winCondition?.label,
-      contextual.strategyProfile?.label,
-      contextual.strategyProfile?.kind,
-      strategic?.focus,
-      banRecommendations?.focus,
-      ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
-      ...(Array.isArray(bans) ? bans.map((ban) => ban.champion) : []),
-      ...(Array.isArray(report.tags) ? report.tags : []),
-      ...(Array.isArray(contextual.tags) ? contextual.tags : []),
-    ]).slice(0, 8),
+      identity,
+      contextual,
+      strategic,
+      strategicClaims,
+      bans,
+      report,
+    }),
     primaryIdentity,
-    identityCopy: cleanText(identity.summaryText || report.summaryText || strategic?.summary || contextual.lead || summaryText),
+    identityCopy: cleanText(identity.summaryText || contextual.lead || strategic?.summary || summaryText),
     secondaryIdentities,
     strengths,
     weaknesses,
@@ -73,6 +75,81 @@ export function buildAnalysisStory(report = {}) {
     banFocus: cleanText(banRecommendations?.focus || strategic?.focus || ''),
     banSummary: cleanText(banRecommendations?.summary || ''),
   };
+}
+
+function buildStoryTitle(primaryIdentity, focus, winLabel) {
+  const identity = cleanText(primaryIdentity);
+  const strategicFocus = cleanText(focus);
+  const win = cleanText(winLabel);
+
+  if (!identity && !strategicFocus) return win || 'Análisis de composición';
+  if (!strategicFocus) return identity || win || 'Análisis de composición';
+
+  if (normalizeText(strategicFocus).includes(normalizeText(identity)) || normalizeText(identity) === normalizeText(strategicFocus)) {
+    return strategicFocus;
+  }
+
+  return identity ? `${identity} · ${strategicFocus}` : strategicFocus;
+}
+
+function buildNarrativeSummary(parts = []) {
+  const seen = new Set();
+  const selected = [];
+
+  for (const part of parts) {
+    const text = cleanText(part);
+    if (!text || isNarrativeNoise(text)) continue;
+
+    const normalized = normalizeText(text);
+    if (!normalized || seen.has(normalized)) continue;
+
+    seen.add(normalized);
+    selected.push(text);
+
+    if (selected.length >= 2) break;
+  }
+
+  return selected.length ? selected.join(' ') : 'Resumen compacto basado en la composición propia.';
+}
+
+function isNarrativeNoise(text) {
+  const normalized = normalizeText(text);
+  if (!normalized) return true;
+
+  return [
+    'resumen compacto basado en la composicion propia',
+    'la composicion todavia no define una narrativa dominante',
+    'juega alrededor de tu plan dominante y evita pelear sin ventaja clara',
+    'tu macro debe seguir la identidad dominante y el mapa no al reves',
+  ].includes(normalized);
+}
+
+function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategic, strategicClaims, bans, report }) {
+  const candidates = [
+    primaryIdentity,
+    tempo,
+    winLabel,
+    contextual?.headline,
+    contextual?.winCondition?.label,
+    contextual?.strategyProfile?.label,
+    contextual?.strategyProfile?.kind,
+    strategic?.focus,
+    banLabelList(bans),
+    ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
+    ...(Array.isArray(report.tags) ? report.tags : []),
+    ...(Array.isArray(contextual?.tags) ? contextual.tags : []),
+  ];
+
+  return uniqueValues(candidates.flat ? candidates.flat() : candidates)
+    .filter((value) => {
+      const normalized = normalizeText(value);
+      return normalized && !['sin definir', 'resumen', 'narrativa contextual', 'lectura contextual', 'narrativa adaptativa'].includes(normalized);
+    })
+    .slice(0, 8);
+}
+
+function banLabelList(bans = []) {
+  return Array.isArray(bans) ? bans.map((ban) => ban?.champion).filter(Boolean) : [];
 }
 
 function normalizeBans(banRecommendations) {
