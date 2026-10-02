@@ -1,6 +1,6 @@
 {
-  "version": "v71",
-  "stage": "Patch 0.50.1 / Modular App-v2 Split",
+  "version": "v72",
+  "stage": "Patch 0.50.0 / Analysis Engine Split",
   "date": "2026-10-02",
-  "cache": "rift-architect-v150"
+  "cache": "rift-architect-v151"
 }
