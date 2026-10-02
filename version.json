@@ -1,6 +1,6 @@
 {
-  "version": "v119",
-  "stage": "Patch 0.62.29 / RC2 Contract Fix 3",
+  "version": "v120",
+  "stage": "Patch 0.62.30 / RC2 Guard 1",
   "date": "2026-10-02",
-  "cache": "rift-architect-v197"
+  "cache": "rift-architect-v198"
 }
