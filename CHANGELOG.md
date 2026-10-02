@@ -1,5 +1,15 @@
 # Changelog
 
+## v96 · Patch 0.62.6 / Stability Hardening 1
+### Changed
+- Restored saved draft selections after reload and refresh.
+- Made workbook parsing tolerant to reordered and translated headers.
+- Added stability test coverage for reload restoration and header fallback parsing.
+- Bumped the boot chain and knowledge imports to v96.
+
+### Notes
+- This patch is about reload stability, dataset resilience, and cache freshness.
+
 ## v95 · Patch 0.62.5 / Performance Cleanup 1
 ### Changed
 - Removed the redundant `composition-ia.js` wrapper from the boot path.
