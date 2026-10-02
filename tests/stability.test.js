@@ -87,6 +87,48 @@ test('restores only champions that still exist in the current dataset', () => {
   assert.equal(state.selected.support, null);
 });
 
+test('restoreDraftFromState matches normalized champion names and saved keys', () => {
+  const storage = {
+    getItem() {
+      return JSON.stringify({
+        activeRole: 'top',
+        selected: {
+          top: '  aAtRoX  ',
+          jungle: ' amumu ',
+          mid: ' ahri ',
+          botline: ' ashe ',
+          support: ' alistar ',
+        },
+        selectedKeys: {
+          top: 'aatrox',
+          jungle: 'amumu',
+          mid: 'ahri',
+          botline: 'ashe',
+          support: 'alistar',
+        },
+      });
+    },
+  };
+
+  const state = createDraftState();
+  state.data = {
+    top: [{ champion: 'Aatrox', championKey: 'aatrox' }],
+    jungle: [{ champion: 'Amumu', championKey: 'amumu' }],
+    mid: [{ champion: 'Ahri', championKey: 'ahri' }],
+    botline: [{ champion: 'Ashe', championKey: 'ashe' }],
+    support: [{ champion: 'Alistar', championKey: 'alistar' }],
+  };
+
+  const restored = restoreDraftFromState(state, loadDraft(storage));
+
+  assert.equal(restored, true);
+  assert.equal(state.selected.top.champion, 'Aatrox');
+  assert.equal(state.selected.jungle.champion, 'Amumu');
+  assert.equal(state.selected.mid.champion, 'Ahri');
+  assert.equal(state.selected.botline.champion, 'Ashe');
+  assert.equal(state.selected.support.champion, 'Alistar');
+});
+
 test('parseSheet accepts reordered translated headers', () => {
   const worksheet = { '!ref': 'A1:F2' };
   const mockXlsx = {
