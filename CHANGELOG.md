@@ -1,5 +1,14 @@
 # Changelog
 
+## v106 · Patch 0.62.16 / Analysis Cache Roll 1
+### Changed
+- Bumped the visible build version to `v106` and rotated the application cache to `rift-architect-v184`.
+- Aligned the entry page, site bootstrap, app bootstrap, analysis boot chain, and service worker asset list to the new generation.
+- Kept the analysis report layout in place while forcing a clean reload path for the browser cache.
+
+### Notes
+- This patch is a cache-roll update to remove stale module copies from the presentation layer.
+
 ## v105 · Patch 0.62.15 / Analysis Boot Cache Fix 1
 ### Changed
 - Bumped the app boot chain to `v105` so the browser stops reusing the stale `analysis-failsafe` and `renderer-report` modules.
