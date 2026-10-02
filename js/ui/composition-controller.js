@@ -7,6 +7,7 @@ import {
   getSelectedChampions,
   normalizeRole,
 } from '../core/draft-state.js';
+import { clearComparisonSnapshots, loadComparisonSnapshots, saveComparisonSnapshot } from '../analysis/comparison-store.js';
 import { syncAnalysisStory } from '../analysis/story-sync.js';
 
 export function createCompositionController({ state, persistDraft = () => {} } = {}) {
@@ -17,6 +18,9 @@ export function createCompositionController({ state, persistDraft = () => {} } =
   function cacheElements() {
     els.buildBadge = document.getElementById('buildBadge');
     els.refreshBtn = document.getElementById('refreshBtn');
+    els.saveCompareABtn = document.getElementById('saveCompareABtn');
+    els.saveCompareBBtn = document.getElementById('saveCompareBBtn');
+    els.clearCompareBtn = document.getElementById('clearCompareBtn');
     els.clearBtn = document.getElementById('clearBtn');
     els.compositionGrid = document.getElementById('compositionGrid');
     els.pickerBackdrop = document.getElementById('pickerBackdrop');
@@ -35,6 +39,19 @@ export function createCompositionController({ state, persistDraft = () => {} } =
         await onRefreshData();
       }
       renderAll();
+    });
+
+    els.saveCompareABtn?.addEventListener('click', () => {
+      saveComparison('a');
+    });
+
+    els.saveCompareBBtn?.addEventListener('click', () => {
+      saveComparison('b');
+    });
+
+    els.clearCompareBtn?.addEventListener('click', () => {
+      clearComparisonSnapshots();
+      dispatchComparisonChanged();
     });
 
     els.clearBtn?.addEventListener('click', () => {
@@ -113,6 +130,26 @@ export function createCompositionController({ state, persistDraft = () => {} } =
     persistDraft();
     closePicker(false);
     renderAll();
+  }
+
+  function saveComparison(slot) {
+    const selectedChampions = getSelectedChampions(state);
+    if (!selectedChampions.length) return;
+
+    saveComparisonSnapshot(slot, selectedChampions);
+    dispatchComparisonChanged();
+  }
+
+  function dispatchComparisonChanged() {
+    try {
+      window.dispatchEvent(
+        new CustomEvent('rift-architect:comparison-changed', {
+          detail: loadComparisonSnapshots(),
+        })
+      );
+    } catch {
+      // ignore dispatch errors
+    }
   }
 
   function renderCompositionGrid() {
