@@ -91,8 +91,6 @@ export function buildContextualNarrative(report = {}) {
       tempo,
       strategicProfile?.label,
       strategicProfile?.kind,
-      strategicProfile?.summary,
-      strategicProfile?.condition,
       ...(Array.isArray(strategicProfile?.timings) ? strategicProfile.timings : []),
       ...(Array.isArray(strategicProfile?.needs) ? strategicProfile.needs : []),
       ...(Array.isArray(strategicProfile?.macro) ? strategicProfile.macro : []),
