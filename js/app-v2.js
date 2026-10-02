@@ -16,6 +16,7 @@ async function init() {
   wireEvents();
 
   await Promise.allSettled([loadDraftData(state), loadChampionCatalogData(state)]);
+  controller.clearSelection({ render: false });
   controller.renderAll();
 
   if ('serviceWorker' in navigator) {
@@ -27,6 +28,7 @@ function wireEvents() {
   controller.bindEvents({
     onRefreshData: async () => {
       await loadDraftData(state, true);
+      controller.clearSelection({ render: false });
       controller.renderAll();
     },
   });
