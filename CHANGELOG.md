@@ -1,5 +1,14 @@
 # Changelog
 
+## v101 · Patch 0.62.11 / Data Flow Clarification 1
+### Changed
+- Recalculated the documentation to make the real data flow explicit: `Draft Pool.xlsx` is the editable source and the analysis engine reads it directly.
+- Clarified that there is no JSON intermediary layer for synchronizing the app data.
+- Bumped the visible build version to keep Pages tracking clear.
+
+### Notes
+- This update is documentation-first and does not change the analysis flow.
+
 ## v100 · Patch 0.62.10 / RC1 Integrity Hardening 2
 ### Changed
 - Fixed the stale import chain that could block boot when `composition-profile.js` was served from cache.
