@@ -1,14 +1,14 @@
-import { runAnalysis } from './analysis/analysis-engine.js?v=104';
+import { runAnalysis } from './analysis/analysis-engine.js?v=105';
 import { buildLastPickRecommendations } from './analysis/last-pick-engine.js';
 import { loadComparisonSnapshots } from './analysis/comparison-store.js';
 import { renderComparisonEmptyState, renderComparisonState } from './analysis/comparison-renderer.js';
-import { buildAnalysisStory } from './analysis/story-engine.js?v=104';
+import { buildAnalysisStory } from './analysis/story-engine.js?v=105';
 import {
   renderAnalysisEmptyState,
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer-report.js?v=104';
+} from './analysis/renderer-report.js?v=105';
 import { compareCompositions } from './engine/comparisonEngine.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
@@ -82,18 +82,13 @@ function mountComparisonRoot(comparisonView) {
 
 function observeComposition(node) {
   if (state.observer) state.observer.disconnect();
-
   state.observer = new MutationObserver(() => scheduleRender());
   state.observer.observe(node, { subtree: true, childList: true, attributes: true });
 }
 
 function handleCompositionChanged(event) {
-  if (event?.detail?.selectedChampions) {
-    state.selectedChampions = event.detail.selectedChampions;
-  }
-  if (event?.detail?.rolePools) {
-    state.rolePools = event.detail.rolePools;
-  }
+  if (event?.detail?.selectedChampions) state.selectedChampions = event.detail.selectedChampions;
+  if (event?.detail?.rolePools) state.rolePools = event.detail.rolePools;
   scheduleRender();
 }
 
