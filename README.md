@@ -23,7 +23,7 @@ La app ya está estable en la ruta principal de render y el trabajo actual se ce
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
-La fase actual está centrada en el **informe ejecutivo**, la **QA funcional automatizada**, el **último pulido visual** y la **accesibilidad**: ordenar la lectura, quitar duplicidades, reducir texto innecesario, validar la salida del informe sobre toda la batería de fixtures y cerrar detalles de foco, contraste, navegación por teclado y ARIA.
+La fase actual está centrada en el **informe ejecutivo**, la **QA funcional automatizada**, el **último pulido visual** y la **accesibilidad**: ordenar la lectura, quitar duplicidades, reducir texto innecesario, validar la salida del informe sobre toda la batería de fixtures y cerrar detalles de foco, contraste, navegación por teclado y ARIA. La presentación del análisis ya se está llevando a un dashboard más compacto, sin huecos muertos ni bloques descompensados.
 
 ## Fuente de verdad
 
