@@ -1,6 +1,6 @@
 {
-  "version": "v83",
-  "stage": "Patch 0.58.1 / Renderer Cache Bust",
+  "version": "v84",
+  "stage": "Patch 0.59.0 / Composition Comparator",
   "date": "2026-10-02",
-  "cache": "rift-architect-v162"
+  "cache": "rift-architect-v163"
 }
