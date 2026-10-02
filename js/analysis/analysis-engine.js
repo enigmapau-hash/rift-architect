@@ -2,6 +2,7 @@ import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
 import { buildCompositionProfile } from './composition-profile.js';
 import { uniqueValues } from './analysis-utils.js';
 import { buildStrategicReasoning } from './strategic-engine.js';
+import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
 import { buildWeaknessReport } from './weakness-engine.js';
@@ -41,6 +42,18 @@ export function runAnalysis(selectedChampions = []) {
     score,
   });
 
+  const banRecommendations = buildBanRecommendations({
+    ...baseAnalysis,
+    composition,
+    identity,
+    strengths: strengthsReport.items,
+    weaknesses: weaknessReport.items,
+    synergies,
+    risks,
+    score,
+    strategic,
+  });
+
   const winConditions = normalizeWinConditions(baseAnalysis);
   const tags = uniqueValues([
     ...composition.tags,
@@ -50,7 +63,9 @@ export function runAnalysis(selectedChampions = []) {
     ...(Array.isArray(weaknessReport.threats) ? weaknessReport.threats : []),
     strategic.focus,
     ...(Array.isArray(strategic.claims) ? strategic.claims.map((claim) => claim.label) : []),
-  ]).slice(0, 8);
+    banRecommendations.focus,
+    ...(Array.isArray(banRecommendations.bans) ? banRecommendations.bans.map((ban) => ban.champion) : []),
+  ]).slice(0, 10);
 
   const report = {
     composition,
@@ -68,6 +83,7 @@ export function runAnalysis(selectedChampions = []) {
     risks,
     tags,
     strategic,
+    banRecommendations,
     primaryIdentity: identity.primaryIdentity,
     secondaryIdentities: identity.secondaryIdentities,
     summaryText: identity.summaryText,
