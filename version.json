@@ -1,6 +1,6 @@
 {
-  "version": "v98",
-  "stage": "Patch 0.62.8 / Stability Hardening 2",
+  "version": "v99",
+  "stage": "Patch 0.62.9 / RC1 Integrity Hardening 1",
   "date": "2026-10-02",
-  "cache": "rift-architect-v177"
+  "cache": "rift-architect-v178"
 }
