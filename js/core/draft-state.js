@@ -48,6 +48,7 @@ export function createDraftState() {
     iconCatalog: null,
     dataset: null,
     datasetStats: null,
+    buildVersion: '',
     savedDraft: loadDraft(),
   };
 }
@@ -59,7 +60,7 @@ export function normalizeRole(role) {
 export function loadDraft(storage = globalThis.localStorage) {
   try {
     const raw = storage?.getItem(STORAGE_KEY);
-    if (!raw) return { activeRole: 'top', selected: {}, selectedKeys: {} };
+    if (!raw) return { activeRole: 'top', selected: {}, selectedKeys: {}, buildVersion: '' };
 
     const parsed = JSON.parse(raw);
     const activeRole = normalizeRole(parsed?.activeRole);
@@ -69,15 +70,25 @@ export function loadDraft(storage = globalThis.localStorage) {
     const selectedKeys = Object.fromEntries(
       ROLE_ORDER.map((role) => [role, readDraftChampionKey(parsed?.selectedKeys?.[role] ?? parsed?.selected?.[role])])
     );
+    const buildVersion = String(parsed?.buildVersion || parsed?.version || '').trim();
 
-    return { activeRole, selected, selectedKeys };
+    return { activeRole, selected, selectedKeys, buildVersion };
   } catch {
-    return { activeRole: 'top', selected: {}, selectedKeys: {} };
+    return { activeRole: 'top', selected: {}, selectedKeys: {}, buildVersion: '' };
   }
 }
 
 export function restoreDraftFromState(state, draft = loadDraft()) {
   if (!state) return false;
+
+  const currentBuildVersion = String(state.buildVersion || '').trim();
+  const savedBuildVersion = String(draft?.buildVersion || '').trim();
+  if (currentBuildVersion && savedBuildVersion && currentBuildVersion !== savedBuildVersion) {
+    state.activeRole = normalizeRole(draft?.activeRole);
+    state.selected = { ...DEFAULT_SELECTED };
+    state.savedDraft = buildSavedDraftPayload(state);
+    return false;
+  }
 
   state.activeRole = normalizeRole(draft?.activeRole);
 
@@ -114,6 +125,14 @@ export function saveDraft(state) {
   }
 }
 
+export function clearDraft(storage = globalThis.localStorage) {
+  try {
+    storage?.removeItem(STORAGE_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
+
 export function getSelectedChampions(state) {
   return ROLE_ORDER.filter((role) => state.selected[role]).map((role) => ({ role, ...state.selected[role] }));
 }
@@ -128,6 +147,7 @@ function buildSavedDraftPayload(state) {
     activeRole: normalizeRole(state.activeRole),
     selected,
     selectedKeys,
+    buildVersion: String(state.buildVersion || '').trim() || null,
   };
 }
 
