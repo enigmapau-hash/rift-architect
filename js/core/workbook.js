@@ -1,4 +1,4 @@
-import { normalizeText } from '../analyzer.js';
+import { normalizeText } from '../engine/utils.js';
 import {
   DEFAULT_DRAGON_VERSION,
   DRAGON_CHAMPION_URL,
@@ -8,21 +8,39 @@ import {
   WORKBOOK_URL,
 } from './draft-state.js';
 
+let workbookCache = null;
+let workbookPromise = null;
+let championCatalogCache = null;
+let championCatalogPromise = null;
+
 export async function loadWorkbook(force = false) {
   if (!window.XLSX) return null;
+  if (!force && workbookCache) return workbookCache;
+  if (!force && workbookPromise) return workbookPromise;
 
-  const urls = Array.from(new Set([WORKBOOK_URL, ...WORKBOOK_FALLBACK_URLS].filter(Boolean)));
-  for (const url of urls) {
-    try {
-      const response = await fetch(url, { cache: force ? 'reload' : 'default' });
-      if (!response.ok) continue;
-      return window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
-    } catch {
-      // try next URL
+  const promise = (async () => {
+    const urls = Array.from(new Set([WORKBOOK_URL, ...WORKBOOK_FALLBACK_URLS].filter(Boolean)));
+    for (const url of urls) {
+      try {
+        const response = await fetch(url, { cache: force ? 'reload' : 'default' });
+        if (!response.ok) continue;
+        const workbook = window.XLSX.read(await response.arrayBuffer(), { type: 'array' });
+        workbookCache = workbook;
+        return workbook;
+      } catch {
+        // try next URL
+      }
     }
-  }
 
-  return null;
+    return null;
+  })();
+
+  workbookPromise = promise;
+  try {
+    return await promise;
+  } finally {
+    workbookPromise = null;
+  }
 }
 
 export function parseSheet(worksheet) {
@@ -55,31 +73,55 @@ export function splitTags(value) {
     .filter(Boolean);
 }
 
-export async function loadChampionCatalog() {
+export async function loadChampionCatalog(force = false) {
+  if (!force && championCatalogCache) return championCatalogCache;
+  if (!force && championCatalogPromise) return championCatalogPromise;
+
+  const promise = (async () => {
+    try {
+      const versionsResponse = await fetch(DRAGON_VERSIONS_URL, { cache: 'reload' });
+      const versions = versionsResponse.ok ? await versionsResponse.json() : [];
+      const version = Array.isArray(versions) && versions.length ? versions[0] : DEFAULT_DRAGON_VERSION;
+
+      const response = await fetch(DRAGON_CHAMPION_URL(version), { cache: 'reload' });
+      if (!response.ok) throw new Error('No se pudo leer el catálogo de iconos');
+
+      const payload = await response.json();
+      const map = {};
+      Object.values(payload?.data || {}).forEach((champion) => {
+        const key = normalizeText(champion.name || '');
+        const id = String(champion.id || '').trim();
+        if (key && id) map[key] = id;
+        const normalizedId = normalizeText(id);
+        if (normalizedId && id) map[normalizedId] = id;
+      });
+
+      championCatalogCache = { version, map };
+      return championCatalogCache;
+    } catch {
+      championCatalogCache = null;
+      return null;
+    }
+  })();
+
+  championCatalogPromise = promise;
   try {
-    const versionsResponse = await fetch(DRAGON_VERSIONS_URL, { cache: 'reload' });
-    const versions = versionsResponse.ok ? await versionsResponse.json() : [];
-    const version = Array.isArray(versions) && versions.length ? versions[0] : DEFAULT_DRAGON_VERSION;
-
-    const response = await fetch(DRAGON_CHAMPION_URL(version), { cache: 'reload' });
-    if (!response.ok) throw new Error('No se pudo leer el catálogo de iconos');
-
-    const payload = await response.json();
-    const map = {};
-    Object.values(payload?.data || {}).forEach((champion) => {
-      const key = normalizeText(champion.name || '');
-      const id = String(champion.id || '').trim();
-      if (key && id) map[key] = id;
-      const normalizedId = normalizeText(id);
-      if (normalizedId && id) map[normalizedId] = id;
-    });
-
-    return { version, map };
-  } catch {
-    return null;
+    return await promise;
+  } finally {
+    championCatalogPromise = null;
   }
 }
 
 export function getRoleSheetKeys() {
   return ROLE_SHEETS.map(({ key }) => key);
+}
+
+export function invalidateWorkbookCache() {
+  workbookCache = null;
+  workbookPromise = null;
+}
+
+export function invalidateChampionCatalogCache() {
+  championCatalogCache = null;
+  championCatalogPromise = null;
 }
