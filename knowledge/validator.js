@@ -134,10 +134,6 @@ function validateStrategicProfiles(issues) {
     if (kind === 'identity' && !KNOWN_IDENTITY_LABELS.has(normalizeText(profile?.label))) {
       pushIssue(issues, 'warning', 'strategic-profiles', `La identidad no está reconocida en la taxonomía base: ${profile?.label}`, `${path}.label`);
     }
-
-    if (kind === 'pattern' && !KNOWN_PATTERN_LABELS.has(normalizeText(profile?.label))) {
-      pushIssue(issues, 'warning', 'strategic-profiles', `El patrón no está reconocido en la taxonomía base: ${profile?.label}`, `${path}.label`);
-    }
   });
 
   if (hasDuplicates(keys)) pushIssue(issues, 'error', 'strategic-profiles', 'Hay claves de perfil estratégico duplicadas.', 'STRATEGIC_PROFILES_V2');
