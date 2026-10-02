@@ -1,6 +1,6 @@
 {
-  "version": "v114",
-  "stage": "Patch 0.62.24 / RC2 Report UI Rewrite 1",
+  "version": "v115",
+  "stage": "Patch 0.62.25 / RC2 Structured Analysis 1",
   "date": "2026-10-02",
-  "cache": "rift-architect-v192"
+  "cache": "rift-architect-v193"
 }
