@@ -9,6 +9,7 @@ import { buildWeaknessReport } from './weakness-engine.js';
 import { buildGamePlanReport } from './gameplan-engine.js';
 import { buildTimelineReport } from './timeline-engine.js';
 import { buildScoreReport } from './score-engine.js';
+import { buildKnowledgeV3Context } from '../../knowledge/knowledge-v3.js';
 
 export function runAnalysis(selectedChampions = []) {
   const composition = buildCompositionProfile(selectedChampions);
@@ -42,6 +43,22 @@ export function runAnalysis(selectedChampions = []) {
     score,
   });
 
+  const knowledgeV3 = buildKnowledgeV3Context(
+    {
+      ...baseAnalysis,
+      composition,
+      identity,
+      strengths: strengthsReport.items,
+      weaknesses: weaknessReport.items,
+      synergies,
+      risks,
+      score,
+      strategic,
+    },
+    composition,
+    strategic
+  );
+
   const banRecommendations = buildBanRecommendations({
     ...baseAnalysis,
     composition,
@@ -63,9 +80,11 @@ export function runAnalysis(selectedChampions = []) {
     ...(Array.isArray(weaknessReport.threats) ? weaknessReport.threats : []),
     strategic.focus,
     ...(Array.isArray(strategic.claims) ? strategic.claims.map((claim) => claim.label) : []),
+    knowledgeV3.lead,
+    ...(Array.isArray(knowledgeV3.tags) ? knowledgeV3.tags : []),
     banRecommendations.focus,
     ...(Array.isArray(banRecommendations.bans) ? banRecommendations.bans.map((ban) => ban.champion) : []),
-  ]).slice(0, 10);
+  ]).slice(0, 12);
 
   const report = {
     composition,
@@ -83,6 +102,8 @@ export function runAnalysis(selectedChampions = []) {
     risks,
     tags,
     strategic,
+    knowledgeV3,
+    knowledge: knowledgeV3,
     banRecommendations,
     primaryIdentity: identity.primaryIdentity,
     secondaryIdentities: identity.secondaryIdentities,
