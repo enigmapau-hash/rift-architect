@@ -1,41 +1,85 @@
-import { analyzeComposition } from '../analyzer.js';
+import { analyzeComposition as analyzeCompositionEngine } from '../analyzer.js';
+import { buildCompositionProfile } from './composition-profile.js';
+import { uniqueValues } from './analysis-utils.js';
+import { buildIdentityReport } from './identity-engine.js';
+import { buildStrengthsReport } from './strengths-engine.js';
+import { buildWeaknessReport } from './weakness-engine.js';
+import { buildGamePlanReport } from './gameplan-engine.js';
+import { buildTimelineReport } from './timeline-engine.js';
+import { buildScoreReport } from './score-engine.js';
 
 export function runAnalysis(selectedChampions = []) {
-  const safeSelectedChampions = Array.isArray(selectedChampions) ? selectedChampions : [];
-  const analysis = analyzeComposition(safeSelectedChampions);
-  const score = clamp(Number(analysis?.executiveSummary?.score ?? analysis?.confidence ?? analysis?.score ?? 0), 0, 100);
+  const composition = buildCompositionProfile(selectedChampions);
+  const baseAnalysis = analyzeCompositionEngine(composition.selectedChampions);
 
-  return {
-    ...analysis,
-    composition: safeSelectedChampions,
+  const identity = buildIdentityReport(baseAnalysis, composition);
+  const strengthsReport = buildStrengthsReport(baseAnalysis, composition);
+  const weaknessReport = buildWeaknessReport(baseAnalysis, composition);
+  const gameplan = buildGamePlanReport(baseAnalysis, composition);
+  const timeline = buildTimelineReport(gameplan, baseAnalysis, composition);
+  const score = buildScoreReport(baseAnalysis, composition);
+
+  const synergies = uniqueValues([
+    ...(Array.isArray(baseAnalysis.synergies) ? baseAnalysis.synergies : []),
+    ...(Array.isArray(baseAnalysis.dependencies?.items) ? baseAnalysis.dependencies.items : []),
+  ]).slice(0, 4);
+
+  const risks = uniqueValues([
+    ...(Array.isArray(baseAnalysis.coherence?.conflicts) ? baseAnalysis.coherence.conflicts : []),
+    ...(Array.isArray(weaknessReport.threats) ? weaknessReport.threats : []),
+  ]).slice(0, 4);
+
+  const winConditions = normalizeWinConditions(baseAnalysis);
+  const tags = uniqueValues([
+    ...composition.tags,
+    ...identity.tags,
+    ...score.tags,
+    ...(Array.isArray(strengthsReport.highlights) ? strengthsReport.highlights : []),
+    ...(Array.isArray(weaknessReport.threats) ? weaknessReport.threats : []),
+  ]).slice(0, 8);
+
+  const report = {
+    composition,
+    rawAnalysis: baseAnalysis,
+    identity,
+    strengths: strengthsReport.items,
+    strengthsReport,
+    weaknesses: weaknessReport.items,
+    weaknessReport,
+    gameplan,
+    timeline,
     score,
-    tags: uniqueValues([
-      ...(Array.isArray(analysis?.tags) ? analysis.tags : []),
-      ...(safeSelectedChampions.map((item) => item?.champion).filter(Boolean)),
-      analysis?.primaryIdentity,
-      analysis?.coherence?.label,
-      analysis?.tempo,
-    ]).slice(0, 6),
-    winConditions: normalizeWinConditions(analysis),
-    threats: normalizeEntries(analysis?.threats || analysis?.risks),
+    winConditions,
+    synergies,
+    risks,
+    tags,
+    primaryIdentity: identity.primaryIdentity,
+    secondaryIdentities: identity.secondaryIdentities,
+    summaryText: identity.summaryText,
+    tempo: identity.tempo,
+    dominance: identity.dominance,
+    confidence: score.value,
+    executiveSummary: {
+      title: identity.title,
+      text: identity.summaryText,
+      score: score.value,
+    },
+    coach: { phases: gameplan.phases, focus: gameplan.focus },
+    gamePlan: gameplan.phases.map((phase) => phase.title),
+    threats: weaknessReport.threats,
   };
+
+  return report;
 }
 
-function normalizeWinConditions(analysis = {}) {
-  const current = analysis?.winConditions || analysis?.winCondition;
+function normalizeWinConditions(baseAnalysis = {}) {
+  const current = baseAnalysis?.winConditions || baseAnalysis?.winCondition;
   const items = Array.isArray(current) ? current : current ? [current] : [];
+
   return items.map((item) => ({
     label: toText(item?.label ?? item?.title ?? item?.name ?? item),
     detail: toText(item?.detail ?? item?.text ?? item?.summary ?? ''),
   }));
-}
-
-function normalizeEntries(value) {
-  return uniqueValues(Array.isArray(value) ? value.map(toText) : value ? [toText(value)] : []);
-}
-
-function uniqueValues(values = []) {
-  return [...new Set(values.map(toText).filter(Boolean))];
 }
 
 function toText(value) {
@@ -44,11 +88,20 @@ function toText(value) {
   if (typeof value === 'number' || typeof value === 'boolean') return String(value);
   if (Array.isArray(value)) return value.map(toText).filter(Boolean).join(' · ');
   if (typeof value === 'object') {
-    return toText(value.label ?? value.name ?? value.title ?? value.text ?? value.value ?? value.detail ?? value.summary ?? value.reason ?? value.description ?? value.champion ?? value.item ?? '');
+    return toText(
+      value.label ??
+        value.name ??
+        value.title ??
+        value.text ??
+        value.value ??
+        value.detail ??
+        value.summary ??
+        value.reason ??
+        value.description ??
+        value.champion ??
+        value.item ??
+        ''
+    );
   }
   return String(value).trim();
-}
-
-function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
 }
