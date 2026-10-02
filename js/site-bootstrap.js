@@ -1,5 +1,5 @@
-const CORE_MODULES = ['./bootstrap.js?v=75', './pwa-reset.js?v=75', './app-v2.js?v=75', './composition-ia.js?v=75'];
-const OPTIONAL_MODULES = ['./picker-a11y-fix.js?v=75'];
+const CORE_MODULES = ['./bootstrap.js?v=76', './pwa-reset.js?v=76', './app-v2.js?v=76', './composition-ia.js?v=76'];
+const OPTIONAL_MODULES = ['./picker-a11y-fix.js?v=76'];
 
 function isLikelyExternalError(error) {
   const filename = String(error?.filename || error?.fileName || '').toLowerCase();
