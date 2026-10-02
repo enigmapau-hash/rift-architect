@@ -45,6 +45,27 @@ const CONFLICT_REPORT = {
   tags: ['Splitpush', 'Teamfight'],
 };
 
+const REDUNDANT_POKE_REPORT = {
+  composition: {
+    selectedChampions: [
+      { role: 'top', champion: 'Ziggs', identity: 'Poke', function: 'Mage', tempo: 'Mid/Late' },
+      { role: 'jungle', champion: 'Brand', identity: 'Poke', function: 'Mage', tempo: 'Mid' },
+      { role: 'mid', champion: 'Xerath', identity: 'Poke', function: 'Mage', tempo: 'Mid/Late' },
+      { role: 'botline', champion: 'Jhin', identity: 'Poke', function: 'Marksman ADC', tempo: 'Mid' },
+      { role: 'support', champion: 'Karma', identity: 'Protect', function: 'Enchanter', tempo: 'Mid' },
+    ],
+  },
+  primaryIdentity: 'Poke',
+  tempo: 'Mid',
+  winConditions: [
+    {
+      label: 'Desgastar antes de entrar',
+      detail: 'La composición quiere ganar espacio a distancia y convertirlo en torre o objetivo.',
+    },
+  ],
+  tags: ['Poke', 'Control'],
+};
+
 test('buildStrategicReasoning identifies critical engage dependency and vision pressure', () => {
   const reasoning = buildStrategicReasoning(ENGAGE_REPORT);
 
@@ -60,4 +81,13 @@ test('buildStrategicReasoning detects incompatible victory conditions', () => {
   assert.ok(reasoning.claims.some((claim) => /incompatibles/i.test(claim.detail)));
   assert.ok(reasoning.claims.some((claim) => /Splitpush/i.test(claim.detail)));
   assert.ok(reasoning.claims.some((claim) => /Teamfight/i.test(claim.detail)));
+});
+
+test('buildStrategicReasoning detects redundancy and the real power spike', () => {
+  const reasoning = buildStrategicReasoning(REDUNDANT_POKE_REPORT);
+
+  assert.ok(reasoning.redundancies.some((claim) => /poke/i.test(claim.label)));
+  assert.ok(reasoning.powerSpikes.some((claim) => /pico real/i.test(claim.label)));
+  assert.ok(reasoning.claims.some((claim) => claim.kind === 'power-spike'));
+  assert.ok(reasoning.claims.some((claim) => /mid/i.test(claim.detail) || /late/i.test(claim.detail)));
 });
