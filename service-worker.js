@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rift-architect-v160';
+const CACHE_NAME = 'rift-architect-v161';
 const CORE_ASSETS = [
   './',
   './index.html',
@@ -20,13 +20,13 @@ const CORE_ASSETS = [
   './css/responsive-story.css',
   './css/accordion.css',
   './css/ui-polish.css',
-  './js/bootstrap.js?v=81',
-  './js/pwa-reset.js?v=81',
-  './js/picker-a11y-fix.js?v=81',
-  './js/site-bootstrap.js?v=81',
-  './js/app-v2.js?v=81',
-  './js/composition-ia.js?v=81',
-  './js/analysis-failsafe.js?v=81',
+  './js/bootstrap.js?v=82',
+  './js/pwa-reset.js?v=82',
+  './js/picker-a11y-fix.js?v=82',
+  './js/site-bootstrap.js?v=82',
+  './js/app-v2.js?v=82',
+  './js/composition-ia.js?v=82',
+  './js/analysis-failsafe.js?v=82',
   './js/analyzer.js',
   './js/analysis/analysis-utils.js',
   './js/analysis/composition-profile.js',
@@ -39,6 +39,7 @@ const CORE_ASSETS = [
   './js/analysis/analysis-engine.js',
   './js/analysis/strategic-engine.js',
   './js/analysis/ban-engine.js',
+  './js/analysis/last-pick-engine.js',
   './js/analysis/contextual-engine.js',
   './js/analysis/story-engine.js',
   './js/analysis/renderer.js',
@@ -56,6 +57,7 @@ const CORE_ASSETS = [
   './knowledge/win-conditions.js',
   './knowledge/strategy-profiles.js',
   './knowledge/ban-profiles.js',
+  './knowledge/pick-profiles.js',
   './knowledge/validator.js',
 ];
 
