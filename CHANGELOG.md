@@ -1,5 +1,15 @@
 # Changelog
 
+## v95 · Patch 0.62.5 / Performance Cleanup 1
+### Changed
+- Removed the redundant `composition-ia.js` wrapper from the boot path.
+- Added memoization for composition profiles and full analysis snapshots.
+- Removed the duplicate direct rerender from story sync.
+- Bumped the boot chain and knowledge imports to v95.
+
+### Notes
+- This patch is about loading and recomputation, not new user-visible features.
+
 ## v94 · Patch 0.62.4 / Knowledge V3 Cache Refresh 2
 ### Changed
 - Closed the knowledge-layer loading chain so the app stops mixing old and new exports.
