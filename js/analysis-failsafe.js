@@ -1,4 +1,4 @@
-import { runAnalysis } from './analysis/analysis-engine.js?v=87';
+import { runAnalysis } from './analysis/analysis-engine.js?v=89';
 import { buildLastPickRecommendations } from './analysis/last-pick-engine.js';
 import { loadComparisonSnapshots } from './analysis/comparison-store.js';
 import { renderComparisonEmptyState, renderComparisonState } from './analysis/comparison-renderer.js';
@@ -8,7 +8,7 @@ import {
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer.js?v=87';
+} from './analysis/renderer.js?v=89';
 import { compareCompositions } from './engine/comparisonEngine.js';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
@@ -78,107 +78,107 @@ function mountComparisonRoot(comparisonView) {
 }
 
 function observeComposition(node) {
-  if (state.observer) return;
+  if (state.observer) state.observer.disconnect();
 
-  state.observer = new MutationObserver(scheduleRender);
-  state.observer.observe(node, { childList: true, subtree: true, characterData: true });
+  state.observer = new MutationObserver(() => scheduleRender());
+  state.observer.observe(node, { subtree: true, childList: true, attributes: true });
 }
 
 function handleCompositionChanged(event) {
-  const selectedChampions = Array.isArray(event?.detail?.selectedChampions) ? event.detail.selectedChampions : [];
-  state.selectedChampions = selectedChampions;
-  state.rolePools = event?.detail?.rolePools || state.rolePools || globalThis.__RIFT_ARCHITECT_ROLE_POOLS__ || {};
+  if (event?.detail?.selectedChampions) {
+    state.selectedChampions = event.detail.selectedChampions;
+  }
+  if (event?.detail?.rolePools) {
+    state.rolePools = event.detail.rolePools;
+  }
   scheduleRender();
 }
 
 function scheduleRender() {
   if (state.scheduled) return;
   state.scheduled = true;
-
-  window.requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
     state.scheduled = false;
     renderStory();
   });
 }
 
 function renderStory() {
-  if (!state.root) return;
-
-  const selectedChampions = getSelectedChampions();
-  const rolePools = state.rolePools || globalThis.__RIFT_ARCHITECT_ROLE_POOLS__ || {};
-  state.selectedChampions = selectedChampions;
-
-  if (selectedChampions.length < 4) {
+  const snapshot = captureCompositionSnapshot();
+  if (!snapshot.length) {
     renderAnalysisEmptyState(state.root);
-  } else {
-    const analysis = runAnalysis(selectedChampions);
-    const story = buildAnalysisStory(analysis);
-
-    if (selectedChampions.length === 4) {
-      const recommendation = buildLastPickRecommendations(
-        {
-          ...analysis,
-          selectedChampions,
-        },
-        rolePools
-      );
-
-      if (!recommendation) {
-        renderLastPickEmptyState(state.root, story);
-      } else {
-        renderLastPickState(state.root, {
-          ...story,
-          ...recommendation,
-        });
-      }
-    } else {
-      renderAnalysisStory(state.root, story);
-    }
-  }
-
-  renderComparisonPanel();
-}
-
-function renderComparisonPanel() {
-  if (!state.comparisonRoot) return;
-
-  const snapshots = loadComparisonSnapshots();
-  if (!snapshots.a || !snapshots.b) {
-    renderComparisonEmptyState(state.comparisonRoot, snapshots);
+    renderComparisonEmptyState(state.comparisonRoot);
     return;
   }
 
-  const comparison = compareCompositions(snapshots.a.selectedChampions || [], snapshots.b.selectedChampions || []);
-  renderComparisonState(state.comparisonRoot, {
-    left: snapshots.a,
-    right: snapshots.b,
-    comparison,
-  });
+  const report = runAnalysis(snapshot);
+  const story = buildAnalysisStory(report);
+  renderAnalysisStory(state.root, story);
+
+  const comparison = buildComparisonReport(report, story, snapshot);
+  if (snapshot.length >= 4 && comparison?.bestPick) {
+    renderLastPickState(state.comparisonRoot, comparison);
+  } else {
+    renderLastPickEmptyState(state.comparisonRoot, comparison || {});
+  }
 }
 
-function getSelectedChampions() {
+function captureCompositionSnapshot() {
+  const slots = Array.from(document.querySelectorAll(SLOT_SELECTOR));
+  const selected = slots
+    .map((slot) => extractChampionFromSlot(slot))
+    .filter(Boolean)
+    .sort((a, b) => ROLE_ORDER.indexOf(a.role) - ROLE_ORDER.indexOf(b.role));
+
+  if (selected.length) {
+    state.selectedChampions = selected;
+    return selected;
+  }
+
   if (Array.isArray(state.selectedChampions) && state.selectedChampions.length) {
     return state.selectedChampions;
   }
 
-  if (Array.isArray(globalThis.__RIFT_ARCHITECT_SELECTED__) && globalThis.__RIFT_ARCHITECT_SELECTED__.length) {
-    return globalThis.__RIFT_ARCHITECT_SELECTED__;
-  }
+  return [];
+}
 
-  return [...document.querySelectorAll(SLOT_SELECTOR)]
-    .map((slot, index) => {
-      const champion = slot.querySelector('.slot__name')?.textContent?.trim() || '';
-      if (!champion) return null;
+function extractChampionFromSlot(slot) {
+  const role = String(slot?.dataset?.role || slot?.dataset?.slot || '').trim();
+  const champion = String(slot?.dataset?.champion || slot?.dataset?.name || slot?.querySelector('.slot__name')?.textContent || '').trim();
+  if (!role || !champion) return null;
 
-      return {
-        role: String(slot.dataset.role || ROLE_ORDER[index] || 'top'),
-        champion,
-        identity: slot.querySelector('.slot__meta')?.textContent?.trim() || '',
-        function: '',
-        tempo: '',
-        strengths: [],
-        weaknesses: [],
-      };
-    })
+  return {
+    role,
+    champion,
+    identity: String(slot?.dataset?.identity || '').trim(),
+    function: String(slot?.dataset?.function || '').trim(),
+    tempo: String(slot?.dataset?.tempo || '').trim(),
+    strengths: safeList(slot?.dataset?.strengths),
+    weaknesses: safeList(slot?.dataset?.weaknesses),
+  };
+}
+
+function safeList(value) {
+  return String(value || '')
+    .split('|')
+    .map((part) => part.trim())
     .filter(Boolean);
+}
+
+function buildComparisonReport(report, story, snapshot) {
+  const snapshots = loadComparisonSnapshots();
+  const comparison = compareCompositions(snapshot, snapshots.a?.champions || [], snapshots.b?.champions || []);
+  if (!comparison) return { ...story, bestPick: null, alternatives: [] };
+
+  const bestPick = buildLastPickRecommendations({ report, story, comparison, snapshot });
+  return {
+    ...story,
+    ...comparison,
+    bestPick: bestPick.bestPick || null,
+    alternatives: bestPick.alternatives || [],
+    summaryText: bestPick.summaryText || story.summaryText,
+    focus: bestPick.focus || story.focus,
+    targetRole: bestPick.targetRole || story.targetRole,
+    targetRoleLabel: bestPick.targetRoleLabel || story.targetRoleLabel,
+  };
 }
