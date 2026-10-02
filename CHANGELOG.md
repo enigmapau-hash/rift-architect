@@ -1,5 +1,15 @@
 # Changelog
 
+## v114 · Patch 0.62.24 / RC2 Report UI Rewrite 1
+### Changed
+- Rebuilt the executive report renderer as a compact dashboard-style layout.
+- Replaced the long stacked report with balanced cards for identity, plan, strengths, weaknesses, bans and strategic reading.
+- Added `analysis-dashboard.css` to control the new grid, cards, chips, metrics and responsive behavior.
+- Rotated the visible build to `v114` and the application cache to `rift-architect-v192`.
+
+### Notes
+- This patch removes the tall empty panel feeling and moves the report presentation to a cleaner dashboard layout.
+
 ## v113 · Patch 0.62.23 / Report Layout 2
 ### Changed
 - Reworked the executive report into a tighter dashboard-style layout with clearer card spacing and less dead space.
