@@ -1,13 +1,14 @@
 # Rift Architect
 
-PWA para analizar **tu propia composición** de League of Legends a partir de `Draft Pool.xlsx`. El flujo real es directo: el Excel alimenta al motor de análisis e IA; no hay una capa JSON intermedia ni necesaria.
+PWA para analizar **tu propia composición** de League of Legends a partir de `Draft Pool.xlsx`. El Excel es la fuente de verdad y alimenta directamente al motor de análisis e IA; no hay una capa JSON intermedia que mantener.
 
 ## Qué hace ahora
 
 - Selector por rol con composición temporal.
 - Executive Summary y Composition Story como vista principal.
+- Informe estructurado por tarjetas, donde cada motor refleja su información en una sección propia.
 - Knowledge Layer v3 con reglas explícitas de identidad, macro, visión, tempo, objetivos, victoria y derrota.
-- Motor estratégico con razonamiento sobre dependencias críticas, redundancias, planes incompatibles, riesgos y picos de poder.
+- Motor estratégico con razonamiento sobre dependencias, redundancias, planes incompatibles, riesgos y picos de poder.
 - Narrativa contextual con tono de coach.
 - Bans inteligentes.
 - Recomendación del último pick.
@@ -17,13 +18,13 @@ PWA para analizar **tu propia composición** de League of Legends a partir de `D
 
 ## Estado actual
 
-La app ya está estable en la ruta principal de render y el trabajo actual se centra en tres cosas:
+La app ya está estable en la ruta principal de render. El trabajo actual se centra en tres cosas:
 
 1. consolidar la calidad del razonamiento;
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
-La fase actual está centrada en el **informe ejecutivo**, la **QA funcional automatizada**, la **reconstrucción RC2 del dashboard del informe**, el **último pulido visual** y la **accesibilidad**: ordenar la lectura, quitar duplicidades, reducir texto innecesario, validar la salida del informe sobre toda la batería de fixtures y cerrar detalles de foco, contraste, navegación por teclado y ARIA. La presentación del análisis ya se está llevando a un dashboard más compacto, sin huecos muertos ni bloques descompensados.
+La fase actual está centrada en el **informe ejecutivo estructurado**, la **reconstrucción RC2 del dashboard por módulos**, la **QA funcional automatizada**, el **último pulido visual** y la **accesibilidad**. El objetivo es que cada motor alimente una tarjeta clara: Executive Summary, Identidad, Plan de partida, Knowledge Layer, Fortalezas, Debilidades, Bans, Dependencias, Señales, Riesgos y Último pick.
 
 ## Fuente de verdad
 
