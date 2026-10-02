@@ -34,8 +34,21 @@
   --ds-space-6: 32px;
   --ds-space-7: 40px;
   --ds-space-8: 48px;
+  --ds-space-9: 56px;
+  --ds-space-10: 64px;
   --ds-font-ui: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --ds-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  --ds-font-xs: 0.72rem;
+  --ds-font-sm: 0.82rem;
+  --ds-font-md: 0.95rem;
+  --ds-font-lg: 1.05rem;
+  --ds-font-xl: 1.16rem;
+  --ds-font-2xl: 1.32rem;
+  --ds-line-tight: 1.15;
+  --ds-line-base: 1.45;
+  --ds-line-relaxed: 1.6;
+  --ds-letter-tight: -0.02em;
+  --ds-letter-wide: 0.08em;
 }
 
 :root {
@@ -53,4 +66,17 @@
   --radius-lg: var(--ds-radius-lg);
   --radius-md: var(--ds-radius-md);
   --radius-sm: var(--ds-radius-sm);
+  --font-ui: var(--ds-font-ui);
+  --font-mono: var(--ds-font-mono);
+  --font-xs: var(--ds-font-xs);
+  --font-sm: var(--ds-font-sm);
+  --font-md: var(--ds-font-md);
+  --font-lg: var(--ds-font-lg);
+  --font-xl: var(--ds-font-xl);
+  --font-2xl: var(--ds-font-2xl);
+  --line-tight: var(--ds-line-tight);
+  --line-base: var(--ds-line-base);
+  --line-relaxed: var(--ds-line-relaxed);
+  --letter-tight: var(--ds-letter-tight);
+  --letter-wide: var(--ds-letter-wide);
 }
