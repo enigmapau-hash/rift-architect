@@ -1,5 +1,18 @@
-const CORE_MODULES = ['./bootstrap.js?v=111', './pwa-reset.js?v=111', './app-v2.js?v=115', './analysis-failsafe.js?v=118'];
+const CORE_MODULES = ['./bootstrap.js?v=111', './pwa-reset.js?v=111', './app-v2.js?v=115', './analysis-failsafe.js?v=120'];
 const OPTIONAL_MODULES = ['./picker-a11y-fix.js?v=111'];
+
+installAnalysisGuards();
+
+function installAnalysisGuards() {
+  if (!('knowledgeClaims' in Object.prototype)) {
+    Object.defineProperty(Object.prototype, 'knowledgeClaims', {
+      value: [],
+      configurable: true,
+      enumerable: false,
+      writable: true,
+    });
+  }
+}
 
 function isLikelyExternalError(error) {
   const filename = String(error?.filename || error?.fileName || '').toLowerCase();
