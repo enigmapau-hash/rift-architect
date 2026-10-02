@@ -6,7 +6,7 @@ import {
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer.js';
+} from './analysis/renderer.js?v=83';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
 const ROLE_ORDER = ['top', 'jungle', 'mid', 'botline', 'support'];
