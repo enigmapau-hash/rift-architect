@@ -82,6 +82,7 @@
 - El trabajo real ahora está centrado en la QA, el contrato de datos, el informe homogéneo y la limpieza de código.
 - La build visible actual es **v121** y el estado funcional quedó estabilizado tras cortar el render loop.
 - La Knowledge Layer no aparece como tarjeta propia; sus señales se integran en la tarjeta de **Lectura estratégica**.
+- El siguiente paso es inventariar motor→tarjeta y cerrar QA sobre composiciones reales.
 
 ## Regla del proyecto
 
