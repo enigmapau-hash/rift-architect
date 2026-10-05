@@ -50,10 +50,11 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - Cerrar la QA con muchas composiciones reales.
 
 ## Estado actual
-- La build visible actual es **v117**.
+- La build visible actual es **v121**.
 - El contrato de datos ya quedó fijado y el renderer consume solo esa capa normalizada.
-- La selección de campeones vuelve a renderizar sin el `ReferenceError` anterior.
-- El foco ahora está en la estabilidad y el pulido, no en añadir nuevas funciones.
+- La RC2 ya quedó estabilizada: el dashboard no entra en bucle de render y el observer solo reacciona a cambios reales de composición.
+- Knowledge Layer no va como tarjeta independiente: alimenta la tarjeta de lectura estratégica junto con dependencias, riesgos y señales.
+- El foco ahora está en el inventario motor→tarjeta, la estabilidad y el pulido, no en añadir nuevas funciones.
 
 ## Filosofía de diseño
 - Primero analizar la propia composición.
