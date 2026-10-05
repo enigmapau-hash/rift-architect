@@ -1,6 +1,6 @@
 {
-  "version": "v121",
-  "stage": "Patch 0.62.31 / RC2 Stabilization 1",
+  "version": "v122",
+  "stage": "Patch 0.63.0 / RC3 Validation 1",
   "date": "2026-10-02",
-  "cache": "rift-architect-v199"
+  "cache": "rift-architect-v200"
 }
