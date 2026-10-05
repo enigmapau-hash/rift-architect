@@ -90,11 +90,12 @@ export function parseSheet(worksheet) {
     defval: '',
   });
 
-  if (!Array.isArray(rows) || !rows.length) return [];
+  if (!Array.isArray(rows) || rows.length < 2) return [];
 
   const headerMap = buildHeaderMap(rows[0]);
   const hasRecognizedHeader = Object.values(headerMap).some((index) => index !== null && index !== undefined);
-  const dataRows = (hasRecognizedHeader ? rows.slice(1) : rows).filter((row) => Array.isArray(row) && row.some((cell) => String(cell ?? '').trim()));
+  const headerIsPositionalFallback = !hasRecognizedHeader && looksLikePositionalHeader(rows[0]);
+  const dataRows = (hasRecognizedHeader ? rows.slice(1) : headerIsPositionalFallback ? rows.slice(1) : rows).filter((row) => Array.isArray(row) && row.some((cell) => String(cell ?? '').trim()));
 
   return dataRows.map((row) => ({
     champion: readCell(row, headerMap.champion, 0),
@@ -189,6 +190,12 @@ function findHeaderIndex(normalizedHeaders = [], aliases = []) {
 
 function normalizeHeader(value) {
   return normalizeText(String(value ?? '').replace(/\s+/g, ' '));
+}
+
+function looksLikePositionalHeader(row = []) {
+  const normalized = Array.isArray(row) ? row.map((cell) => normalizeHeader(cell)) : [];
+  const expected = ['a', 'b', 'c', 'd', 'e', 'f'];
+  return expected.every((value, index) => normalized[index] === value) || expected.every((value, index) => normalized[index] === String.fromCharCode(65 + index).toLowerCase());
 }
 
 function readCell(row = [], index, fallbackIndex) {
