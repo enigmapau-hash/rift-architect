@@ -1,5 +1,14 @@
 # Changelog
 
+## v120 · Patch 0.62.30 / RC2 Guard 1
+### Changed
+- Filtered the composition observer so it only reacts to real draft-slot mutations instead of dashboard reflows.
+- Added render snapshot reuse so identical compositions do not rebuild the analysis story.
+- Rotated the visible build to `v120` and the application cache to `rift-architect-v198`.
+
+### Notes
+- This patch targets the render loop / flicker issue in the RC2 dashboard.
+
 ## v118 · Patch 0.62.28 / RC2 Contract Fix 2
 ### Changed
 - Removed the duplicate `cleanText` declaration from the analysis contract so the renderer can boot without a syntax error.
