@@ -1,5 +1,15 @@
 # Changelog
 
+## v132 · Sprint 0 / Minimal v2 UI reset
+### Changed
+- Frozen the v131 dashboard line as the stable reference.
+- Reframed the project toward a fresh minimal v2 UI that keeps the analysis engine and contract intact.
+- Reset the public roadmap to a new sprint flow that starts with a single Executive Summary card.
+- Prepared the project for a clean renderer rebuild on the `v132-dashboard-v2` branch.
+
+### Notes
+- This entry marks the restart of the presentation layer without touching the analysis engines.
+
 ## v131 · Patch 0.64.1 / Analysis Calibration 2
 ### Changed
 - Re-aligned the analysis contract so the report continues to prioritize a single core theme across Executive Summary, Identity, Plan and strategic reading.
