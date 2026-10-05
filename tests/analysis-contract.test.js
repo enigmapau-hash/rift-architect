@@ -27,6 +27,27 @@ function normalize(text = '') {
     .toLowerCase();
 }
 
+function contractTranscript(contract) {
+  return normalize(JSON.stringify({
+    title: contract.title,
+    summaryText: contract.summaryText,
+    primaryIdentity: contract.primaryIdentity,
+    identityCopy: contract.identityCopy,
+    strengths: contract.strengths,
+    weaknesses: contract.weaknesses,
+    risks: contract.risks,
+    phases: contract.phases,
+    strategicTokens: contract.strategicTokens,
+    knowledgeTokens: contract.knowledgeTokens,
+    dependencyClaims: contract.dependencyClaims,
+    riskClaims: contract.riskClaims,
+    signalTokens: contract.signalTokens,
+    bans: contract.bans,
+    bestPick: contract.bestPick,
+    sections: contract.sections,
+  }));
+}
+
 test('analysis contract exposes the expected module field lists', () => {
   assert.deepEqual(Object.keys(ANALYSIS_CONTRACT_SPECS), [
     'compositionProfile',
@@ -80,23 +101,7 @@ test('reference-bank compositions keep the expected analysis signals visible', (
     const report = runAnalysis(entry.selectedChampions);
     const story = buildAnalysisStory(report);
     const contract = buildAnalysisReportContract(story);
-    const transcript = normalize(JSON.stringify({
-      title: contract.title,
-      summaryText: contract.summaryText,
-      primaryIdentity: contract.primaryIdentity,
-      identityCopy: contract.identityCopy,
-      strengths: contract.strengths,
-      weaknesses: contract.weaknesses,
-      risks: contract.risks,
-      phases: contract.phases,
-      strategicTokens: contract.strategicTokens,
-      knowledgeTokens: contract.knowledgeTokens,
-      dependencyClaims: contract.dependencyClaims,
-      riskClaims: contract.riskClaims,
-      signalTokens: contract.signalTokens,
-      bans: contract.bans,
-      bestPick: contract.bestPick,
-    }));
+    const transcript = contractTranscript(contract);
 
     for (const signal of entry.expectedSignals) {
       const needle = normalize(signal);
