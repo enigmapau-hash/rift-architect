@@ -15,7 +15,6 @@ const ROOT_ID = 'analysisHubExecutiveSummary';
 const COMPARISON_ROOT_ID = 'analysisHubComparison';
 const ROLE_ORDER = ['top', 'jungle', 'mid', 'botline', 'support'];
 const SLOT_SELECTOR = '#compositionGrid .slot.is-filled';
-const ANIMATION_MERGE_DELAY = 0;
 
 const state = {
   root: null,
@@ -87,7 +86,12 @@ function observeComposition(node) {
     if (!mutations.some((mutation) => mutationTouchesComposition(mutation))) return;
     scheduleRender();
   });
-  state.observer.observe(node, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-role', 'data-champion', 'data-name', 'data-identity', 'data-function', 'data-tempo', 'data-strengths', 'data-weaknesses'] });
+  state.observer.observe(node, {
+    subtree: true,
+    childList: true,
+    attributes: true,
+    attributeFilter: ['data-role', 'data-champion', 'data-name', 'data-identity', 'data-function', 'data-tempo', 'data-strengths', 'data-weaknesses'],
+  });
 }
 
 function mutationTouchesComposition(mutation) {
