@@ -205,7 +205,7 @@ function buildIdentityLine({ strategicProfile, identityRule, dependencyRule, sig
   }
 
   if (dependencyRule?.detail) {
-    return dependencyRule.detail;
+    return `${dependencyRule.detail} Piensa en ${primaryIdentity === 'Dive' ? 'Sejuani' : 'tu iniciador clave'} como pieza de entrada y follow-up.`;
   }
 
   if (identityRule?.label) {
@@ -276,7 +276,7 @@ function buildConflictLine({ strategicProfile, conflictRules }) {
   return 'No hay una tensión estratégica dominante visible.';
 }
 
-function buildTempoLine({ strategicProfile, tempo, confidence, winRule }) {
+function buildTempoLine({ strategicProfile, tempo, winRule, confidence }) {
   if (Array.isArray(strategicProfile?.timings) && strategicProfile.timings.length) {
     const timings = joinPhrase(strategicProfile.timings);
     return `Tu ventana útil está en ${timings}; si te sales de ese rango, el rival estabiliza el mapa.`;
@@ -348,76 +348,37 @@ function uniqueRuleList(rules = []) {
   });
 }
 
-function uniqueSentences(sentences = []) {
-  return [...new Set(sentences.map((sentence) => cleanText(sentence)).filter(Boolean))];
+function uniqueSentences(parts = []) {
+  return uniqueValues(parts.map((part) => cleanText(part))).filter(Boolean);
 }
 
-function buildLead(sentences = []) {
-  return uniqueSentences(sentences).filter(Boolean).slice(0, 3).join(' ');
+function joinPhrase(items = []) {
+  return uniqueValues(items.map((item) => cleanText(item))).join(' · ');
 }
 
-function buildContextualHeadline(primaryIdentity, focus) {
-  const identity = cleanText(primaryIdentity);
-  const strategicFocus = cleanText(focus);
-  const identityKey = normalizeText(identity);
-  const focusKey = normalizeText(strategicFocus);
-
-  if (!identity && !strategicFocus) return 'Lectura contextual';
-  if (!strategicFocus) return identity || 'Lectura contextual';
-
-  if (focusKey === identityKey) return identity || strategicFocus;
-
-  if (identityKey && focusKey.startsWith(`${identityKey} `)) {
-    return strategicFocus;
-  }
-
-  if (identityKey && strategicFocus.includes('·')) {
-    const parts = strategicFocus.split('·').map((part) => cleanText(part)).filter(Boolean);
-    if (parts.length === 2 && normalizeText(parts[0]) === identityKey && normalizeText(parts[1]) === identityKey) {
-      return identity;
-    }
-  }
-
-  return identity ? `${identity} · ${strategicFocus}` : strategicFocus;
+function buildContextualHeadline(primaryIdentity, label) {
+  return `${primaryIdentity || 'Composición'} · ${label}`;
 }
 
-function buildContextualTags({
-  primaryIdentity,
-  tempo,
-  strategicProfile,
-  winRule,
-  patternRule,
-  macroRule,
-  dependencyRule,
-  identityRule,
-  rules,
-  signalSet,
-}) {
-  const candidates = [
+function buildLead(parts = []) {
+  return uniqueSentences(parts)
+    .filter(Boolean)
+    .join(' ')
+    .trim();
+}
+
+function buildContextualTags({ primaryIdentity, tempo, strategicProfile, winRule, patternRule, macroRule, dependencyRule, identityRule, rules, signalSet }) {
+  return uniqueValues([
     primaryIdentity,
     tempo,
+    strategicProfile?.key,
     strategicProfile?.label,
-    strategicProfile?.kind,
-    ...(Array.isArray(strategicProfile?.timings) ? strategicProfile.timings : []),
-    ...(Array.isArray(strategicProfile?.needs) ? strategicProfile.needs : []),
-    ...(Array.isArray(strategicProfile?.macro) ? strategicProfile.macro : []),
     winRule?.label,
     patternRule?.label,
     macroRule?.label,
     dependencyRule?.label,
     identityRule?.label,
-    ...rules.map((rule) => rule.label),
-    ...signalSet.categories,
-  ];
-
-  return uniqueValues(candidates.flat ? candidates.flat() : candidates)
-    .filter((value) => {
-      const normalized = normalizeText(value);
-      return normalized && normalized !== 'sin definir' && normalized !== 'lectura contextual' && normalized !== 'narrativa adaptativa';
-    })
-    .slice(0, 10);
-}
-
-function joinPhrase(values = []) {
-  return uniqueValues(Array.isArray(values) ? values : [values]).join(' · ');
+    ...(Array.isArray(rules) ? rules.flatMap((rule) => [rule.label, rule.kind]) : []),
+    ...signalSet.signals,
+  ]).slice(0, 12);
 }
