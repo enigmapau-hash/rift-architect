@@ -96,36 +96,31 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
   const strategicFocus = cleanText(strategic?.focus || contextual.headline || identity.title || report.executiveSummary?.title || winLabel);
+  const coreTheme = pickCoreTheme(strategicFocus, primaryIdentity, contextual, strategic, knowledgeV3, winLabel);
   const targetRole = mode === 'last-pick' ? cleanText(report.targetRole || report.targetRoleLabel || '') : '';
   const targetRoleLabel = mode === 'last-pick' ? cleanText(report.targetRoleLabel || report.targetRole || '') : '';
 
   const summaryText = buildNarrativeSummary([
+    coreTheme,
     strategic?.summary,
-    knowledgeV3?.summary,
-    knowledgeV3?.lead,
-    strategic?.execution?.detail,
-    strategic?.contingency?.detail,
-    strategic?.adaptation?.detail,
-    strategic?.claims?.[0]?.detail,
-    contextual.lead,
-    contextual.summary,
     identity.summaryText,
+    contextual.lead,
+    knowledgeV3?.summary,
     report.summaryText,
     report.executiveSummary?.text,
-    'Resumen compacto basado en la composición propia.',
   ]);
-  const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
+  const title = buildStoryTitle(primaryIdentity, coreTheme, winLabel);
   const tempo = cleanText(identity.tempo || report.tempo || contextual.tempo || 'Tempo medio');
   const dominance = cleanText(identity.dominance || report.dominance || 'Sin definir');
 
   const secondaryIdentities = uniqueValues(identity.secondaryIdentities || report.secondaryIdentities || [])
     .filter((value) => value !== primaryIdentity)
-    .slice(0, 3);
+    .slice(0, 2);
 
   const strengths = buildRankedList(report.strengths || [], 'Apoya el plan', 'Suma valor cuando juegas alrededor de esta pieza.', 92);
   const weaknesses = buildRankedList(report.weaknesses || [], 'A vigilar', 'Si lo fuerzas, te expone antes de tiempo.', 72);
-  const synergies = uniqueValues(report.synergies || []).slice(0, 3);
-  const risks = uniqueValues([...(Array.isArray(report.risks) ? report.risks : []), ...(Array.isArray(report.threats) ? report.threats : [])]).slice(0, 3);
+  const synergies = uniqueValues(report.synergies || []).slice(0, 2);
+  const risks = uniqueValues([...(Array.isArray(report.risks) ? report.risks : []), ...(Array.isArray(report.threats) ? report.threats : [])]).slice(0, 2);
   const phases = normalizePhases(report.timeline || report.gameplan?.phases || []);
   const strategicClaims = Array.isArray(strategic?.claims) ? strategic.claims : [];
   const bans = normalizeBans(banRecommendations);
@@ -148,8 +143,10 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
       strategicClaims,
       bans,
       report,
+      coreTheme,
     }),
     primaryIdentity,
+    coreTheme,
     identityCopy: cleanText(identity.summaryText || contextual.lead || strategic?.summary || knowledgeV3?.summary || summaryText),
     secondaryIdentities,
     strengths,
@@ -170,18 +167,18 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
     bestPick: normalizeBestPick(report.bestPick),
     alternatives: normalizeAlternatives(report.alternatives),
     needs: uniqueValues(Array.isArray(report.profile?.needs) ? report.profile.needs : []).slice(0, 4),
-    identityTokens: uniqueValues([primaryIdentity, tempo, dominance, report.identity?.focus, ...(Array.isArray(report.secondaryIdentities) ? report.secondaryIdentities : [])]).slice(0, 4),
-    summaryTokens: uniqueValues([primaryIdentity, tempo, strategicFocus, winLabel, scoreBadge, ...(Array.isArray(report.tags) ? report.tags : [])]).slice(0, 5),
+    identityTokens: uniqueValues([primaryIdentity, tempo, dominance, coreTheme, ...(Array.isArray(report.secondaryIdentities) ? report.secondaryIdentities : [])]).slice(0, 4),
+    summaryTokens: uniqueValues([primaryIdentity, tempo, coreTheme, winLabel, scoreBadge, ...(Array.isArray(report.tags) ? report.tags : [])]).slice(0, 5),
     heroMetrics: mode === 'last-pick'
       ? [
           { label: 'Rol', value: cleanText(targetRoleLabel || targetRole || 'Por cerrar') },
-          { label: 'Objetivo', value: cleanText(report.focus || strategicFocus || 'Cierre') },
+          { label: 'Objetivo', value: cleanText(report.focus || coreTheme || 'Cierre') },
           { label: 'Score', value: `${String(confidence)}%` },
         ]
       : [
           { label: 'Identidad', value: primaryIdentity },
           { label: 'Tempo', value: tempo },
-          { label: 'Plan', value: strategicFocus },
+          { label: 'Plan', value: coreTheme },
         ],
     strategicTokens: uniqueValues([
       strategic?.focus,
@@ -231,6 +228,33 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
 
   contract.sections = buildContractSections(contract);
   return contract;
+}
+
+function pickCoreTheme(strategicFocus, primaryIdentity, contextual, strategic, knowledgeV3, winLabel) {
+  const candidates = [
+    strategicFocus,
+    primaryIdentity,
+    contextual?.headline,
+    contextual?.winCondition?.label,
+    strategic?.execution?.label,
+    strategic?.dominantWindow,
+    knowledgeV3?.primaryStyle?.label,
+    knowledgeV3?.macro?.label,
+    knowledgeV3?.victory?.label,
+    winLabel,
+  ];
+
+  const selected = [];
+  const seen = new Set();
+  for (const candidate of candidates) {
+    const text = cleanText(candidate);
+    const key = normalizeText(text);
+    if (!text || !key || seen.has(key)) continue;
+    seen.add(key);
+    selected.push(text);
+    if (selected.length >= 1) break;
+  }
+  return selected[0] || strategicFocus || primaryIdentity || winLabel || 'Lectura estratégica';
 }
 
 function buildContractSections(contract) {
@@ -304,8 +328,9 @@ function isNarrativeNoise(text) {
   ].includes(normalized);
 }
 
-function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategic, knowledgeV3, strategicClaims, bans, report }) {
+function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategic, knowledgeV3, strategicClaims, bans, report, coreTheme }) {
   const candidates = [
+    coreTheme,
     primaryIdentity,
     tempo,
     winLabel,
@@ -315,26 +340,54 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     contextual?.strategyProfile?.kind,
     strategic?.focus,
     strategic?.execution?.label,
-    strategic?.robustnessSummary?.label,
-    strategic?.flexibilitySummary?.label,
-    strategic?.contingency?.label,
-    strategic?.adaptation?.label,
+    strategic?.dominantWindow,
     strategic?.metrics?.dominantWindow,
     knowledgeV3?.primaryStyle?.label,
-    knowledgeV3?.matchup?.label,
     knowledgeV3?.macro?.label,
-    knowledgeV3?.vision?.label,
-    knowledgeV3?.tempo?.label,
-    knowledgeV3?.objectives?.label,
     knowledgeV3?.victory?.label,
-    knowledgeV3?.defeat?.label,
     banLabelList(bans),
     ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
     ...(Array.isArray(report.tags) ? report.tags : []),
     ...(Array.isArray(contextual?.tags) ? contextual.tags : []),
     ...(Array.isArray(knowledgeV3?.tags) ? knowledgeV3.tags : []),
   ];
-  return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 12);
+  return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 6);
+}
+
+function normalizePhases(phases = []) {
+  if (!Array.isArray(phases)) return [];
+  return phases
+    .map((phase) => {
+      if (!phase) return null;
+      if (typeof phase === 'string') return { label: phase, detail: '' };
+      return {
+        label: cleanText(phase.label || phase.name || phase.title || ''),
+        detail: cleanText(phase.detail || phase.description || phase.summary || ''),
+      };
+    })
+    .filter(Boolean);
+}
+
+function normalizeBans(bans = null) {
+  if (!bans) return [];
+  const list = Array.isArray(bans) ? bans : (Array.isArray(bans.bans) ? bans.bans : []);
+  return list
+    .map((entry) => {
+      if (!entry) return null;
+      if (typeof entry === 'string') return { champion: cleanText(entry), reason: '' };
+      return {
+        champion: cleanText(entry.champion || entry.name || ''),
+        reason: cleanText(entry.reason || entry.detail || ''),
+      };
+    })
+    .filter((entry) => entry && entry.champion);
+}
+
+function banLabelList(bans = []) {
+  return (Array.isArray(bans) ? bans : [])
+    .map((ban) => cleanText(ban?.champion || ban?.name || ban))
+    .filter(Boolean)
+    .join(', ');
 }
 
 function buildRankedList(items = [], badge = '', fallbackDetail = '', score = null) {
@@ -357,123 +410,49 @@ function buildRankedList(items = [], badge = '', fallbackDetail = '', score = nu
     .filter(Boolean);
 }
 
-function normalizePhases(items = []) {
-  if (!Array.isArray(items)) return [];
-  return items.map((item, index) => {
-    if (!item) return null;
-    if (typeof item === 'string') {
-      const text = cleanText(item);
-      return text ? { label: text, title: '', detail: '', actions: [] } : null;
-    }
-    return {
-      label: cleanText(item.label || item.phase || item.title || `Fase ${index + 1}`),
-      title: cleanText(item.title || item.name || ''),
-      detail: cleanText(item.detail || item.description || item.summary || ''),
-      actions: uniqueValues(Array.isArray(item.actions) ? item.actions : []),
-    };
-  }).filter(Boolean);
-}
-
-function normalizeBans(input = []) {
-  const list = Array.isArray(input) ? input : input?.bans || [];
-  return list.map((item, index) => {
-    if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { champion: cleanText(item), reason: '' } : null;
-    return { champion: cleanText(item.champion || item.name || `Ban ${index + 1}`), reason: cleanText(item.reason || item.detail || item.summary || '') };
-  }).filter(Boolean);
-}
-
-function normalizeClaims(items = []) {
-  if (!Array.isArray(items)) return [];
-  return items.map((item) => {
-    if (!item) return null;
-    if (typeof item === 'string') {
-      const text = cleanText(item);
-      return text ? { label: text, detail: text, kind: '', priority: '', evidence: [] } : null;
-    }
-    const label = cleanText(item.label || item.title || item.name || '');
-    const detail = cleanText(item.detail || item.summary || item.text || item.reason || '');
-    if (!label && !detail) return null;
-    return {
-      label: label || detail,
-      detail: detail || label,
-      kind: cleanText(item.kind || ''),
-      priority: cleanText(item.priority || ''),
-      evidence: uniqueValues(Array.isArray(item.evidence) ? item.evidence : []),
-    };
-  }).filter(Boolean);
-}
-
-function normalizeBestPick(item = null) {
-  if (!item || typeof item !== 'object') return {};
+function normalizeBestPick(bestPick = null) {
+  if (!bestPick) return { champion: '', reason: '', score: null, role: '', roleLabel: '', fit: '' };
+  if (typeof bestPick === 'string') return { champion: cleanText(bestPick), reason: '', score: null, role: '', roleLabel: '', fit: '' };
   return {
-    champion: cleanText(item.champion || item.name || ''),
-    name: cleanText(item.name || item.champion || ''),
-    role: cleanText(item.role || item.roleLabel || ''),
-    roleLabel: cleanText(item.roleLabel || item.role || ''),
-    reason: cleanText(item.reason || item.detail || item.summary || ''),
-    detail: cleanText(item.detail || item.reason || ''),
-    fit: cleanText(item.fit || item.tags?.[0] || ''),
-    score: Number.isFinite(Number(item.score)) ? Number(item.score) : null,
+    champion: cleanText(bestPick.champion || bestPick.name || ''),
+    name: cleanText(bestPick.name || bestPick.champion || ''),
+    reason: cleanText(bestPick.reason || bestPick.detail || ''),
+    score: Number.isFinite(Number(bestPick.score ?? bestPick.value)) ? Number(bestPick.score ?? bestPick.value) : null,
+    role: cleanText(bestPick.role || ''),
+    roleLabel: cleanText(bestPick.roleLabel || bestPick.role || ''),
+    fit: cleanText(bestPick.fit || ''),
   };
 }
 
-function normalizeAlternatives(items = []) {
-  if (!Array.isArray(items)) return [];
-  return items.map((item) => {
-    if (!item) return null;
-    if (typeof item === 'string') return cleanText(item) ? { label: cleanText(item), detail: '', score: null } : null;
-    return {
-      label: cleanText(item.label || item.name || item.champion || ''),
-      detail: cleanText(item.detail || item.reason || item.summary || ''),
-      score: Number.isFinite(Number(item.score)) ? Number(item.score) : null,
-    };
-  }).filter(Boolean);
+function normalizeAlternatives(alternatives = []) {
+  if (!Array.isArray(alternatives)) return [];
+  return alternatives
+    .map((alt, index) => {
+      if (!alt) return null;
+      if (typeof alt === 'string') return { champion: cleanText(alt), reason: '', score: null, role: '' };
+      return {
+        champion: cleanText(alt.champion || alt.name || `Alternativa ${index + 1}`),
+        reason: cleanText(alt.reason || alt.detail || ''),
+        score: Number.isFinite(Number(alt.score ?? alt.value)) ? Number(alt.score ?? alt.value) : null,
+        role: cleanText(alt.role || ''),
+      };
+    })
+    .filter(Boolean);
 }
 
-function clamp(value, min, max) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return min;
-  return Math.min(max, Math.max(min, number));
-}
-
-function pick(...values) {
-  for (const value of values) {
-    const text = stringify(value);
-    if (text) return text;
-  }
-  return '';
-}
-
-function stringify(value) {
-  if (value == null) return '';
-  if (Array.isArray(value)) return uniqueText(value).join(' · ');
-  if (typeof value === 'object') return pick(value.label, value.title, value.name, value.headline, value.summary, value.detail, value.text, value.value, value.focus, value.role, value.kind, value.badge);
-  const text = cleanText(value);
-  if (!text) return '';
-  const normalized = normalize(text);
-  if (!normalized || ['sindefinir', 'undefined', 'null', 'nan'].includes(normalized)) return '';
-  return text;
-}
-
-function uniqueText(values = []) {
-  const seen = new Set();
-  const result = [];
-  for (const value of Array.isArray(values) ? values : [values]) {
-    const text = stringify(value);
-    if (!text) continue;
-    const key = normalize(text);
-    if (!key || seen.has(key)) continue;
-    seen.add(key);
-    result.push(text);
-  }
-  return result;
-}
-
-function normalize(value) {
-  return String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '');
-}
-
-function banLabelList(bans = []) {
-  return uniqueValues((Array.isArray(bans) ? bans : []).map((ban) => ban?.champion || ban?.name || ban?.label || ''));
+function normalizeClaims(claims = []) {
+  if (!Array.isArray(claims)) return [];
+  return claims
+    .map((claim, index) => {
+      if (!claim) return null;
+      if (typeof claim === 'string') return { label: cleanText(claim), detail: '', kind: 'claim', priority: 'low', evidence: [] };
+      return {
+        label: cleanText(claim.label || claim.title || `Lectura ${index + 1}`),
+        detail: cleanText(claim.detail || claim.summary || claim.text || ''),
+        kind: cleanText(claim.kind || 'claim'),
+        priority: cleanText(claim.priority || 'low'),
+        evidence: uniqueValues(Array.isArray(claim.evidence) ? claim.evidence : []),
+      };
+    })
+    .filter((claim) => claim && claim.label);
 }
