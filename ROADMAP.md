@@ -2,104 +2,60 @@
 
 ## Hoja de ruta oficial
 
-### Hito 1: Base estable
-- Una sola ruta de render.
-- Consola limpia.
-- Sin paneles experimentales visibles.
-- Responsive estable.
-- **Cerrado**.
-
-### Hito 2: Pantalla principal terminada
-- Executive Summary.
-- Identidad.
-- Fortalezas.
-- Debilidades.
-- Plan de partida.
-- Sinergias y riesgos.
-- **Cerrado**.
-
-### Hito 3: Profundidad del razonamiento
-- Dependencias en cascada.
-- Riesgo de ejecución.
-- Robustez de la composición.
-- Flexibilidad del draft.
-- Condiciones de derrota.
-- Planes de contingencia.
-- Adaptación según rival.
+### Sprint 0: Base mínima v2
+- Crear una UI nueva y mínima, sin reutilizar el renderer antiguo.
+- Conservar el motor de análisis y el contrato como única fuente de datos.
+- Arrancar con una sola tarjeta: Executive Summary.
+- Verificar despliegue en Pages y consola limpia.
+- Actualizar documentación de seguimiento en cada entrega.
 - **En curso**.
 
-### Hito 4: Knowledge Layer v3
-- Identidades explícitas.
-- Matchups entre estilos.
-- Reglas macro.
-- Prioridades de objetivos.
-- Patrones de visión.
-- Ventanas de tempo.
-- Errores habituales.
-- Condiciones de victoria y derrota.
-- **En curso**.
+### Sprint 1: Executive Summary
+- Renderizar únicamente Executive Summary desde el contrato.
+- Validar estructura visual y legibilidad.
+- Corregir errores de consola hasta dejar la base estable.
+- **Pendiente**.
 
-### Hito 5: Presentación del análisis
-- Informe ejecutivo estructurado por tarjetas.
-- Contrato de datos estable entre motor y renderer.
-- Menos duplicidad de texto.
-- Mejor jerarquía visual.
-- Más legibilidad en desktop y móvil.
-- Modal de selección más homogéneo.
-- Último pulido visual.
-- Accesibilidad.
-- Dashboard compacto sin huecos muertos.
-- RC2: reconstrucción completa del renderer del informe.
-- **Cerrado**.
+### Sprint 2: Composition
+- Añadir la tarjeta de composición.
+- Mostrar identidad, tempo y plan base.
+- **Pendiente**.
 
-### Hito 6: QA de estabilidad
-- Probar decenas de composiciones.
-- Revisar consola.
-- Verificar refresh del Excel.
-- Validar todas las secciones del informe.
+### Sprint 3: Identity
+- Separar la lectura de identidad del resumen ejecutivo.
+- **Pendiente**.
+
+### Sprint 4: Strategic Engine
+- Migrar el razonamiento estratégico en una tarjeta propia.
+- **Pendiente**.
+
+### Sprint 5: Knowledge Layer
+- Integrar la lectura de conocimiento y contexto.
+- **Pendiente**.
+
+### Sprint 6: Strengths, Weaknesses y Timeline
+- Añadir lectura estructurada de fortalezas, debilidades y ritmo temporal.
+- **Pendiente**.
+
+### Sprint 7: Bans, Last Pick y Comparison
+- Integrar bloques de decisión final y comparación.
+- **Pendiente**.
+
+### Sprint 8: QA de estabilidad
+- Probar la app mínima en Pages.
+- Revisar consola y refresco de caché.
 - Eliminar código muerto.
-- Revisar documentación.
-- **En curso**.
+- **Pendiente**.
 
-### Hito 7: RC3 — Validación funcional
-- Banco de composiciones de referencia.
-- Cobertura de engage, poke, split push, front-to-back, protect the carry y pick.
-- Cobertura de early, late, snowball, escalado e híbridas.
-- Detección de composiciones con poca sinergia o riesgos claros.
-- Validación de que el informe refleja las señales correctas por arquetipo.
-- Comparación explícita entre señales esperadas y señales detectadas.
-- **En curso**.
-
-### Hito 8: RC4 — Calibración del motor
-- Unificar la historia entre Executive Summary, Identidad, Plan y Lectura estratégica.
-- Aumentar la profundidad de las inferencias.
-- Reducir redundancias entre tarjetas.
-- Calibrar pesos y prioridades.
-- Pulir el lenguaje para hacerlo más ejecutivo y accionable.
-- **En preparación**.
-
-### Hito 9: Beta 1.0
-- Experiencia estable.
-- Lectura clara en móvil, tablet y escritorio.
-- Sin regresiones conocidas.
-- Documentación cerrada.
-
-### Hito 10: Release Candidate
-- Congelar funciones.
-- Corregir bugs.
-- Pulir rendimiento y accesibilidad.
-
-### Hito 11: Versión 1.0
-- Revisión final.
-- Entrega estable del producto.
+### Sprint 9: Calibración del motor
+- Ajustar el relato del análisis sobre la nueva UI.
+- **Pendiente**.
 
 ## Estado actual
-- La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
-- No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
-- El trabajo real ahora está centrado en la calibración del relato, la QA, el contrato de datos y la limpieza de código.
-- La build visible actual es **v131** y el estado funcional quedó estabilizado tras resolver la regresión del contrato.
-- La Knowledge Layer no aparece como tarjeta propia; sus señales se integran en la tarjeta de **Lectura estratégica**.
-- El siguiente paso es seguir afinando la consistencia del análisis y cerrar la validación sobre el banco de composiciones de referencia.
+- La v131 queda congelada como referencia funcional.
+- La nueva línea de trabajo es una UI mínima v2 sobre `v132-dashboard-v2`.
+- El motor de análisis, el contrato y los datos se conservan.
+- El objetivo inmediato es dejar visible y estable la tarjeta de **Executive Summary**.
 
 ## Regla del proyecto
 
