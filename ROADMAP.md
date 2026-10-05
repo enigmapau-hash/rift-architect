@@ -70,28 +70,36 @@
 - Comparación explícita entre señales esperadas y señales detectadas.
 - **En curso**.
 
-### Hito 8: Beta 1.0
+### Hito 8: RC4 — Calibración del motor
+- Unificar la historia entre Executive Summary, Identidad, Plan y Lectura estratégica.
+- Aumentar la profundidad de las inferencias.
+- Reducir redundancias entre tarjetas.
+- Calibrar pesos y prioridades.
+- Pulir el lenguaje para hacerlo más ejecutivo y accionable.
+- **En preparación**.
+
+### Hito 9: Beta 1.0
 - Experiencia estable.
 - Lectura clara en móvil, tablet y escritorio.
 - Sin regresiones conocidas.
 - Documentación cerrada.
 
-### Hito 9: Release Candidate
+### Hito 10: Release Candidate
 - Congelar funciones.
 - Corregir bugs.
 - Pulir rendimiento y accesibilidad.
 
-### Hito 10: Versión 1.0
+### Hito 11: Versión 1.0
 - Revisión final.
 - Entrega estable del producto.
 
 ## Estado actual
 - La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
 - No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
-- El trabajo real ahora está centrado en la QA, el contrato de datos, el informe homogéneo y la limpieza de código.
-- La build visible actual es **v129** y el estado funcional quedó estabilizado tras cortar el render loop.
+- El trabajo real ahora está centrado en la calibración del relato, la QA, el contrato de datos y la limpieza de código.
+- La build visible actual es **v130** y el estado funcional quedó estabilizado tras cortar el render loop.
 - La Knowledge Layer no aparece como tarjeta propia; sus señales se integran en la tarjeta de **Lectura estratégica**.
-- El siguiente paso es ejecutar la validación sobre el banco de composiciones de referencia y registrar observaciones caso por caso.
+- El siguiente paso es seguir afinando la consistencia del análisis y cerrar la validación sobre el banco de composiciones de referencia.
 
 ## Regla del proyecto
 
