@@ -34,7 +34,8 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Comparador A/B para contrastar dos composiciones guardadas.
 - Contrato de datos del análisis para que el renderer solo consuma una capa estable.
 - RC2 estabilizada: el dashboard ya no entra en bucle de render y el observer solo reacciona a cambios reales de composición.
-- RC3 iniciada: banco de composiciones de referencia y validación funcional de señales del informe.
+- RC3 en validación funcional: banco de composiciones de referencia y comparación de señales esperadas y detectadas.
+- RC4 en calibración: el relato del análisis y el contrato se están afinando para reducir redundancias y unificar la historia.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 - Suite de tests automáticos para evitar regresiones.
 
