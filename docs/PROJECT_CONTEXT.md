@@ -42,7 +42,6 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - Mejorar la profundidad del razonamiento.
 - Ajustar la narrativa para que suene más a coach.
 - Ordenar mejor el informe ejecutivo para que se lea de un vistazo.
-- Cerrar la reconstrucción RC2 del dashboard.
 - Cerrar el último pulido visual.
 - Afinar foco, contraste y navegación por teclado.
 - Mantener la documentación sincronizada con la app real.
@@ -54,7 +53,8 @@ La app consume ese Excel en tiempo de ejecución y normaliza los datos en memori
 - El contrato de datos ya quedó fijado y el renderer consume solo esa capa normalizada.
 - La RC2 ya quedó estabilizada: el dashboard no entra en bucle de render y el observer solo reacciona a cambios reales de composición.
 - Knowledge Layer no va como tarjeta independiente: alimenta la tarjeta de lectura estratégica junto con dependencias, riesgos y señales.
-- El foco ahora está en el inventario motor→tarjeta, la estabilidad y el pulido, no en añadir nuevas funciones.
+- El inventario motor→tarjeta ya está cerrado y el siguiente trabajo es QA funcional real con composiciones de referencia.
+- El foco ahora está en la estabilidad y el pulido, no en añadir nuevas funciones.
 
 ## Filosofía de diseño
 - Primero analizar la propia composición.
