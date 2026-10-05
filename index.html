@@ -6,75 +6,18 @@
     <meta name='theme-color' content='#0f172a' />
     <title>Rift Architect</title>
     <link rel='icon' href='./assets/icon.svg' type='image/svg+xml' />
-    <link rel='stylesheet' href='./css/main.css' />
-    <link rel='stylesheet' href='./css/design-tokens.css' />
-    <link rel='stylesheet' href='./css/ui-polish.css' />
-    <link rel='stylesheet' href='./css/rc-polish.css' />
-    <link rel='stylesheet' href='./css/analysis-report.css' />
-    <link rel='stylesheet' href='./css/analysis-polish.css' />
-    <link rel='stylesheet' href='./css/analysis-report-polish.css' />
-    <link rel='stylesheet' href='./css/analysis-visual-finesse.css' />
-    <link rel='stylesheet' href='./css/analysis-a11y.css' />
-    <link rel='stylesheet' href='./css/analysis-dashboard.css' />
-    <link rel='stylesheet' href='./css/analysis-dashboard-rc2.css' />
+    <meta http-equiv='refresh' content='0; url=./app-v2/' />
+    <style>
+      body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #0b1020; color: #e5eefc; font-family: Inter, system-ui, sans-serif; }
+      main { text-align: center; padding: 2rem; }
+      a { color: #8ce8c1; }
+    </style>
   </head>
   <body>
-    <div id='app'>
-      <header class='app-header'>
-        <div class='app-brand'>
-          <h1 class='app-title'>Rift Architect</h1>
-        </div>
-        <div class='header-actions'>
-          <span id='buildBadge' class='status' style='font-size:0.72rem; opacity:0.82;'>Build…</span>
-          <button id='refreshBtn' class='ghost-btn' type='button' style='display:none;'>Actualizar</button>
-        </div>
-      </header>
-
-      <main class='layout'>
-        <section class='panel panel--main'>
-          <div class='panel-title-row'>
-            <h2>Tu composición</h2>
-            <div class='panel-actions' style='display:flex; gap:.5rem; flex-wrap:wrap; align-items:center;'>
-              <button id='saveCompareABtn' class='ghost-btn' type='button'>Guardar A</button>
-              <button id='saveCompareBBtn' class='ghost-btn' type='button'>Guardar B</button>
-              <button id='clearCompareBtn' class='ghost-btn' type='button'>Borrar comparación</button>
-              <button id='clearBtn' class='ghost-btn' type='button'>Limpiar</button>
-            </div>
-          </div>
-
-          <div id='compositionGrid' class='composition-grid'></div>
-
-          <div class='summary-card'>
-            <div id='storyView' class='composition-story-shell' aria-live='polite'></div>
-          </div>
-
-          <div class='summary-card'>
-            <div id='comparisonView' class='composition-story-shell' aria-live='polite'></div>
-          </div>
-        </section>
-      </main>
-    </div>
-
-    <div id='pickerBackdrop' class='picker-backdrop is-hidden' aria-hidden='true'>
-      <section class='picker-modal' role='dialog' aria-modal='true' aria-labelledby='pickerTitle'>
-        <div class='picker-header'>
-          <div>
-            <p id='pickerRoleLabel' class='eyebrow'></p>
-            <h2 id='pickerTitle'>Elegir campeón</h2>
-          </div>
-          <button id='closePickerBtn' class='ghost-btn' type='button'>Cerrar</button>
-        </div>
-
-        <label class='search'>
-          <span class='sr-only'>Buscar campeón</span>
-          <input id='searchInput' type='search' placeholder='Buscar campeón…' autocomplete='off' />
-        </label>
-
-        <div id='championList' class='champion-list'></div>
-        <p id='pickerHint' class='picker-hint'></p>
-      </section>
-    </div>
-
-    <script type='module' src='./js/site-bootstrap.js?v=121'></script>
+    <main>
+      <h1>Rift Architect</h1>
+      <p>Redirigiendo a la nueva interfaz mínima...</p>
+      <p><a href="./app-v2/">Abrir app-v2</a></p>
+    </main>
   </body>
 </html>

@@ -4,6 +4,17 @@ This document defines the data contract consumed by the executive dashboard rend
 
 The renderer should only read the normalized contract object produced from the analysis story. It must not pull data directly from lower-level engines.
 
+## Etapa 1.1 — Ownership map
+The normalized dashboard contract is split card by card so each section has a single owner:
+
+- `Composition Profile` → `buildCompositionProfile`
+- `Strategic Engine` → `buildStrategicReasoning`
+- `Knowledge Layer` → `buildKnowledgeV3Context`
+- `Ban Engine` → `buildBanRecommendations`
+- `Last Pick Engine` → `buildLastPickRecommendations`
+
+The renderer only consumes the normalized final contract and does not ask lower-level engines for extra data during render.
+
 ## Composition Profile
 Source: `buildCompositionProfile`
 
@@ -101,6 +112,21 @@ Available fields:
 - `bestPick`
 - `alternatives`
 - `tags`
+
+## Dashboard v2 card map
+The dashboard renderer should build these sections from the normalized contract only:
+
+- `summary` → Executive Summary
+- `composition` → Composition Profile
+- `identity` → Identity
+- `strategic` → Strategic Engine
+- `knowledge` → Knowledge Layer
+- `strengths` → Strengths
+- `weaknesses` → Weaknesses
+- `timeline` → Timeline / Strategic Reading
+- `bans` → Ban Engine
+- `lastPick` → Last Pick Engine
+- `comparison` → Comparison View
 
 ## Contract output consumed by the renderer
 The contract object also includes these normalized fields for the dashboard:
