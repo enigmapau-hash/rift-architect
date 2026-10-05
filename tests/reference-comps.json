@@ -1,0 +1,90 @@
+{
+  "version": "rc3-reference-bank-1",
+  "note": "Banco de composiciones de referencia para validación funcional del informe.",
+  "compositions": [
+    {
+      "id": "front_to_back_scaling",
+      "champions": ["Ornn", "Sejuani", "Orianna", "Jinx", "Braum"],
+      "expectedSignals": ["front-to-back", "escalado", "teamfight 5v5", "objetivos", "posicionamiento"],
+      "expectedWeaknesses": ["movilidad limitada", "depende de ejecución limpia"],
+      "expectedBans": ["engage explosivo", "diving fuerte"]
+    },
+    {
+      "id": "dive_skirmish",
+      "champions": ["Renekton", "Vi", "Sylas", "Kai'Sa", "Nautilus"],
+      "expectedSignals": ["dive", "skirmish", "tempo alto", "pick", "snowball"],
+      "expectedWeaknesses": ["escala peor si se frena", "requiere ventaja temprana"],
+      "expectedBans": ["counter-engage", "front-to-back sólido"]
+    },
+    {
+      "id": "poke_siege",
+      "champions": ["Gragas", "Viego", "Jayce", "Varus", "Zyra"],
+      "expectedSignals": ["poke", "siege", "zonas", "objetivos", "control de espacio"],
+      "expectedWeaknesses": ["si entra el rival sufre", "requiere precisión"],
+      "expectedBans": ["engage directo", "all-in rápido"]
+    },
+    {
+      "id": "split_push",
+      "champions": ["Fiora", "Nocturne", "Ahri", "Xayah", "Rakan"],
+      "expectedSignals": ["split push", "side lanes", "presión lateral", "pick", "rotaciones"],
+      "expectedWeaknesses": ["5v5 menos cómodo", "depende de lectura lateral"],
+      "expectedBans": ["hard engage", "waveclear fuerte"]
+    },
+    {
+      "id": "protect_the_carry",
+      "champions": ["Shen", "Poppy", "Lulu", "Jinx", "Braum"],
+      "expectedSignals": ["protect the carry", "front-to-back", "peel", "escalado", "teamfight"],
+      "expectedWeaknesses": ["si cae el carry se apaga", "poca presión inicial"],
+      "expectedBans": ["assassin dive", "engage profundo"]
+    },
+    {
+      "id": "pick_comp",
+      "champions": ["Sion", "Elise", "Twisted Fate", "Draven", "Pyke"],
+      "expectedSignals": ["pick", "catch", "rotación", "snowball", "ventajas puntuales"],
+      "expectedWeaknesses": ["peor en 5v5 largos", "necesita visión y ejecución"],
+      "expectedBans": ["cleanse/escape", "front-to-back estable"]
+    },
+    {
+      "id": "early_aggression",
+      "champions": ["Camille", "Lee Sin", "Lissandra", "Lucian", "Nami"],
+      "expectedSignals": ["early game", "tempo alto", "skirmish", "snowball", "presión temprana"],
+      "expectedWeaknesses": ["si no abre ventaja pierde valor", "escalado medio"],
+      "expectedBans": ["lane sustain fuerte", "counter-engage"]
+    },
+    {
+      "id": "late_game_scaling",
+      "champions": ["Malphite", "Maokai", "Azir", "Vayne", "Lulu"],
+      "expectedSignals": ["late game", "escalado", "front-to-back", "teamfight", "aguantar hasta picos"],
+      "expectedWeaknesses": ["primeros minutos frágiles", "necesita supervivencia"],
+      "expectedBans": ["dive fuerte", "snowball temprano"]
+    },
+    {
+      "id": "hybrid_1",
+      "champions": ["Aatrox", "Jarvan IV", "Taliyah", "Kai'Sa", "Renata Glasc"],
+      "expectedSignals": ["híbrida", "dive", "pick", "teamfight", "adaptación"],
+      "expectedWeaknesses": ["lectura más compleja", "depende de midgame"],
+      "expectedBans": ["counter-initiation", "front-to-back duro"]
+    },
+    {
+      "id": "low_synergy",
+      "champions": ["Garen", "Karthus", "Zed", "Tristana", "Soraka"],
+      "expectedSignals": ["baja sinergia", "plan fragmentado", "riesgo", "coherencia débil"],
+      "expectedWeaknesses": ["múltiples win conditions dispersas", "difícil de ejecutar"],
+      "expectedBans": ["mejora de cohesión rival", "engage coordinado"]
+    },
+    {
+      "id": "clear_risk",
+      "champions": ["Yorick", "Nunu", "Karma", "Jhin", "Milio"],
+      "expectedSignals": ["riesgo", "falta de front line", "dependencia de spacing", "proteger backline"],
+      "expectedWeaknesses": ["engage frágil", "poca amenaza de cierre"],
+      "expectedBans": ["hard dive", "all-in coordinado"]
+    },
+    {
+      "id": "heavy_engage",
+      "champions": ["K'Sante", "Rell", "Aurelion Sol", "Aphelios", "Tahm Kench"],
+      "expectedSignals": ["engage", "teamfight", "control de espacios", "front-to-back", "setup"],
+      "expectedWeaknesses": ["requiere ventana de entrada", "depende de engage limpio"],
+      "expectedBans": ["poke constante", "kite extremo"]
+    }
+  ]
+}
