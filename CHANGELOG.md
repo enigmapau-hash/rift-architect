@@ -1,5 +1,14 @@
 # Changelog
 
+## v131 · Patch 0.64.1 / Analysis Calibration 2
+### Changed
+- Re-aligned the analysis contract so the report continues to prioritize a single core theme across Executive Summary, Identity, Plan and strategic reading.
+- Kept the contract-level `clamp()` helper local to `report-contract.js` so the dashboard can build the analysis without a runtime `ReferenceError`.
+- Rotated the visible build to `v131` and the application cache to `rift-architect-v208`.
+
+### Notes
+- This patch keeps the current calibration on the analysis narrative while preserving the stable render path.
+
 ## v121 · Patch 0.62.31 / RC2 Stabilization 1
 ### Changed
 - Locked the analysis render loop so the dashboard only reacts to real composition slot mutations.
