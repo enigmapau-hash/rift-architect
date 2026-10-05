@@ -21,8 +21,8 @@ export function buildAnalysisStory(report = {}) {
 
   const title = buildStoryTitle(primaryIdentity, coreTheme, winLabel);
   const summaryText = buildNarrativeSummary([
+    coreTheme,
     strategic?.summary,
-    strategic?.focus,
     identity.summaryText,
     contextual.lead,
     knowledgeV3?.summary,
