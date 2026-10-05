@@ -41,17 +41,20 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo estructurado, el contrato de datos, la auditoría motor→tarjeta, el último pulido visual, la accesibilidad y la QA funcional automatizada. Cada motor debe reflejar su salida en una tarjeta clara y la lectura debe ser compacta y coherente.
 
 ## Siguiente bloque de trabajo
-El siguiente paso es una auditoría completa de estabilidad y limpieza:
+El siguiente paso es una validación funcional RC3 con un banco de composiciones de referencia:
 
-- Selección de campeón.
-- Cambio de campeón.
-- Limpieza de composición.
-- Persistencia al recargar.
-- Análisis con 5 campeones.
-- Re-cálculo al cambiar una pieza.
-- Consola limpia.
-- Responsive correcto.
-- Documentación sincronizada con el estado real.
+- probar composiciones de engage;
+- probar composiciones de poke;
+- probar split push;
+- probar front-to-back;
+- probar protect the carry;
+- probar pick comps;
+- probar early game y snowball;
+- probar late game y escalado;
+- probar híbridas;
+- probar composiciones de poca sinergia;
+- probar composiciones con riesgos claros;
+- comparar el resultado del informe con la expectativa temática de cada caso.
 
 ## Pendiente por hacer
 - Eliminar código viejo que ya no se use.
