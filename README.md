@@ -25,7 +25,7 @@ La app ya está estable en la ruta principal de render. El trabajo actual se cen
 2. mantener limpia la base de código;
 3. mantener la documentación sincronizada con la app real.
 
-La fase actual está centrada en el **informe ejecutivo estructurado**, el **contrato de datos**, la **validación funcional RC3 con composiciones de referencia**, la **QA automatizada**, el **último pulido visual** y la **accesibilidad**. La build publicada actual es **v125** y el estado funcional quedó estabilizado tras cortar el render loop.
+La fase actual está centrada en la calibración del análisis, el contrato de datos, la validación funcional con composiciones de referencia, la QA automatizada, el pulido visual y la accesibilidad. La build publicada actual es **v130** y el estado funcional quedó estabilizado tras cortar el render loop.
 
 ## Fuente de verdad
 
