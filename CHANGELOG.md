@@ -1,5 +1,14 @@
 # Changelog
 
+## v121 · Patch 0.62.31 / RC2 Stabilization 1
+### Changed
+- Locked the analysis render loop so the dashboard only reacts to real composition slot mutations.
+- Added snapshot-key reuse and last-render guards to avoid rebuilding the analysis story for identical drafts.
+- Rotated the visible build to `v121` and the application cache to `rift-architect-v199`.
+
+### Notes
+- This patch closes the flicker / repeated render issue in the RC2 dashboard.
+
 ## v120 · Patch 0.62.30 / RC2 Guard 1
 ### Changed
 - Filtered the composition observer so it only reacts to real draft-slot mutations instead of dashboard reflows.
