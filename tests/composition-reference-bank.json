@@ -1,0 +1,145 @@
+[
+  {
+    "name": "Front-to-back wombo",
+    "expectedSignals": ["front-to-back", "teamfight", "escalado", "control de objetivos", "posicionamiento"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Ornn" },
+      { "role": "jungle", "champion": "Sejuani" },
+      { "role": "mid", "champion": "Orianna" },
+      { "role": "botline", "champion": "Jinx" },
+      { "role": "support", "champion": "Braum" }
+    ]
+  },
+  {
+    "name": "Dive and collapse",
+    "expectedSignals": ["engage", "dive", "pick", "snowball", "tempo"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Renekton" },
+      { "role": "jungle", "champion": "Vi" },
+      { "role": "mid", "champion": "Lissandra" },
+      { "role": "botline", "champion": "Draven" },
+      { "role": "support", "champion": "Nautilus" }
+    ]
+  },
+  {
+    "name": "Poke siege",
+    "expectedSignals": ["poke", "siege", "control de zona", "objetivos a distancia", "rango"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Jayce" },
+      { "role": "jungle", "champion": "Nidalee" },
+      { "role": "mid", "champion": "Zoe" },
+      { "role": "botline", "champion": "Varus" },
+      { "role": "support", "champion": "Karma" }
+    ]
+  },
+  {
+    "name": "Split push pressure",
+    "expectedSignals": ["split push", "side lane", "presión lateral", "macro", "1-3-1"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Camille" },
+      { "role": "jungle", "champion": "Graves" },
+      { "role": "mid", "champion": "Twisted Fate" },
+      { "role": "botline", "champion": "Ezreal" },
+      { "role": "support", "champion": "Lulu" }
+    ]
+  },
+  {
+    "name": "Protect the carry",
+    "expectedSignals": ["protect the carry", "peel", "hypercarry", "frontline", "escala"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Sion" },
+      { "role": "jungle", "champion": "Poppy" },
+      { "role": "mid", "champion": "Anivia" },
+      { "role": "botline", "champion": "Aphelios" },
+      { "role": "support", "champion": "Milio" }
+    ]
+  },
+  {
+    "name": "Pick comp",
+    "expectedSignals": ["pick", "catch", "visión", "isolated target", "control de información"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Kennen" },
+      { "role": "jungle", "champion": "Jarvan IV" },
+      { "role": "mid", "champion": "Ahri" },
+      { "role": "botline", "champion": "KaiSa" },
+      { "role": "support", "champion": "Pyke" }
+    ]
+  },
+  {
+    "name": "Early snowball",
+    "expectedSignals": ["early game", "snowball", "tempo", "presión", "ventaja temprana"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Olaf" },
+      { "role": "jungle", "champion": "Lee Sin" },
+      { "role": "mid", "champion": "Sylas" },
+      { "role": "botline", "champion": "Samira" },
+      { "role": "support", "champion": "Rakan" }
+    ]
+  },
+  {
+    "name": "Late scaling",
+    "expectedSignals": ["late game", "escalado", "teamfight", "supervivencia", "objetos"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Gnar" },
+      { "role": "jungle", "champion": "Maokai" },
+      { "role": "mid", "champion": "Viktor" },
+      { "role": "botline", "champion": "KogMaw" },
+      { "role": "support", "champion": "Janna" }
+    ]
+  },
+  {
+    "name": "Hybrid skirmish",
+    "expectedSignals": ["híbrida", "skirmish", "flexibilidad", "objetivos", "pelea corta"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Aatrox" },
+      { "role": "jungle", "champion": "Xin Zhao" },
+      { "role": "mid", "champion": "Corki" },
+      { "role": "botline", "champion": "Xayah" },
+      { "role": "support", "champion": "Rell" }
+    ]
+  },
+  {
+    "name": "Low synergy risk",
+    "expectedSignals": ["poca sinergia", "riesgo", "plan incoherente", "dependencias", "fragilidad"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Yorick" },
+      { "role": "jungle", "champion": "Evelynn" },
+      { "role": "mid", "champion": "Katarina" },
+      { "role": "botline", "champion": "Caitlyn" },
+      { "role": "support", "champion": "Soraka" }
+    ]
+  },
+  {
+    "name": "Dive reset",
+    "expectedSignals": ["engage", "reset", "all-in", "follow-up", "pick"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Irelia" },
+      { "role": "jungle", "champion": "Nocturne" },
+      { "role": "mid", "champion": "Kassadin" },
+      { "role": "botline", "champion": "Lucian" },
+      { "role": "support", "champion": "Alistar" }
+    ]
+  },
+  {
+    "name": "Objective control",
+    "expectedSignals": ["control de objetivos", "visión", "tempo", "seguridad", "macro"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Shen" },
+      { "role": "jungle", "champion": "Trundle" },
+      { "role": "mid", "champion": "Taliyah" },
+      { "role": "botline", "champion": "Jhin" },
+      { "role": "support", "champion": "Bard" }
+    ]
+  },
+  {
+    "name": "Hard engage chain",
+    "expectedSignals": ["engage", "chain cc", "wombo", "frontline", "teamfight"],
+    "selectedChampions": [
+      { "role": "top", "champion": "Malphite" },
+      { "role": "jungle", "champion": "Amumu" },
+      { "role": "mid", "champion": "Neeko" },
+      { "role": "botline", "champion": "Sivir" },
+      { "role": "support", "champion": "Leona" }
+    ]
+  }
+]
