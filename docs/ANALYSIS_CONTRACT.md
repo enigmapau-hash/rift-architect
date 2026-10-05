@@ -102,6 +102,21 @@ Available fields:
 - `alternatives`
 - `tags`
 
+## Dashboard v2 card map
+The dashboard renderer should build these sections from the normalized contract only:
+
+- `summary` → Executive Summary
+- `composition` → Composition Profile
+- `identity` → Identity
+- `strategic` → Strategic Engine
+- `knowledge` → Knowledge Layer
+- `strengths` → Strengths
+- `weaknesses` → Weaknesses
+- `timeline` → Timeline / Strategic Reading
+- `bans` → Ban Engine
+- `lastPick` → Last Pick Engine
+- `comparison` → Comparison View
+
 ## Contract output consumed by the renderer
 The contract object also includes these normalized fields for the dashboard:
 
