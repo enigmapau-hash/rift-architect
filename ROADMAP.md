@@ -50,7 +50,7 @@
 - Accesibilidad.
 - Dashboard compacto sin huecos muertos.
 - RC2: reconstrucción completa del renderer del informe.
-- **En curso**.
+- **Cerrado**.
 
 ### Hito 6: QA de estabilidad
 - Probar decenas de composiciones.
@@ -61,18 +61,26 @@
 - Revisar documentación.
 - **En curso**.
 
-### Hito 7: Beta 1.0
+### Hito 7: RC3 — Validación funcional
+- Banco de composiciones de referencia.
+- Cobertura de engage, poke, split push, front-to-back, protect the carry y pick.
+- Cobertura de early, late, snowball, escalado e híbridas.
+- Detección de composiciones con poca sinergia o riesgos claros.
+- Validación de que el informe refleja las señales correctas por arquetipo.
+- **En curso**.
+
+### Hito 8: Beta 1.0
 - Experiencia estable.
 - Lectura clara en móvil, tablet y escritorio.
 - Sin regresiones conocidas.
 - Documentación cerrada.
 
-### Hito 8: Release Candidate
+### Hito 9: Release Candidate
 - Congelar funciones.
 - Corregir bugs.
 - Pulir rendimiento y accesibilidad.
 
-### Hito 9: Versión 1.0
+### Hito 10: Versión 1.0
 - Revisión final.
 - Entrega estable del producto.
 
@@ -82,7 +90,7 @@
 - El trabajo real ahora está centrado en la QA, el contrato de datos, el informe homogéneo y la limpieza de código.
 - La build visible actual es **v121** y el estado funcional quedó estabilizado tras cortar el render loop.
 - La Knowledge Layer no aparece como tarjeta propia; sus señales se integran en la tarjeta de **Lectura estratégica**.
-- El siguiente paso es inventariar motor→tarjeta y cerrar QA sobre composiciones reales.
+- El siguiente paso es validar el análisis con el banco de composiciones de referencia y cerrar QA sobre composiciones reales.
 
 ## Regla del proyecto
 
