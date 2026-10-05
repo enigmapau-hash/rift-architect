@@ -34,11 +34,12 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Comparador A/B para contrastar dos composiciones guardadas.
 - Contrato de datos del análisis para que el renderer solo consuma una capa estable.
 - RC2 estabilizada: el dashboard ya no entra en bucle de render y el observer solo reacciona a cambios reales de composición.
+- RC3 iniciada: banco de composiciones de referencia y validación funcional de señales del informe.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 - Suite de tests automáticos para evitar regresiones.
 
 ## En qué punto está ahora
-La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo estructurado, el contrato de datos, la auditoría motor→tarjeta, el último pulido visual, la accesibilidad y la QA funcional automatizada. Cada motor debe reflejar su salida en una tarjeta clara y la lectura debe ser compacta y coherente.
+La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar la validación funcional RC3 con un banco de composiciones de referencia, mantener el informe ejecutivo estructurado, seguir auditando el contrato de datos, y terminar el último pulido visual y la accesibilidad. Cada motor debe reflejar su salida en una tarjeta clara y la lectura debe ser compacta y coherente.
 
 ## Siguiente bloque de trabajo
 El siguiente paso es una validación funcional RC3 con un banco de composiciones de referencia:
