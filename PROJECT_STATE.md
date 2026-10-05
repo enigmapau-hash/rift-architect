@@ -33,6 +33,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Recomendación del último pick con la mejor opción y alternativas útiles.
 - Comparador A/B para contrastar dos composiciones guardadas.
 - Contrato de datos del análisis para que el renderer solo consuma una capa estable.
+- RC2 estabilizada: el dashboard ya no entra en bucle de render y el observer solo reacciona a cambios reales de composición.
 - Arranque guardado con bootloader único y overlay visible para errores reales de carga.
 - Suite de tests automáticos para evitar regresiones.
 
