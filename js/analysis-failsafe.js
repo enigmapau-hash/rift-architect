@@ -15,6 +15,7 @@ const ROOT_ID = 'analysisHubExecutiveSummary';
 const COMPARISON_ROOT_ID = 'analysisHubComparison';
 const ROLE_ORDER = ['top', 'jungle', 'mid', 'botline', 'support'];
 const SLOT_SELECTOR = '#compositionGrid .slot.is-filled';
+const ANIMATION_MERGE_DELAY = 0;
 
 const state = {
   root: null,
@@ -82,8 +83,32 @@ function mountComparisonRoot(comparisonView) {
 
 function observeComposition(node) {
   if (state.observer) state.observer.disconnect();
-  state.observer = new MutationObserver(() => scheduleRender());
-  state.observer.observe(node, { subtree: true, childList: true, attributes: true });
+  state.observer = new MutationObserver((mutations) => {
+    if (!mutations.some((mutation) => mutationTouchesComposition(mutation))) return;
+    scheduleRender();
+  });
+  state.observer.observe(node, { subtree: true, childList: true, attributes: true, attributeFilter: ['data-role', 'data-champion', 'data-name', 'data-identity', 'data-function', 'data-tempo', 'data-strengths', 'data-weaknesses'] });
+}
+
+function mutationTouchesComposition(mutation) {
+  if (mutation.type === 'childList') {
+    return Array.from(mutation.addedNodes).some((node) => isCompositionNode(node) || isSlotNode(node)) ||
+      Array.from(mutation.removedNodes).some((node) => isCompositionNode(node) || isSlotNode(node));
+  }
+
+  if (mutation.type === 'attributes') {
+    return isSlotNode(mutation.target);
+  }
+
+  return false;
+}
+
+function isCompositionNode(node) {
+  return Boolean(node && node.nodeType === Node.ELEMENT_NODE && (node.matches?.('#compositionGrid, #compositionGrid *') || node.closest?.('#compositionGrid')));
+}
+
+function isSlotNode(node) {
+  return Boolean(node && node.nodeType === Node.ELEMENT_NODE && node.matches?.('.slot, .slot.is-filled'));
 }
 
 function handleCompositionChanged(event) {
@@ -113,16 +138,13 @@ function renderStory() {
   }
 
   const snapshotKey = buildSnapshotKey(snapshot);
-  let report = state.snapshotKey === snapshotKey ? state.report : null;
-  let story = state.snapshotKey === snapshotKey ? state.story : null;
+  const shouldReuse = state.snapshotKey === snapshotKey && state.report && state.story;
+  const report = shouldReuse ? state.report : runAnalysis(snapshot);
+  const story = shouldReuse ? state.story : buildAnalysisStory(report);
 
-  if (!report || !story) {
-    report = runAnalysis(snapshot);
-    story = buildAnalysisStory(report);
-    state.snapshotKey = snapshotKey;
-    state.report = report;
-    state.story = story;
-  }
+  state.snapshotKey = snapshotKey;
+  state.report = report;
+  state.story = story;
 
   renderAnalysisStory(state.root, story);
   renderSecondaryPanel(snapshot, report, story);
