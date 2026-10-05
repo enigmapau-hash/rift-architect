@@ -17,35 +17,29 @@ export function buildAnalysisStory(report = {}) {
   const primaryIdentity = cleanText(identity.primaryIdentity || report.primaryIdentity || 'Sin definir');
   const winLabel = cleanText(report.winConditions?.[0]?.label || identity.winLabel || 'Jugar a tu plan');
   const strategicFocus = cleanText(strategic?.focus || contextual.headline || identity.title || report.executiveSummary?.title || winLabel);
+  const coreTheme = buildCoreTheme({ primaryIdentity, strategicFocus, winLabel, strategic, contextual, knowledgeV3 });
 
-  const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
+  const title = buildStoryTitle(primaryIdentity, coreTheme, winLabel);
   const summaryText = buildNarrativeSummary([
     strategic?.summary,
     strategic?.focus,
-    knowledgeV3?.summary,
-    knowledgeV3?.lead,
-    strategic?.execution?.detail,
-    strategic?.contingency?.detail,
-    strategic?.adaptation?.detail,
-    strategic?.claims?.[0]?.detail,
-    contextual.lead,
-    contextual.summary,
     identity.summaryText,
+    contextual.lead,
+    knowledgeV3?.summary,
     report.summaryText,
     report.executiveSummary?.text,
-    'Resumen compacto basado en la composición propia.',
   ]);
   const tempo = cleanText(identity.tempo || report.tempo || contextual.tempo || 'Tempo medio');
   const dominance = cleanText(identity.dominance || report.dominance || 'Sin definir');
 
   const secondaryIdentities = uniqueValues(identity.secondaryIdentities || report.secondaryIdentities || [])
     .filter((value) => value !== primaryIdentity)
-    .slice(0, 3);
+    .slice(0, 2);
 
   const strengths = buildRankedList(report.strengths || [], 'Apoya el plan', 'Suma valor cuando juegas alrededor de esta pieza.', 92);
   const weaknesses = buildRankedList(report.weaknesses || [], 'A vigilar', 'Si lo fuerzas, te expone antes de tiempo.', 72);
-  const synergies = uniqueValues(report.synergies || []).slice(0, 3);
-  const risks = uniqueValues([...(Array.isArray(report.risks) ? report.risks : []), ...(Array.isArray(report.threats) ? report.threats : [])]).slice(0, 3);
+  const synergies = uniqueValues(report.synergies || []).slice(0, 2);
+  const risks = uniqueValues([...(Array.isArray(report.risks) ? report.risks : []), ...(Array.isArray(report.threats) ? report.threats : [])]).slice(0, 2);
   const phases = normalizePhases(report.timeline || report.gameplan?.phases || []);
   const strategicClaims = Array.isArray(strategic?.claims) ? strategic.claims : [];
   const bans = normalizeBans(banRecommendations);
@@ -69,6 +63,7 @@ export function buildAnalysisStory(report = {}) {
       report,
     }),
     primaryIdentity,
+    coreTheme,
     identityCopy: cleanText(identity.summaryText || contextual.lead || strategic?.summary || knowledgeV3?.summary || summaryText),
     secondaryIdentities,
     strengths,
@@ -85,6 +80,33 @@ export function buildAnalysisStory(report = {}) {
     banFocus: cleanText(banRecommendations?.focus || strategic?.focus || ''),
     banSummary: cleanText(banRecommendations?.summary || ''),
   };
+}
+
+function buildCoreTheme({ primaryIdentity, strategicFocus, winLabel, strategic, contextual, knowledgeV3 }) {
+  const candidates = [
+    strategicFocus,
+    primaryIdentity,
+    contextual?.headline,
+    contextual?.winCondition?.label,
+    strategic?.execution?.label,
+    strategic?.dominantWindow,
+    knowledgeV3?.primaryStyle?.label,
+    knowledgeV3?.macro?.label,
+    knowledgeV3?.victory?.label,
+    winLabel,
+  ];
+
+  const selected = [];
+  const seen = new Set();
+  for (const candidate of candidates) {
+    const text = cleanText(candidate);
+    const key = normalizeText(text);
+    if (!text || !key || seen.has(key)) continue;
+    seen.add(key);
+    selected.push(text);
+    if (selected.length >= 1) break;
+  }
+  return selected[0] || strategicFocus || primaryIdentity || winLabel || 'Lectura estratégica';
 }
 
 function buildStoryTitle(primaryIdentity, focus, winLabel) {
@@ -149,19 +171,11 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     contextual?.strategyProfile?.kind,
     strategic?.focus,
     strategic?.execution?.label,
-    strategic?.robustnessSummary?.label,
-    strategic?.flexibilitySummary?.label,
-    strategic?.contingency?.label,
-    strategic?.adaptation?.label,
+    strategic?.dominantWindow,
     strategic?.metrics?.dominantWindow,
     knowledgeV3?.primaryStyle?.label,
-    knowledgeV3?.matchup?.label,
     knowledgeV3?.macro?.label,
-    knowledgeV3?.vision?.label,
-    knowledgeV3?.tempo?.label,
-    knowledgeV3?.objectives?.label,
     knowledgeV3?.victory?.label,
-    knowledgeV3?.defeat?.label,
     banLabelList(bans),
     ...(Array.isArray(strategicClaims) ? strategicClaims.map((claim) => claim.label) : []),
     ...(Array.isArray(report.tags) ? report.tags : []),
@@ -169,7 +183,7 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     ...(Array.isArray(knowledgeV3?.tags) ? knowledgeV3.tags : []),
   ];
 
-  return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 9);
+  return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 7);
 }
 
 function normalizePhases(phases = []) {
