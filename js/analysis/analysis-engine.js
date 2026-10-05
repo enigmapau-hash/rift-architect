@@ -5,7 +5,7 @@ import { buildStrategicReasoning } from './strategic-engine.js?v=115';
 import { buildBanRecommendations } from './ban-engine.js';
 import { buildIdentityReport } from './identity-engine.js';
 import { buildStrengthsReport } from './strengths-engine.js';
-import { buildWeaknessReport } from './weakness-engine.js';
+import { buildWeakReport } from './weakness-engine.js';
 import { buildGamePlanReport } from './gameplan-engine.js';
 import { buildTimelineReport } from './timeline-engine.js';
 import { buildScoreReport } from './score-engine.js';
@@ -24,7 +24,7 @@ export function runAnalysis(selectedChampions = []) {
 
   const identity = buildIdentityReport(baseAnalysis, composition);
   const strengthsReport = buildStrengthsReport(baseAnalysis, composition);
-  const weaknessReport = buildWeaknessReport(baseAnalysis, composition);
+  const weaknessReport = buildWeakReport(baseAnalysis, composition);
   const gameplan = buildGamePlanReport(baseAnalysis, composition);
   const timeline = buildTimelineReport(gameplan, baseAnalysis, composition);
   const score = buildScoreReport(baseAnalysis, composition);
@@ -74,6 +74,9 @@ export function runAnalysis(selectedChampions = []) {
     strengths: strengthsReport.items,
     weaknesses: weaknessReport.items,
     gameplan,
+    winConditions: Array.isArray(baseAnalysis.winConditions)
+      ? baseAnalysis.winConditions
+      : gameplan.phases.map((phase) => phase.title).filter(Boolean),
     timeline,
     score,
     strategic,
