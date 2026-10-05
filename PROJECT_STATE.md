@@ -38,7 +38,7 @@ El objetivo es convertir la composición seleccionada en un briefing claro y acc
 - Suite de tests automáticos para evitar regresiones.
 
 ## En qué punto está ahora
-La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo estructurado, el contrato de datos, la estabilización RC2 del dashboard por módulos, el último pulido visual, la accesibilidad y la QA funcional automatizada. Cada motor debe reflejar su salida en una tarjeta clara y la lectura debe ser compacta y coherente.
+La app ya funciona de forma estable al seleccionar 5 campeones. El foco actual es cerrar el informe ejecutivo estructurado, el contrato de datos, la auditoría motor→tarjeta, el último pulido visual, la accesibilidad y la QA funcional automatizada. Cada motor debe reflejar su salida en una tarjeta clara y la lectura debe ser compacta y coherente.
 
 ## Siguiente bloque de trabajo
 El siguiente paso es una auditoría completa de estabilidad y limpieza:
