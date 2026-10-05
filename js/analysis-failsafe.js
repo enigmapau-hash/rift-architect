@@ -8,7 +8,7 @@ import {
   renderAnalysisStory,
   renderLastPickEmptyState,
   renderLastPickState,
-} from './analysis/renderer-report.js?v=118';
+} from './analysis/renderer-report.js?v=120';
 import { compareCompositions } from './engine/comparisonEngine.js?v=115';
 
 const ROOT_ID = 'analysisHubExecutiveSummary';
@@ -26,6 +26,7 @@ const state = {
   snapshotKey: '',
   report: null,
   story: null,
+  lastRenderedKey: '',
 };
 
 globalThis.renderAnalysisStory = renderStory;
@@ -96,8 +97,8 @@ function observeComposition(node) {
 
 function mutationTouchesComposition(mutation) {
   if (mutation.type === 'childList') {
-    return Array.from(mutation.addedNodes).some((node) => isCompositionNode(node) || isSlotNode(node)) ||
-      Array.from(mutation.removedNodes).some((node) => isCompositionNode(node) || isSlotNode(node));
+    return Array.from(mutation.addedNodes).some((node) => isSlotNode(node)) ||
+      Array.from(mutation.removedNodes).some((node) => isSlotNode(node));
   }
 
   if (mutation.type === 'attributes') {
@@ -105,10 +106,6 @@ function mutationTouchesComposition(mutation) {
   }
 
   return false;
-}
-
-function isCompositionNode(node) {
-  return Boolean(node && node.nodeType === Node.ELEMENT_NODE && (node.matches?.('#compositionGrid, #compositionGrid *') || node.closest?.('#compositionGrid')));
 }
 
 function isSlotNode(node) {
@@ -134,6 +131,7 @@ function renderStory() {
   const snapshot = captureCompositionSnapshot();
   if (!snapshot.length) {
     state.snapshotKey = '';
+    state.lastRenderedKey = '';
     state.report = null;
     state.story = null;
     renderAnalysisEmptyState(state.root);
@@ -150,6 +148,12 @@ function renderStory() {
   state.report = report;
   state.story = story;
 
+  if (state.lastRenderedKey === snapshotKey) {
+    renderSecondaryPanel(snapshot, report, story);
+    return;
+  }
+
+  state.lastRenderedKey = snapshotKey;
   renderAnalysisStory(state.root, story);
   renderSecondaryPanel(snapshot, report, story);
 }
