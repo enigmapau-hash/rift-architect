@@ -77,3 +77,6 @@ Si esta conversación se corta, seguir desde aquí:
 - El siguiente desarrollo debe respetar el estado actual y pasar por auditoría.
 - Mantener la filosofía de analizar solo la composición propia.
 - Antes de cerrar cualquier sprint, revisar consola, README, ROADMAP y documentación base.
+
+## Dirección actual de desarrollo
+La siguiente iteración importante no es seguir puliendo la rama heredada del dashboard anterior, sino preparar una base nueva y mínima para la reconstrucción de la interfaz. El objetivo es separar con claridad el motor existente de una UI nueva, pequeña y verificable, empezando por una única tarjeta de resumen ejecutivo.
