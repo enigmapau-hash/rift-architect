@@ -1,7 +1,109 @@
+import { createCard } from './card-factory.js';
+import { createSection } from './section-factory.js';
+
 export function renderDashboardV2(contract = {}, mount = null) {
   if (!mount) return;
+
+  const sections = buildSections(contract);
   mount.innerHTML = '';
-  mount.appendChild(createEmptyState('Dashboard v2 listo para conectar al contrato.'));
+
+  if (!sections.length) {
+    mount.appendChild(createEmptyState('Dashboard v2 listo para conectar al contrato.'));
+    return;
+  }
+
+  const shell = document.createElement('div');
+  shell.className = 'dashboard-v2';
+  sections.forEach((section) => shell.appendChild(section));
+  mount.appendChild(shell);
+}
+
+function buildSections(contract) {
+  const sections = [];
+
+  sections.push(
+    createSection({
+      title: 'Executive Summary',
+      cards: [
+        createCard({
+          title: contract.title || 'Sin título',
+          subtitle: contract.scoreBadge || 'Resumen',
+          body: createSummaryBody(contract),
+          footer: createTokenFooter(contract.summaryTokens),
+        }),
+      ],
+    })
+  );
+
+  sections.push(
+    createSection({
+      title: 'Composition',
+      cards: [
+        createCard({
+          title: contract.primaryIdentity || 'Identidad no definida',
+          subtitle: contract.tempo || 'Tempo pendiente',
+          body: createListBody([
+            ['Plan', contract.coreTheme],
+            ['Dominancia', contract.dominance],
+            ['Win label', contract.winLabel],
+          ]),
+          footer: createTokenFooter(contract.identityTokens),
+        }),
+      ],
+    })
+  );
+
+  sections.push(
+    createSection({
+      title: 'Strategic Engine',
+      cards: [
+        createCard({
+          title: contract.strategic?.focus || contract.coreTheme || 'Lectura estratégica',
+          subtitle: contract.strategic?.headline || 'Razonamiento',
+          body: createListBody([
+            ['Resumen', contract.strategic?.summary],
+            ['Ventana dominante', contract.strategic?.dominantWindow],
+            ['Ejecución', contract.strategic?.execution?.label],
+            ['Contingencia', contract.strategic?.contingency?.label],
+            ['Adaptación', contract.strategic?.adaptation?.label],
+          ]),
+          footer: createTokenFooter(contract.strategicTokens),
+        }),
+      ],
+    })
+  );
+
+  return sections;
+}
+
+function createSummaryBody(contract) {
+  return `
+    <p class="dashboard-card__paragraph">${escapeHtml(contract.summaryText || 'Sin resumen disponible.')}</p>
+    <dl class="dashboard-card__metrics">
+      ${metricRow('Score', contract.confidence != null ? `${contract.confidence}%` : '—')}
+      ${metricRow('Grado', contract.grade || '—')}
+      ${metricRow('Rol', contract.targetRoleLabel || contract.targetRole || '—')}
+    </dl>
+  `;
+}
+
+function createListBody(rows = []) {
+  const items = rows
+    .filter(([, value]) => Boolean(value))
+    .map(([label, value]) => `<li><strong>${escapeHtml(label)}:</strong> ${escapeHtml(value)}</li>`)
+    .join('');
+
+  return `<ul class="dashboard-card__list">${items || '<li>Sin datos.</li>'}</ul>`;
+}
+
+function createTokenFooter(tokens = []) {
+  const values = Array.isArray(tokens) ? tokens.filter(Boolean).slice(0, 6) : [];
+  if (!values.length) return '';
+  return `<div class="dashboard-card__tokens">${values.map((token) => `<span class="dashboard-token">${escapeHtml(token)}</span>`).join('')}</div>`;
+}
+
+function metricRow(label, value) {
+  return `<div class="dashboard-card__metric"><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`;
 }
 
 function createEmptyState(message) {
