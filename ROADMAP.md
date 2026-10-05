@@ -88,7 +88,7 @@
 - La app ya funciona con la cadena actualizada y con el flujo real de datos: `Draft Pool.xlsx` alimenta al motor de análisis e IA.
 - No hay una capa JSON intermedia que sincronizar; los datos se leen del Excel y se normalizan en memoria.
 - El trabajo real ahora está centrado en la QA, el contrato de datos, el informe homogéneo y la limpieza de código.
-- La build visible actual es **v121** y el estado funcional quedó estabilizado tras cortar el render loop.
+- La build visible actual es **v122** y el estado funcional quedó estabilizado tras cortar el render loop.
 - La Knowledge Layer no aparece como tarjeta propia; sus señales se integran en la tarjeta de **Lectura estratégica**.
 - El siguiente paso es validar el análisis con el banco de composiciones de referencia y cerrar QA sobre composiciones reales.
 
