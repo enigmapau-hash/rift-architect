@@ -230,6 +230,12 @@ export function buildAnalysisReportContract(report = {}, mode = 'analysis') {
   return contract;
 }
 
+function clamp(value, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return min;
+  return Math.max(min, Math.min(max, number));
+}
+
 function pickCoreTheme(strategicFocus, primaryIdentity, contextual, strategic, knowledgeV3, winLabel) {
   const candidates = [
     strategicFocus,
