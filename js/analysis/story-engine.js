@@ -21,6 +21,7 @@ export function buildAnalysisStory(report = {}) {
   const title = buildStoryTitle(primaryIdentity, strategicFocus, winLabel);
   const summaryText = buildNarrativeSummary([
     strategic?.summary,
+    strategic?.focus,
     knowledgeV3?.summary,
     knowledgeV3?.lead,
     strategic?.execution?.detail,
@@ -119,10 +120,10 @@ function buildNarrativeSummary(parts = []) {
     if (!normalized || seen.has(normalized)) continue;
     seen.add(normalized);
     selected.push(text);
-    if (selected.length >= 2) break;
+    if (selected.length >= 1) break;
   }
 
-  return selected.length ? selected.join(' ') : 'Resumen compacto basado en la composición propia.';
+  return selected.length ? selected[0] : 'Resumen compacto basado en la composición propia.';
 }
 
 function isNarrativeNoise(text) {
@@ -168,7 +169,7 @@ function buildStoryTags({ primaryIdentity, tempo, winLabel, contextual, strategi
     ...(Array.isArray(knowledgeV3?.tags) ? knowledgeV3.tags : []),
   ];
 
-  return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 12);
+  return uniqueValues(candidates.map((value) => cleanText(value)).filter(Boolean)).slice(0, 9);
 }
 
 function normalizePhases(phases = []) {
